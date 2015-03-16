@@ -163,9 +163,9 @@ class TestCase(unittest.TestCase):
         db.session.delete(p)
         db.session.commit()
 
-    def test_translation(self):
-        assert microsoft_translate(u'English', 'en', 'es') == u'Inglés'
-        assert microsoft_translate(u'Español', 'es', 'en') == u'Spanish'
+    #def test_translation(self):
+        #assert microsoft_translate(u'English', 'en', 'es') == u'Inglés'
+        #assert microsoft_translate(u'Español', 'es', 'en') == u'Spanish'
 
 
 if __name__ == '__main__':
