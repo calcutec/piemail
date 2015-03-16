@@ -1,1 +1,1 @@
-killall /home/apps/microblog/flask/bin/python
+killall /home/apps/burtonblog/flask/bin/python
