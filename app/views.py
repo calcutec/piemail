@@ -74,11 +74,34 @@ def index(page=1):
         db.session.commit()
         flash(gettext('Your post is now live!'))
         return redirect(url_for('index'))
-    posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
+    all_posts = g.user.all_posts().paginate(page, POSTS_PER_PAGE, False)
     return render_template('index.html',
                            title='Home',
                            form=form,
-                           posts=posts)
+                           posts=all_posts)
+
+                           
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/favorites', methods=['GET', 'POST'])
+@app.route('/favorites/<int:page>', methods=['GET', 'POST'])
+@login_required
+def favorites(page=1):
+    form = PostForm()
+    if form.validate_on_submit():
+        language = guessLanguage(form.post.data)
+        if language == 'UNKNOWN' or len(language) > 5:
+            language = ''
+        post = Post(body=form.post.data, timestamp=datetime.utcnow(),
+                    author=g.user, language=language)
+        db.session.add(post)
+        db.session.commit()
+        flash(gettext('Your post is now live!'))
+        return redirect(url_for('favorites'))
+    favorite_posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
+    return render_template('favorites.html',
+                           title='Favorites',
+                           form=form,
+                           posts=favorite_posts)
 
 
 @app.route('/login', methods=['GET', 'POST'])
