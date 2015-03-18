@@ -27,8 +27,15 @@ babel = Babel(app)
 #Config for Flask-Images
 app.secret_key = SECRET_KEY
 images = Images(app)
-app.config['IMAGES_PATH'] = ['static/user_imgs']
+if os.environ.get('HEROKU') is not None:
+    app.config['IMAGES_PATH'] = ['static/heroku_user_imgs']
+    
+else:
+    app.config['IMAGES_PATH'] = ['static/user_imgs']
+
 app.config['IMAGES_CACHE'] = CACHE_FOLDER
+
+
 
 class CustomJSONEncoder(JSONEncoder):
     """This class adds support for lazy translation texts to Flask's

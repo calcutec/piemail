@@ -28,8 +28,14 @@ WHOOSH_ENABLED = os.environ.get('HEROKU') is None
 DATABASE_QUERY_TIMEOUT = 0.5
 
 # image upload folder and allowed extensions
-UPLOAD_FOLDER = os.path.join(basedir, 'app/static/user_imgs')
-CACHE_FOLDER = os.path.join(basedir, 'app/static/img_cache')
+if os.environ.get('HEROKU') is None:
+	UPLOAD_FOLDER = os.path.join(basedir, 'app/static/user_imgs')
+	CACHE_FOLDER = os.path.join(basedir, 'app/static/img_cache')
+else:
+	UPLOAD_FOLDER = os.path.join(basedir, 'app/static/heroku_user_imgs')
+	CACHE_FOLDER = os.path.join(basedir, 'app/static/heroku_img_cache')
+	
+
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 
