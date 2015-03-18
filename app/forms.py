@@ -1,12 +1,9 @@
 from flask.ext.wtf import Form
-from flask.ext.uploads import UploadSet, IMAGES
 from flask.ext.babel import gettext
 from wtforms import StringField, BooleanField, TextAreaField, SubmitField
 from flask.ext.wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.validators import DataRequired, Length, ValidationError
 from .models import User
-
-from flask.ext.uploads import UploadSet, IMAGES
 
 
 class LoginForm(Form):
