@@ -1,6 +1,10 @@
 Babel==1.3
+blinker==1.3
+coverage==4.0a5
+decorator==3.4.0
 Flask==0.10.1
 Flask-Babel==0.9
+Flask-Images==2.1.2
 Flask-Login==0.2.11
 Flask-Mail==0.9.0
 Flask-OpenID==1.2.1
