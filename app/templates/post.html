@@ -6,6 +6,9 @@
             <p>{{ _('%(nickname)s said %(when)s:', nickname='<a href="%s">%s</a>' % (url_for('user', nickname=post.author.nickname), post.author.nickname), when=momentjs(post.timestamp).fromNow()) }}</p>
             {% endautoescape %}
             <p><strong><span id="post{{ post.id }}">{{ post.body }}</span></strong></p>
+            {% if post.photo != None and post.photo != '' %}
+    			<img src="{{resized_img_src(post.photo, height=200, quality=95)}}" />
+            {% endif %}
 			<!--
             {% if post.language != None and post.language != '' and post.language != g.locale %}
             <div>

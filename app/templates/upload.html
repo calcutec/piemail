@@ -1,0 +1,14 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ _('Hi, %(nickname)s!', nickname=g.user.nickname) }}</h1>
+    <div class="well">
+	   <form action="" method="POST" enctype="multipart/form-data">
+		 {{ form.photo.label }}
+		 {{ form.photo }}
+		 {{ form.submit }}
+         {{ form.hidden_tag() }}
+	   </form>
+    </div>
+{% endblock %}

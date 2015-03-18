@@ -1,8 +1,12 @@
 from flask.ext.wtf import Form
+from flask.ext.uploads import UploadSet, IMAGES
 from flask.ext.babel import gettext
-from wtforms import StringField, BooleanField, TextAreaField
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, BooleanField, TextAreaField, SubmitField
+from flask.ext.wtf.file import FileField, FileRequired, FileAllowed
+from wtforms.validators import DataRequired, Length, ValidationError
 from .models import User
+
+from flask.ext.uploads import UploadSet, IMAGES
 
 
 class LoginForm(Form):
@@ -39,7 +43,9 @@ class EditForm(Form):
 
 class PostForm(Form):
     post = StringField('post', validators=[DataRequired()])
-
+    photo = FileField('Your photo', validators=[FileAllowed(['jpg','png'], 'Images only!')])
+    submit = SubmitField("Send")
+    
 
 class SearchForm(Form):
     search = StringField('search', validators=[DataRequired()])

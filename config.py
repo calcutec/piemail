@@ -27,6 +27,12 @@ WHOOSH_ENABLED = os.environ.get('HEROKU') is None
 # slow database query threshold (in seconds)
 DATABASE_QUERY_TIMEOUT = 0.5
 
+# image upload folder and allowed extensions
+UPLOAD_FOLDER = os.path.join(basedir, 'app/static/user_imgs')
+CACHE_FOLDER = os.path.join(basedir, 'app/static/img_cache')
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+
 # email server
 MAIL_SERVER = ''  # your mailserver
 MAIL_PORT = 25
