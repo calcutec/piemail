@@ -14,6 +14,7 @@ class LoginForm(Form):
 class EditForm(Form):
     nickname = StringField('nickname', validators=[DataRequired()])
     about_me = TextAreaField('about_me', validators=[Length(min=0, max=140)])
+    profile_photo = FileField('Your photo', validators=[FileAllowed(['jpg','png'], 'Images only!')])
 
     def __init__(self, original_nickname, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
@@ -40,7 +41,12 @@ class EditForm(Form):
 
 class PostForm(Form):
     post = StringField('post', validators=[DataRequired()])
+    header = StringField('header', validators=[DataRequired()])
     photo = FileField('Your photo', validators=[FileAllowed(['jpg','png'], 'Images only!')])
+    submit = SubmitField("Send")
+    
+class CommentForm(Form):
+    comment = StringField('comment', validators=[DataRequired()])
     submit = SubmitField("Send")
     
 

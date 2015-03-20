@@ -1,7 +1,9 @@
 import os
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 from flask import render_template, flash, redirect, session, url_for, request, \
-    g, jsonify, send_from_directory
+    g, jsonify, send_from_directory, Blueprint
+from flask.views import MethodView
+
 from flask.ext.login import login_user, logout_user, current_user, \
     login_required
 from flask.ext.sqlalchemy import get_debug_queries
@@ -9,13 +11,15 @@ from flask.ext.babel import gettext
 from datetime import datetime
 from guess_language import guessLanguage
 from app import app, db, lm, oid, babel
-from .forms import LoginForm, EditForm, PostForm, SearchForm
-from .models import User, Post
+
+from .forms import LoginForm, EditForm, PostForm, SearchForm, CommentForm
+from .models import User, Post, Comment
 from .emails import follower_notification
 from .translate import microsoft_translate
 from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, LANGUAGES, \
     DATABASE_QUERY_TIMEOUT, ALLOWED_EXTENSIONS, UPLOAD_FOLDER
 from flask.ext.images import resized_img_src
+from slugify import slugify
 
 @lm.user_loader
 def load_user(id):
@@ -89,6 +93,7 @@ def favorites(page=1):
     form = PostForm()
     if form.validate_on_submit():
         filename = secure_filename(form.photo.data.filename)
+        slug = slugify(form.header.data)
         if filename != None and filename != '':
             filename_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             form.photo.data.save(filename_path)
@@ -96,7 +101,7 @@ def favorites(page=1):
         if language == 'UNKNOWN' or len(language) > 5:
             language = ''
         post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-                    author=g.user, language=language, photo=filename)
+                    author=g.user, language=language, photo=filename, header=form.header.data, slug=slug)
         db.session.add(post)
         db.session.commit()
         flash(gettext('Your post is now live!'))
@@ -167,6 +172,20 @@ def user(nickname, page=1):
     return render_template('user.html',
                            user=user,
                            posts=posts)
+                           
+
+@app.route("/detail/<slug>", methods=['GET', 'POST'])
+def posts(slug):
+    post = Post.query.filter(Post.slug==slug).first()
+    form = CommentForm()
+    context = {"post": post, "form": form}
+    if form.validate_on_submit():
+        comment = Comment(body=form.comment.data, created_at=datetime.utcnow(), user_id=g.user.id, post_id=id)
+        db.session.add(comment)
+        db.session.commit()
+        flash(gettext('Your comment is now live!'))
+        return redirect(url_for('posts', slug=slug))
+    return render_template('posts/detail.html', **context)
 
 
 @app.route('/edit', methods=['GET', 'POST'])
@@ -174,8 +193,14 @@ def user(nickname, page=1):
 def edit():
     form = EditForm(g.user.nickname)
     if form.validate_on_submit():
+        filename = secure_filename(form.profile_photo.data.filename)
+        if filename != None and filename != '':
+            filename_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            form.profile_photo.data.save(filename_path)
         g.user.nickname = form.nickname.data
         g.user.about_me = form.about_me.data
+        g.user.about_me = form.about_me.data
+        g.user.profile_photo = filename
         db.session.add(g.user)
         db.session.commit()
         flash(gettext('Your changes have been saved.'))
@@ -269,3 +294,4 @@ def translate():
             request.form['text'],
             request.form['sourceLang'],
             request.form['destLang'])})
+

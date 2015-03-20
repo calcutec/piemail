@@ -7,10 +7,9 @@ from flask.ext.openid import OpenID
 from flask.ext.mail import Mail
 from flask.ext.images import Images
 from flask.ext.babel import Babel, lazy_gettext
-from werkzeug import secure_filename
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
     MAIL_PASSWORD, UPLOAD_FOLDER, CACHE_FOLDER, MAX_CONTENT_LENGTH, SECRET_KEY
-from .momentjs import momentjs
+from momentjs import momentjs
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -27,9 +26,9 @@ babel = Babel(app)
 #Config for Flask-Images
 app.secret_key = SECRET_KEY
 images = Images(app)
+
 if os.environ.get('HEROKU') is not None:
     app.config['IMAGES_PATH'] = ['static/heroku_user_imgs']
-    
 else:
     app.config['IMAGES_PATH'] = ['static/user_imgs']
 

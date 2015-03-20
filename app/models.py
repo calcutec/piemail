@@ -3,6 +3,7 @@ import re
 from app import db
 from app import app
 from config import WHOOSH_ENABLED
+from flask import url_for
 
 import sys
 if sys.version_info >= (3, 0):
@@ -25,7 +26,9 @@ class User(db.Model):
     nickname = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
     about_me = db.Column(db.String(140))
+    profile_photo = db.Column(db.String(240))
     last_seen = db.Column(db.DateTime)
     followed = db.relationship('User',
                                secondary=followers,
@@ -98,17 +101,34 @@ class User(db.Model):
 
 class Post(db.Model):
     __searchable__ = ['body']
+    __tablename__ = 'post'
 
     id = db.Column(db.Integer, primary_key=True)
+    header = db.Column(db.String(140))
     body = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     language = db.Column(db.String(5))
     photo = db.Column(db.String(240))
+    comments = db.relationship('Comment', backref='original_post', lazy='dynamic')
+    slug = db.Column(db.String(255))
+
+    def get_absolute_url(self):
+        return url_for('post', kwargs={"slug": self.slug})
 
     def __repr__(self):  # pragma: no cover
         return '<Post %r>' % (self.body)
 
+class Comment(db.Model):
+    __tablename__ = 'comment'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.String(500))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_at = db.Column(db.DateTime)
+
+    def __repr__(self):  # pragma: no cover
+        return '<Comment %r>' % (self.body)
 
 if enable_search:
     whooshalchemy.whoosh_index(app, Post)
