@@ -94,7 +94,7 @@ def favorites(page=1):
     if form.validate_on_submit():
         filename = secure_filename(form.photo.data.filename)
         slug = slugify(form.header.data)
-        if filename != None and filename != '':
+        if filename is not None and filename is not '':
             filename_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             form.photo.data.save(filename_path)
         language = guessLanguage(form.post.data)

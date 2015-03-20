@@ -1,70 +1,143 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    {% if title %}
-    <title>{{ title }} - burtonblog</title>
-    {% else %}
-    <title>burtonblog</title>
-    {% endif %}
-    <link href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" rel="stylesheet" media="screen">
-    <link href="{{ url_for('.static', filename='css/bootstrap-responsive.min.css') }}" rel="stylesheet">
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script src="{{ url_for('.static', filename='js/bootstrap.min.js') }}"></script>
-    <script src="{{ url_for('.static', filename='js/moment.min.js') }}"></script>
-    {% if g.locale != 'en' %}
-    <script src="{{ url_for('.static', filename='js/moment-' + g.locale + '.min.js') }}"></script>
-    {% endif %}
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script>
-    function translate(sourceLang, destLang, sourceId, destId, loadingId) {
-        $(destId).hide();
-        $(loadingId).show();
-        $.post('/translate', {
-            text: $(sourceId).text(),
-            sourceLang: sourceLang,
-            destLang: destLang
-        }).done(function(translated) {
-            $(destId).text(translated['text'])
-            $(loadingId).hide();
-            $(destId).show();
-        }).fail(function() {
-            $(destId).text("{{ _('Error: Could not contact server.') }}");
-            $(loadingId).hide();
-            $(destId).show();
-        });
-    }
-    </script>
-  </head>
-  <body>
-    <div class="container">
-      <div class="navbar">
-        <div class="navbar-inner">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="{{ url_for('index') }}">burtonblog</a>
-            <ul class="nav">
-              <li><a href="{{ url_for('index') }}">{{ _('Home') }}</a></li>
-              {% if g.user.is_authenticated() %}
-              <li><a href="{{ url_for('user', nickname=g.user.nickname) }}">{{ _('Your Profile') }}</a></li>
-              <li><a href="{{ url_for('favorites') }}">{{ _('My Favs') }}</a></li>
-              <li><a href="{{ url_for('logout') }}">{{ _('Logout') }}</a></li>
-              {% endif %}
-            </ul>
-          <div class="nav-collapse collapse">
-            {% if g.user.is_authenticated() %}
-            <form class="navbar-search pull-right" action="{{ url_for('search') }}" method="post" name="search">{{ g.search_form.hidden_tag() }}{{ g.search_form.search(size=20, placeholder=_('Search'), class="search-query")}}</form>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="span12">
-          {% block content %}{% endblock %}
-        </div>
-      </div>
-    </div>   
-  </body>
+<html lang="en" id="search">
+
+	<head>
+		<meta charset="utf-8">
+
+        {% if title %}
+        <title>Search results for  &quot;Four&quot; |{{ title }} - burtonblog</title>
+        {% else %}
+        <title>Search results for  &quot;Four&quot; |burtonblog</title>
+        {% endif %}
+
+		<meta name="description" content="Hicksdesign things you see on screens, such as icons, interfaces and branding." />
+		<meta name="keywords" content="design,icons,screens.mobile,icondesign,illustration,logos,branding,interfaces,ui" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<!-- OpenSearch -->
+		<link rel="search" href="/opensearchdescription.xml" type="application/opensearchdescription+xml" title="Hicksdesign" />
+
+
+		<!-- OpenGraph -->
+		<meta property="og:site_name" content="Hicksdesign" />
+		<meta property="og:title" content="Search results for  &quot;Four&quot;, Hicksdesign" />
+		<meta property="og:type" content="website" />
+		<meta property="og:image" content="http://hicksdesign.co.uk/images/ogicon.png" />
+		<meta property="og:locale" content="en_GB" />
+
+		<!-- Favicon -->
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+		<link rel="icon" href="favicon-coast.png" sizes="228x228">
+
+		<!-- Windows 8 Pinned Site -->
+		<meta name="msapplication-TileImage" content="/images/pinsite.png">
+		<meta name="msapplication-TileColor" content="#ffffff">
+		<meta name="application-name" content="Hicksdesign">
+
+		<!-- CSS -->
+        <link href="{{ url_for('.static', filename='css/basic.css') }}" rel="stylesheet" type="text/css" media="all">
+
+		<!--[if gte IE 7]><!-->
+		    <link href="{{ url_for('.static', filename='css/layout.css') }}" rel="stylesheet" type="text/css" media="all">
+		    <link href="{{ url_for('.static', filename='css/brandon.css') }}" rel="stylesheet" type="text/css">
+		<!--<![endif]-->
+
+		<!--[if IE 7]>
+			<link rel="stylesheet" href="/css/ie7.css" type="text/css" media="all"  />
+		<![endif]-->
+
+		<!--[if IE 6]>
+			<link rel="stylesheet" href="http://universal-ie6-css.googlecode.com/files/ie6.1.1.css" media="all">
+		<![endif]-->
+
+		<!-- to help IE recognise the new HTML tags -->
+		<!--[if lte IE 8]>
+			<script src="/js/html5.js"></script>
+			<script src="/js/css3-mediaqueries.js"></script>
+		<![endif]-->
+
+		<!-- RSS Feeds -->
+		<link rel="alternate" type="application/rss+xml" title="Hicksdesign Journal" href="http://hicksdesign.co.uk/feeds/rss/" />
+
+		<!-- sorcery -->
+{#		<script src="/js/jquery.js"></script>#}
+		<script src="http://use.typekit.com/ace1net.js"></script>
+        <script src="http://code.jquery.com/jquery-latest.js"></script>
+		<script>try{Typekit.load();}catch(e){}</script>
+	</head>
+
+	<body>
+		<div class="page">
+			<h2 class="logo">Hicks</h2>
+			<nav>
+				<ul>
+					<li><a href="{{ url_for('index') }}">{{ _('Home') }}</a></li>
+					{% if g.user.is_authenticated() %}
+					<li class="n-work"><a href="{{ url_for('favorites') }}">{{ _('My Favs') }}</a></li>
+					<li class="n-journal"><a href="{{ url_for('user', nickname=g.user.nickname) }}">{{ _('Your Profile') }}</a></li>
+					<li class="n-contact"><a href="{{ url_for('logout') }}">{{ _('Logout') }}</a></li>
+					{% endif %}
+				</ul>
+			</nav>
+			<div id="content">
+
+				<header>
+					<div class="icon">
+					<img src="/images/icons/site_icons_pipe.png" width="160" height="160" />
+					</div>
+					<h1>Search Results for <strong>'Four'</strong>. Are these the droids you're looking for?
+					</h1>
+				</header>
+
+				<div id="main">
+					{% block content %}{% endblock %}
+					<form method="get" action="http://hicksdesign.co.uk/search/" class="search">
+						<fieldset>
+							<p><label for="q">Search the <a href="/journal/?c=archive">Hickensian Archives</a>:</label><input type="text" value="" id="q" name="q" size="15" /><input type="submit" class="submit" value="Search" /></p>
+						</fieldset>
+					</form>
+				</div> <!-- /main -->
+
+
+				<div id="side">
+					<section>
+						<p><strong>The Hickensian</strong> is the journal of Jon Hicks, one half of the creative partnership Hicksdesign. <a href="/">Take a look at the work we do</a>.</p>
+					</section>
+					<section class="contact">
+						<div class="vcard">
+							<h3>Contact</h3>
+							<div class="adr">
+								<p><span class="organization-name fn n org">Hicksdesign</span></p>
+								<p><span class="street-address">73a High Street</span></p>
+								<p><span class="locality">Witney</span></p>
+								<p><span class="region">Oxfordshire</span>, <span class="country-name">UK</span></p>
+								<p><span class="postal-code">OX28 6JA</span></p>
+							</div>
+
+							<p class="tel">+44 (0)7917 391 536</p>
+							<p><a type="text/directory" href="http://h2vx.com/vcf/www.hicksdesign.co.uk/contact">Download vCard</a></p>
+						</div>
+					</section>
+					<section class="social">
+						<h3>Social clubs:</h3>
+						<p><a href="http://twitter.com/Hicksdesign" title="Hicksdesign on Twitter"><img src="/images/social/twitter-24x24.png" alt="Hickensian on Twitter" /> Twitter</a></p>
+						<p><a href="http://instagram.com/hicksdesign"><img src="http://www.hicksdesign.co.uk/else/images/instagram.png" alt="Hicks on Instagram" /> Instagram</a></p>
+						<p><a href="http://www.flickr.com/photos/hicksdesign/" title="Hicksdesign on Flickr"><img src="/images/social/flickr-24x24.png" alt="Hicksdesign on Flickr" /> Flickr</a></p>
+					</section>
+					<section class="hc">
+						<h3>Engine Room:</h3>
+						<p>Hicksdesign is powered by <a href="http://textpattern.com/">Textpattern</a> and hosted by the lovely boffins at <a href="http://www.enginehosting.com/">Engine Hosting</a></p>
+						<p><a href="http://www.enginehosting.com/" title="Hicksdesign is hosted by the lovely boffins at Engine Hosting"><img src="/images/ehlogos-green.png" alt="Engine Hosting" /></a></p>
+					</section>
+				</div><!-- /side -->
+
+			</div><!-- /content -->
+
+			<footer>
+				<p>&copy;Burtonblog. 2002-15.</p>
+			</footer>
+
+		</div><!-- /page -->
+		<b id="te"><b></b></b><b id="be"></b><b id="le"></b><b id="re"></b>
+	</body>
 </html>
