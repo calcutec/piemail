@@ -180,7 +180,7 @@ def posts(slug):
     form = CommentForm()
     context = {"post": post, "form": form}
     if form.validate_on_submit():
-        comment = Comment(body=form.comment.data, created_at=datetime.utcnow(), user_id=g.user.id, post_id=id)
+        comment = Comment(body=form.comment.data, created_at=datetime.utcnow(), user_id=g.user.id, post_id=post.id)
         db.session.add(comment)
         db.session.commit()
         flash(gettext('Your comment is now live!'))
