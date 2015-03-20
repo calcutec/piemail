@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% if post.body %}
+      <p>{{ post.body }}</p>
+  {% endif %}
+{% if post.photo %}
+	<img src="{{resized_img_src(post.photo, width=400, quality=95)}}" />
+{% endif %}
+{% if post.timestamp %}
+  <p>{{ post.timestamp.strftime('%H:%M %Y-%m-%d') }}</p>
+{% endif %}
+  <hr>
+	<h2>Comments</h2>
+	{% include 'flash.html' %}
+	<div class="well">
+		<form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="comment">
+			{{ form.hidden_tag() }}
+			<div class="control-group{% if form.comment.errors %} error{% endif %}">
+				<label class="control-label" for="comment">{{ _('Add your comment!:') }}</label>
+				<div class="controls">
+					{{ form.comment(size=30, maxlength=140) }}
+					{% for error in form.comment.errors %}
+						<span class="help-inline">[{{ error }}]</span><br>
+					{% endfor %}
+					<input class="btn btn-primary" type="submit" value="{{ _('Post!') }}">
+				</div>
+			</div>
+		</form>
+	</div>
+	{% if post.comments %}
+		{% for comment in post.comments %}
+		   <p>{% if comment.created_at %}<small>On {{ comment.created_at.strftime('%H:%M %Y-%m-%d') }}, </small>{% endif %}{{ comment.author.nickname }} commented: </p>
+           <p>{{ comment.body }}</p>
+		{% endfor %}
+	{% endif %}
+{% endblock %}
+
+
