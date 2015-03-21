@@ -2,7 +2,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>{{ _('Hi, %(nickname)s!', nickname=g.user.nickname) }}</h1>
+    {% for post in posts.items %}
+        {% include 'post.html' %}
+    {% endfor %}
+
+    <form method="get" action="http://hicksdesign.co.uk/search/" class="search">
+        <fieldset>
+            <p><label for="q">Search the <a href="/journal/?c=archive">Hickensian Archives</a>:</label><input type="text" value="" id="q" name="q" size="15" /><input type="submit" class="submit" value="Search" /></p>
+        </fieldset>
+    </form>
     {% include 'flash.html' %}
     <div class="well">
         <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="post">
@@ -33,9 +41,6 @@
             </div>
         </form>
     </div>
-    {% for post in posts.items %}
-        {% include 'post.html' %}
-    {% endfor %}
 {#    <ul class="pager">#}
 {#        {% if posts.has_prev %}#}
 {#        <li class="previous"><a href="{{ url_for('favorites', page=posts.prev_num) }}">{{ _('Newer posts') }}</a></li>#}

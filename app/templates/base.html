@@ -18,13 +18,6 @@
 		<link rel="search" href="/opensearchdescription.xml" type="application/opensearchdescription+xml" title="Hicksdesign" />
 
 
-		<!-- OpenGraph -->
-		<meta property="og:site_name" content="Hicksdesign" />
-		<meta property="og:title" content="Search results for  &quot;Four&quot;, Hicksdesign" />
-		<meta property="og:type" content="website" />
-		<meta property="og:image" content="http://hicksdesign.co.uk/images/ogicon.png" />
-		<meta property="og:locale" content="en_GB" />
-
 		<!-- Favicon -->
 		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 		<link rel="icon" href="favicon-coast.png" sizes="228x228">
@@ -71,7 +64,7 @@
 			<h2 class="logo">Hicks</h2>
 			<nav>
 				<ul>
-					<li><a href="{{ url_for('index') }}">{{ _('Home') }}</a></li>
+{#					<li><a href="{{ url_for('index') }}">{{ _('Home') }}</a></li>#}
 					{% if g.user.is_authenticated() %}
 					<li class="n-work"><a href="{{ url_for('favorites') }}">{{ _('My Favs') }}</a></li>
 					<li class="n-journal"><a href="{{ url_for('user', nickname=g.user.nickname) }}">{{ _('Your Profile') }}</a></li>
@@ -83,7 +76,7 @@
 
 				<header>
 					<div class="icon">
-					<img src="/images/icons/site_icons_pipe.png" width="160" height="160" />
+					<img src="{{url_for('.static', filename='img/icons/site_icons_pipe.png') }}" width="160" height="160" />
 					</div>
 					<h1>Search Results for <strong>'Four'</strong>. Are these the droids you're looking for?
 					</h1>
@@ -91,11 +84,6 @@
 
 				<div id="main">
 					{% block content %}{% endblock %}
-					<form method="get" action="http://hicksdesign.co.uk/search/" class="search">
-						<fieldset>
-							<p><label for="q">Search the <a href="/journal/?c=archive">Hickensian Archives</a>:</label><input type="text" value="" id="q" name="q" size="15" /><input type="submit" class="submit" value="Search" /></p>
-						</fieldset>
-					</form>
 				</div> <!-- /main -->
 
 
