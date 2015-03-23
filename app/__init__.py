@@ -23,6 +23,7 @@ lm.login_message = lazy_gettext('Please log in to access this page.')
 oid = OpenID(app, os.path.join(basedir, 'tmp'))
 mail = Mail(app)
 babel = Babel(app)
+
 #Config for Flask-Images
 app.secret_key = SECRET_KEY
 images = Images(app)

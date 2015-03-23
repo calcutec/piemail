@@ -7,7 +7,6 @@
 	padding: 0;
 }
 
-@-ms-viewport,
 @viewport {
 	width: device-width;
 }
@@ -158,7 +157,7 @@ p+h3, ul+h3, ol+h3 {
 	}
 
 h3.date {
-	margin: 0 0 0 1.5em 0;
+	margin: 0 0 0 1.5em;
 	font-size: 0.81em;
 	}
 
@@ -220,7 +219,7 @@ blockquote p {
 
 blockquote p:before {
 	content: 'â€œ';
-	font-size: ;
+	font-size:12pt;
 	}
 blockquote p:after {
 	content: 'â€';
@@ -432,7 +431,7 @@ article,section,nav,header,footer,figure,figcaption {
 	left: 0;
 	right: 0;
 	top: 0;
-	padding: ;
+	padding:0;
 }
 
 #te b {
@@ -441,7 +440,7 @@ article,section,nav,header,footer,figure,figcaption {
 	position: absolute;
 	left: 74%;
 	right: 8%;
-	background: url(/images/paulsmith.gif);
+	background: url(../img/paulsmith.gif);
 	}
 
 #be {
@@ -470,7 +469,7 @@ article,section,nav,header,footer,figure,figcaption {
 
 .logo {
 	margin: 0 0 1em 78%;
-	background-image: url(/images/hicksdesignlogo.png);
+	background-image: url(../img/hicksdesignlogo.png);
 	background-repeat:no-repeat;
 	padding: 14px 0 2px 0;
 	text-indent: 40px;
@@ -705,8 +704,8 @@ article .youtube-player {
 	font-size: 0.875em;
 }
 
-.previous a { background-image: url(/images/older.png);}
-.next a { background-image: url(/images/newer.png); margin 0 0 1em 0;}
+.previous a { background-image: url(../img/older.png);}
+.next a { background-image: url(../img/newer.png); margin: 0 0 1em 0;}
 
 .archives {
 	margin: 0 0 1em 0;
@@ -776,28 +775,14 @@ section{
 	margin: 0 0 3em 0;
 	}
 
-section.jobs {
-	padding: 2.5em 0 0 0;
-	background-image: url(/images/jobs.png);
-	line-height: 1.5;
-}
-
-.job-listings {
-	list-style-type: none;
-	line-height: 1.4;
-}
-.job-listings li{
-	margin: 0 0 0.75em 0;
-	}
-
 section.social {
 	padding: 2.5em 0 0 0;
-	background-image: url(/images/sideicons_social.png);
+	background-image: url(../img/sideicons_social.png);
 	}
 
 section.contact {
 	padding: 2.5em 0 0 0;
-	background-image: url(/images/sideicons_contact.png);
+	background-image: url(../img/sideicons_contact.png);
 	}
 
 section+section {
@@ -815,9 +800,10 @@ section+section {
 	}
 
 .social img {
-	width: 16px;
-	height: 16px;
-	margin: -3px 3px 0 0;
+    width: 16px;
+    height: 16px;
+    margin: -3px 3px 0 0;
+}
 
 
 audio {
@@ -863,9 +849,9 @@ audio {
 	background-position: 0 0;
 	}
 
-	.needs .time {	background-image: url(/images/sideicons_timescale.png);}
-	.needs .budget {	background-image: url(/images/sideicons_budget.png);}
-	.needs .scope {	background-image: url(/images/sideicons_scope.png);}
+	.needs .time {	background-image: url(../img/sideicons_timescale.png);}
+	.needs .budget {	background-image: url(../img/sideicons_budget.png);}
+	.needs .scope {	background-image: url(../img/sideicons_scope.png);}
 
 
 .postcard {
@@ -1016,7 +1002,7 @@ audio {
 	header {margin: 0 0 1em 0;width: auto;}
 	h1 { padding: 0;}
 	.logo { top: 40px; }
-	nav { top: 255px; bottom: 20px; /*background: url(/images/corner-small.png) no-repeat left bottom;*/ }
+	nav { top: 255px; bottom: 20px; /*background: url(/img/corner-small.png) no-repeat left bottom;*/ }
 	nav a {
 		float: none;
 		text-align: left;
@@ -1034,11 +1020,11 @@ audio {
 	#boxmodel .n-goodies a,
 	#iconreference .n-goodies a,
 	#contact .n-contact a {
-		background: url(/images/here.png) no-repeat 90% 50%;
+		background: url(../img/here.png) no-repeat 90% 50%;
 	}
 	#content { width: 76%; }
 	.body { padding: 0 0 0 3.8em;}
-	.link .body {background: url(/images/link.png) no-repeat;
+	.link .body {background: url(../img/link.png) no-repeat;
 	}
 	footer {
 		bottom: 2px;
