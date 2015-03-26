@@ -17,7 +17,7 @@ from .emails import follower_notification
 from .translate import microsoft_translate
 from .utils import generate_thumbnail
 from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, LANGUAGES, \
-    DATABASE_QUERY_TIMEOUT, ALLOWED_EXTENSIONS, UPLOAD_FOLDER
+    DATABASE_QUERY_TIMEOUT, ALLOWED_EXTENSIONS, UPLOAD_FOLDER, UPLOAD_FOLDER_NAME
 
 from slugify import slugify
 
@@ -117,7 +117,8 @@ def favorites(page=1):
     return render_template('favorites.html',
                            title='Favorites',
                            form=form,
-                           posts=favorite_posts)
+                           posts=favorite_posts,
+                           upload_folder_name=app.config['UPLOAD_FOLDER_NAME'])
                            
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -273,7 +274,7 @@ def delete(id):
     db.session.delete(post)
     db.session.commit()
     flash('Your post has been deleted.')
-    return redirect(url_for('index'))
+    return redirect(url_for('favorites'))
 
 
 @app.route('/search', methods=['POST'])

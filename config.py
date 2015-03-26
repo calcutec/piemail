@@ -29,12 +29,13 @@ DATABASE_QUERY_TIMEOUT = 0.5
 
 # image upload folder and allowed extensions
 if os.environ.get('HEROKU') is None:
-	UPLOAD_FOLDER = os.path.join(basedir, 'app/static/user_imgs')
-	CACHE_FOLDER = os.path.join(basedir, 'app/static/img_cache')
+    UPLOAD_FOLDER = os.path.join(basedir, 'app/static/user_imgs')
+    CACHE_FOLDER = os.path.join(basedir, 'app/static/img_cache')
+    UPLOAD_FOLDER_NAME = "user_imgs/"
 else:
-	UPLOAD_FOLDER = os.path.join(basedir, 'app/static/heroku_user_imgs')
-	CACHE_FOLDER = os.path.join(basedir, 'app/static/heroku_img_cache')
-	
+    UPLOAD_FOLDER = os.path.join(basedir, 'app/static/heroku_user_imgs')
+    CACHE_FOLDER = os.path.join(basedir, 'app/static/heroku_img_cache')
+    UPLOAD_FOLDER_NAME = "heroku_user_imgs/"
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024

@@ -8,12 +8,14 @@ from flask.ext.mail import Mail
 from flask.ext.images import Images
 from flask.ext.babel import Babel, lazy_gettext
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
-    MAIL_PASSWORD, UPLOAD_FOLDER, CACHE_FOLDER, MAX_CONTENT_LENGTH, SECRET_KEY
+    MAIL_PASSWORD, UPLOAD_FOLDER, CACHE_FOLDER, MAX_CONTENT_LENGTH, SECRET_KEY, \
+    UPLOAD_FOLDER_NAME
 from momentjs import momentjs
 
 app = Flask(__name__)
 app.config.from_object('config')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER_NAME'] = UPLOAD_FOLDER_NAME
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 db = SQLAlchemy(app)
 lm = LoginManager()

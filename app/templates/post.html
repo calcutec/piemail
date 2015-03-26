@@ -2,7 +2,7 @@
     <h2><a href="{{ url_for('posts', slug=post.slug) }}">{{ post.header }}</a></h2>
     <div class="body">
         {% if post.photo and post.thumbnail %}
-            <a href="{{ url_for('.static', filename="user_imgs/" + post.photo) }}" class="preview" target="_blank"><img src="{{ url_for('.static', filename="user_imgs/" + post.thumbnail) }}" /></a>
+            <a href="{{ url_for('.static', filename=upload_folder_name + post.photo) }}" class="preview" target="_blank"><img src="{{ url_for('.static', filename=upload_folder_name + post.thumbnail) }}" /></a>
         {% endif %}
         &#8230; <span id="post{{ post.id }}">{{ post.body }}</span> &#8230;
     </div>
