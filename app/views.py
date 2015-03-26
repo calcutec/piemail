@@ -17,7 +17,7 @@ from .emails import follower_notification
 from .translate import microsoft_translate
 from .utils import generate_thumbnail
 from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, LANGUAGES, \
-    DATABASE_QUERY_TIMEOUT, ALLOWED_EXTENSIONS, UPLOAD_FOLDER, UPLOAD_FOLDER_NAME
+    DATABASE_QUERY_TIMEOUT
 
 from slugify import slugify
 
@@ -63,30 +63,6 @@ def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
 
-
-# @app.route('/', methods=['GET', 'POST'])
-# @app.route('/index', methods=['GET', 'POST'])
-# @app.route('/index/<int:page>', methods=['GET', 'POST'])
-# @login_required
-# def index(page=1):
-#     form = PostForm()
-#     if form.validate_on_submit():
-#         language = guessLanguage(form.post.data)
-#         if language == 'UNKNOWN' or len(language) > 5:
-#             language = ''
-#         post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-#                     author=g.user, language=language)
-#         db.session.add(post)
-#         db.session.commit()
-#         flash(gettext('Your post is now live!'))
-#         return redirect(url_for('index'))
-#     all_posts = g.user.all_posts().paginate(page, POSTS_PER_PAGE, False)
-#     return render_template('index.html',
-#                            title='Home',
-#                            form=form,
-#                            posts=all_posts)
-
-
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 @app.route('/index/<int:page>', methods=['GET', 'POST'])
@@ -96,16 +72,17 @@ def internal_error(error):
 def favorites(page=1):
     form = PostForm()
     if form.validate_on_submit():
+        thumbnail_name = ''
         filename = secure_filename(form.photo.data.filename)
         slug = slugify(form.header.data)
         if filename is not None and filename is not '':
             filename_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             form.photo.data.save(filename_path)
+            thumbnail_name = generate_thumbnail(filename=filename, filename_path=filename_path, box=(80, 80),
+                                                photo_type="thumb", crop=True)
         language = guessLanguage(form.post.data)
         if language == 'UNKNOWN' or len(language) > 5:
             language = ''
-
-        thumbnail_name = generate_thumbnail(filename=filename, filename_path=filename_path, width=80, type="thumb")
 
         post = Post(body=form.post.data, timestamp=datetime.utcnow(),
                     author=g.user, language=language, photo=filename, thumbnail=thumbnail_name, header=form.header.data, slug=slug)
@@ -186,7 +163,7 @@ def user(nickname, page=1):
 def posts(slug):
     post = Post.query.filter(Post.slug==slug).first()
     form = CommentForm()
-    context = {"post": post, "form": form}
+    context = {"post": post, "form": form, "upload_folder_name":app.config['UPLOAD_FOLDER_NAME']}
     if form.validate_on_submit():
         comment = Comment(body=form.comment.data, created_at=datetime.utcnow(), user_id=g.user.id, post_id=post.id)
         db.session.add(comment)

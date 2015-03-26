@@ -5,7 +5,7 @@
       <p>{{ post.body }}</p>
   {% endif %}
         {% if post.photo and post.thumbnail %}
-            <a href="{{ url_for('.static', filename="user_imgs/" + post.photo) }}" class="preview" target="_blank"><img src="{{ url_for('.static', filename="user_imgs/" + post.photo) }}" /></a>
+            <a href="{{ url_for('.static', filename=upload_folder_name + post.photo) }}" class="preview" target="_blank"><img src="{{ url_for('.static', filename=upload_folder_name + post.photo) }}" /></a>
         {% endif %}
 {% if post.timestamp %}
   <p>{{ post.timestamp.strftime('%H:%M %Y-%m-%d') }}</p>
