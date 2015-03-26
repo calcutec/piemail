@@ -14,13 +14,10 @@
 		<meta name="keywords" content="design,icons,screens.mobile,icondesign,illustration,logos,branding,interfaces,ui" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<!-- OpenSearch -->
-		<link rel="search" href="/opensearchdescription.xml" type="application/opensearchdescription+xml" title="Hicksdesign" />
-
 
 		<!-- Favicon -->
-		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-		<link rel="icon" href="favicon-coast.png" sizes="228x228">
+		<link rel="shortcut icon" href="{{ url_for('.static', filename='img/favicon.ico') }}" type="image/x-icon" />
+		<link rel="icon" href="{{ url_for('.static', filename='img/walk-24-215501.png') }}" sizes="228x228">
 
 		<!-- Windows 8 Pinned Site -->
 		<meta name="msapplication-TileImage" content="/images/pinsite.png">
@@ -33,6 +30,7 @@
 		<!--[if gte IE 7]><!-->
 		    <link href="{{ url_for('.static', filename='css/layout.css') }}" rel="stylesheet" type="text/css" media="all">
 		    <link href="{{ url_for('.static', filename='css/brandon.css') }}" rel="stylesheet" type="text/css">
+		    <link href="{{ url_for('.static', filename='css/stylesheet.css') }}" rel="stylesheet" type="text/css" charset="utf-8" />
 		<!--<![endif]-->
 
 		<!--[if IE 7]>
@@ -57,11 +55,12 @@
 		<script src="http://use.typekit.com/ace1net.js"></script>
         <script src="http://code.jquery.com/jquery-latest.js"></script>
 		<script>try{Typekit.load();}catch(e){}</script>
+		<script src="{{ url_for('.static', filename='js/popout_image.js') }}"></script>
 	</head>
 
 	<body>
 		<div class="page">
-			<h2 class="logo">Hicks</h2>
+			<h2 class="logo">BWE</h2>
 			<nav>
 				<ul>
 {#					<li><a href="{{ url_for('index') }}">{{ _('Home') }}</a></li>#}
@@ -76,10 +75,10 @@
 
 				<header>
 					<div class="icon">
-					<img src="{{url_for('.static', filename='img/icons/site_icons_pipe.png') }}" width="160" height="160" />
+					<img src="{{url_for('.static', filename='img/icons/retro_eng_bw_130.png') }}" />
 					</div>
-					<h1>Search Results for <strong>'Four'</strong>. Are these the droids you're looking for?
-					</h1>
+					<h1> <strong>Burton Web Engineering</strong></h1>
+					<h1>Python and JS, back-end and front-end web solutions</h1>
 				</header>
 
 				<div id="main">
@@ -108,14 +107,13 @@
 					</section>
 					<section class="social">
 						<h3>Social clubs:</h3>
-						<p><a href="http://twitter.com/Hicksdesign" title="Hicksdesign on Twitter"><img src="/images/social/twitter-24x24.png" alt="Hickensian on Twitter" /> Twitter</a></p>
+						<p><a href="http://twitter.com/Hicksdesign" title="Hicksdesign on Twitter"><img src="{{ url_for('.static', filename='img/social/twitter-24x24.png') }}" alt="Hickensian on Twitter" /> Twitter</a></p>
 						<p><a href="http://instagram.com/hicksdesign"><img src="http://www.hicksdesign.co.uk/else/images/instagram.png" alt="Hicks on Instagram" /> Instagram</a></p>
-						<p><a href="http://www.flickr.com/photos/hicksdesign/" title="Hicksdesign on Flickr"><img src="/images/social/flickr-24x24.png" alt="Hicksdesign on Flickr" /> Flickr</a></p>
+						<p><a href="http://www.flickr.com/photos/hicksdesign/" title="Hicksdesign on Flickr"><img src="{{ url_for('.static', filename='img/social/flickr-24x24.png') }}" alt="Hicksdesign on Flickr" /> Flickr</a></p>
 					</section>
 					<section class="hc">
 						<h3>Engine Room:</h3>
-						<p>Hicksdesign is powered by <a href="http://textpattern.com/">Textpattern</a> and hosted by the lovely boffins at <a href="http://www.enginehosting.com/">Engine Hosting</a></p>
-						<p><a href="http://www.enginehosting.com/" title="Hicksdesign is hosted by the lovely boffins at Engine Hosting"><img src="/images/ehlogos-green.png" alt="Engine Hosting" /></a></p>
+						<p>BWE is built using Python and the Flask framework, and hosted by the lovely folks at <a href="https://www.heroku.com/">Heroku</a></p>
 					</section>
 				</div><!-- /side -->
 

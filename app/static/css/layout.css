@@ -1,5 +1,3 @@
-
-
 /* @group Typography */
 
 *, body {
@@ -50,11 +48,11 @@ a:visited {
 	}
 
 h1 {
-	font-family:BrandonText-Light;
+	font-family:archivo_narrowregular;
 }
 
 h4, cite, footer, .date, .social p, .org, .details {
-font-family:	BrandonText-Regular,
+font-family:	archivo_narrowbold,
 				"Gill Sans",
 				"Gill Sans MT",
 				GillSansMT,
@@ -66,7 +64,7 @@ font-family:	BrandonText-Regular,
 }
 
 h2, h3, nav, .previous a, .next a, .intrologo {
-	font-family: BrandonText-Medium;
+	font-family: archivo_narrowbold;
 }
 
 /*
@@ -104,7 +102,7 @@ h1 a {
 	}
 
 h1 strong {
-	font-family:BrandonText-Regular;
+	font-family:archivo_narrowbold;
 	color: #e38549;
 	font-weight: 400;
 	}
@@ -469,7 +467,7 @@ article,section,nav,header,footer,figure,figcaption {
 
 .logo {
 	margin: 0 0 1em 78%;
-	background-image: url(../img/hicksdesignlogo.png);
+	background-image: url(../img/retro_eng_bw_40.png);
 	background-repeat:no-repeat;
 	padding: 14px 0 2px 0;
 	text-indent: 40px;
@@ -1023,7 +1021,7 @@ audio {
 		background: url(../img/here.png) no-repeat 90% 50%;
 	}
 	#content { width: 76%; }
-	.body { padding: 0 0 0 3.8em;}
+	.body { padding: 0 0 0 0;}
 	.link .body {background: url(../img/link.png) no-repeat;
 	}
 	footer {
@@ -1086,3 +1084,16 @@ audio {
 	}
 
 /* @end */
+
+/* image popout */
+
+#preview{
+	position:absolute;
+	border:1px solid #ccc;
+	background:#333;
+	padding:5px;
+	display:none;
+	color:#fff;
+	}
+
+/*  */

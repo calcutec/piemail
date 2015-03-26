@@ -1,44 +1,23 @@
-{#<table class="table table-hover">#}
-{#    <tr>#}
-{#        <td width="70px"><a href="{{ url_for('user', nickname=post.author.nickname) }}" />#}
-{#        {% if post.author.profile_photo %}#}
-{#    		<img src="{{resized_img_src(post.author.profile_photo, height=70, width=70, quality=95)}}" />#}
-{#        {% else %}#}
-{#            <img src="{{ post.author.avatar(70) }}" />#}
-{#        {% endif %}#}
-{#        </a></td>#}
-{#      	<td><a href="{{ url_for('posts', slug=post.slug) }}">{{ post.header }}</a></td>#}
-{#        <td>#}
-{#            {% autoescape false %}#}
-{#            	<p>{{ _('%(nickname)s said %(when)s:', nickname='<a href="%s">%s</a>' % (url_for('user', nickname=post.author.nickname), post.author.nickname), when=momentjs(post.timestamp).fromNow()) }}</p>#}
-{#            {% endautoescape %}#}
-{#            <p><strong><span id="post{{ post.id }}">{{ post.body }}</span></strong></p>#}
-{#            {% if post.photo %}#}
-{#    			<img src="{{resized_img_src(post.photo, height=200, quality=95)}}" />#}
-{#            {% endif %}#}
-{#              <p>#}
-{#                {{ post.timestamp.strftime('%H:%M %Y-%m-%d') }} |#}
-{#                {% with total=post.comments.all()|length %}#}
-{#                    {{ total }} comment {%- if total > 1 %}s{%- endif -%}#}
-{#                {% endwith %}#}
-{#              </p>#}
-{#            {% if post.author.id == g.user.id %}#}
-{#            	<div><a href="{{ url_for('delete', id = post.id) }}">{{ _('Delete') }}</a></div>#}
-{#            {% endif %}#}
-{#        </td>#}
-{#    </tr>#}
-{#</table>#}
-
 <article>
     <h2><a href="{{ url_for('posts', slug=post.slug) }}">{{ post.header }}</a></h2>
     <div class="body">
-        {% if post.photo %}<img src="{{resized_img_src(post.photo, width=60, quality=95)}}" />{% endif %}
+        {% if post.photo and post.thumbnail %}
+            <a href="{{ url_for('.static', filename="user_imgs/" + post.photo) }}" class="preview" target="_blank"><img src="{{ url_for('.static', filename="user_imgs/" + post.thumbnail) }}" /></a>
+        {% endif %}
         &#8230; <span id="post{{ post.id }}">{{ post.body }}</span> &#8230;
     </div>
     <ul class="details">
-        <li class="posted"><span>2003</span><b>22 Sep</b></li>
-        <li class="twitter"><span>Comment</span> <a href="http://twitter.com/?status=@hicksdesign (http://hicksdesign.co.uk/177)">via Twitter</a></li>
-        <li class="tags"><span>Tags</span> <a href="http://hicksdesign.co.uk/tag/flash/" rel="tag">flash</a>,
-        <a href="http://hicksdesign.co.uk/tag/rants/" rel="tag">rants</a></li>
+        <li class="posted"><span>{{ post.timestamp.strftime('%Y') }}</span><b>{{ post.timestamp.strftime('%d %b') }}</b></li>
+        <li class="Posted By"><span>Posted by</span>
+        <a href="{{ url_for('user', nickname=post.author.nickname) }}" rel="tag">{{ post.author.nickname }}</a>
+        </li>
+        <li class="twitter"><span>Comments</span>
+        <a href="http://twitter.com/?status=@hicksdesign (http://hicksdesign.co.uk/177)">
+        {% with total=post.comments.all()|length %}{{ total }} comment {%- if total != 1 %}s{%- endif -%}{% endwith %}
+        </a></li>
+        {% if post.author.id == g.user.id %}
+        <li class="last"><span>Remove</span>
+         <a href="{{ url_for('delete', id = post.id) }}">{{ _('Delete') }}</a></li>
+        {% endif %}
     </ul>
 </article>

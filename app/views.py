@@ -1,8 +1,7 @@
 import os
 from werkzeug.utils import secure_filename
 from flask import render_template, flash, redirect, session, url_for, request, \
-    g, jsonify, send_from_directory, Blueprint
-from flask.views import MethodView
+    g, jsonify
 
 from flask.ext.login import login_user, logout_user, current_user, \
     login_required
@@ -16,9 +15,10 @@ from .forms import LoginForm, EditForm, PostForm, SearchForm, CommentForm
 from .models import User, Post, Comment
 from .emails import follower_notification
 from .translate import microsoft_translate
+from .utils import generate_thumbnail
 from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, LANGUAGES, \
     DATABASE_QUERY_TIMEOUT, ALLOWED_EXTENSIONS, UPLOAD_FOLDER
-from flask.ext.images import resized_img_src
+
 from slugify import slugify
 
 @lm.user_loader
@@ -64,28 +64,32 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 
+# @app.route('/', methods=['GET', 'POST'])
+# @app.route('/index', methods=['GET', 'POST'])
+# @app.route('/index/<int:page>', methods=['GET', 'POST'])
+# @login_required
+# def index(page=1):
+#     form = PostForm()
+#     if form.validate_on_submit():
+#         language = guessLanguage(form.post.data)
+#         if language == 'UNKNOWN' or len(language) > 5:
+#             language = ''
+#         post = Post(body=form.post.data, timestamp=datetime.utcnow(),
+#                     author=g.user, language=language)
+#         db.session.add(post)
+#         db.session.commit()
+#         flash(gettext('Your post is now live!'))
+#         return redirect(url_for('index'))
+#     all_posts = g.user.all_posts().paginate(page, POSTS_PER_PAGE, False)
+#     return render_template('index.html',
+#                            title='Home',
+#                            form=form,
+#                            posts=all_posts)
+
+
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 @app.route('/index/<int:page>', methods=['GET', 'POST'])
-@login_required
-def index(page=1):
-    form = PostForm()
-    if form.validate_on_submit():
-        language = guessLanguage(form.post.data)
-        if language == 'UNKNOWN' or len(language) > 5:
-            language = ''
-        post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-                    author=g.user, language=language)
-        db.session.add(post)
-        db.session.commit()
-        flash(gettext('Your post is now live!'))
-        return redirect(url_for('index'))
-    all_posts = g.user.all_posts().paginate(page, POSTS_PER_PAGE, False)
-    return render_template('index.html',
-                           title='Home',
-                           form=form,
-                           posts=all_posts)
-                        
 @app.route('/favorites', methods=['GET', 'POST'])
 @app.route('/favorites/<int:page>', methods=['GET', 'POST'])
 @login_required
@@ -100,8 +104,11 @@ def favorites(page=1):
         language = guessLanguage(form.post.data)
         if language == 'UNKNOWN' or len(language) > 5:
             language = ''
+
+        thumbnail_name = generate_thumbnail(filename=filename, filename_path=filename_path, width=80, type="thumb")
+
         post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-                    author=g.user, language=language, photo=filename, header=form.header.data, slug=slug)
+                    author=g.user, language=language, photo=filename, thumbnail=thumbnail_name, header=form.header.data, slug=slug)
         db.session.add(post)
         db.session.commit()
         flash(gettext('Your post is now live!'))
@@ -157,7 +164,7 @@ def after_login(resp):
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('favorites'))
 
 
 @app.route('/user/<nickname>')

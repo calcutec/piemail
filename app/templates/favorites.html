@@ -6,6 +6,30 @@
         {% include 'post.html' %}
     {% endfor %}
 
+{#    <ul class="pager">#}
+{#        {% if posts.has_prev %}#}
+{#        <li class="previous"><a href="{{ url_for('favorites', page=posts.prev_num) }}">{{ _('Newer posts') }}</a></li>#}
+{#        {% else %}#}
+{#        <li class="previous disabled"><a href="#">{{ _('Newer posts') }}</a></li>#}
+{#        {% endif %}#}
+{#        {% if posts.has_next %}#}
+{#        <li class="next"><a href="{{ url_for('favorites', page=posts.next_num) }}">{{ _('Older posts') }}</a></li>#}
+{#        {% else %}#}
+{#        <li class="next disabled"><a href="#">{{ _('Older posts') }}</a></li>#}
+{#        {% endif %}#}
+{#    </ul>#}
+
+    <div class="postie">
+		<div class="backanforth">
+			<div class="previous">
+				<a href="http://hicksdesign.co.uk/journal/?pg=3">Previous Entries</a>
+			</div>
+			<div class="next">
+				<a href="http://hicksdesign.co.uk/journal/">Next Entries</a>
+			</div>
+		</div>
+	</div>
+
     <form method="get" action="http://hicksdesign.co.uk/search/" class="search">
         <fieldset>
             <p><label for="q">Search the <a href="/journal/?c=archive">Hickensian Archives</a>:</label><input type="text" value="" id="q" name="q" size="15" /><input type="submit" class="submit" value="Search" /></p>
@@ -41,16 +65,4 @@
             </div>
         </form>
     </div>
-{#    <ul class="pager">#}
-{#        {% if posts.has_prev %}#}
-{#        <li class="previous"><a href="{{ url_for('favorites', page=posts.prev_num) }}">{{ _('Newer posts') }}</a></li>#}
-{#        {% else %}#}
-{#        <li class="previous disabled"><a href="#">{{ _('Newer posts') }}</a></li>#}
-{#        {% endif %}#}
-{#        {% if posts.has_next %}#}
-{#        <li class="next"><a href="{{ url_for('favorites', page=posts.next_num) }}">{{ _('Older posts') }}</a></li>#}
-{#        {% else %}#}
-{#        <li class="next disabled"><a href="#">{{ _('Older posts') }}</a></li>#}
-{#        {% endif %}#}
-{#    </ul>#}
 {% endblock %}

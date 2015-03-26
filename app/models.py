@@ -1,4 +1,5 @@
 from hashlib import md5
+from werkzeug.security import generate_password_hash, check_password_hash
 import re
 from app import db
 from app import app
@@ -22,9 +23,13 @@ followers = db.Table(
 
 
 class User(db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
+    firstname = db.Column(db.String(100))
+    lastname = db.Column(db.String(100))
     nickname = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
+    pwdhash = db.Column(db.String(54))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
     about_me = db.Column(db.String(140))
@@ -36,6 +41,18 @@ class User(db.Model):
                                secondaryjoin=(followers.c.followed_id == id),
                                backref=db.backref('followers', lazy='dynamic'),
                                lazy='dynamic')
+
+    def __init__(self, firstname, lastname, email, password):
+        self.firstname = firstname.title()
+        self.lastname = lastname.title()
+        self.email = email.lower()
+        self.set_password(password)
+
+    def set_password(self, password):
+        self.pwdhash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.pwdhash, password)
 
     @staticmethod
     def make_valid_nickname(nickname):
@@ -52,6 +69,7 @@ class User(db.Model):
                 break
             version += 1
         return new_nickname
+
 
     def is_authenticated(self):
         return True
@@ -110,6 +128,7 @@ class Post(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     language = db.Column(db.String(5))
     photo = db.Column(db.String(240))
+    thumbnail = db.Column(db.String(240))
     comments = db.relationship('Comment', backref='original_post', lazy='dynamic')
     slug = db.Column(db.String(255))
 
