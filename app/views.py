@@ -266,9 +266,11 @@ def search():
 @login_required
 def search_results(query):
     results = Post.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
+    upload_folder_name = app.config['UPLOAD_FOLDER_NAME']
     return render_template('search_results.html',
                            query=query,
-                           results=results)
+                           results=results,
+                           upload_folder_name=upload_folder_name)
 
 
 @app.route('/translate', methods=['POST'])

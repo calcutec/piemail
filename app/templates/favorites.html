@@ -30,13 +30,8 @@
 		</div>
 	</div>
 
-    <form method="get" action="http://hicksdesign.co.uk/search/" class="search">
-        <fieldset>
-            <p><label for="q">Search the <a href="/journal/?c=archive">Hickensian Archives</a>:</label><input type="text" value="" id="q" name="q" size="15" /><input type="submit" class="submit" value="Search" /></p>
-        </fieldset>
-    </form>
-    {% include 'flash.html' %}
     <div class="well">
+    {% include 'flash.html' %}
         <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="post">
             {{ form.hidden_tag() }}
             <div class="control-group{% if form.header.errors %} error{% endif %}">
@@ -64,5 +59,17 @@
                 </div>
             </div>
         </form>
+    </div>
+{#    <div class="well">#}
+{#        <form method="get" action="http://hicksdesign.co.uk/search/" class="form-horizontal">#}
+{#            <fieldset>#}
+{#                <p><label for="q">Search the <a href="/journal/?c=archive">Burtonblog Archives</a>:</label><input type="text" value="" id="q" name="q" size="10" /><input type="submit" class="btn btn-primary" value="Search" /></p>#}
+{#            </fieldset>#}
+{#        </form>#}
+{#    </div>#}
+    <div class="nav-collapse collapse">
+        {% if g.user.is_authenticated() %}
+            <form class="navbar-search pull-left" action="{{ url_for('search') }}" method="post" name="search">{{ g.search_form.hidden_tag() }}{{ g.search_form.search(size=20, placeholder=_('Search'), class="search-query")}}</form>
+        {% endif %}
     </div>
 {% endblock %}

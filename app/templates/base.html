@@ -4,14 +4,22 @@
 	<head>
 		<meta charset="utf-8">
 
+{#        Todo: Research and create search function#}
+{#        {% if title %}#}
+{#        <title>Search results for  &quot;Four&quot; |{{ title }} - burtonblog</title>#}
+{#        {% else %}#}
+{#        <title>Search results for  &quot;Four&quot; |burtonblog</title>#}
+{#        {% endif %}#}
+
         {% if title %}
-        <title>Search results for  &quot;Four&quot; |{{ title }} - burtonblog</title>
+            <title>{{ title }} - burtonblog</title>
         {% else %}
-        <title>Search results for  &quot;Four&quot; |burtonblog</title>
+            <title>burtonblog</title>
         {% endif %}
 
-		<meta name="description" content="Hicksdesign things you see on screens, such as icons, interfaces and branding." />
-		<meta name="keywords" content="design,icons,screens.mobile,icondesign,illustration,logos,branding,interfaces,ui" />
+{#        Todo: Add site description and keywords#}
+		<meta name="description" content="Pending" />
+		<meta name="keywords" content="Pending" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
@@ -26,6 +34,8 @@
 
 		<!-- CSS -->
         <link href="{{ url_for('.static', filename='css/basic.css') }}" rel="stylesheet" type="text/css" media="all">
+        <link href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" rel="stylesheet" media="screen">
+        <link href="{{ url_for('.static', filename='css/bootstrap-responsive.min.css') }}" rel="stylesheet">
 
 		<!--[if gte IE 7]><!-->
 		    <link href="{{ url_for('.static', filename='css/layout.css') }}" rel="stylesheet" type="text/css" media="all">
@@ -33,6 +43,7 @@
 		    <link href="{{ url_for('.static', filename='css/stylesheet.css') }}" rel="stylesheet" type="text/css" charset="utf-8" />
 		<!--<![endif]-->
 
+{#        Todo: Add IE 7 css#}
 		<!--[if IE 7]>
 			<link rel="stylesheet" href="/css/ie7.css" type="text/css" media="all"  />
 		<![endif]-->
@@ -41,21 +52,29 @@
 			<link rel="stylesheet" href="http://universal-ie6-css.googlecode.com/files/ie6.1.1.css" media="all">
 		<![endif]-->
 
+{#        Todo: Add sub- IE 8 js#}
 		<!-- to help IE recognise the new HTML tags -->
 		<!--[if lte IE 8]>
 			<script src="/js/html5.js"></script>
 			<script src="/js/css3-mediaqueries.js"></script>
 		<![endif]-->
 
+{#        Todo: Add rss feed#}
 		<!-- RSS Feeds -->
-		<link rel="alternate" type="application/rss+xml" title="Hicksdesign Journal" href="http://hicksdesign.co.uk/feeds/rss/" />
+		<link rel="alternate" type="application/rss+xml" title="Burtonblog" href="http://burtonblog.net/feeds/rss/" />
 
-		<!-- sorcery -->
+		<!-- JS -->
 {#		<script src="/js/jquery.js"></script>#}
-		<script src="http://use.typekit.com/ace1net.js"></script>
+{#        Todo: Complete fonts and remove typekit#}
+{#		<script src="http://use.typekit.com/ace1net.js"></script>#}
         <script src="http://code.jquery.com/jquery-latest.js"></script>
-		<script>try{Typekit.load();}catch(e){}</script>
+{#		<script>try{Typekit.load();}catch(e){}</script>#}
 		<script src="{{ url_for('.static', filename='js/popout_image.js') }}"></script>
+        <script src="{{ url_for('.static', filename='js/bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('.static', filename='js/moment.min.js') }}"></script>
+        {% if g.locale != 'en' %}
+        <script src="{{ url_for('.static', filename='js/moment-' + g.locale + '.min.js') }}"></script>
+        {% endif %}
 	</head>
 
 	<body>
@@ -63,6 +82,7 @@
 			<h2 class="logo">BWE</h2>
 			<nav>
 				<ul>
+{#				    Todo: Create new landing page with open access#}
 {#					<li><a href="{{ url_for('index') }}">{{ _('Home') }}</a></li>#}
 					{% if g.user.is_authenticated() %}
 					<li class="n-work"><a href="{{ url_for('favorites') }}">{{ _('My Favs') }}</a></li>
@@ -88,21 +108,22 @@
 
 				<div id="side">
 					<section>
-						<p><strong>The Hickensian</strong> is the journal of Jon Hicks, one half of the creative partnership Hicksdesign. <a href="/">Take a look at the work we do</a>.</p>
+						<p><strong>Burtonblog</strong> is a family site I work on in my spare time. Membership by invitation only. <a href="/">Link to site root</a>.</p>
 					</section>
 					<section class="contact">
 						<div class="vcard">
 							<h3>Contact</h3>
 							<div class="adr">
-								<p><span class="organization-name fn n org">Hicksdesign</span></p>
-								<p><span class="street-address">73a High Street</span></p>
-								<p><span class="locality">Witney</span></p>
-								<p><span class="region">Oxfordshire</span>, <span class="country-name">UK</span></p>
-								<p><span class="postal-code">OX28 6JA</span></p>
+								<p><span class="organization-name fn n org">Burton Web Engineering</span></p>
+								<p><span class="street-address">12 Newman Way</span></p>
+								<p><span class="locality">Arlington</span></p>
+								<p><span class="region">Massachusetts</span>, <span class="country-name">USA</span></p>
+								<p><span class="postal-code">02474</span></p>
 							</div>
 
-							<p class="tel">+44 (0)7917 391 536</p>
-							<p><a type="text/directory" href="http://h2vx.com/vcf/www.hicksdesign.co.uk/contact">Download vCard</a></p>
+							<p class="tel">(781)316-2008</p>
+{#							Todo: Create vCard download#}
+							<p><a type="text/directory" href="http://h2vx.com/vcf/www.burtonblog.com/contact">Download vCard</a></p>
 						</div>
 					</section>
 					<section class="social">
