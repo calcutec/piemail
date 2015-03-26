@@ -41,11 +41,13 @@ class User(db.Model):
                                backref=db.backref('followers', lazy='dynamic'),
                                lazy='dynamic')
 
-    def __init__(self, firstname, lastname, email, password):
-        self.firstname = firstname.title()
-        self.lastname = lastname.title()
+    # def __init__(self, firstname, lastname, nickname, email, password):
+    def __init__(self, nickname, email):
+        # self.firstname = firstname.title()
+        # self.lastname = lastname.title()
+        self.nickname = nickname
         self.email = email.lower()
-        self.set_password(password)
+        # self.set_password(password)
 
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
