@@ -2,6 +2,7 @@ from flask.ext.wtf import Form
 from flask.ext.babel import gettext
 from wtforms import StringField, BooleanField, TextAreaField, SubmitField, PasswordField
 from flask.ext.wtf.file import FileField, FileRequired, FileAllowed
+from wtforms import validators
 from wtforms.validators import DataRequired, Length, ValidationError
 from .models import User
 
@@ -10,10 +11,10 @@ class LoginForm(Form):
     remember_me = BooleanField('remember_me', default=False)
 
 class SignupForm(Form):
-  firstname = StringField("First name",  [validators.Required("Please enter your first name.")])
-  lastname = StringField("Last name",  [validators.Required("Please enter your last name.")])
-  email = StringField("Email",  [validators.Required("Please enter your email address."), validators.Email("Please enter your email address.")])
-  password = PasswordField('Password', [validators.Required("Please enter a password.")])
+  firstname = StringField("First name",  [validators.DataRequired("Please enter your first name.")])
+  lastname = StringField("Last name",  [validators.DataRequired("Please enter your last name.")])
+  email = StringField("Email",  [validators.DataRequired("Please enter your email address."), validators.Email("Please enter your email address.")])
+  password = PasswordField('Password', [validators.DataRequired("Please enter a password.")])
   submit = SubmitField("Create account")
 
   def __init__(self, *args, **kwargs):
