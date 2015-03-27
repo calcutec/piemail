@@ -6,29 +6,20 @@
         {% include 'post.html' %}
     {% endfor %}
 
-{#    <ul class="pager">#}
-{#        {% if posts.has_prev %}#}
-{#        <li class="previous"><a href="{{ url_for('favorites', page=posts.prev_num) }}">{{ _('Newer posts') }}</a></li>#}
-{#        {% else %}#}
-{#        <li class="previous disabled"><a href="#">{{ _('Newer posts') }}</a></li>#}
-{#        {% endif %}#}
-{#        {% if posts.has_next %}#}
-{#        <li class="next"><a href="{{ url_for('favorites', page=posts.next_num) }}">{{ _('Older posts') }}</a></li>#}
-{#        {% else %}#}
-{#        <li class="next disabled"><a href="#">{{ _('Older posts') }}</a></li>#}
-{#        {% endif %}#}
-{#    </ul>#}
-
     <div class="postie">
-		<div class="backanforth">
-			<div class="previous">
-				<a href="http://hicksdesign.co.uk/journal/?pg=3">Previous Entries</a>
-			</div>
-			<div class="next">
-				<a href="http://hicksdesign.co.uk/journal/">Next Entries</a>
-			</div>
-		</div>
-	</div>
+        <div class="backanforth">
+            {% if posts.has_prev %}
+                <div class="previous"><a href="{{ url_for('favorites', page=posts.prev_num) }}">{{ _('Earlier posts') }}</a></div>
+            {% else %}
+                <div class="previous disabled"><a href="#">{{ _('(No earlier posts)') }}</a></div>
+            {% endif %}
+            {% if posts.has_next %}
+                <div class="next"><a href="{{ url_for('favorites', page=posts.next_num) }}">{{ _('Later posts') }}</a></div>
+            {% else %}
+                <div class="next disabled"><a href="#">{{ _('(No later posts)') }}</a></div>
+            {% endif %}
+        </div>
+    </div>
 
     <div class="well">
     {% include 'flash.html' %}
@@ -46,7 +37,7 @@
             <div class="control-group{% if form.post.errors %} error{% endif %}">
                 <label class="control-label" for="post">{{ _('Say something:') }}</label>
                 <div class="controls">
-                    {{ form.post(size=30, maxlength=512) }}
+                    {{ form.post(size=15, maxlength=512) }}
                     {% for error in form.post.errors %}
                         <span class="help-inline">[{{ error }}]</span><br>
                     {% endfor %}
@@ -60,13 +51,6 @@
             </div>
         </form>
     </div>
-{#    <div class="well">#}
-{#        <form method="get" action="http://hicksdesign.co.uk/search/" class="form-horizontal">#}
-{#            <fieldset>#}
-{#                <p><label for="q">Search the <a href="/journal/?c=archive">Burtonblog Archives</a>:</label><input type="text" value="" id="q" name="q" size="10" /><input type="submit" class="btn btn-primary" value="Search" /></p>#}
-{#            </fieldset>#}
-{#        </form>#}
-{#    </div>#}
     <div class="nav-collapse collapse">
         {% if g.user.is_authenticated() %}
             <form class="navbar-search pull-left" action="{{ url_for('search') }}" method="post" name="search">{{ g.search_form.hidden_tag() }}{{ g.search_form.search(size=20, placeholder=_('Search'), class="search-query")}}</form>
