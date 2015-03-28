@@ -85,8 +85,8 @@
 {#				    Todo: Create new landing page with open access#}
 {#					<li><a href="{{ url_for('index') }}">{{ _('Home') }}</a></li>#}
 					{% if g.user.is_authenticated() %}
-					<li class="n-work"><a href="{{ url_for('favorites') }}">{{ _('My Favs') }}</a></li>
-					<li class="n-journal"><a href="{{ url_for('user', nickname=g.user.nickname) }}">{{ _('Your Profile') }}</a></li>
+					<li class="n-work" id="active"><a href="{{ url_for('favorites') }}">{{ _('Favs') }}</a></li>
+					<li class="n-journal" id="active"><a href="{{ url_for('user', nickname=g.user.nickname) }}">{{ _('Profile') }}</a></li>
 					<li class="n-contact"><a href="{{ url_for('logout') }}">{{ _('Logout') }}</a></li>
 					{% endif %}
 				</ul>

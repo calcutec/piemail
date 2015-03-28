@@ -462,7 +462,7 @@ article,section,nav,header,footer,figure,figcaption {
 }
 /*Main Layout*/
 .page {
-	margin: 0 8%;
+	margin: 0 5%;
 	}
 
 .logo {
@@ -505,7 +505,7 @@ header {
 	}
 
 #main {
-	width: 72%;
+	width: 76%;
 	float: left;
 	padding: 0 0 6em 0;
 	}
@@ -988,14 +988,14 @@ audio {
 	nav,
 	.logo,
 	footer {
-		width: 16%;
+		width: 12%;
 		position: fixed;
-		right: 8%;
+		right: 6%;
 		z-index: 100;
 		}
 	#te b {
-		left: 76%;
-		right: 8%;
+		left: 80%;
+		right: 5%;
 	}
 	header {margin: 0 0 1em 0;width: auto;}
 	h1 { padding: 0;}
@@ -1008,19 +1008,30 @@ audio {
 		width: auto;
 	}
 	/*selected states*/
-	#default .n-work a,
-	#work .n-work a,
-	#speaking .n-speaking a,
-	#journal .n-journal a,
-	#archive .n-journal a,
-	#tag .n-journal a,
-	#goodies .n-goodies a,
-	#boxmodel .n-goodies a,
-	#iconreference .n-goodies a,
-	#contact .n-contact a {
+	/*#default .n-work a,*/
+	/*#work .n-work a.active,*/
+	/*#speaking .n-speaking a,*/
+	/*#journal .n-journal a,*/
+	/*#archive .n-journal a,*/
+	/*#tag .n-journal a,*/
+	/*#goodies .n-goodies a,*/
+	/*#boxmodel .n-goodies a,*/
+	/*#iconreference .n-goodies a,*/
+	/*#contact .n-contact a {*/
+		/*background: url(../img/here.png) no-repeat 90% 50%;*/
+	/*}*/
+
+    /*selected states*/
+	#active a,
+	.n-contact #active a,
+	.n-journal #actove a {
 		background: url(../img/here.png) no-repeat 90% 50%;
 	}
-	#content { width: 76%; }
+
+
+
+
+	#content { width: 82%; }
 	.body { padding: 0 0 0 0;}
 	.link .body {background: url(../img/link.png) no-repeat;
 	}
