@@ -18,10 +18,8 @@ body {
 	color: rgba(0,0,0,0.7);
 	-webkit-font-smoothing: antialiased;
 	text-rendering: optimizeLegibility;
-
-	font-family: "ff-tisa-web-pro-1","ff-tisa-web-pro-2", "Hoefler Text", Georgia, Times, serif;
+    font-family: 'Cabin', sans-serif;
 }
-
 
 a {
 	text-decoration: none;
@@ -47,12 +45,17 @@ a:visited {
 	font-weight: normal;
 	}
 
+.selected{
+    color:#F00;
+    background: url(../img/here.png) no-repeat 90% 50%;
+}
+
 h1 {
-	font-family:archivo_narrowregular;
+    font-family: 'Cabin', sans-serif;
 }
 
 h4, cite, footer, .date, .social p, .org, .details {
-font-family:	archivo_narrowbold,
+font-family:	Cabin,
 				"Gill Sans",
 				"Gill Sans MT",
 				GillSansMT,
@@ -64,14 +67,9 @@ font-family:	archivo_narrowbold,
 }
 
 h2, h3, nav, .previous a, .next a, .intrologo {
-	font-family: archivo_narrowbold;
+	font-family: Cabin;
 }
 
-/*
-h2.logo {
-	font-family: BrandonText-Bold;
-}
-*/
 
 h1,h2,h3,h4 {
 	text-rendering: auto;
@@ -102,8 +100,8 @@ h1 a {
 	}
 
 h1 strong {
-	font-family:archivo_narrowbold;
-	color: #e38549;
+	font-family:Cabin;
+	color: #001685;
 	font-weight: 400;
 	}
 
@@ -112,7 +110,7 @@ h2 {
 	font-weight: 500;
 	line-height: 1.2;
 	margin: 0 0 1em 0;
-	color: #e38549;
+	color: #001685;
 	text-transform: uppercase;
 	letter-spacing: 2px;
 	}
@@ -147,7 +145,7 @@ h3 {
 	margin: 0 0 0.5em 0;
 	text-transform: uppercase;
 	letter-spacing: 1px;
-	color: #e38549;
+	color: #001685;
 }
 
 p+h3, ul+h3, ol+h3 {
@@ -467,11 +465,12 @@ article,section,nav,header,footer,figure,figcaption {
 
 .logo {
 	margin: 0 0 1em 78%;
-	background-image: url(../img/retro_eng_bw_40.png);
-	background-repeat:no-repeat;
+	/*background-image: url(../img/the-b-domain_40.jpg);*/
+	/*background-repeat:no-repeat;*/
 	padding: 14px 0 2px 0;
-	text-indent: 40px;
+	/*text-indent: 40px;*/
 	}
+
 
 nav {
 	overflow: hidden; /*clear floats*/
@@ -489,9 +488,8 @@ header {
 
 .icon {
 	float: right;
-	width: 25%;
+	width: 22%;
 	text-align: center;
-	margin-left: 2em;
 	}
 
 .icon img {
@@ -1007,29 +1005,6 @@ audio {
 		margin: 0.2em 0;
 		width: auto;
 	}
-	/*selected states*/
-	/*#default .n-work a,*/
-	/*#work .n-work a.active,*/
-	/*#speaking .n-speaking a,*/
-	/*#journal .n-journal a,*/
-	/*#archive .n-journal a,*/
-	/*#tag .n-journal a,*/
-	/*#goodies .n-goodies a,*/
-	/*#boxmodel .n-goodies a,*/
-	/*#iconreference .n-goodies a,*/
-	/*#contact .n-contact a {*/
-		/*background: url(../img/here.png) no-repeat 90% 50%;*/
-	/*}*/
-
-    /*selected states*/
-	#active a,
-	.n-contact #active a,
-	.n-journal #actove a {
-		background: url(../img/here.png) no-repeat 90% 50%;
-	}
-
-
-
 
 	#content { width: 82%; }
 	.body { padding: 0 0 0 0;}
@@ -1108,3 +1083,24 @@ audio {
 	}
 
 /*  */
+
+#login-btns {
+  width: 300px;
+}
+
+#login-btns ul {
+  list-style-type:none;
+  padding:0;
+  margin:0;
+}
+
+#login-btns ul li { margin-bottom:10px; }
+
+#login-btns ul li a {
+  width:200px;
+  text-align:left;
+}
+
+.well {
+    background: rgb(255,255,255);
+}

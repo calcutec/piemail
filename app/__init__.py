@@ -1,15 +1,13 @@
 import os
 from flask import Flask
-from flask.json import JSONEncoder
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
 from flask.ext.openid import OpenID
 from flask.ext.mail import Mail
-from flask.ext.images import Images
 from flask.ext.babel import Babel, lazy_gettext
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
-    MAIL_PASSWORD, UPLOAD_FOLDER, CACHE_FOLDER, MAX_CONTENT_LENGTH, SECRET_KEY, \
-    UPLOAD_FOLDER_NAME
+    MAIL_PASSWORD, UPLOAD_FOLDER, CACHE_FOLDER, MAX_CONTENT_LENGTH, \
+    UPLOAD_FOLDER_NAME, SQLALCHEMY_DATABASE_URI
 from momentjs import momentjs
 
 app = Flask(__name__)
@@ -17,6 +15,7 @@ app.config.from_object('config')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['UPLOAD_FOLDER_NAME'] = UPLOAD_FOLDER_NAME
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 db = SQLAlchemy(app)
 lm = LoginManager()
 lm.init_app(app)
@@ -26,9 +25,8 @@ oid = OpenID(app, os.path.join(basedir, 'tmp'))
 mail = Mail(app)
 babel = Babel(app)
 
-#Config for Flask-Images
-app.secret_key = SECRET_KEY
-images = Images(app)
+
+# Config for static assets
 
 if os.environ.get('HEROKU') is not None:
     app.config['IMAGES_PATH'] = ['static/heroku_user_imgs']
@@ -37,6 +35,14 @@ else:
 
 app.config['IMAGES_CACHE'] = CACHE_FOLDER
 
+app.config['OAUTH_CREDENTIALS'] = {
+    'facebook': {
+        'id': '951231784910539',
+        'secret': '724087cd0eef6537c5c16de5fda059f3'
+    }
+}
+
+from flask.json import JSONEncoder
 
 
 class CustomJSONEncoder(JSONEncoder):

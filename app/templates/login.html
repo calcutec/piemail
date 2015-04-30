@@ -2,51 +2,84 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <script type="text/javascript">
-    function set_openid(openid, pr)
-    {
-        u = openid.search('<username>');
-        if (u != -1) {
-            // openid requires username
-            user = prompt('Enter your ' + pr + ' username:');
-            openid = openid.substr(0, u) + user;
-        }
-        form = document.forms['login'];
-        form.elements['openid'].value = openid;
-    }
-    </script>
     {% include 'flash.html' %}
-    <div class="well">
-        <h3>{{ _('Please Sign In') }}</h3>
-        <form class="form" action="" method="post" name="login">
-            {{ form.hidden_tag() }}
-            <div class="help-block">{{ _('Click on your OpenID provider below:') }}</div>
-            <div class="control-group">
-                {% for pr in providers %}
-                <a href="javascript:set_openid('{{ pr.url }}', '{{ pr.name }}');"><img src="/static/img/{{ pr.name.lower() }}.png" class="img-polaroid" style="margin:2px;" /></a>
-                {% endfor %}
+{#    <div class="well">#}
+{#        <h3>{{ _('Please Sign In') }}</h3>#}
+{#        <form class="form" action="" method="post" name="login">#}
+{#            {{ form.hidden_tag() }}#}
+{#            <div class="help-block">{{ _('Click on your OpenID provider below:') }}</div>#}
+{#            <div class="control-group">#}
+{#                <a href="{{ url_for('oauth_authorize', provider='facebook') }}"><img src="/static/img/google.png" class="img-polaroid" style="margin:2px;"></a>#}
+{#                <a href="{{ url_for('oauth_authorize', provider='twitter') }}"><img src="/static/img/yahoo.png" class="img-polaroid" style="margin:2px;"></a>#}
+{#            </div>#}
+{#            <div class="control-group{% if form.openid.errors %} error{% endif %}">#}
+{#                <label class="control-label" for="openid">{{ _('Or enter your OpenID here:') }}</label>#}
+{#                <div class="controls">#}
+{#                    {{ form.openid(size=80, class="span4") }}#}
+{#                    {% for error in form.openid.errors %}#}
+{#                        <span class="help-inline">[{{ error }}]</span><br>#}
+{#                    {% endfor %}#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="control-group">#}
+{#                <div class="controls">#}
+{#                    <label class="checkbox" for="remember_me">#}
+{#                        {{ form.remember_me }} {{ _('Remember Me') }}#}
+{#                    </label>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="control-group">#}
+{#                <div class="controls">#}
+{#                    <input class="btn btn-primary" type="submit" value="{{ _('Sign In') }}">#}
+{#                </div>#}
+{#            </div>#}
+{#        </form>#}
+{#    </div>#}
+
+
+<div class="well">
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs">
+        <li>&nbsp;&nbsp;&nbsp;</li>
+        <li class="active"><a href="http://10fastfingers.com/login#login" data-toggle="tab">Login</a></li>
+        <li><a href="#">Create Account</a></li>
+    </ul>
+
+    <div class="tab-content">
+            <div class="col-sm-6" id="login-btns">
+                <h3 style="margin-bottom: 15px; ">1-Click-Login</h3>
+                <ul>
+                    <li><a href="{{ url_for('oauth_authorize', provider='facebook') }}" class="btn btn-warning" type="button"><i class="fa fa-facebook fa-lg"></i>&nbsp; Facebook Login</a></li>
+                    <li><a href="{{ url_for('oauth_authorize', provider='twitter') }}" class="btn btn-primary" type="button"><i class="fa fa-twitter fa-lg"></i>&nbsp; Twitter Login</a></li>
+                    <li><a href="{{ url_for('oauth_authorize', provider='google') }}" class="btn btn-info" type="button"><i class="fa fa-google-plus fa-lg"></i>&nbsp; Google Login</a></li>
+                </ul>
+                <label style="font-weight: normal;"><input type="checkbox" class="" id="remember-me-social-toggle" style="float: left; margin-left: 0px;" value="1"> &nbsp;&nbsp;Keep me logged in</label>
+                <hr>
             </div>
-            <div class="control-group{% if form.openid.errors %} error{% endif %}">
-                <label class="control-label" for="openid">{{ _('Or enter your OpenID here:') }}</label>
-                <div class="controls">
-                    {{ form.openid(size=80, class="span4") }}
-                    {% for error in form.openid.errors %}
-                        <span class="help-inline">[{{ error }}]</span><br>
-                    {% endfor %}
-                </div>
+            <div class="col-sm-6" id="email-login">
+                <h3 style="margin-bottom: 15px;">Email Login</h3>
+
+                <form action="http://10fastfingers.com/account/native_login" id="login-form" method="post" accept-charset="utf-8">
+                    <div style="display:none;"><input type="hidden" name="_method" value="POST"></div>
+                    <div class="alert alert-error" id="login-error" style="display:none; color:red"></div>
+                    <div class="input text required">
+                        <label for="UserUsername">Username / Email</label>
+                        <input name="data[User][username]" class="form-control" placeholder="Username / Email" maxlength="100" type="text" id="UserUsername" required="required">
+                    </div>
+                    <div class="input password required">
+                        <label for="UserPassword">Password</label>
+                        <input name="data[User][password]" class="form-control" type="password" id="UserPassword" required="required">
+                    </div>
+                    <div class="input checkbox"><input type="hidden" name="data[User][remember_me]" id="UserRememberMe_" value="0">
+                        <input type="checkbox" name="data[User][remember_me]" value="1" id="UserRememberMe">
+                        <label for="UserRememberMe">Keep me logged in</label>
+                    </div>
+                    <button class="btn btn-info" id="login-form-submit" type="submit">Login</button>
+                </form>
+                <a href="http://10fastfingers.com/password-recovery" id="forgot-your-password" style="font-weight: normal">Forgot your Password?</a>
             </div>
-            <div class="control-group">
-                <div class="controls">
-                    <label class="checkbox" for="remember_me">
-                        {{ form.remember_me }} {{ _('Remember Me') }}
-                    </label>
-                </div>
-            </div>
-            <div class="control-group">
-                <div class="controls">
-                    <input class="btn btn-primary" type="submit" value="{{ _('Sign In') }}">
-                </div>
-            </div>
-        </form>
     </div>
+</div>
+
+
 {% endblock %}

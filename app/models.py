@@ -5,6 +5,7 @@ from app import db
 from app import app
 from config import WHOOSH_ENABLED
 from flask import url_for
+from flask.ext.login import UserMixin
 
 import sys
 if sys.version_info >= (3, 0):
@@ -22,8 +23,9 @@ followers = db.Table(
 )
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    social_id = db.Column(db.String(64), nullable=False, unique=True)
     firstname = db.Column(db.String(100))
     lastname = db.Column(db.String(100))
     nickname = db.Column(db.String(64), index=True, unique=True)
@@ -139,6 +141,7 @@ class Post(db.Model):
     def __repr__(self):  # pragma: no cover
         return '<Post %r>' % (self.body)
 
+
 class Comment(db.Model):
     __tablename__ = 'comment'
     id = db.Column(db.Integer, primary_key=True)
@@ -152,3 +155,5 @@ class Comment(db.Model):
 
 if enable_search:
     whooshalchemy.whoosh_index(app, Post)
+
+

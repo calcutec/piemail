@@ -5,30 +5,33 @@ from flask.ext.wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.validators import DataRequired, Email, Length, ValidationError
 from .models import User
 
+
 class LoginForm(Form):
     openid = StringField('openid', validators=[DataRequired()])
     remember_me = BooleanField('remember_me', default=False)
 
+
 class SignupForm(Form):
-  firstname = StringField("First name",  [DataRequired("Please enter your first name.")])
-  lastname = StringField("Last name",  [DataRequired("Please enter your last name.")])
-  email = StringField("Email",  [DataRequired("Please enter your email address."), Email("Please enter your email address.")])
-  password = PasswordField('Password', [DataRequired("Please enter a password.")])
-  submit = SubmitField("Create account")
+    firstname = StringField("First name",  [DataRequired("Please enter your first name.")])
+    lastname = StringField("Last name",  [DataRequired("Please enter your last name.")])
+    email = StringField("Email",  [DataRequired("Please enter your email address."), Email("Please enter your email address.")])
+    password = PasswordField('Password', [DataRequired("Please enter a password.")])
+    submit = SubmitField("Create account")
 
-  def __init__(self, *args, **kwargs):
-    Form.__init__(self, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
 
-  def validate(self):
-    if not Form.validate(self):
-      return False
+        def validate(self):
+            if not Form.validate(self):
+                return False
 
-    user = User.query.filter_by(email = self.email.data.lower()).first()
-    if user:
-      self.email.errors.append("That email is already taken")
-      return False
-    else:
-      return True
+            user = User.query.filter_by(email = self.email.data.lower()).first()
+            if user:
+                self.email.errors.append("That email is already taken")
+                return False
+            else:
+                return True
+
 
 class EditForm(Form):
     nickname = StringField('nickname', validators=[DataRequired()])
@@ -63,7 +66,8 @@ class PostForm(Form):
     header = StringField('header', validators=[DataRequired()])
     photo = FileField('Your photo', validators=[FileAllowed(['jpg','png'], 'Images only!')])
     submit = SubmitField("Send")
-    
+
+
 class CommentForm(Form):
     comment = StringField('comment', validators=[DataRequired()])
     submit = SubmitField("Send")
@@ -71,3 +75,11 @@ class CommentForm(Form):
 
 class SearchForm(Form):
     search = StringField('search', validators=[DataRequired()])
+
+
+class ContactForm(Form):
+    name = StringField("Name")
+    email = StringField("Email")
+    subject = StringField("Subject")
+    message = TextAreaField("Message")
+    submit = SubmitField("Send")
