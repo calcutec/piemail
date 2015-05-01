@@ -47,7 +47,6 @@ a:visited {
 
 .selected{
     color:#F00;
-    background: url(../img/here.png) no-repeat 90% 50%;
 }
 
 h1 {
@@ -204,7 +203,6 @@ img {
 
 blockquote p {
     font-size: 1em;
-    /*line-height: 2;*/
     text-indent: -0.4em;
     margin: 0 0 0.5em 0;
     padding: 0 0 0 2em;
@@ -399,7 +397,11 @@ footer {
 	nav ul{font-size: 0.75em;}}
 
 @media screen and (max-width: 800px) {
-	body { font-size: 95%; }}
+	body { font-size: 95%; }
+    .icon img { display: none; }
+    .header_text { margin-left: 70px; }}
+
+
 
 @media screen and (min-width: 1024px) {
 	body { font-size: 112.5%; }}
@@ -465,10 +467,10 @@ article,section,nav,header,footer,figure,figcaption {
 
 .logo {
 	margin: 0 0 1em 78%;
-	/*background-image: url(../img/the-b-domain_40.jpg);*/
-	/*background-repeat:no-repeat;*/
+	background-image: url(../img/the-b-domain_40.jpg);
+	background-repeat:no-repeat;
 	padding: 14px 0 2px 0;
-	/*text-indent: 40px;*/
+	text-indent: 44px;
 	}
 
 
@@ -496,6 +498,11 @@ header {
 	width: 100%;
 	height: auto;
 	}
+
+.header_text {
+    text-align: center;
+	}
+
 
 #content {
 	width: 100%;
@@ -909,7 +916,7 @@ audio {
 		.logo {
 			margin: 0 auto;
 			background-position: left center;
-			text-align: center;
+			/*text-align: center;*/
 			width:  5.5em;
 			height: 1.5em;
 			line-height: 1;

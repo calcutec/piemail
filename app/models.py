@@ -44,11 +44,12 @@ class User(UserMixin, db.Model):
                                lazy='dynamic')
 
     # def __init__(self, firstname, lastname, nickname, email, password):
-    def __init__(self, nickname, email):
+    def __init__(self, nickname, email, social_id):
         # self.firstname = firstname.title()
         # self.lastname = lastname.title()
         self.nickname = nickname
         self.email = email.lower()
+        self.social_id = social_id
         # self.set_password(password)
 
     def set_password(self, password):

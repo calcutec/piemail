@@ -4,7 +4,7 @@
 	<head>
 		<meta charset="utf-8">
 
-{#        Todo: Research and create search function#}
+{#        Todo: Create search function#}
 {#        {% if title %}#}
 {#        <title>Search results for  &quot;Four&quot; |{{ title }} - burtonblog</title>#}
 {#        {% else %}#}
@@ -39,7 +39,6 @@
 
 		<!--[if gte IE 7]><!-->
 		    <link href="{{ url_for('.static', filename='css/layout.css') }}" rel="stylesheet" type="text/css" media="all">
-		    <link href="{{ url_for('.static', filename='css/brandon.css') }}" rel="stylesheet" type="text/css">
 		    <link href="{{ url_for('.static', filename='css/stylesheet.css') }}" rel="stylesheet" type="text/css" charset="utf-8" />
             <link href='http://fonts.googleapis.com/css?family=Cabin:400,500,600,700,400italic,500italic,600italic,700italic' rel='stylesheet' type='text/css'>
 		<!--<![endif]-->
@@ -65,17 +64,10 @@
 		<link rel="alternate" type="application/rss+xml" title="Burtonblog" href="http://the-b-domain.com/feeds/rss/" />
 
 		<!-- JS -->
-{#		<script src="/js/jquery.js"></script>#}
-{#        Todo: Complete fonts and remove typekit#}
-{#		<script src="http://use.typekit.com/ace1net.js"></script>#}
         <script src="http://code.jquery.com/jquery-latest.js"></script>
-{#		<script>try{Typekit.load();}catch(e){}</script>#}
 		<script src="{{ url_for('.static', filename='js/popout_image.js') }}"></script>
         <script src="{{ url_for('.static', filename='js/bootstrap.min.js') }}"></script>
-        <script src="{{ url_for('.static', filename='js/moment.min.js') }}"></script>
-        {% if g.locale != 'en' %}
-        <script src="{{ url_for('.static', filename='js/moment-' + g.locale + '.min.js') }}"></script>
-        {% endif %}
+
         <script>
             $(function(){
                 $("a").each(function(){
@@ -89,15 +81,17 @@
 
 	<body>
 		<div class="page">
-			<h2 class="logo">THE-B-DOMAIN</h2>
+			<h2 class="logo">DOMAIN</h2>
 			<nav>
 				<ul>
-{#				    Todo: Create new landing page with open access#}
 					<li><a href="{{ url_for('index') }}">{{ _('Home') }}</a></li>
+					{% if not g.user.is_authenticated() %}
+					    <li class="n-login"><a href="{{ url_for('login') }}">{{ _('Login') }}</a></li>
+					{% endif %}
 					{% if g.user.is_authenticated() %}
-					<li class="n-work" id="active"><a href="{{ url_for('favorites') }}">{{ _('Favs') }}</a></li>
-					<li class="n-journal"><a href="{{ url_for('user', nickname=g.user.nickname) }}">{{ _('Profile') }}</a></li>
-					<li class="n-contact"><a href="{{ url_for('logout') }}">{{ _('Logout') }}</a></li>
+                        <li class="n-work" id="active"><a href="{{ url_for('favorites') }}">{{ _('Blog') }}</a></li>
+                        <li class="n-journal"><a href="{{ url_for('user', nickname=g.user.nickname) }}">{{ _('Profile') }}</a></li>
+                        <li class="n-contact"><a href="{{ url_for('logout') }}">{{ _('Logout') }}</a></li>
 					{% endif %}
 				</ul>
 			</nav>
@@ -105,11 +99,13 @@
 
 				<header>
 					<div class="icon">
-					<img src="{{url_for('.static', filename='img/icons/the-b-domain_130.jpg') }}" />
+					    <img src="{{url_for('.static', filename='img/icons/the-b-domain_130.jpg') }}" />
 					</div>
-					<h1> <strong>The - B - Domain</strong></h1>
-					<h1>Front to back web solutions</h1>
-					<h1>with Javascript and Python</h1>
+					<div class="header_text">
+                        <h1><strong>Custom Built</strong></h1>
+                        <h1><strong>Javascript & Python</strong></h1>
+                        <h1><strong>Web Solutions</strong></h1>
+					</div>
 				</header>
 
 				<div id="main">
@@ -139,9 +135,9 @@
 					</section>
 					<section class="social">
 						<h3>Social clubs:</h3>
-						<p><a href="http://twitter.com/Hicksdesign" title="Hicksdesign on Twitter"><img src="{{ url_for('.static', filename='img/social/twitter-24x24.png') }}" alt="Hickensian on Twitter" /> Twitter</a></p>
-						<p><a href="http://instagram.com/hicksdesign"><img src="http://www.hicksdesign.co.uk/else/images/instagram.png" alt="Hicks on Instagram" /> Instagram</a></p>
-						<p><a href="http://www.flickr.com/photos/hicksdesign/" title="Hicksdesign on Flickr"><img src="{{ url_for('.static', filename='img/social/flickr-24x24.png') }}" alt="Hicksdesign on Flickr" /> Flickr</a></p>
+						<p><a href="http://twitter.com/Hicksdesign" title="Hicksdesign on Twitter"><img src="{{ url_for('.static', filename='img/social/twitter-24x24.png') }}" alt="Hickensian on Twitter" />Twitter</a></p>
+						<p><a href="http://instagram.com/hicksdesign"><img src="http://www.hicksdesign.co.uk/else/images/instagram.png" alt="Hicks on Instagram" />Instagram</a></p>
+						<p><a href="http://www.flickr.com/photos/hicksdesign/" title="Hicksdesign on Flickr"><img src="{{ url_for('.static', filename='img/social/flickr-24x24.png') }}" alt="Hicksdesign on Flickr" />Flickr</a></p>
 					</section>
 					<section class="hc">
 						<h3>Engine Room:</h3>
@@ -152,7 +148,7 @@
 			</div><!-- /content -->
 
 			<footer>
-				<p>&copy;The-B-Domain. 2002-15.</p>
+				<p>&copy;The-B-Domain. 2015.</p>
 			</footer>
 
 		</div><!-- /page -->

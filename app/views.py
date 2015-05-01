@@ -20,6 +20,7 @@ from .utils import generate_thumbnail
 from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, LANGUAGES, \
     DATABASE_QUERY_TIMEOUT
 
+from rauth import OAuth2Service
 from slugify import slugify
 
 
@@ -89,11 +90,12 @@ def favorites(page=1):
         db.session.commit()
         flash(gettext('Your post is now live!'))
         return redirect(url_for('favorites'))
-    favorite_posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
+    # favorite_posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
+    posts = g.user.all_posts().paginate(page, POSTS_PER_PAGE, False)
     return render_template('favorites.html',
                            title='Favorites',
                            form=form,
-                           posts=favorite_posts,
+                           posts=posts,
                            upload_folder_name=app.config['UPLOAD_FOLDER_NAME'])
 
 @app.route('/', methods=['GET', 'POST'])
@@ -287,9 +289,7 @@ def translate():
             request.form['destLang'])})
 
 
-from rauth import OAuth2Service
 current_app = app
-
 
 class OAuthSignIn(object):
     providers = None
