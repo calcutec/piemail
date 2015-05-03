@@ -24,7 +24,7 @@ body {
 	color: rgba(0,0,0,0.7);
 	-webkit-font-smoothing: antialiased;
 	text-rendering: optimizeLegibility;
-	font-family: 'Cabin', "Hoefler Text", Georgia, Times, serif;
+	font-family: "Cabin", "Hoefler Text", Georgia, Times, serif;
 }
 
 a {
@@ -32,19 +32,19 @@ a {
 	color: #8787c1;
 	transition: color 0.2s;
 	font-weight: 700;
-	}
+}
 
 a:hover,
 a:focus {
 	color: #000;
-	}
+}
 
 a:visited {
 	font-weight: normal;
-	}
+}
 
-h1, cite, .date, #test #content, #work #content, .fusion {
-font-family:	'Cabin',
+h1, cite, .date {
+font-family:	"Cabin",
 				"Gill Sans",
 				"Gill Sans MT",
 				GillSansMT,
@@ -56,14 +56,14 @@ font-family:	'Cabin',
 }
 
 h2, h2 a, footer, .org, .previous a, .next a, .intrologo {
-	font-family: 'Cabin', sans-serif;
+	font-family: "Cabin", sans-serif;
 	font-weight: 400;
 	text-transform: uppercase;
 	letter-spacing: 0.15rem;
 }
 
 h3, h3 a, h4, .archives a, .details, .details a, nav a, .social a {
-	font-family: 'Cabin', sans-serif;
+	font-family: "Cabin", sans-serif;
 	font-weight: normal;
 	text-transform: uppercase;
 	letter-spacing: 0.075rem;
@@ -74,44 +74,34 @@ h1 {
 	line-height: 1.2;
 	letter-spacing: -0.05rem;
 	text-align: center;
-	color: #666;
+	color: #001685;
 }
 
 h1 strong {
-	color: #666;
+    color: #666;
 	color: #e38549;
 	font-weight: 400;
-	}
+}
 
 h2 {
 	font-size: 1.3125rem;
 	line-height: 1.2;
 	margin: 0 0 2rem 0;
-	/*color: #e38549;*/
+	color: #001685;
+    text-transform: uppercase;
 	text-align: center;
-	}
-
-.work article h2 {
-	font-size: 1rem;
 }
 
 .archives h4+h2 {
 	border-top: 1px solid #ddd;
 	margin: 1rem 0 0.5em 0;
 	padding: 1rem 0 0 0;
-	}
+}
 
 h3 {
 	font-size: 1rem;
 	line-height: 1.2;
 	margin: 0 0 1rem 0;
-}
-
-#work h3 {
-	margin: 0.5rem 0;
-	font-size: 0.875rem;
-	color: #aaa;
-	text-align: center;
 }
 
 section h3 {
@@ -120,25 +110,24 @@ section h3 {
 
 p+h3, ul+h3, ol+h3 {
 	margin: 2rem 0 0.25rem 0;
-	}
-
+}
 
 h3.date {
 	margin: 0 0 1.5em 0;
 	font-size: 0.81em;
-	}
+}
 
 h4 {
 	font-size: 0.875em;
-	}
+}
 
 .archives h4 {
 	padding: 0 0 0.25rem 5rem;
-	}
+}
 
 p, pre, ul, ol, .lines, object, input, code {
 	margin: 0 0 1rem 0;
-	}
+}
 
 figcaption, .caption {
 	text-align: right;
@@ -149,13 +138,13 @@ figcaption, .caption {
 
 #journal figcaption, .caption {
 	font-style: italic;
-	}
+}
 
 img {
 	border: 0;
 	max-width: 100%;
 	height: auto;
-	}
+}
 
 blockquote p {
     font-size: 1.125rem;
@@ -167,17 +156,18 @@ blockquote p {
 }
 
 blockquote p:before {
-	content: '“';
-	}
+	content: 'â€œ';
+}
+
 blockquote p:after {
-	content: '”';
-	}
+	content: 'â€';
+}
 
 cite {
 	display: block;
 	font-style: normal;
 	text-align: right;
-	}
+}
 
 pre {
 	background: #f8f8f8;
@@ -185,20 +175,20 @@ pre {
 	padding: 0.75rem;
 	margin: 0 0 1rem 0;
     border-left: 1px solid #ddd;
-   }
+}
 
 code {
 	font-family: Consolata, monospace;
 	background: #f8f8f8;
-	}
+}
 
 fieldset {
 	border: 0;
-	}
+}
 
 article li {
 	margin: 0 0 0.25rem 0;
-	}
+}
 
 .intrologo {
 	text-transform: uppercase;
@@ -211,27 +201,21 @@ nav ul {
 	font-size: 0.875rem;
 	line-height: 1;
 	width: 100%;
-	}
+}
 
 nav a {
 	display: block;
 	margin: 0 0.5rem;
 	padding: 0.5rem 0;
 	letter-spacing: 0.15rem;
-	}
+}
 
 /*selected states*/
-#default .n-work a,
-#test .n-work a,
-#work .n-work a,
-#speaking .n-speaking a,
-#journal .n-journal a,
-#archive .n-journal a,
-#tag .n-journal a,
-#goodies .n-goodies a,
-#boxmodel .n-goodies a,
-#iconreference .n-goodies a,
-#contact .n-contact a {
+#active .n-home a,
+#active .n-login a,
+#active .n-blog a,
+#active .n-profile a,
+#active .n-logout a {
 	color: #000;
 	border-bottom: 2px solid #E1B200;
 }
@@ -242,7 +226,7 @@ nav a {
 	padding: 0;
 	margin: 2rem 0 1rem 0;
 	white-space: nowrap;
-	}
+}
 
 .details li {
 	display: inline-block;
@@ -253,31 +237,29 @@ nav a {
 	padding: 0 1rem 0 0;
 	margin: 0 1rem 0 0;
 	border-right: 1px solid #ddd;
-	}
+}
 
-li.tags,
-li.service {
+li.tags {
 	border-right: 0;
 	padding: 0 1rem 0 0;
-	}
+}
 
 .posted b {
 	letter-spacing: 0.1rem;
 	font-weight: normal;
 	color: #666;
-	}
+}
 
 .details span {
 	display: block;
 	line-height: 1;
-	}
+}
 
 footer {
 	color: #666;
 	font-size: 0.875rem;
 	letter-spacing: 0.05rem;
-	}
-
+}
 
 .social p {
 	line-height: 1.8;
@@ -285,41 +267,37 @@ footer {
 	font-weight: bold;
 	text-transform: uppercase;
 	letter-spacing: 0.1rem;
-	}
+}
 
 .vcard p { margin: 0; }
 .vcard .adr { margin: 0 0 0.875em 0; overflow: hidden;}
-
 /* @end */
 
 
-
 /* @group Responsive Typesetting */
-
 @media screen and (min-width: 1280px) {
-	html { font-size: 106%;}}
-
+	html { font-size: 106%;}
+}
 
 @media screen and (min-width: 1680px) {
-	html { font-size: 112%;}}
-
+	html { font-size: 112%;}
+}
 /* @end */
 
 
 /* @group Layout */
-
 /*html5 elements*/
 article,section,nav,header,footer,figure,figcaption {
 	display: block;
-	}
+}
 
 .hide {
-  display: none;
+  	display: none;
 }
 
 body {
 	padding: 2rem 8%;
-	}
+}
 
 .page {
 	max-width: 40rem;
@@ -331,9 +309,7 @@ header {
 	border-bottom: 1px solid #ddd;
 }
 
-
-#default header,
-#test header {
+#default header {
 	border: 0;
 }
 
@@ -344,6 +320,15 @@ header {
 	height: auto;
 }
 
+/*.logo {*/
+	/*background-image: url(../img/the-b-domain_32.jpg);*/
+	/*background-repeat: no-repeat;*/
+	/*background-position: 46% 0;*/
+    /*text-align: center;*/
+	/*background-size: auto 100%;*/
+	/*height: 2rem;*/
+/*}*/
+
 .logo {
 	background-image: url(http://www.hicksdesign.co.uk/else/images/hicks_logo.svg);
 	background-repeat: no-repeat;
@@ -351,7 +336,7 @@ header {
 	text-indent: -999rem;
 	background-size: auto 100%;
 	height: 2rem;
-	}
+}
 
 nav {
 	text-align: center;
@@ -361,113 +346,20 @@ nav li {
 	display: inline-block;
 }
 
-/*Work*/
-
-#default .work article,
-#test .work article {
-	width: 48%;
-	float: left;
-	position: relative;
-	overflow: hidden;
-	margin: 1%;
-	padding: 0;
-	vertical-align: top;
-	transition: width,height 0.2s;
-	}
-
-.work article {
-	border: 0;
-}
-
-#default .work article h2,
-#test .work article h2 {
-	margin: 0;
-	padding-top:75%;
-}
-
-#default .work article h2 a,
-#test .work article h2 a{
-	text-indent: -999em;
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-	z-index: 2;
-	padding: 1em;
-}
-
-#default .work article h2 a:hover,
-#test .work article h2 a:hover{
-	text-indent: 0;
-	background: rgba(233,91,53,0.8);
-	color: #fff;
-}
-
-#default .work article .body,
-#test .work article .body {
-	overflow: hidden;
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-}
-
-.work article .body {
-	padding: 0;
-	margin: 0;
-}
-
-.work article img {
-	margin: 0;
-}
-
-.work .centered img {
-	margin: 0 auto;
-}
-
-.work .body ul {
-	list-style-type: none;
-	max-width: 33em;
-}
-
 /*Float Clearance*/
 #journal article:after,
-.work:after,
-.covers:after,
-#contact #content:after,
-#default #main:after,
-.clients:after,
-.playlist ol:after  {
+#contact #content:after {
    content: "";
    clear: both;
    display: block;
- }
-
-/*Clients*/
-
-.clients {
-	padding: 2rem 0;
-	line-height: 1.6;
-	/*font-size: 0.875rem;*/
 }
-
-.clients img {
-  display: inline-block;
-  margin: 0.5rem 4%;
-  vertical-align: middle;
-  max-width: 24%;
-}
-
 
 /*Journal*/
-
 article {
 	margin: 1rem 0;
 	padding: 0 0 1rem 0;
 	border-bottom: 1px solid #ddd;
-	}
+}
 
 #tag article:last-child {
 	border-bottom: 0;
@@ -479,9 +371,7 @@ article img,
 	/*max-height:85vh;*/
 	display: block;
 	margin: 0 auto;
-	}
-
-
+}
 
 figure {
 	margin: 2em 0;
@@ -511,19 +401,11 @@ li.tags {
 	border-right: 0;
 }
 
-/*li.tags a {
-	background: #ccc;
-	color: #fff;
-	padding: 0 0.3rem;
-	line-height: 2;
-	display: inline-block;
-}*/
-
 .backanforth {
 	border-bottom: 1px solid #ddd;
 	margin: 0 0 1.5rem 0;
 	text-align: center;
-	}
+}
 
 .previous, .next {
 	display: inline-block;
@@ -542,8 +424,8 @@ li.tags {
 	width: 100%;
 }
 
-.previous a { background-image: url("http://hicksdesign.co.uk/images/older.png");}
-.next a { background-image: url("http://hicksdesign.co.uk/images/newer.png");}
+.previous a { background-image: url(../img/older.png);}
+.next a { background-image: url(../img/newer.png);}
 
 .previous a:hover, .next a:hover {
 	background-color: #f9f2e3;
@@ -551,11 +433,11 @@ li.tags {
 
 .archives {
 	margin: 1rem 0;
-	}
+}
 
 .archives h4 {
 	padding: 0 0 0.25rem 5rem;
-	}
+}
 
 .archives h4 span {
 	float: left;
@@ -563,33 +445,33 @@ li.tags {
 	color: #e60000;
 	color: #888;
 	margin: 0 0 0 -5rem;
-	}
+}
 
 #archive .archives span {
 	width: 1.5rem;
 	margin: 0 1rem 0 -1.5rem;
-	}
+}
 
 #archive .archives h4 {
 	padding: 0 0 0 1.5rem;
 	margin: 0 0 0.25rem 2rem;
-	}
+}
 
 .search {
 	border-top: 1px solid #ddd;
 	padding: 2em 0 0 0;
-	}
+}
 
 .search label {
 	margin: 0 1em 0 0;
-	}
+}
 
 .search #q {
 	padding: 0.5rem;
 	border: 1px solid #ddd;
 	width: 30%;
 	font-size: 0.875em;
-	}
+}
 
 input.submit {
 	border-radius: 0 6px 6px 0;
@@ -599,56 +481,9 @@ input.submit {
 	font-size: 0.875em;
 	padding: 0.5em;
 	margin: 0 0 0 -1px;
-	}
-
-
-/*Troika*/
-
-.troika-cover {
-	/*max-width: 80%;*/
-	margin: 0 auto 1rem auto;
-}
-
-.troika-cover img {
-    margin: 0;
-}
-
-.troika-cover audio {
-  background-color: #000;
-}
-
-audio {
-  width: 100%;
-  margin: 0 0 1rem 0;
-}
-
-#troika header {
-	border: 0;
-}
-
-.covers {
-	margin: 0 0 2rem 0;
-}
-
-#troika article {
-	margin: 0;
-	padding: 0;
-	border: 0;
-}
-
-#troika article .troika-cover {
-	float:left;
-	border: 0;
-	margin: 0;
-	width: 25%;
-}
-
-#troika article audio {
-	display: none;
 }
 
 /*Side Sections*/
-
 #side section {
 	margin: 0 0 1rem 0;
 	padding: 1.5rem 0 0 0;
@@ -656,74 +491,21 @@ audio {
 	background-position: 0 0.5em;
 	font-size: 0.875rem;
 	border-top: 1px solid #ddd;
-	}
+}
 
 #side section.social {
-	background-image: url("http://hicksdesign.co.uk/images/icons/Social.svg");
+	background-image: url(../img/sideicons_social.png);
 	padding: 2.5rem 0 1.25rem 0;
-	}
-#side section.playlist {
-	background-image: url("http://hicksdesign.co.uk/images/icons/Playlist.svg");
-	padding: 2.5rem 0 1.25rem 0;
-	}
+}
+
 #side section.contact {
-	background-image: url("http://hicksdesign.co.uk/images/icons/Contact.svg");
+	background-image: url(../img/sideicons_contact.png);
 	padding: 2.5rem 0 1.25rem 0;
-	}
-
-.playlist ol {
-	width: 100%;
-	list-style-type: none;
-	line-height: 1;
-	height: 125px;
-	white-space: nowrap;
-	overflow: hidden;
-	}
-
-.playlist li {
-	margin: 0;
-	padding: 0;
-	float: left;
-}
-
-.playlist ol a {
-	margin: 0 0.25rem;
-}
-
-.playlist img {
-	max-width: 100%;
-	height: auto;
 }
 
 .social img {
 	margin: -0.4rem 0.3rem 0 0;
 	vertical-align: middle;
-	}
-
-#side .bookplug {
-	background: #f9f2e3;
-	border-top: 0;
-}
-
-.book {
-	padding: 1rem;
-}
-
-.bookplug a {
-	display: block;
-	color: #000;
-	font-size: 0.875rem;
-}
-
-.bookplug a span {
-	font-weight: normal;
-}
-
-.bookplug img {
-	display: block;
-	margin: 0 auto 1em auto;
-	max-width: 100%;
-	height: auto;
 }
 
 .hc img{
@@ -732,23 +514,6 @@ audio {
 }
 
 /*Contact Section*/
-
-.needs {
-	list-style-type: none;
-	padding: 0;
-	}
-
-.needs li {
-	margin: 0 0 0.75em 0;
-	padding: 0 0 0 2.5rem;
-	background-repeat: no-repeat;
-	background-position: 0 0;
-	}
-
-	.needs .time {	background-image: url("http://hicksdesign.co.uk/images/sideicons_timescale.png");}
-	.needs .budget {	background-image: url("http://hicksdesign.co.uk/images/sideicons_budget.png");}
-	.needs .scope {	background-image: url("http://hicksdesign.co.uk/images/sideicons_scope.png");}
-
 #contact #side section {
 	padding: 1rem 0 0 0;
 	border: 0;
@@ -781,7 +546,6 @@ audio {
 }
 
 @media screen and (min-width: 620px) {
-
 	h1, #work h3 {
 		text-align: left;
 	}
@@ -793,13 +557,13 @@ audio {
 	}
 
 	nav {
-		/*margin: 1 0 0 30%;*/
+		margin: 1% 0 0 30%;
 		padding: 0.3rem 0 0 0;
 		text-align: right;
 	}
 
-  nav ul {
-  	font-size: 1rem;
+  	nav ul {
+  		font-size: 1rem;
   	}
 
 	nav a {
@@ -808,7 +572,7 @@ audio {
 
 	header {
 		min-height: 4rem;
-		}
+	}
 
 	.icon  {
 		float: right;
@@ -821,21 +585,6 @@ audio {
 		display: block;
 		margin: 0 auto;
 	}
-
-
-	#side .bookplug  {
-		float: left;
-		padding: 0;
-	}
-
-	#side .bookplug,#side .social,#side .contact {
-		width: 30%;
-		margin: 0 2.5% 0 0;
-		}
-
-	#side .bookplug {
-		margin: 0 2.5% 0 0;
-		}
 
 	#side .social {
 		margin: 0.25% 0;
@@ -862,11 +611,9 @@ audio {
 		width: 30%;
 		margin: -10px 0 0 0;
 	}
-
 }
 
 @media screen and (min-width: 1024px) and (min-height: 400px) {
-
 	.page {
 	 	max-width: 100%;
 	 	margin: 0;
@@ -906,27 +653,17 @@ audio {
 	}
 
 	/*selected states*/
-
-	#default .n-work a,
-	#test .n-work a,
-	#work .n-work a,
 	#journal .n-journal a,
 	#archive .n-journal a,
 	#tag .n-journal a,
-	#goodies .n-goodies a,
-	#boxmodel .n-goodies a,
 	#contact .n-contact a {
 		border-bottom: 0;
 	}
 
-	#default .n-work a:before,
-	#test .n-work a:before,
-	#work .n-work a:before,
+
 	#journal .n-journal a:before,
 	#archive .n-journal a:before,
 	#tag .n-journal a:before,
-	#goodies .n-goodies a:before,
-	#boxmodel .n-goodies a:before,
 	#contact .n-contact a:before {
 		position: absolute;
 		left: -1.5rem;
@@ -941,15 +678,15 @@ audio {
 	header {
 		padding: 1rem 0 2rem 0;
 		min-height: 6rem;
-		}
+	}
 
 	h1 {
 		max-width: 70%;
 	}
 
-	/*.body {*/
-		/*padding: 0 0 0 5rem;*/
-	/*}*/
+	.body {
+		padding: 0 0 0 5rem;
+	}
 
 	footer {
 		font-size: 0.625rem;
@@ -973,11 +710,7 @@ audio {
 		top: 0;
 		left: 80%;
 		right: 0;
-		background: url("http://hicksdesign.co.uk/images/paulsmith.gif");
-		}
-
-	.clients img {
-  		width: 20%;
+		background: url(../img/paulsmith.gif);
 	}
 
 	#contact #main {
@@ -990,38 +723,10 @@ audio {
 		float: right;
 		width: 30%;
 	}
-
-	/*Work Section*/
-	#default .work article,#test .work article {width: 31%;}
-
-	.clients .col {
-	  max-width: 33%;
-	  float: right;
-	}
-
-	.clients img {
-	  width: 13%;
-	}
 }
 
 
 @media screen and (min-width: 1200px) {
-
-	#default .work article:first-child,
-	#test .work article:first-child {
-		width: 48%;
-	}
-
-	#default .work article:first-child img,
-	#test .work article:first-child img {
-		width: 100%;
-	}
-
-	#default .work article,
-	#test .work article {
-		width: 23%;
-		}
-
 	#main {
 		float: left;
 		width: 75%;
@@ -1042,25 +747,9 @@ audio {
 		width: auto !important;
 	}
 
-	#side .bookplug {
-		margin: 2rem 0;
-	}
-
-	.playlist ol {
-		white-space: normal;
-		height: auto;
-		}
-
-	.playlist li {
-		width: 48%;
-		margin: 1%;
-		float: left;
-	}
-
 	.hc p,.hc p+p {
 		float: none;
 		width: auto;
 		margin: 0;
 	}
-
 }
