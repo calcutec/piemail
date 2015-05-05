@@ -35,5 +35,5 @@ def generate_thumbnail(filename, filename_path, box, photo_type, crop=True):
     thumbnail_name = photo_type + "_" + filename
     thumbnail_path = os.path.join(app.config['UPLOAD_FOLDER'], thumbnail_name)
     extension = thumbnail_name.split(".")[1].upper()
-    img.save(thumbnail_path, extension, quality=75)
+    img.save(thumbnail_path, quality=75)
     return thumbnail_name

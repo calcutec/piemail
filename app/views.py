@@ -209,7 +209,12 @@ def posts(slug):
         db.session.commit()
         flash('Your comment is now live!')
         return redirect(url_for('posts', slug=slug))
-    return render_template('posts/detail.html', **context)
+    page_mark = 'forum'
+    page_logo = 'img/icons/forum.svg'
+    return render_template('posts/detail.html',
+                           page_mark=page_mark,
+                           page_logo=page_logo,
+                           **context)
 
 
 @app.route('/follow/<nickname>')
