@@ -355,11 +355,11 @@ header {
 }
 
 .logo {
-	background-image: url(../img/icons/new_b_domain.png);
+	background-image: url(../img/icons/netbard.svg);
 	background-repeat: no-repeat;
 	background-position: 46% 0;
 	background-size: auto 100%;
-	height: 2rem;
+	height: 4rem;
 	}
 
 nav {
@@ -666,16 +666,21 @@ audio {
 	border-top: 1px solid #ddd;
 	}
 
+#side section:first-child {
+  border-top: none;
+}
+
+#side section:last-child {
+  border-bottom: none;
+}
+
 #side section.social {
-	background-image: url("http://hicksdesign.co.uk/images/icons/Social.svg");
+	background-image: url("../img/icons/Social.svg");
 	padding: 2.5rem 0 1.25rem 0;
 	}
-#side section.playlist {
-	background-image: url("http://hicksdesign.co.uk/images/icons/Playlist.svg");
-	padding: 2.5rem 0 1.25rem 0;
-	}
+
 #side section.contact {
-	background-image: url("http://hicksdesign.co.uk/images/icons/Contact.svg");
+	background-image: url("../img/icons/Contact.svg");
 	padding: 2.5rem 0 1.25rem 0;
 	}
 
@@ -690,22 +695,6 @@ audio {
 }
 
 /*Contact Section*/
-.needs {
-	list-style-type: none;
-	padding: 0;
-	}
-
-.needs li {
-	margin: 0 0 0.75em 0;
-	padding: 0 0 0 2.5rem;
-	background-repeat: no-repeat;
-	background-position: 0 0;
-	}
-
-	.needs .time { background-image: url("http://hicksdesign.co.uk/images/sideicons_timescale.png");}
-	.needs .budget { background-image: url("http://hicksdesign.co.uk/images/sideicons_budget.png");}
-	.needs .scope {	background-image: url("http://hicksdesign.co.uk/images/sideicons_scope.png");}
-
 #contact #side section {
 	padding: 1rem 0 0 0;
 	border: 0;
@@ -718,7 +707,6 @@ audio {
 .emaillink .next a {
 	text-align: center;
 }
-
 
 @media screen and (min-width: 360px) {
 
@@ -787,13 +775,13 @@ audio {
 		margin: 0 auto;
 	}
 
-	#side .social {
+	#side .social .contact {
 		margin: 0.25% 0;
 	}
 
-	#side .contact {
-		margin: 0 0 0 2.5%;
-	}
+	/*#side .contact {*/
+		/*margin: 0 0 0 2.5%;*/
+	/*}*/
 
 	.hc:after {
 	   content: "";
@@ -902,10 +890,6 @@ audio {
 		max-width: 70%;
 	}
 
-	/*.body {*/
-		/*padding: 0 0 0 5rem;*/
-	/*}*/
-
 	footer {
 		font-size: 0.625rem;
 		bottom: 5px;
@@ -928,7 +912,7 @@ audio {
 		top: 0;
 		left: 80%;
 		right: 0;
-		background: url("http://hicksdesign.co.uk/images/paulsmith.gif");
+		background: url("../img/paulsmith.gif");
 		}
 
 	.clients img {
@@ -996,10 +980,6 @@ audio {
 	#side section {
 		float: none !important;
 		width: auto !important;
-	}
-
-	#side .bookplug {
-		margin: 2rem 0;
 	}
 
 	.hc p,.hc p+p {

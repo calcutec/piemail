@@ -5,12 +5,6 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 CSRF_ENABLED = True
 SECRET_KEY = 'you-will-never-guess'
 
-OPENID_PROVIDERS = [
-    {'name': 'Google', 'url': 'https://www.google.com/accounts/o8/id'},
-    {'name': 'Yahoo', 'url': 'https://me.yahoo.com'},
-    {'name': 'AOL', 'url': 'http://openid.aol.com/<username>'},
-    {'name': 'Flickr', 'url': 'http://www.flickr.com/<username>'}]
-
 if os.environ.get('DATABASE_URL') is None:
     SQLALCHEMY_DATABASE_URI = ('sqlite:///' + os.path.join(basedir, 'app.db') +
                                '?check_same_thread=False')
@@ -53,13 +47,10 @@ LANGUAGES = {
     'es': 'Español'
 }
 
-# microsoft translation service
-MS_TRANSLATOR_CLIENT_ID = ''  # enter your MS translator app id here
-MS_TRANSLATOR_CLIENT_SECRET = ''  # enter your MS translator app secret here
 
 # administrator list
 ADMINS = ['you@example.com']
 
 # pagination
-POSTS_PER_PAGE = 1
+POSTS_PER_PAGE = 3
 MAX_SEARCH_RESULTS = 50

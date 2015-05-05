@@ -2,7 +2,6 @@ import os
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
-from flask.ext.openid import OpenID
 from flask.ext.mail import Mail
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
     MAIL_PASSWORD, UPLOAD_FOLDER, CACHE_FOLDER, MAX_CONTENT_LENGTH, \
@@ -20,7 +19,6 @@ lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
 lm.login_message = 'Please log in to access this page.'
-oid = OpenID(app, os.path.join(basedir, 'tmp'))
 mail = Mail(app)
 
 
@@ -28,17 +26,24 @@ mail = Mail(app)
 
 if os.environ.get('HEROKU') is not None:
     app.config['IMAGES_PATH'] = ['static/heroku_user_imgs']
+    app.config['OAUTH_CREDENTIALS'] = {
+        'facebook': {
+            'id': '951231784910539',
+            'secret': '724087cd0eef6537c5c16de5fda059f3'
+        }
+    }
 else:
     app.config['IMAGES_PATH'] = ['static/user_imgs']
+    app.config['OAUTH_CREDENTIALS'] = {
+        'facebook': {
+            'id': '953764817990569',
+            'secret': '5cca625e8873272007b723736bb4ed3b'
+        }
+    }
 
 app.config['IMAGES_CACHE'] = CACHE_FOLDER
 
-app.config['OAUTH_CREDENTIALS'] = {
-    'facebook': {
-        'id': '951231784910539',
-        'secret': '724087cd0eef6537c5c16de5fda059f3'
-    }
-}
+
 
 from flask.json import JSONEncoder
 
