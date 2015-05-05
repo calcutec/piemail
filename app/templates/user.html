@@ -5,20 +5,24 @@
     {% include 'flash.html' %}
     <div class="well well-large" style="height: 140px;">
         <div class="pull-right">
-            <img src="{{ user.avatar(128) }}" class="img-polaroid">
+            {% if user.profile_photo %}
+                <img src="{{url_for('.static', filename='user_imgs/' + user.profile_photo) }}" class="img-polaroid">
+            {% else %}
+                <img src="{{ user.avatar(128) }}" class="img-polaroid">
+            {% endif %}
         </div>
         <h1>{{ user.nickname }}</h1>
         {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
         {% if user.last_seen %}
-        <p><em>{{ _('Last seen:') }} {{ momentjs(user.last_seen).calendar() }}</em></p>
+        <p><em>Last seen: {{ momentjs(user.last_seen).calendar() }}</em></p>
         {% endif %}
-        <p>{{ _('Followers:') }} {{ user.followers.count() - 1 }} | {{ _('Following:') }} {{ user.followed.count() - 1 }} |
+        <p>Followers: {{ user.followers.count() - 1 }} | Following: {{ user.followed.count() - 1 }} |
         {% if user.id == g.user.id %}
-            <a href="{{ url_for('edit') }}">{{ _('Edit your profile') }}</a>
+            <a href="{{ url_for('edit') }}">Edit your profile</a>
         {% elif not g.user.is_following(user) %}
-            <a href="{{ url_for('follow', nickname=user.nickname) }}">{{ _('Follow') }}</a>
+            <a href="{{ url_for('follow', nickname=user.nickname) }}">Follow</a>
         {% else %}
-            <a href="{{ url_for('unfollow', nickname=user.nickname) }}">{{ _('Unfollow') }}</a>
+            <a href="{{ url_for('unfollow', nickname=user.nickname) }}">Unfollow</a>
         {% endif %}
         </p>
     </div>

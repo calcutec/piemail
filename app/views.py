@@ -1,23 +1,19 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 from werkzeug.utils import secure_filename
-from flask import render_template, flash, redirect, session, url_for, request, \
-    g, jsonify
+from flask import render_template, flash, redirect, session, url_for, request, g
 
 from flask.ext.login import login_user, logout_user, current_user, \
     login_required
 from flask.ext.sqlalchemy import get_debug_queries
-from flask.ext.babel import gettext
 from datetime import datetime
-from guess_language import guessLanguage
-from app import app, db, lm, oid, babel
+from app import app, db, lm, oid
 
 from .forms import LoginForm, EditForm, PostForm, SearchForm, CommentForm
 from .models import User, Post, Comment
 from .emails import follower_notification
-from .translate import microsoft_translate
 from .utils import generate_thumbnail
-from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, LANGUAGES, \
+from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, \
     DATABASE_QUERY_TIMEOUT
 
 from rauth import OAuth2Service
@@ -29,11 +25,6 @@ def load_user(id):
     return User.query.get(int(id))
 
 
-@babel.localeselector
-def get_locale():
-    return request.accept_languages.best_match(LANGUAGES.keys())
-
-
 @app.before_request
 def before_request():
     g.user = current_user
@@ -42,7 +33,6 @@ def before_request():
         db.session.add(g.user)
         db.session.commit()
         g.search_form = SearchForm()
-    g.locale = get_locale()
 
 
 @app.after_request
@@ -66,6 +56,42 @@ def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
 
+
+@app.route('/login', methods=['GET', 'POST'])
+@oid.loginhandler
+def login():
+    if g.user is not None and g.user.is_authenticated():
+        return redirect(url_for('index'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        session['remember_me'] = form.remember_me.data
+        return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
+    page_mark = 'login'
+    page_logo = 'img/icons/login.svg'
+    return render_template('login.html',
+                           title='Sign In',
+                           form=form,
+                           page_mark=page_mark,
+                           page_logo=page_logo,
+                           providers=app.config['OPENID_PROVIDERS'])
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    page_mark = 'home'
+    page_logo = 'img/icons/home.svg'
+    return render_template('index.html',
+                           title='Home',
+                           page_mark=page_mark,
+                           page_logo=page_logo)
+
+
 @app.route('/favorites', methods=['GET', 'POST'])
 @app.route('/favorites/<int:page>', methods=['GET', 'POST'])
 @login_required
@@ -80,75 +106,24 @@ def favorites(page=1):
             form.photo.data.save(filename_path)
             thumbnail_name = generate_thumbnail(filename=filename, filename_path=filename_path, box=(80, 80),
                                                 photo_type="thumb", crop=True)
-        language = guessLanguage(form.post.data)
-        if language == 'UNKNOWN' or len(language) > 5:
-            language = ''
 
         post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-                    author=g.user, language=language, photo=filename, thumbnail=thumbnail_name, header=form.header.data, slug=slug)
+                    author=g.user, photo=filename, thumbnail=thumbnail_name, header=form.header.data, slug=slug)
         db.session.add(post)
         db.session.commit()
-        flash(gettext('Your post is now live!'))
+        flash('Your post is now live!')
         return redirect(url_for('favorites'))
     # favorite_posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
     posts = g.user.all_posts().paginate(page, POSTS_PER_PAGE, False)
+    page_mark = 'forum'
+    page_logo = 'img/icons/forum.svg'
     return render_template('favorites.html',
                            title='Favorites',
                            form=form,
                            posts=posts,
+                           page_mark=page_mark,
+                           page_logo=page_logo,
                            upload_folder_name=app.config['UPLOAD_FOLDER_NAME'])
-
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    return render_template('index.html',
-                           title='Home')
-
-
-@app.route('/login', methods=['GET', 'POST'])
-@oid.loginhandler
-def login():
-    if g.user is not None and g.user.is_authenticated():
-        return redirect(url_for('index'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        session['remember_me'] = form.remember_me.data
-        return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
-    return render_template('login.html',
-                           title='Sign In',
-                           form=form,
-                           providers=app.config['OPENID_PROVIDERS'])
-
-
-@oid.after_login
-def after_login(resp):
-    if resp.email is None or resp.email == "":
-        flash(gettext('Invalid login. Please try again.'))
-        return redirect(url_for('login'))
-    user = User.query.filter_by(email=resp.email).first()
-    if user is None:
-        nickname = resp.nickname
-        if nickname is None or nickname == "":
-            nickname = resp.email.split('@')[0]
-        nickname = User.make_valid_nickname(nickname)
-        nickname = User.make_unique_nickname(nickname)
-        user = User(nickname=nickname, email=resp.email)
-        db.session.add(user)
-        db.session.commit()
-        # make the user follow him/herself
-        db.session.add(user.follow(user))
-        db.session.commit()
-    remember_me = False
-    if 'remember_me' in session:
-        remember_me = session['remember_me']
-        session.pop('remember_me', None)
-    login_user(user, remember=remember_me)
-    return redirect(request.args.get('next') or url_for('favorites'))
-
-
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('login'))
 
 
 @app.route('/user/<nickname>')
@@ -157,26 +132,16 @@ def logout():
 def user(nickname, page=1):
     user = User.query.filter_by(nickname=nickname).first()
     if user is None:
-        flash(gettext('User %(nickname)s not found.', nickname=nickname))
+        flash('User %(nickname)s not found.', nickname=nickname)
         return redirect(url_for('index'))
     posts = user.posts.paginate(page, POSTS_PER_PAGE, False)
+    page_mark = 'profile'
+    page_logo = 'img/icons/profile.svg'
     return render_template('user.html',
                            user=user,
+                           page_mark=page_mark,
+                           page_logo=page_logo,
                            posts=posts)
-                           
-
-@app.route("/detail/<slug>", methods=['GET', 'POST'])
-def posts(slug):
-    post = Post.query.filter(Post.slug==slug).first()
-    form = CommentForm()
-    context = {"post": post, "form": form, "upload_folder_name":app.config['UPLOAD_FOLDER_NAME']}
-    if form.validate_on_submit():
-        comment = Comment(body=form.comment.data, created_at=datetime.utcnow(), user_id=g.user.id, post_id=post.id)
-        db.session.add(comment)
-        db.session.commit()
-        flash(gettext('Your comment is now live!'))
-        return redirect(url_for('posts', slug=slug))
-    return render_template('posts/detail.html', **context)
 
 
 @app.route('/edit', methods=['GET', 'POST'])
@@ -188,18 +153,63 @@ def edit():
         if filename != None and filename != '':
             filename_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             form.profile_photo.data.save(filename_path)
+            profile_photo = generate_thumbnail(filename=filename, filename_path=filename_path, box=(128, 128),
+                                                photo_type="thumb", crop=True)
         g.user.nickname = form.nickname.data
         g.user.about_me = form.about_me.data
         g.user.about_me = form.about_me.data
-        g.user.profile_photo = filename
+        g.user.profile_photo = profile_photo
         db.session.add(g.user)
         db.session.commit()
-        flash(gettext('Your changes have been saved.'))
-        return redirect(url_for('edit'))
+        flash('Your changes have been saved.')
+        return redirect(url_for('user'))
     elif request.method != "POST":
         form.nickname.data = g.user.nickname
         form.about_me.data = g.user.about_me
-    return render_template('edit.html', form=form)
+    page_mark = 'profile'
+    page_logo = 'img/icons/profile.svg'
+    return render_template('edit.html',
+                           form=form,
+                           page_mark=page_mark,
+                           page_logo=page_logo)
+
+# @oid.after_login
+# def after_login(resp):
+#     if resp.email is None or resp.email == "":
+#         flash(gettext('Invalid login. Please try again.'))
+#         return redirect(url_for('login'))
+#     user = User.query.filter_by(email=resp.email).first()
+#     if user is None:
+#         nickname = resp.nickname
+#         if nickname is None or nickname == "":
+#             nickname = resp.email.split('@')[0]
+#         nickname = User.make_valid_nickname(nickname)
+#         nickname = User.make_unique_nickname(nickname)
+#         user = User(nickname=nickname, email=resp.email)
+#         db.session.add(user)
+#         db.session.commit()
+#         # make the user follow him/herself
+#         db.session.add(user.follow(user))
+#         db.session.commit()
+#     remember_me = False
+#     if 'remember_me' in session:
+#         remember_me = session['remember_me']
+#         session.pop('remember_me', None)
+#     login_user(user, remember=remember_me)
+#     return redirect(request.args.get('next') or url_for('index'))
+
+@app.route("/detail/<slug>", methods=['GET', 'POST'])
+def posts(slug):
+    post = Post.query.filter(Post.slug==slug).first()
+    form = CommentForm()
+    context = {"post": post, "form": form, "upload_folder_name":app.config['UPLOAD_FOLDER_NAME']}
+    if form.validate_on_submit():
+        comment = Comment(body=form.comment.data, created_at=datetime.utcnow(), user_id=g.user.id, post_id=post.id)
+        db.session.add(comment)
+        db.session.commit()
+        flash('Your comment is now live!')
+        return redirect(url_for('posts', slug=slug))
+    return render_template('posts/detail.html', **context)
 
 
 @app.route('/follow/<nickname>')
@@ -210,15 +220,15 @@ def follow(nickname):
         flash('User %s not found.' % nickname)
         return redirect(url_for('index'))
     if user == g.user:
-        flash(gettext('You can\'t follow yourself!'))
+        flash('You can\'t follow yourself!')
         return redirect(url_for('user', nickname=nickname))
     u = g.user.follow(user)
     if u is None:
-        flash(gettext('Cannot follow %(nickname)s.', nickname=nickname))
+        flash('Cannot follow %(nickname)s.', nickname=nickname)
         return redirect(url_for('user', nickname=nickname))
     db.session.add(u)
     db.session.commit()
-    flash(gettext('You are now following %(nickname)s!', nickname=nickname))
+    flash('You are now following %(nickname)s!', nickname=nickname)
     follower_notification(user, g.user)
     return redirect(url_for('user', nickname=nickname))
 
@@ -231,16 +241,16 @@ def unfollow(nickname):
         flash('User %s not found.' % nickname)
         return redirect(url_for('index'))
     if user == g.user:
-        flash(gettext('You can\'t unfollow yourself!'))
+        flash('You can\'t unfollow yourself!')
         return redirect(url_for('user', nickname=nickname))
     u = g.user.unfollow(user)
     if u is None:
-        flash(gettext('Cannot unfollow %(nickname)s.', nickname=nickname))
+        flash('Cannot unfollow %(nickname)s.', nickname=nickname)
         return redirect(url_for('user', nickname=nickname))
     db.session.add(u)
     db.session.commit()
-    flash(gettext('You have stopped following %(nickname)s.',
-                  nickname=nickname))
+    flash('You have stopped following %(nickname)s.',
+                  nickname=nickname)
     return redirect(url_for('user', nickname=nickname))
 
 
@@ -277,16 +287,6 @@ def search_results(query):
                            query=query,
                            results=results,
                            upload_folder_name=upload_folder_name)
-
-
-@app.route('/translate', methods=['POST'])
-@login_required
-def translate():
-    return jsonify({
-        'text': microsoft_translate(
-            request.form['text'],
-            request.form['sourceLang'],
-            request.form['destLang'])})
 
 
 current_app = app
@@ -380,7 +380,14 @@ def oauth_callback(provider):
         user = User(social_id=social_id, nickname=username, email=email)
         db.session.add(user)
         db.session.commit()
-    login_user(user, True)
-    return redirect(url_for('favorites'))
+        # make the user follow him/herself
+        db.session.add(user.follow(user))
+        db.session.commit()
+    remember_me = False
+    if 'remember_me' in session:
+        remember_me = session['remember_me']
+        session.pop('remember_me', None)
+    login_user(user, remember=remember_me)
+    return redirect(request.args.get('next') or url_for('index'))
 
 

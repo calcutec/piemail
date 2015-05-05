@@ -230,17 +230,18 @@ nav a {
 	}
 
 /*selected states*/
-#default .n-work a,
-#test .n-work a,
+#login .n-login a,
+#home .n-home a,
+#forum .n-forum a,
+#profile .n-profile a,
 #work .n-work a,
-#speaking .n-speaking a,
-#journal .n-journal a,
-#archive .n-journal a,
-#tag .n-journal a,
+#contact .n-contact a,
+#archive .n-forum a,
+#default .n-work a,
+#tag .n-forum a,
 #goodies .n-goodies a,
 #boxmodel .n-goodies a,
-#iconreference .n-goodies a,
-#contact .n-contact a {
+#iconreference .n-goodies a {
 	color: #000;
 	border-bottom: 2px solid #E1B200;
 }
@@ -656,7 +657,6 @@ audio {
 }
 
 /*Side Sections*/
-
 #side section {
 	margin: 0 0 1rem 0;
 	padding: 1.5rem 0 0 0;
@@ -690,7 +690,6 @@ audio {
 }
 
 /*Contact Section*/
-
 .needs {
 	list-style-type: none;
 	padding: 0;
@@ -739,6 +738,7 @@ audio {
 	}
 }
 
+/*Screen Size Responsive*/
 @media screen and (min-width: 620px) {
 
     .columns {
@@ -856,28 +856,33 @@ audio {
 	}
 
 	/*selected states*/
-
+    #login .n-login a,
+    #home .n-home a,
+	#forum .n-forum a,
+    #profile .n-profile a,
+    #work .n-work a,
+    #contact .n-contact a
 	#default .n-work a,
 	#test .n-work a,
-	#work .n-work a,
-	#journal .n-journal a,
 	#archive .n-journal a,
-	#tag .n-journal a,
+	#tag .n-forum a,
 	#goodies .n-goodies a,
-	#boxmodel .n-goodies a,
-	#contact .n-contact a {
+	#boxmodel .n-goodies a {
 		border-bottom: 0;
 	}
 
+    #login .n-login a:before,
+    #home .n-home a:before,
+    #forum .n-forum a:before,
+    #profile .n-profile a:before,
+    #work .n-work a:before,
+    #contact .n-contact a:before
 	#default .n-work a:before,
 	#test .n-work a:before,
-	#work .n-work a:before,
-	#journal .n-journal a:before,
-	#archive .n-journal a:before,
-	#tag .n-journal a:before,
+	#archive .n-forum a:before,
+	#tag .n-forum a:before,
 	#goodies .n-goodies a:before,
-	#boxmodel .n-goodies a:before,
-	#contact .n-contact a:before {
+	#boxmodel .n-goodies a:before {
 		position: absolute;
 		left: -1.5rem;
 		content: "";
@@ -1002,4 +1007,26 @@ audio {
 		width: auto;
 		margin: 0;
 	}
+}
+
+/*Form Overrides*/
+#login-btns {
+  width: 300px;
+}
+
+#login-btns ul {
+  list-style-type:none;
+  padding:0;
+  margin:0;
+}
+
+#login-btns ul li { margin-bottom:10px; }
+
+#login-btns ul li a {
+  width:200px;
+  text-align:left;
+}
+
+.well {
+    background: rgb(255,255,255);
 }

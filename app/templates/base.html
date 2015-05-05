@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" id="journal" >
+<html lang="en" id={{ page_mark }} >
 
 	<head>
 		<meta charset="utf-8">
@@ -33,8 +33,8 @@
 
 		<!-- CSS -->
 			<!--[if gte IE 7]><!-->
-{#		        <link href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" rel="stylesheet" media="screen">#}
-{#		        <link href="{{ url_for('.static', filename='css/bootstrap-responsive.min.css') }}" rel="stylesheet">#}
+		        <link href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" rel="stylesheet" media="screen">
+		        <link href="{{ url_for('.static', filename='css/bootstrap-responsive.min.css') }}" rel="stylesheet">
 			    <link rel="stylesheet" type="text/css" media="all" href="{{ url_for('.static', filename='css/layout.css') }}" />
 				<link  rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cabin:400,500,600,700,400italic,500italic,600italic,700italic' data-noprefix />
 			<!--<![endif]-->
@@ -52,39 +52,31 @@
 		<!-- JS -->
 			<script src="{{ url_for('.static', filename='js/jquery.js') }}"></script>
 			<script src="{{ url_for('.static', filename='js/prefixfree.min.js') }}"></script>
-{#	        <script src="{{ url_for('.static', filename='js/bootstrap.min.js') }}"></script>#}
+	        <script src="{{ url_for('.static', filename='js/bootstrap.min.js') }}"></script>
 	</head>
 
 	<body>
 	<div class="page">
 		<h2 class="logo"></h2>
 
-{#		<nav>#}
-{#			<ul>#}
-{#                <li class="n-home"><a href="{{ url_for('index') }}">{{ _('Home') }}</a></li>#}
-{#                {% if not g.user.is_authenticated() %}#}
-{#                    <li class="n-login"><a href="{{ url_for('login') }}">{{ _('Login') }}</a></li>#}
-{#                {% endif %}#}
-{#                {% if g.user.is_authenticated() %}#}
-{#                    <li class="n-blog" id="active"><a href="{{ url_for('favorites') }}">{{ _('Blog') }}</a></li>#}
-{#                    <li class="n-profile"><a href="{{ url_for('user', nickname=g.user.nickname) }}">{{ _('Profile') }}</a></li>#}
-{#                    <li class="n-logout"><a href="{{ url_for('logout') }}">{{ _('Logout') }}</a></li>#}
-{#                {% endif %}#}
-{#			</ul>#}
-{#		</nav>#}
 		<nav>
 			<ul>
-				<li class="n-work"><a href="{{ url_for('index') }}">{{ _('Home') }}</a></li>
-				<li class="n-journal"><a href="{{ url_for('favorites') }}">Journal</a></li>
-				<li class="n-contact"><a href="{{ url_for('user', nickname=g.user.nickname) }}">Contact</a></li>
+				<li class="n-home"><a href="{{ url_for('index') }}">Home</a></li>
+                {% if not g.user.is_authenticated() %}
+                    <li class="n-login"><a href="{{ url_for('login') }}">Login</a></li>
+                {% endif %}
+                {% if g.user.is_authenticated() %}
+                    <li class="n-forum"><a href="{{ url_for('favorites') }}">Forum</a></li>
+                    <li class="n-profile"><a href="{{ url_for('user', nickname=g.user.nickname) }}">Profile</a></li>
+                    <li class="n-logout"><a href="{{ url_for('logout') }}">Logout</a></li>
+				{% endif %}
 			</ul>
 		</nav>
 
 		<div id="content">
 			<header>
                 <div class="icon">
-{#                    <img src="{{url_for('.static', filename='img/icons/the-b-domain_130.jpg') }}" />#}
-                    <img src="{{url_for('.static', filename='img/icons/Pipe.svg') }}" />
+                    <img src="{{url_for('.static', filename=page_logo) }}" />
                 </div>
                 <h1>
 					<strong>Aya's Space: </strong>Poetry and essays by Ms. Burton and fellow writers.<!--  <a href="/">Take a look at the work we do</a> --> <!-- Well trousered Sir. -->
@@ -115,15 +107,12 @@
 					<div class="vcard">
 						<h3>Contact</h3>
 						<div class="adr">
-							<p><span class="organization-name fn n org">The B Domain Web Works</span></p>
+							<p><span class="organization-name fn n org">The B Domain</span></p>
 							<p><span class="street-address">12 Newman Way</span></p>
 							<p><span class="locality">Arlington</span></p>
 							<p><span class="region">Massachusetts</span>, <span class="country-name">USA</span></p>
 							<p><span class="postal-code">02474</span></p>
 						</div>
-
-						<p class="tel">(781)316-2008</p>
-						<p><a type="text/directory" href="http://h2vx.com/vcf/www.the-b-domain.com/contact">Download vCard</a></p>
 					</div>
 				</section>
 
@@ -139,5 +128,6 @@
 		</footer>
 	</div><!-- /page -->
 		<b id="te"></b>
+{#		<b id="te"><b></b></b><b id="be"></b><b id="le"></b><b id="re"></b>#}
 	</body>
 </html>

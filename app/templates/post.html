@@ -9,15 +9,15 @@
     <ul class="details">
         <li class="posted"><span>{{ post.timestamp.strftime('%Y') }}</span><b>{{ post.timestamp.strftime('%d %b') }}</b></li>
         <li class="Posted By"><span>Posted by</span>
-        <a href="{{ url_for('user', nickname=post.author.nickname) }}" rel="tag">{{ post.author.nickname }}</a>
+            <a href="{{ url_for('user', nickname=post.author.nickname) }}" rel="tag">{{ post.author.nickname }}</a>
         </li>
         <li class="twitter"><span>Comments</span>
-        <a href="http://twitter.com/?status=@hicksdesign (http://hicksdesign.co.uk/177)">
-        {% with total=post.comments.all()|length %}{{ total }} comment {%- if total != 1 %}s{%- endif -%}{% endwith %}
+        <a href="{{ url_for('posts', slug=post.slug) }}">
+            {% with total=post.comments.all()|length %}{{ total }} comment {%- if total != 1 %}s{%- endif -%}{% endwith %}
         </a></li>
         {% if post.author.id == g.user.id %}
-        <li class="last"><span>Remove</span>
-         <a href="{{ url_for('delete', id = post.id) }}">{{ _('Delete') }}</a></li>
+            <li class="last"><span>Remove</span>
+            <a href="{{ url_for('delete', id = post.id) }}">Delete</a></li>
         {% endif %}
     </ul>
 </article>

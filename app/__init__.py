@@ -4,7 +4,6 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
 from flask.ext.openid import OpenID
 from flask.ext.mail import Mail
-from flask.ext.babel import Babel, lazy_gettext
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
     MAIL_PASSWORD, UPLOAD_FOLDER, CACHE_FOLDER, MAX_CONTENT_LENGTH, \
     UPLOAD_FOLDER_NAME, SQLALCHEMY_DATABASE_URI
@@ -20,10 +19,9 @@ db = SQLAlchemy(app)
 lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
-lm.login_message = lazy_gettext('Please log in to access this page.')
+lm.login_message = 'Please log in to access this page.'
 oid = OpenID(app, os.path.join(basedir, 'tmp'))
 mail = Mail(app)
-babel = Babel(app)
 
 
 # Config for static assets
