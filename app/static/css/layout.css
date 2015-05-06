@@ -350,7 +350,7 @@ header {
 .icon img {
 	margin: 0 auto;
 	display: block;
-	width: 9rem;
+	width: 4rem;
 	height: auto;
 }
 
@@ -751,8 +751,8 @@ audio {
 		text-align: right;
 	}
 
-  nav ul {
-  	font-size: 1rem;
+    nav ul {
+  	    font-size: 1rem;
   	}
 
 	nav a {
@@ -770,7 +770,7 @@ audio {
 
 	.icon img {
 		width: auto;
-		height: 5rem;
+		height: 4rem;
 		display: block;
 		margin: 0 auto;
 	}
@@ -817,8 +817,8 @@ audio {
 
 	.logo, nav, footer {
 		position: fixed;
-		left: 80%;
-		right: 8%;
+		left: 84%;
+		right: 4%;
 		z-index: 1;
 	}
 
@@ -829,7 +829,7 @@ audio {
 	}
 
 	nav {
-		top: 10em;
+		top: 15em;
 		text-align: left;
 	}
 
