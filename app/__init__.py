@@ -6,7 +6,7 @@ from flask.ext.mail import Mail
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
     MAIL_PASSWORD, UPLOAD_FOLDER, CACHE_FOLDER, MAX_CONTENT_LENGTH, \
     UPLOAD_FOLDER_NAME, SQLALCHEMY_DATABASE_URI
-from momentjs import momentjs
+from .momentjs import momentjs
 
 app = Flask(__name__)
 app.config.from_object('config')

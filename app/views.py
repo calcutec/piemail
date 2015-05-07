@@ -200,11 +200,11 @@ def follow(nickname):
         return redirect(url_for('user', nickname=nickname))
     u = g.user.follow(user)
     if u is None:
-        flash('Cannot follow %(nickname)s.', nickname=nickname)
+        flash('Cannot follow %s.' % nickname)
         return redirect(url_for('user', nickname=nickname))
     db.session.add(u)
     db.session.commit()
-    flash('You are now following %(nickname)s!', nickname=nickname)
+    flash('You are now following %s.' % nickname)
     follower_notification(user, g.user)
     return redirect(url_for('user', nickname=nickname))
 
@@ -221,12 +221,11 @@ def unfollow(nickname):
         return redirect(url_for('user', nickname=nickname))
     u = g.user.unfollow(user)
     if u is None:
-        flash('Cannot unfollow %(nickname)s.', nickname=nickname)
+        flash('Cannot unfollow %s.' % nickname)
         return redirect(url_for('user', nickname=nickname))
     db.session.add(u)
     db.session.commit()
-    flash('You have stopped following %(nickname)s.',
-                  nickname=nickname)
+    flash('You have stopped following %s.' % nickname)
     return redirect(url_for('user', nickname=nickname))
 
 

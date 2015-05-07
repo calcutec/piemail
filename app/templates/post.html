@@ -8,7 +8,7 @@
     </div>
     <ul class="details">
         <li class="posted"><span>{{ post.timestamp.strftime('%Y') }}</span><b>{{ post.timestamp.strftime('%d %b') }}</b></li>
-        <li class="Posted By"><span>Posted by</span>
+        <li class="Posted By"><span>Author</span>
             <a href="{{ url_for('user', nickname=post.author.nickname) }}" rel="tag">{{ post.author.nickname }}</a>
         </li>
         <li class="twitter"><span>Comments</span>

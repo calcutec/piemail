@@ -246,6 +246,8 @@ nav a {
 	border-bottom: 2px solid #E1B200;
 }
 
+/*posts*/
+
 .details {
 	list-style: none;
 	font-size: 0.875rem;
@@ -264,6 +266,10 @@ nav a {
 	margin: 0 1rem 0 0;
 	border-right: 1px solid #ddd;
 	}
+
+.details li:last-child {
+	border-right: none;
+}
 
 li.tags,
 li.service {
@@ -610,51 +616,6 @@ input.submit {
 	margin: 0 0 0 -1px;
 	}
 
-
-/*Troika*/
-
-.troika-cover {
-	/*max-width: 80%;*/
-	margin: 0 auto 1rem auto;
-}
-
-.troika-cover img {
-    margin: 0;
-}
-
-.troika-cover audio {
-  background-color: #000;
-}
-
-audio {
-  width: 100%;
-  margin: 0 0 1rem 0;
-}
-
-#troika header {
-	border: 0;
-}
-
-.covers {
-	margin: 0 0 2rem 0;
-}
-
-#troika article {
-	margin: 0;
-	padding: 0;
-	border: 0;
-}
-
-#troika article .troika-cover {
-	float:left;
-	border: 0;
-	margin: 0;
-	width: 25%;
-}
-
-#troika article audio {
-	display: none;
-}
 
 /*Side Sections*/
 #side section {
