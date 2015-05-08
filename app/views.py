@@ -103,7 +103,8 @@ def favorites(page=1):
     form = PostForm()
     if form.validate_on_submit():
         thumbnail_name = ''
-        filename = secure_filename(form.photo.data.filename)
+        # filename = secure_filename(form.photo.data.filename)
+        filename = None
         slug = slugify(form.header.data)
         if filename is not None and filename is not '':
             filename_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
