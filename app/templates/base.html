@@ -34,11 +34,15 @@
 
 		<!-- CSS -->
 			<!--[if gte IE 7]><!-->
-		        <link rel="stylesheet" media="screen" href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" />
+{#                <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }}" />#}
+                <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" />
 		        <link rel="stylesheet" href="{{ url_for('.static', filename='css/bootstrap-responsive.min.css') }}" />
-                <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/bootstrap-wysihtml5.css') }}" />
-			    <link rel="stylesheet" type="text/css" media="all" href="{{ url_for('.static', filename='css/layout.css') }}" />
-				<link rel='stylesheet' type='text/css' data-noprefix href='http://fonts.googleapis.com/css?family=Cabin:400,500,600,700,400italic,500italic,600italic,700italic' />
+		        <link rel="stylesheet" type="text/css" media="all" href="{{ url_for('.static', filename='css/layout.css') }}" />
+		        <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cabin:400,500,600,700,400italic,500italic,600italic,700italic' data-noprefix />
+{#                <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='bower_components/bootstrap/dist/css/bootstrap-theme.min.css') }}" />#}
+                <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='bower_components/components-font-awesome/css/font-awesome.min.css') }}" />
+                <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/bootstrap3-wysihtml5.min.css') }}" />
+
 			<!--<![endif]-->
 
 			<!--[if lte IE 7]>
@@ -52,12 +56,15 @@
 				<![endif]-->
 
 		<!-- JS -->
-	      	<script src="{{ url_for('.static', filename='js/wysihtml5-0.3.0.js') }}"></script>
-			<script src="{{ url_for('.static', filename='js/jquery.js') }}"></script>
+            <script src="{{ url_for('.static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
 			<script src="{{ url_for('.static', filename='js/prefixfree.min.js') }}"></script>
-	        <script src="{{ url_for('.static', filename='js/bootstrap.min.js') }}"></script>
-		    <script src="{{ url_for('.static', filename='js/bootstrap-wysihtml5.js') }}"></script>
+            <script src="{{ url_for('.static', filename='bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
 	        <script src="{{ url_for('.static', filename='js/moment.min.js') }}"></script>
+            <script src="{{ url_for('.static', filename='bower_components/wysihtml5x/dist/wysihtml5x-toolbar.min.js') }}"></script>
+            <script src="{{ url_for('.static', filename='bower_components/handlebars/handlebars.runtime.min.js') }}"></script>
+            <script src="{{ url_for('.static', filename='js/bootstrap3-wysihtml5.min.js') }}"></script>
+
+
 	</head>
 	<body>
 	<div class="page">

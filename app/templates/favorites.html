@@ -34,7 +34,7 @@
             </div>
             <div class="control-group{% if form.post.errors %} error{% endif %}">
 {#                <label class="control-label" for="post">Poem text</label>#}
-                    {{ form.post()|safe }}
+                    {{ form.post() }}
                     {% for error in form.post.errors %}
                         <span class="help-inline">[{{ error }}]</span><br>
                     {% endfor %}
@@ -48,12 +48,19 @@
 {#            </div>#}
         </form>
     </div>
+
+
+{#    <div class="well" style="margin-top:40px">#}
+{#        <textarea class="post" placeholder="Enter text ..." style="width: 100%; height: 200px;"></textarea>#}
+{#    </div>#}
+
+
     <div class="nav-collapse collapse">
         {% if g.user.is_authenticated() %}
             <form class="navbar-search pull-left" action="{{ url_for('search') }}" method="post" name="search">{{ g.search_form.hidden_tag() }}{{ g.search_form.search(size=20, placeholder='Search', class="search-query")}}</form>
         {% endif %}
     </div>
-    <script>
-        $('#post').wysihtml5({"html": false, "link": false, "image": false});
-    </script>
+<script>
+  $('#post').wysihtml5({toolbar: { fa: true, "link": false, "image": false }});
+</script>
 {% endblock %}
