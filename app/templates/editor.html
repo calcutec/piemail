@@ -1,0 +1,14 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+<h3>Blog Post</h3>
+<div class="hero-unit">
+    <textarea class="textarea" placeholder="Enter text ..." style="width: 90%; height: 200px"></textarea>
+</div>
+
+<script>
+	$('.textarea').wysihtml5({"html": false, "link": false, "image": false
+});
+</script>
+{% endblock %}

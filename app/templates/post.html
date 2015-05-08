@@ -1,10 +1,12 @@
 <article>
     <h2><a href="{{ url_for('posts', slug=post.slug) }}">{{ post.header }}</a></h2>
     <div class="body">
+        <div >
         {% if post.photo and post.thumbnail %}
-            <a href="{{ url_for('.static', filename=upload_folder_name + post.photo) }}" class="preview" target="_blank"><img src="{{ url_for('.static', filename=upload_folder_name + post.thumbnail) }}" /></a>
+            <img class="post-thumb>"src="{{ url_for('.static', filename=upload_folder_name + post.thumbnail) }}" />
         {% endif %}
-        &#8230; <span id="post{{ post.id }}">{{ post.body }}</span> &#8230;
+        <span id="post{{ post.id }}" class="post-text">{{ post.body|safe }}</span>
+        </div>
     </div>
     <ul class="details">
         <li class="posted"><span>{{ post.timestamp.strftime('%Y') }}</span><b>{{ post.timestamp.strftime('%d %b') }}</b></li>

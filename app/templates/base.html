@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en" id={{ page_mark }} >
-
 	<head>
 		<meta charset="utf-8">
 
@@ -11,6 +10,8 @@
 		<meta name="description" content="Pending" />
 		<meta name="keywords" content="Pending" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
 
 		<!-- OpenSearch -->
 {#			<link rel="search" href="/opensearchdescription.xml" type="application/opensearchdescription+xml" title="The-B-Domain" />#}
@@ -33,10 +34,11 @@
 
 		<!-- CSS -->
 			<!--[if gte IE 7]><!-->
-		        <link href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" rel="stylesheet" media="screen">
-		        <link href="{{ url_for('.static', filename='css/bootstrap-responsive.min.css') }}" rel="stylesheet">
+		        <link rel="stylesheet" media="screen" href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" />
+		        <link rel="stylesheet" href="{{ url_for('.static', filename='css/bootstrap-responsive.min.css') }}" />
+                <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/bootstrap-wysihtml5.css') }}" />
 			    <link rel="stylesheet" type="text/css" media="all" href="{{ url_for('.static', filename='css/layout.css') }}" />
-				<link  rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cabin:400,500,600,700,400italic,500italic,600italic,700italic' data-noprefix />
+				<link rel='stylesheet' type='text/css' data-noprefix href='http://fonts.googleapis.com/css?family=Cabin:400,500,600,700,400italic,500italic,600italic,700italic' />
 			<!--<![endif]-->
 
 			<!--[if lte IE 7]>
@@ -50,22 +52,25 @@
 				<![endif]-->
 
 		<!-- JS -->
+	      	<script src="{{ url_for('.static', filename='js/wysihtml5-0.3.0.js') }}"></script>
 			<script src="{{ url_for('.static', filename='js/jquery.js') }}"></script>
 			<script src="{{ url_for('.static', filename='js/prefixfree.min.js') }}"></script>
 	        <script src="{{ url_for('.static', filename='js/bootstrap.min.js') }}"></script>
+		    <script src="{{ url_for('.static', filename='js/bootstrap-wysihtml5.js') }}"></script>
 	        <script src="{{ url_for('.static', filename='js/moment.min.js') }}"></script>
+	</head>
 	<body>
 	<div class="page">
-		<h2 class="logo"></h2>
+		<h2 class="logo"> </h2>
 
 		<nav>
 			<ul>
-				<li class="n-home"><a href="{{ url_for('index') }}">Home</a></li>
+				<li class="n-home"><a href="{{ url_for('index') }}">Essays</a></li>
                 {% if not g.user.is_authenticated() %}
                     <li class="n-login"><a href="{{ url_for('login') }}">Login</a></li>
                 {% endif %}
                 {% if g.user.is_authenticated() %}
-                    <li class="n-forum"><a href="{{ url_for('favorites') }}">Forum</a></li>
+                    <li class="n-forum"><a href="{{ url_for('favorites') }}">Poetry</a></li>
                     <li class="n-profile"><a href="{{ url_for('user', nickname=g.user.nickname) }}">Profile</a></li>
                     <li class="n-logout"><a href="{{ url_for('logout') }}">Logout</a></li>
 				{% endif %}
@@ -103,7 +108,7 @@
 					<div class="vcard">
 						<h3>Contact</h3>
 						<div class="adr">
-							<p><span class="organization-name fn n org">Netbard</span></p>
+							<p><span class="organization-name fn n org">editor@netbard.com</span></p>
 							<p><span class="street-address">12 Newman Way</span></p>
 							<p><span class="locality">Arlington</span></p>
 							<p><span class="region">Massachusetts</span>, <span class="country-name">USA</span></p>

@@ -61,7 +61,7 @@ class EditForm(Form):
 
 
 class PostForm(Form):
-    post = StringField('post', validators=[DataRequired()])
+    post = TextAreaField('post', validators=[DataRequired()])
     header = StringField('header', validators=[DataRequired()])
     photo = FileField('Your photo', validators=[FileAllowed(['jpg','png'], 'Images only!')])
     submit = SubmitField("Send")

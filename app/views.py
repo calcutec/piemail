@@ -86,6 +86,15 @@ def index():
                            page_mark=page_mark,
                            page_logo=page_logo)
 
+@app.route('/editor', methods=['GET', 'POST'])
+def editor():
+    page_mark = 'home'
+    page_logo = 'img/icons/home.svg'
+    return render_template('editor.html',
+                           title='Home',
+                           page_mark=page_mark,
+                           page_logo=page_logo)
+
 
 @app.route('/favorites', methods=['GET', 'POST'])
 @app.route('/favorites/<int:page>', methods=['GET', 'POST'])

@@ -26,29 +26,26 @@
         <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="post">
             {{ form.hidden_tag() }}
             <div class="control-group{% if form.header.errors %} error{% endif %}">
-                <label class="control-label" for="title">Title</label>
-                <div class="controls">
-                    {{ form.header(size=15, maxlength=140) }}
+{#                <label class="control-label" for="title">Title</label>#}
+                    {{ form.header(size=15) }}
                     {% for error in form.header.errors %}
                         <span class="help-inline">[{{ error }}]</span><br>
                     {% endfor %}
-                </div>
             </div>
             <div class="control-group{% if form.post.errors %} error{% endif %}">
-                <label class="control-label" for="post">Say something</label>
-                <div class="controls">
-                    {{ form.post(size=15, maxlength=512) }}
+{#                <label class="control-label" for="post">Poem text</label>#}
+                    {{ form.post()|safe }}
                     {% for error in form.post.errors %}
                         <span class="help-inline">[{{ error }}]</span><br>
                     {% endfor %}
-                </div>
+                    <input class="btn btn-primary" type="submit" value="Post">
             </div>
-            <div class="control-group">
-                <label class="control-label" form="post">Add an Image</label>
-                <div class="controls">
-                    {{ form.photo }} <input class="btn btn-primary" type="submit" value="Post">
-                </div>
-            </div>
+{#            <div class="control-group">#}
+{#                <label class="control-label" form="post">Add an Image</label>#}
+{#                <div class="controls">#}
+{#                    {{ form.photo }} <input class="btn btn-primary" type="submit" value="Post">#}
+{#                </div>#}
+{#            </div>#}
         </form>
     </div>
     <div class="nav-collapse collapse">
@@ -56,4 +53,7 @@
             <form class="navbar-search pull-left" action="{{ url_for('search') }}" method="post" name="search">{{ g.search_form.hidden_tag() }}{{ g.search_form.search(size=20, placeholder='Search', class="search-query")}}</form>
         {% endif %}
     </div>
+    <script>
+        $('#post').wysihtml5({"html": false, "link": false, "image": false});
+    </script>
 {% endblock %}
