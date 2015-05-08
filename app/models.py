@@ -127,7 +127,7 @@ class Post(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     header = db.Column(db.String(140))
-    body = db.Column(db.String(140))
+    body = db.Column(db.Text())
     timestamp = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     language = db.Column(db.String(5))
