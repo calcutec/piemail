@@ -3,7 +3,7 @@
 
 {% block content %}
     {% include 'flash.html' %}
-    <div class="well well-large" style="height: 140px;">
+    <div class="well well-large" style="height: auto;">
         <div class="pull-right">
             {% if user.profile_photo %}
                 <img src="{{url_for('.static', filename='user_imgs/' + user.profile_photo) }}" class="img-polaroid">

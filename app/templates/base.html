@@ -72,12 +72,14 @@
 
 		<nav>
 			<ul>
-				<li class="n-home"><a href="{{ url_for('index') }}">Essays</a></li>
+				<li class="n-home"><a href="{{ url_for('index') }}">Home</a></li>
+				<li class="n-essays"><a href="{{ url_for('essays') }}">Essays</a></li>
                 {% if not g.user.is_authenticated() %}
                     <li class="n-login"><a href="{{ url_for('login') }}">Login</a></li>
                 {% endif %}
                 {% if g.user.is_authenticated() %}
-                    <li class="n-forum"><a href="{{ url_for('favorites') }}">Poetry</a></li>
+                    <li class="n-workshop"><a href="{{ url_for('workshop') }}">Workshop</a></li>
+                    <li class="n-poetry"><a href="{{ url_for('poetry') }}">Poetry</a></li>
                     <li class="n-profile"><a href="{{ url_for('user', nickname=g.user.nickname) }}">Profile</a></li>
                     <li class="n-logout"><a href="{{ url_for('logout') }}">Logout</a></li>
 				{% endif %}
@@ -90,7 +92,7 @@
                     <img src="{{url_for('.static', filename=page_logo) }}" />
                 </div>
                 <h1>
-					<strong>Netbard.com: </strong>I think that I shall never see a website lovely as a tree<!--  <a href="/">Take a look at the work we do</a> --> <!-- Well trousered Sir. -->
+					<strong>Netbard.com: </strong>A site for creating, discussing, and sharing poetry<!--  <a href="/">Take a look at the work we do</a> --> <!-- Well trousered Sir. -->
 				</h1>
 			</header>
 
@@ -100,7 +102,7 @@
 
     		<div id="side">
 				<section>
-					<p><strong>netbard</strong> is a site I created for working on web design. <a href="/">Take a look at the work I do</a>.</p>
+					<h3>I think that I shall never see, a website lovely as a tree</h3>
 				</section>
 
 				<section class="social">
@@ -126,7 +128,7 @@
 
 				<section class="hc">
 					<h3>Engine Room:</h3>
-					<p>The B Domain is built using Python and the Flask framework, and hosted by the lovely folks at <a href="https://www.heroku.com/">Heroku</a></p>
+					<p>Netbard is built with Python and the Flask framework, and hosted by the folks at <a href="https://www.heroku.com/">Heroku</a></p>
 				</section>
 			</div><!-- /side -->
 		</div><!-- /content -->

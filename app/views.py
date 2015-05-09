@@ -86,20 +86,20 @@ def index():
                            page_mark=page_mark,
                            page_logo=page_logo)
 
-@app.route('/editor', methods=['GET', 'POST'])
-def editor():
-    page_mark = 'home'
-    page_logo = 'img/icons/home.svg'
-    return render_template('editor.html',
-                           title='Home',
+@app.route('/essays', methods=['GET', 'POST'])
+def essays():
+    page_mark = 'essays'
+    page_logo = 'img/icons/tbd.svg'
+    return render_template('essays.html',
+                           title='Essays',
                            page_mark=page_mark,
                            page_logo=page_logo)
 
 
-@app.route('/favorites', methods=['GET', 'POST'])
-@app.route('/favorites/<int:page>', methods=['GET', 'POST'])
+@app.route('/workshop', methods=['GET', 'POST'])
+@app.route('/workshop/<int:page>', methods=['GET', 'POST'])
 @login_required
-def favorites(page=1):
+def workshop(page=1):
     form = PostForm()
     if form.validate_on_submit():
         thumbnail_name = ''
@@ -117,18 +117,38 @@ def favorites(page=1):
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
-        return redirect(url_for('favorites'))
+        return redirect(url_for('workshop'))
     # favorite_posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
     posts = g.user.all_posts().paginate(page, POSTS_PER_PAGE, False)
-    page_mark = 'forum'
-    page_logo = 'img/icons/forum.svg'
-    return render_template('favorites.html',
-                           title='Favorites',
+    page_mark = 'workshop'
+    page_logo = 'img/icons/workshop.svg'
+    return render_template('workshop.html',
+                           title='Workshop',
                            form=form,
                            posts=posts,
                            page_mark=page_mark,
                            page_logo=page_logo,
                            upload_folder_name=app.config['UPLOAD_FOLDER_NAME'])
+
+
+@app.route('/poetry', methods=['GET', 'POST'])
+def poetry():
+    page_mark = 'poetry'
+    page_logo = 'img/icons/tbd.svg'
+    return render_template('poetry.html',
+                           title='Poetry',
+                           page_mark=page_mark,
+                           page_logo=page_logo)
+
+
+@app.route('/editor', methods=['GET', 'POST'])
+def editor():
+    page_mark = 'home'
+    page_logo = 'img/icons/home.svg'
+    return render_template('editor.html',
+                           title='Home',
+                           page_mark=page_mark,
+                           page_logo=page_logo)
 
 
 @app.route('/user/<nickname>')
@@ -191,7 +211,7 @@ def posts(slug):
         flash('Your comment is now live!')
         return redirect(url_for('posts', slug=slug))
     page_mark = 'forum'
-    page_logo = 'img/icons/forum.svg'
+    page_logo = 'img/icons/workshop.svg'
     return render_template('posts/detail.html',
                            page_mark=page_mark,
                            page_logo=page_logo,
@@ -252,7 +272,7 @@ def delete(id):
     db.session.delete(post)
     db.session.commit()
     flash('Your post has been deleted.')
-    return redirect(url_for('favorites'))
+    return redirect(url_for('workshop'))
 
 
 @app.route('/search', methods=['POST'])

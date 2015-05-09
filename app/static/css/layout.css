@@ -78,8 +78,7 @@ h1 {
 }
 
 h1 strong {
-	color: #666;
-	color: #e38549;
+	color: darkorange;
 	font-weight: 400;
 	}
 
@@ -232,16 +231,10 @@ nav a {
 /*selected states*/
 #login .n-login a,
 #home .n-home a,
-#forum .n-forum a,
-#profile .n-profile a,
-#work .n-work a,
-#contact .n-contact a,
-#archive .n-forum a,
-#default .n-work a,
-#tag .n-forum a,
-#goodies .n-goodies a,
-#boxmodel .n-goodies a,
-#iconreference .n-goodies a {
+#essays .n-essays a,
+#workshop .n-workshop a,
+#poetry .n-poetry a,
+#profile .n-profile a {
 	color: #000;
 	border-bottom: 2px solid #E1B200;
 }
@@ -807,37 +800,26 @@ input.submit {
 	/*selected states*/
     #login .n-login a,
     #home .n-home a,
-	#forum .n-forum a,
-    #profile .n-profile a,
-    #work .n-work a,
-    #contact .n-contact a
-	#default .n-work a,
-	#test .n-work a,
-	#archive .n-journal a,
-	#tag .n-forum a,
-	#goodies .n-goodies a,
-	#boxmodel .n-goodies a {
-		border-bottom: 0;
+	#essays .n-essays a,
+    #workshop .n-workshop a,
+    #poetry .n-poetry a,
+    #profile .n-profile a{
+	    color: #000;
+        border-bottom: None;
 	}
 
     #login .n-login a:before,
     #home .n-home a:before,
-    #forum .n-forum a:before,
-    #profile .n-profile a:before,
-    #work .n-work a:before,
-    #contact .n-contact a:before
-	#default .n-work a:before,
-	#test .n-work a:before,
-	#archive .n-forum a:before,
-	#tag .n-forum a:before,
-	#goodies .n-goodies a:before,
-	#boxmodel .n-goodies a:before {
+    #essays .n-essays a:before,
+    #workshop .n-workshop a:before,
+    #poetry .n-poetry a:before,
+    #profile .n-profile a:before {
 		position: absolute;
 		left: -1.5rem;
+        margin-top: 5px;
 		content: "";
-		width: 13px;
-		height: 13px;
-		border-radius: 6px;
+		width: 10px;
+		height: 10px;
 		box-sizing: border-box;
 		border: 4px solid #E4BA1C;
 	}
