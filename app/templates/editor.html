@@ -6,10 +6,13 @@
 <meta charset="utf-8">
 
 <title>bootstrap-wysihtml5</title>
-<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }}" />
-<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='bower_components/bootstrap/dist/css/bootstrap-theme.min.css') }}" />
-<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='bower_components/components-font-awesome/css/font-awesome.min.css') }}" />
-<link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/bootstrap3-wysihtml5.min.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ static_url }}css/bootstrap.min.css" />
+<link rel="stylesheet" href="{{ static_url }}css/bootstrap-responsive.min.css" />
+<link rel="stylesheet" type="text/css" media="all" href="{{ static_url }}css/layout.css" />
+<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cabin:400,500,600,700,400italic,500italic,600italic,700italic' data-noprefix />
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="{{ static_url }}css/bootstrap3-wysihtml5.min.css" />
+
 
 <style type="text/css" media="screen">
   .btn.jumbo {
@@ -30,12 +33,15 @@
     <textarea class="textarea" placeholder="Enter text ..." style="width: 100%; height: 200px; font-size: 14px; line-height: 18px;"></textarea>
   </div>
 </div>
-<script src="{{ url_for('.static', filename='js/bootstrap3-wysihtml5.min.js') }}"></script>
-<script src="{{ url_for('.static', filename='bower_components/wysihtml5x/dist/wysihtml5x-toolbar.min.js') }}"></script>
-<script src="{{ url_for('.static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
-<script src="{{ url_for('.static', filename='bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
-<script src="{{ url_for('.static', filename='bower_components/handlebars/handlebars.runtime.min.js') }}"></script>
-<script src="{{ url_for('.static', filename='js/bootstrap3-wysihtml5.min.js') }}"></script>
+<script src="{{ static_url }}js/jquery.min.js"></script>
+<script src="{{ static_url }}js/jquery.min.js"></script>
+<script src="{{ static_url }}js/prefixfree.min.js"></script>
+<script src="{{ static_url }}js/bootstrap.min.js"></script>
+<script src="{{ static_url }}js/moment.min.js"></script>
+<script src="{{ static_url }}js/wysihtml5x-toolbar.min.js"></script>
+<script src="{{ static_url }}js/handlebars.runtime.min.js"></script>
+<script src="{{ static_url }}js/bootstrap3-wysihtml5.min.js"></script>
+
 <script>
   $('.textarea').wysihtml5({toolbar: {fa: true, "link": false, "image": false}});
 </script>

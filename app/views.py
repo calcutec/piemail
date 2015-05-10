@@ -19,7 +19,6 @@ from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, \
 from rauth import OAuth2Service
 from slugify import slugify
 
-
 @app.context_processor
 def inject_static_url():
     if app.debug:

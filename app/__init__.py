@@ -21,7 +21,6 @@ lm.login_view = 'login'
 lm.login_message = 'Please log in to access this page.'
 mail = Mail(app)
 
-
 # Config for static assets
 
 if os.environ.get('HEROKU') is not None:
