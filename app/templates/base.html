@@ -72,9 +72,6 @@
 			<ul>
 				<li class="n-home"><a href="{{ url_for('index') }}">Home</a></li>
 				<li class="n-essays"><a href="{{ url_for('essays') }}">Essays</a></li>
-                {% if not g.user.is_authenticated() %}
-                    <li class="n-login"><a href="{{ url_for('login') }}">Login</a></li>
-                {% endif %}
                 {% if g.user.is_authenticated() %}
                     <li class="n-workshop"><a href="{{ url_for('workshop') }}">Workshop</a></li>
                     <li class="n-poetry"><a href="{{ url_for('poetry') }}">Poetry</a></li>
@@ -84,13 +81,25 @@
 			</ul>
 		</nav>
 
+		<div class="login">
+			<ul>
+                {% if not g.user.is_authenticated() %}
+                    <li class="n-login"><a href="{{ url_for('login') }}">Login</a></li>
+                {% endif %}
+                {% if g.user.is_authenticated() %}
+                    <li class="n-profile"><a href="{{ url_for('user', nickname=g.user.nickname) }}">Profile</a></li>
+                    <li class="n-logout"><a href="{{ url_for('logout') }}">Logout</a></li>
+				{% endif %}
+			</ul>
+		</div>
+
 		<div id="content">
 			<header>
                 <div class="icon">
                     <img src="{{ static_url }}{{ page_logo }}" />
                 </div>
                 <h1>
-					<strong>Netbard.com: </strong>A site for creating, discussing, and sharing poetry<!--  <a href="/">Take a look at the work we do</a> --> <!-- Well trousered Sir. -->
+					Create, discuss, and share poetry<!--  <a href="/">Take a look at the work we do</a> --> <!-- Well trousered Sir. -->
 				</h1>
 			</header>
 
@@ -100,7 +109,7 @@
 
     		<div id="side">
 				<section>
-					<h3>I think that I shall never see, a website lovely as a tree</h3>
+{#					<h3>I think that I shall never see, a website lovely as a tree</h3>#}
 				</section>
 
 				<section class="social">
