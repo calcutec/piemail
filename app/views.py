@@ -20,6 +20,20 @@ from rauth import OAuth2Service
 from slugify import slugify
 
 
+@app.context_processor
+def inject_static_url():
+    if app.debug:
+        static_url = app.static_url_path
+    else:
+        static_url = 'https://s3.amazonaws.com/netbardus/'
+
+    if not static_url.endswith('/'):
+        static_url += '/'
+    return dict(
+        static_url=static_url
+    )
+
+
 @lm.user_loader
 def load_user(id):
     return User.query.get(int(id))

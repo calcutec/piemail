@@ -24,9 +24,10 @@
 			<meta property="og:locale" content="en_US" />
 
 		<!-- Favicon -->
-		<link rel="shortcut icon" href="{{ url_for('.static', filename='img/icons/favicon.ico') }}" type="image/x-icon">
-        <link rel="icon" href="{{ url_for('.static', filename='img/icons/favicon.ico') }}" type="image/x-icon">
-
+{#		<link rel="shortcut icon" href="{{ url_for(static_url, filename='img/icons/favicon.ico') }}" type="image/x-icon">#}
+{#        <link rel="icon" href="{{ url_for(static_url, filename='img/icons/favicon.ico') }}" type="image/x-icon">#}
+		<link rel="shortcut icon" href="{{ static_url }}img/icons/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="{{ static_url }}img/icons/favicon.ico" type="image/x-icon">
 		<!-- Windows 8 Pinned Site -->
 			<meta name="msapplication-TileImage" content="/images/pinsite.png">
 			<meta name="msapplication-TileColor" content="#ffffff">
@@ -34,14 +35,12 @@
 
 		<!-- CSS -->
 			<!--[if gte IE 7]><!-->
-{#                <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }}" />#}
-                <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" />
-		        <link rel="stylesheet" href="{{ url_for('.static', filename='css/bootstrap-responsive.min.css') }}" />
-		        <link rel="stylesheet" type="text/css" media="all" href="{{ url_for('.static', filename='css/layout.css') }}" />
+                <link rel="stylesheet" type="text/css" href="{{ static_url }}css/bootstrap.min.css" />
+		        <link rel="stylesheet" href="{{ static_url }}css/bootstrap-responsive.min.css" />
+		        <link rel="stylesheet" type="text/css" media="all" href="{{ static_url }}css/layout.css" />
 		        <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cabin:400,500,600,700,400italic,500italic,600italic,700italic' data-noprefix />
-{#                <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='bower_components/bootstrap/dist/css/bootstrap-theme.min.css') }}" />#}
-                <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='bower_components/components-font-awesome/css/font-awesome.min.css') }}" />
-                <link rel="stylesheet" type="text/css" href="{{ url_for('.static', filename='css/bootstrap3-wysihtml5.min.css') }}" />
+                <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+                <link rel="stylesheet" type="text/css" href="{{ static_url }}css/bootstrap3-wysihtml5.min.css" />
 
 			<!--<![endif]-->
 
@@ -51,18 +50,19 @@
 
 			<!-- to help IE recognise the new HTML tags -->
 				<!--[if lte IE 8
-					<script src="{{ url_for('.static', filename='js/html5.js') }}"></script>
-					<script src="{{ url_for('.static', filename='js/css3-mediaqueries.js') }}"></script>
+					<script src="{{ static_url }}js/html5.js"></script>
+					<script src="{{ static_url }}js/css3-mediaqueries.js"></script>
 				<![endif]-->
 
 		<!-- JS -->
-            <script src="{{ url_for('.static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
-			<script src="{{ url_for('.static', filename='js/prefixfree.min.js') }}"></script>
-            <script src="{{ url_for('.static', filename='bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
-	        <script src="{{ url_for('.static', filename='js/moment.min.js') }}"></script>
-            <script src="{{ url_for('.static', filename='bower_components/wysihtml5x/dist/wysihtml5x-toolbar.min.js') }}"></script>
-            <script src="{{ url_for('.static', filename='bower_components/handlebars/handlebars.runtime.min.js') }}"></script>
-            <script src="{{ url_for('.static', filename='js/bootstrap3-wysihtml5.min.js') }}"></script>
+            <script src="{{ static_url }}js/jquery.min.js"></script>
+            <script src="{{ static_url }}js/jquery.min.js"></script>
+			<script src="{{ static_url }}js/prefixfree.min.js"></script>
+            <script src="{{ static_url }}js/bootstrap.min.js"></script>
+	        <script src="{{ static_url }}js/moment.min.js"></script>
+            <script src="{{ static_url }}js/wysihtml5x-toolbar.min.js"></script>
+            <script src="{{ static_url }}js/handlebars.runtime.min.js"></script>
+            <script src="{{ static_url }}js/bootstrap3-wysihtml5.min.js"></script>
 
 
 	</head>
@@ -89,7 +89,7 @@
 		<div id="content">
 			<header>
                 <div class="icon">
-                    <img src="{{url_for('.static', filename=page_logo) }}" />
+                    <img src="{{ static_url }}{{ page_logo }}" />
                 </div>
                 <h1>
 					<strong>Netbard.com: </strong>A site for creating, discussing, and sharing poetry<!--  <a href="/">Take a look at the work we do</a> --> <!-- Well trousered Sir. -->
@@ -107,10 +107,10 @@
 
 				<section class="social">
 					<h3>Social clubs</h3>
-					<p><a href="/" title="Netbard on Twitter"><img src="{{ url_for('.static', filename='img/icons/Twitter.svg') }}" alt="Netbard on Twitter" /> Twitter</a></p>
-					<p><a href="/"><img src="{{ url_for('.static', filename='img/icons/Facebook.svg') }}" alt="Netbard on Facebook" /> Facebook</a></p>
-					<p><a href="/"><img src="{{ url_for('.static', filename='img/icons/Instagram.svg') }}" alt="Netbard on Instagram" /> Instagram</a></p>
-					<p><a href="/" title="Netbard on Flickr"><img src="{{ url_for('.static', filename='img/icons/Flickr.svg') }}" alt="Netbard on Flickr" /> Flickr</a></p>
+					<p><a href="/" title="Netbard on Twitter"><img src="{{ static_url }}img/icons/Twitter.svg" alt="Netbard on Twitter" /> Twitter</a></p>
+					<p><a href="/"><img src="{{ static_url }}img/icons/Facebook.svg" alt="Netbard on Facebook" /> Facebook</a></p>
+					<p><a href="/"><img src="{{ static_url }}img/icons/Instagram.svg" alt="Netbard on Instagram" /> Instagram</a></p>
+					<p><a href="/" title="Netbard on Flickr"><img src="{{ static_url }}img/icons/Flickr.svg" alt="Netbard on Flickr" /> Flickr</a></p>
 				</section>
 
 				<section class="contact">

@@ -5,8 +5,7 @@ app.db
 test.db
 search.db
 flask
-app/static/img_cache
-app/static/user_imgs
+app/static
 *.mo
 *.DS_Store
 
