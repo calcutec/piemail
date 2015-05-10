@@ -102,7 +102,7 @@ def index():
 @app.route('/essays', methods=['GET', 'POST'])
 def essays():
     page_mark = 'essays'
-    page_logo = 'img/icons/tbd.svg'
+    page_logo = 'img/icons/essays.svg'
     return render_template('essays.html',
                            title='Essays',
                            page_mark=page_mark,
@@ -147,7 +147,7 @@ def workshop(page=1):
 @app.route('/poetry', methods=['GET', 'POST'])
 def poetry():
     page_mark = 'poetry'
-    page_logo = 'img/icons/tbd.svg'
+    page_logo = 'img/icons/poetry.svg'
     return render_template('poetry.html',
                            title='Poetry',
                            page_mark=page_mark,
