@@ -94,4 +94,10 @@ if os.environ.get('HEROKU') is not None:
 
 app.jinja_env.globals['momentjs'] = momentjs
 
+app.config["S3_LOCATION"] = 'https://s3.amazonaws.com/netbardus/'
+app.config["S3_KEY"] = 'AKIAIACI76P6VC7MIQRA'
+app.config["S3_SECRET"] = '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'
+app.config["S3_UPLOAD_DIRECTORY"] = 'css'
+app.config["S3_BUCKET"] = 'netbardus'
+
 from app import views, models

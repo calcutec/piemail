@@ -82,3 +82,6 @@ class ContactForm(Form):
     subject = StringField("Subject")
     message = TextAreaField("Message")
     submit = SubmitField("Send")
+
+class UploadForm(Form):
+    example = FileField('Example File')

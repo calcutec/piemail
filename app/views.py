@@ -9,7 +9,7 @@ from flask.ext.sqlalchemy import get_debug_queries
 from datetime import datetime
 from app import app, db, lm
 
-from .forms import LoginForm, EditForm, PostForm, SearchForm, CommentForm
+from .forms import LoginForm, EditForm, PostForm, SearchForm, CommentForm, UploadForm
 from .models import User, Post, Comment
 from .emails import follower_notification
 from .utils import generate_thumbnail
@@ -18,6 +18,23 @@ from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, \
 
 from rauth import OAuth2Service
 from slugify import slugify
+
+
+from tools import s3_upload
+
+
+
+
+
+
+
+@app.route('/S3update', methods=['POST', 'GET'])
+def upload_page():
+    form = UploadForm()
+    if form.validate_on_submit():
+        output = s3_upload(form.example)
+        flash('{src} uploaded to S3 as {dst}'.format(src=form.example.data.filename, dst=output))
+    return render_template('example.html', form=form)
 
 @app.context_processor
 def inject_static_url():
