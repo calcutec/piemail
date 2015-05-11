@@ -219,6 +219,27 @@ article li {
     top: -1px;
 }
 
+
+.login ul {
+	list-style-type: none;
+}
+
+
+.login li {
+  display: inline-block;
+  box-sizing: border-box;
+  vertical-align: top;
+  text-transform: uppercase;
+  padding: 0 1rem 0 0;
+  margin: 0 1rem 0 0;
+  border-right: 1px solid #ddd;
+  font-size: .7rem;
+}
+
+.login li:last-child {
+  border-right: none;
+}
+
 nav ul {
 	list-style-type: none;
 	font-size: 0.875rem;
@@ -234,12 +255,10 @@ nav a {
 	}
 
 /*selected states*/
-#login .n-login a,
 #home .n-home a,
 #essays .n-essays a,
 #workshop .n-workshop a,
-#poetry .n-poetry a,
-#profile .n-profile a {
+#poetry .n-poetry a {
 	color: #000;
 	border-bottom: 2px solid #E1B200;
 }
@@ -803,22 +822,18 @@ input.submit {
 	}
 
 	/*selected states*/
-    #login .n-login a,
     #home .n-home a,
 	#essays .n-essays a,
     #workshop .n-workshop a,
-    #poetry .n-poetry a,
-    #profile .n-profile a{
+    #poetry .n-poetry a {
 	    color: #000;
         border-bottom: None;
 	}
 
-    #login .n-login a:before,
     #home .n-home a:before,
     #essays .n-essays a:before,
     #workshop .n-workshop a:before,
-    #poetry .n-poetry a:before,
-    #profile .n-profile a:before {
+    #poetry .n-poetry a:before {
 		position: absolute;
 		left: -1.5rem;
         margin-top: 5px;
