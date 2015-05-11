@@ -83,12 +83,10 @@
 		<nav>
 			<ul>
 				<li class="n-home"><a href="{{ url_for('index') }}">Home</a></li>
-				<li class="n-essays"><a href="{{ url_for('essays') }}">Essays</a></li>
+				<li class="n-poetry"><a href="{{ url_for('poetry') }}">Poetry</a></li>
+				g<li class="n-essays"><a href="{{ url_for('essays') }}">Essays</a></li>
                 {% if g.user.is_authenticated() %}
                     <li class="n-workshop"><a href="{{ url_for('workshop') }}">Workshop</a></li>
-                    <li class="n-poetry"><a href="{{ url_for('poetry') }}">Poetry</a></li>
-                    <li class="n-profile"><a href="{{ url_for('user', nickname=g.user.nickname) }}">Profile</a></li>
-                    <li class="n-logout"><a href="{{ url_for('logout') }}">Logout</a></li>
 				{% endif %}
 			</ul>
 		</nav>
