@@ -1,0 +1,48 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+    {% include 'flash.html' %}
+    <p></p>
+    <div class="well">
+        <ul class="nav nav-tabs">
+            <li>&nbsp;&nbsp;&nbsp;</li>
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li class="active"><a href="{{ url_for('signup') }}" data-toggle="tab">Create Account</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade in active" id="create-account" style="padding-top: 20px;">
+                <div class="col-sm-6">
+                      <form action="{{ url_for('signup') }}" method=post>
+                        {{ form.csrf_token }}
+
+                        {{ form.firstname.label }}
+                        {{ form.firstname }}
+                        {% for error in form.firstname.errors %}
+                            <span class="help-inline">[{{ error }}]</span><br>
+                        {% endfor %}
+                        {{ form.lastname.label }}
+                        {{ form.lastname }}
+                        {% for error in form.lastname.errors %}
+                            <span class="help-inline">[{{ error }}]</span><br>
+                        {% endfor %}
+                        {{ form.email.label }}
+                        {{ form.email }}
+                        {% for error in form.email.errors %}
+                            <span class="help-inline">[{{ error }}]</span><br>
+                        {% endfor %}
+                        {{ form.password.label }}
+                        {{ form.password }}
+                        {% for error in form.password.errors %}
+                            <span class="help-inline">[{{ error }}]</span><br>
+                        {% endfor %}
+                        <label style="font-weight: normal;"><input type="checkbox" class="" id="remember-me-social-toggle" style="float: left; margin-left: 0px;" value="1"> &nbsp;&nbsp;Keep me logged in</label>
+                        <hr>
+                        <button type="submit" class="btn btn-success" style="width: 220px;">Create your account</button>
+                      </form>
+                </div><!-- tab-content create-account -->
+            </div>
+        </div><!-- tab-content -->
+    </div>
+{% endblock %}
