@@ -9,7 +9,7 @@ from flask.ext.sqlalchemy import get_debug_queries
 from datetime import datetime
 from app import app, db, lm
 
-from .forms import LoginForm, EditForm, PostForm, SearchForm, CommentForm, UploadForm
+from .forms import SignupForm, LoginForm, EditForm, PostForm, SearchForm, CommentForm, UploadForm
 from .models import User, Post, Comment
 from .emails import follower_notification
 from .utils import s3_upload, generate_thumbnail
@@ -81,11 +81,47 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if g.user is not None and g.user.is_authenticated():
+        return redirect(url_for('index'))
+    form = SignupForm()
+
+    if form.validate_on_submit():
+        newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data, lastname=form.lastname.data,
+                       password=form.password.data)
+        db.session.add(newuser)
+        db.session.add(newuser.follow(newuser))
+        db.session.commit()
+        remember_me = False
+        if 'remember_me' in session:
+            remember_me = session['remember_me']
+            session.pop('remember_me', None)
+        login_user(newuser, remember=remember_me)
+        return redirect(url_for('user', nickname=newuser.nickname))
+
+    page_mark = 'signup'
+    page_logo = 'img/icons/login.svg'
+    return render_template('signup.html',
+                           title='Sign In',
+                           form=form,
+                           page_mark=page_mark,
+                           page_logo=page_logo)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if g.user is not None and g.user.is_authenticated():
         return redirect(url_for('index'))
-    form = LoginForm()
+    form = LoginForm()  # update login.html template to use form
+    if form.validate_on_submit():
+        newuser = User.query.filter_by(email=form.email.data).first()
+        remember_me = False
+        if 'remember_me' in session:
+            remember_me = session['remember_me']
+            session.pop('remember_me', None)
+        login_user(newuser, remember=remember_me)
+        return redirect(url_for('user', nickname=newuser.nickname))
+
     page_mark = 'login'
     page_logo = 'img/icons/login.svg'
     return render_template('login.html',
@@ -426,31 +462,6 @@ def oauth_authorize(provider):
         return redirect(url_for('index'))
     oauth = OAuthSignIn.get_provider(provider)
     return oauth.authorize()
-
-
-# @app.route('/callback/<provider>')
-# def oauth_callback(provider):
-#     if not current_user.is_anonymous():
-#         return redirect(url_for('index'))
-#     oauth = OAuthSignIn.get_provider(provider)
-#     social_id, username, email = oauth.callback()
-#     if social_id is None:
-#         flash('Authentication failed.')
-#         return redirect(url_for('index'))
-#     user = User.query.filter_by(social_id=social_id).first()
-#     if not user:
-#         user = User(social_id=social_id, nickname=username, email=email)
-#         db.session.add(user)
-#         db.session.commit()
-#         # make the user follow him/herself
-#         db.session.add(user.follow(user))
-#         db.session.commit()
-#     remember_me = False
-#     if 'remember_me' in session:
-#         remember_me = session['remember_me']
-#         session.pop('remember_me', None)
-#     login_user(user, remember=remember_me)
-#     return redirect(request.args.get('next') or url_for('index'))
 
 @app.route('/callback/<provider>')
 def oauth_callback(provider):

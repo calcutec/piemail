@@ -30,7 +30,7 @@ class User(UserMixin, db.Model):
     lastname = db.Column(db.String(100))
     nickname = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
-    pwdhash = db.Column(db.String(54))
+    pwdhash = db.Column(db.String(100))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
     about_me = db.Column(db.String(140))
@@ -43,11 +43,17 @@ class User(UserMixin, db.Model):
                                backref=db.backref('followers', lazy='dynamic'),
                                lazy='dynamic')
 
-    def __init__(self, nickname, email, social_id=None):
+    def __init__(self, nickname, email, social_id=None, password=None, firstname=None, lastname=None):
         self.nickname = nickname
         self.email = email.lower()
         self.social_id = social_id
-        # self.set_password(password)
+        if password is not None:
+            self.set_password(password)
+        if firstname is not None:
+            self.firstname = firstname.title()
+        if lastname is not None:
+            self.lastname = lastname.title()
+
 
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)

@@ -6,8 +6,23 @@ from .models import User
 
 
 class LoginForm(Form):
-    openid = StringField('openid', validators=[DataRequired()])
+    email = StringField("Email",  [DataRequired("Please enter your email address."), Email("Please enter your email address.")])
+    password = PasswordField('Password', [DataRequired("Please enter a password.")])
     remember_me = BooleanField('remember_me', default=False)
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+
+    def validate(self):
+        if not Form.validate(self):
+            return False
+
+        user = User.query.filter_by(email=self.email.data.lower()).first()
+        if user and user.check_password(self.password.data):
+            return True
+        else:
+            self.email.errors.append("Invalid e-mail or password")
+            return False
 
 
 class SignupForm(Form):
@@ -16,6 +31,7 @@ class SignupForm(Form):
     email = StringField("Email",  [DataRequired("Please enter your email address."), Email("Please enter your email address.")])
     password = PasswordField('Password', [DataRequired("Please enter a password.")])
     submit = SubmitField("Create account")
+    remember_me = BooleanField('remember_me', default=False)
 
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)

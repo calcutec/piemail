@@ -5,10 +5,11 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 CSRF_ENABLED = True
 SECRET_KEY = 'you-will-never-guess'
 
+# SQLALCHEMY_DATABASE_URI = ('sqlite:///' + os.path.join(basedir, 'app.db') +
+#                            '?check_same_thread=False')
+
 if os.environ.get('DATABASE_URL') is None:
-    SQLALCHEMY_DATABASE_URI = "postgresql://bburton:dimsum@localhost/netbard_local"
-    # SQLALCHEMY_DATABASE_URI = ('sqlite:///' + os.path.join(basedir, 'app.db') +
-    #                            '?check_same_thread=False')
+    SQLALCHEMY_DATABASE_URI = "postgresql://bburton:Dimsum789@localhost/netbard_local"
 else:
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
