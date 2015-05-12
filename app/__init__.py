@@ -21,9 +21,6 @@ lm.login_view = 'login'
 lm.login_message = 'Please log in to access this page.'
 mail = Mail(app)
 
-GOOGLE_LOGIN_CLIENT_ID = "1019317791133-9kqnupafvmhcgivbpmhoaviclkrs2jgt.apps.googleusercontent.com"
-GOOGLE_LOGIN_CLIENT_SECRET = "6gcUnBwYLCxaXF0ofwfEsbXk"
-# Config for static assets
 
 if os.environ.get('HEROKU') is not None:
     app.config['IMAGES_PATH'] = ['static/heroku_user_imgs']
@@ -31,6 +28,10 @@ if os.environ.get('HEROKU') is not None:
         'facebook': {
             'id': '951231784910539',
             'secret': '724087cd0eef6537c5c16de5fda059f3'
+        },
+        'google': {
+            'id': '908522697326-0gdm0ngo4397jb6m6s92fe5okfot344h.apps.googleusercontent.com',
+            'secret': 'swr5Rj2E4f1O9xHjkp_T-TUk'
         }
     }
 else:
@@ -41,8 +42,8 @@ else:
             'secret': '5cca625e8873272007b723736bb4ed3b'
         },
         'google': {
-            'id': GOOGLE_LOGIN_CLIENT_ID,
-            'secret': GOOGLE_LOGIN_CLIENT_SECRET
+            'id': "1019317791133-9kqnupafvmhcgivbpmhoaviclkrs2jgt.apps.googleusercontent.com",
+            'secret': "6gcUnBwYLCxaXF0ofwfEsbXk"
         }
     }
 
