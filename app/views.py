@@ -458,6 +458,7 @@ def oauth_callback(provider):
         return redirect(url_for('index'))
     oauth = OAuthSignIn.get_provider(provider)
     if provider == 'facebook':
+        picture = None
         social_id, username, email = oauth.callback()
         if social_id is None or email is None:
             flash('Authentication failed.')
@@ -473,14 +474,14 @@ def oauth_callback(provider):
         if nickname is None or nickname == "":
             nickname = email.split('@')[0]
         if provider == 'facebook':
-            user = User(social_id=social_id, nickname=username, email=email)
+            user = User(nickname=username, email=email, social_id=social_id, )
         elif provider == 'google':
-            user=User(nickname=nickname, email=email)
+            user=User(nickname=nickname, email=email, social_id=None)
         db.session.add(user)
         db.session.add(user.follow(user))
         db.session.commit()
-    if provider == 'google' and user.profile_photo == "":
-        if picture is not "":
+    if provider == 'google' and (user.profile_photo == "" or user.profile_photo is None):
+        if picture is not None and picture is not "":
             user.profile_photo = picture
             db.session.add(user)
             db.session.commit()

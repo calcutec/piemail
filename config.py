@@ -6,7 +6,7 @@ CSRF_ENABLED = True
 SECRET_KEY = 'you-will-never-guess'
 
 if os.environ.get('DATABASE_URL') is None:
-    SQLALCHEMY_DATABASE_URI = "postgresql://bburton:dimsum@localhost/netbard_local_db"
+    SQLALCHEMY_DATABASE_URI = "postgresql://bburton:dimsum@localhost/netbard_local"
     # SQLALCHEMY_DATABASE_URI = ('sqlite:///' + os.path.join(basedir, 'app.db') +
     #                            '?check_same_thread=False')
 else:
