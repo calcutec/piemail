@@ -21,6 +21,8 @@ lm.login_view = 'login'
 lm.login_message = 'Please log in to access this page.'
 mail = Mail(app)
 
+GOOGLE_LOGIN_CLIENT_ID = "1019317791133-9kqnupafvmhcgivbpmhoaviclkrs2jgt.apps.googleusercontent.com"
+GOOGLE_LOGIN_CLIENT_SECRET = "6gcUnBwYLCxaXF0ofwfEsbXk"
 # Config for static assets
 
 if os.environ.get('HEROKU') is not None:
@@ -37,6 +39,10 @@ else:
         'facebook': {
             'id': '953764817990569',
             'secret': '5cca625e8873272007b723736bb4ed3b'
+        },
+        'google': {
+            'id': GOOGLE_LOGIN_CLIENT_ID,
+            'secret': GOOGLE_LOGIN_CLIENT_SECRET
         }
     }
 

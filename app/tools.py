@@ -1,6 +1,4 @@
-from uuid import uuid4
 import boto
-import os.path
 from flask import current_app as app
 from werkzeug.utils import secure_filename
 
@@ -15,9 +13,9 @@ def s3_upload(source_file, acl='public-read'):
             S3_UPLOAD_DIRECTORY :   Which S3 Directory.
 
         The default sets the access rights on the uploaded file to
-        public-read.  It also generates a unique filename via
+        public-read.  Optionally, can generate a unique filename via
         the uuid4 function combined with the file extension from
-        the source file.
+        the source file(to avoid filename collision for user uploads.
     """
 
     source_filename = secure_filename(source_file.data.filename)

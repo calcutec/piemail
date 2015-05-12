@@ -12,20 +12,13 @@ from app import app, db, lm
 from .forms import LoginForm, EditForm, PostForm, SearchForm, CommentForm, UploadForm
 from .models import User, Post, Comment
 from .emails import follower_notification
-from .utils import generate_thumbnail
+from .utils import s3_upload, generate_thumbnail
 from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, \
     DATABASE_QUERY_TIMEOUT
 
 from rauth import OAuth2Service
+import json, urllib2
 from slugify import slugify
-
-
-from tools import s3_upload
-
-
-
-
-
 
 
 @app.route('/S3update', methods=['POST', 'GET'])
@@ -35,6 +28,7 @@ def upload_page():
         output = s3_upload(form.example)
         flash('{src} uploaded to S3 as {dst}'.format(src=form.example.data.filename, dst=output))
     return render_template('example.html', form=form)
+
 
 @app.context_processor
 def inject_static_url():
@@ -205,15 +199,14 @@ def edit():
     form = EditForm(g.user.nickname)
     if form.validate_on_submit():
         filename = secure_filename(form.profile_photo.data.filename)
-        if filename != None and filename != '':
+        if filename is not None and filename is not '':
             filename_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             form.profile_photo.data.save(filename_path)
             profile_photo = generate_thumbnail(filename=filename, filename_path=filename_path, box=(128, 128),
-                                                photo_type="thumb", crop=True)
+                                               photo_type="thumb", crop=True)
+            g.user.profile_photo = profile_photo
         g.user.nickname = form.nickname.data
         g.user.about_me = form.about_me.data
-        g.user.about_me = form.about_me.data
-        g.user.profile_photo = profile_photo
         db.session.add(g.user)
         db.session.commit()
         flash('Your changes have been saved.')
@@ -391,31 +384,106 @@ class FacebookSignIn(OAuthSignIn):
         )
 
 
+class GoogleSignIn(OAuthSignIn):
+    def __init__(self):
+        super(GoogleSignIn, self).__init__('google')
+        googleinfo = urllib2.urlopen('https://accounts.google.com/.well-known/openid-configuration')
+        google_params = json.load(googleinfo)
+        self.service = OAuth2Service(
+                name='google',
+                client_id=self.consumer_id,
+                client_secret=self.consumer_secret,
+                authorize_url=google_params.get('authorization_endpoint'),
+                base_url=google_params.get('userinfo_endpoint'),
+                access_token_url=google_params.get('token_endpoint')
+        )
+
+    def authorize(self):
+        return redirect(self.service.get_authorize_url(
+            scope='email',
+            response_type='code',
+            redirect_uri=self.get_callback_url())
+            )
+
+    def callback(self):
+        if 'code' not in request.args:
+            return None, None, None
+        oauth_session = self.service.get_auth_session(
+                data={'code': request.args['code'],
+                      'grant_type': 'authorization_code',
+                      'redirect_uri': self.get_callback_url()
+                     },
+                decoder = json.loads
+        )
+        me = oauth_session.get('').json()
+        return (me['name'], me['email'], me['picture'])
+
+
 @app.route('/authorize/<provider>')
 def oauth_authorize(provider):
+    # Flask-Login function
     if not current_user.is_anonymous():
         return redirect(url_for('index'))
     oauth = OAuthSignIn.get_provider(provider)
     return oauth.authorize()
 
 
+# @app.route('/callback/<provider>')
+# def oauth_callback(provider):
+#     if not current_user.is_anonymous():
+#         return redirect(url_for('index'))
+#     oauth = OAuthSignIn.get_provider(provider)
+#     social_id, username, email = oauth.callback()
+#     if social_id is None:
+#         flash('Authentication failed.')
+#         return redirect(url_for('index'))
+#     user = User.query.filter_by(social_id=social_id).first()
+#     if not user:
+#         user = User(social_id=social_id, nickname=username, email=email)
+#         db.session.add(user)
+#         db.session.commit()
+#         # make the user follow him/herself
+#         db.session.add(user.follow(user))
+#         db.session.commit()
+#     remember_me = False
+#     if 'remember_me' in session:
+#         remember_me = session['remember_me']
+#         session.pop('remember_me', None)
+#     login_user(user, remember=remember_me)
+#     return redirect(request.args.get('next') or url_for('index'))
+
 @app.route('/callback/<provider>')
 def oauth_callback(provider):
     if not current_user.is_anonymous():
         return redirect(url_for('index'))
     oauth = OAuthSignIn.get_provider(provider)
-    social_id, username, email = oauth.callback()
-    if social_id is None:
-        flash('Authentication failed.')
-        return redirect(url_for('index'))
-    user = User.query.filter_by(social_id=social_id).first()
+    if provider == 'facebook':
+        social_id, username, email = oauth.callback()
+        if social_id is None or email is None:
+            flash('Authentication failed.')
+            return redirect(url_for('index'))
+    elif provider == 'google':
+        username, email, picture = oauth.callback()
+        if email is None:
+            flash('Authentication failed.')
+            return redirect(url_for('index'))
+    user=User.query.filter_by(email=email).first()
     if not user:
-        user = User(social_id=social_id, nickname=username, email=email)
+        nickname = username
+        if nickname is None or nickname == "":
+            nickname = email.split('@')[0]
+        if provider == 'facebook':
+            user = User(social_id=social_id, nickname=username, email=email)
+        elif provider == 'google':
+            user=User(nickname=nickname, email=email)
         db.session.add(user)
-        db.session.commit()
-        # make the user follow him/herself
         db.session.add(user.follow(user))
         db.session.commit()
+    if provider == 'google' and user.profile_photo == "":
+        if picture is not "":
+            user.profile_photo = picture
+            db.session.add(user)
+            db.session.commit()
     remember_me = False
     if 'remember_me' in session:
         remember_me = session['remember_me']

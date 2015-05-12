@@ -32,18 +32,18 @@ a {
 	color: #8787c1;
 	transition: color 0.2s;
 	font-weight: 700;
-	}
+}
 
 a:hover,
 a:focus {
 	color: #000;
-	}
+}
 
 a:visited {
 	font-weight: normal;
-	}
+}
 
-h1, cite, .date, #test #content, #work #content, .fusion {
+h1, cite, .date {
 font-family:	'Cabin',
 				"Gill Sans",
 				"Gill Sans MT",
@@ -88,7 +88,7 @@ h2 {
 	margin: 0 0 2rem 0;
 	/*color: #e38549;*/
 	text-align: center;
-	}
+}
 
 .work article h2 {
 	font-size: 1rem;
@@ -98,19 +98,12 @@ h2 {
 	border-top: 1px solid #ddd;
 	margin: 1rem 0 0.5em 0;
 	padding: 1rem 0 0 0;
-	}
+ }
 
 h3 {
 	font-size: 1rem;
 	line-height: 1.2;
 	margin: 0 0 1rem 0;
-}
-
-#work h3 {
-	margin: 0.5rem 0;
-	font-size: 0.875rem;
-	color: #aaa;
-	text-align: center;
 }
 
 section h3 {
@@ -119,25 +112,24 @@ section h3 {
 
 p+h3, ul+h3, ol+h3 {
 	margin: 2rem 0 0.25rem 0;
-	}
-
+}
 
 h3.date {
 	margin: 0 0 1.5em 0;
 	font-size: 0.81em;
-	}
+}
 
 h4 {
 	font-size: 0.875em;
-	}
+}
 
 .archives h4 {
 	padding: 0 0 0.25rem 5rem;
-	}
+}
 
 p, pre, ul, ol, .lines, object, input, code {
 	margin: 0 0 1rem 0;
-	}
+}
 
 figcaption, .caption {
 	text-align: right;
@@ -148,13 +140,13 @@ figcaption, .caption {
 
 #journal figcaption, .caption {
 	font-style: italic;
-	}
+}
 
 img {
 	border: 0;
 	max-width: 100%;
 	height: auto;
-	}
+}
 
 .columns p {
     text-indent: 2em;
@@ -185,7 +177,7 @@ cite {
 	display: block;
 	font-style: normal;
 	text-align: right;
-	}
+}
 
 pre {
 	background: #f8f8f8;
@@ -193,20 +185,20 @@ pre {
 	padding: 0.75rem;
 	margin: 0 0 1rem 0;
     border-left: 1px solid #ddd;
-   }
+}
 
 code {
 	font-family: Consolata, monospace;
 	background: #f8f8f8;
-	}
+}
 
 fieldset {
 	border: 0;
-	}
+}
 
 article li {
 	margin: 0 0 0.25rem 0;
-	}
+}
 
 .intrologo {
 	text-transform: uppercase;
@@ -219,25 +211,23 @@ article li {
     top: -1px;
 }
 
-
 .login ul {
 	list-style-type: none;
 }
 
-
 .login li {
-  display: inline-block;
-  box-sizing: border-box;
-  vertical-align: top;
-  text-transform: uppercase;
-  padding: 0 1rem 0 0;
-  margin: 0 1rem 0 0;
-  border-right: 1px solid #ddd;
-  font-size: .7rem;
+    display: inline-block;
+    box-sizing: border-box;
+    vertical-align: top;
+    text-transform: uppercase;
+    padding: 0 1rem 0 0;
+    margin: 0 1rem 0 0;
+    border-right: 1px solid #ddd;
+    font-size: .7rem;
 }
 
 .login li:last-child {
-  border-right: none;
+    border-right: none;
 }
 
 nav ul {
@@ -245,14 +235,14 @@ nav ul {
 	font-size: 0.875rem;
 	line-height: 1;
 	width: 100%;
-	}
+}
 
 nav a {
 	display: block;
 	margin: 0 0.5rem;
 	padding: 0.5rem 0;
 	letter-spacing: 0.15rem;
-	}
+}
 
 /*selected states*/
 #home .n-home a,
@@ -261,6 +251,11 @@ nav a {
 #poetry .n-poetry a {
 	color: #000;
 	border-bottom: 2px solid #E1B200;
+}
+
+#login .n-login a,
+#profile .n-profile a {
+	color: #000;
 }
 
 /*posts*/
