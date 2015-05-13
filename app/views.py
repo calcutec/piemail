@@ -208,7 +208,7 @@ def edit():
     if form.validate_on_submit():
         filename = secure_filename(form.profile_photo.data.filename)
         if filename is not None and filename is not '':
-            img_obj = dict(filename=filename, image=Image.open(request.files['profile_photo']), box=(128, 128),
+            img_obj = dict(filename=filename, img=Image.open(request.files['profile_photo']), box=(128, 128),
                            photo_type="thumb", crop=True,
                            extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
             profile_photo_name = pre_upload(img_obj)
