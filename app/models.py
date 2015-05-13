@@ -25,7 +25,6 @@ followers = db.Table(
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    social_id = db.Column(db.String(64), index=True)
     firstname = db.Column(db.String(100))
     lastname = db.Column(db.String(100))
     nickname = db.Column(db.String(64), index=True, unique=True)
@@ -43,10 +42,9 @@ class User(UserMixin, db.Model):
                                backref=db.backref('followers', lazy='dynamic'),
                                lazy='dynamic')
 
-    def __init__(self, nickname, email, social_id=None, password=None, firstname=None, lastname=None):
+    def __init__(self, nickname, email, password=None, firstname=None, lastname=None):
         self.nickname = nickname
         self.email = email.lower()
-        self.social_id = social_id
         if password is not None:
             self.set_password(password)
         if firstname is not None:
@@ -121,7 +119,7 @@ class User(UserMixin, db.Model):
                     Post.timestamp.desc())
 
     def __repr__(self):  # pragma: no cover
-        return '<User %r>' % (self.nickname)
+        return '<User %r>' % self.nickname
 
 
 class Post(db.Model):
@@ -155,7 +153,7 @@ class Comment(db.Model):
     created_at = db.Column(db.DateTime)
 
     def __repr__(self):  # pragma: no cover
-        return '<Comment %r>' % (self.body)
+        return '<Comment %r>' % self.body
 
 if enable_search:
     whooshalchemy.whoosh_index(app, Post)

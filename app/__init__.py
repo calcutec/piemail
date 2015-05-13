@@ -3,16 +3,14 @@ from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
 from flask.ext.mail import Mail
-from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
-    MAIL_PASSWORD, UPLOAD_FOLDER, CACHE_FOLDER, MAX_CONTENT_LENGTH, \
-    UPLOAD_FOLDER_NAME, SQLALCHEMY_DATABASE_URI
+from config import ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
+    MAIL_PASSWORD, UPLOAD_FOLDER, UPLOAD_FOLDER_NAME, SQLALCHEMY_DATABASE_URI
 from .momentjs import momentjs
 
 app = Flask(__name__)
 app.config.from_object('config')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['UPLOAD_FOLDER_NAME'] = UPLOAD_FOLDER_NAME
-app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 db = SQLAlchemy(app)
 lm = LoginManager()
@@ -22,37 +20,20 @@ lm.login_message = 'Please log in to access this page.'
 mail = Mail(app)
 
 
-if os.environ.get('HEROKU') is not None:
-    app.config['IMAGES_PATH'] = ['static/heroku_user_imgs']
-    app.config['OAUTH_CREDENTIALS'] = {
-        'facebook': {
-            'id': '951231784910539',
-            'secret': '724087cd0eef6537c5c16de5fda059f3'
-        },
-        'google': {
-            'id': '908522697326-0gdm0ngo4397jb6m6s92fe5okfot344h.apps.googleusercontent.com',
-            'secret': 'swr5Rj2E4f1O9xHjkp_T-TUk'
-        }
+
+app.config['IMAGES_PATH'] = ['static/user_imgs']
+app.config['OAUTH_CREDENTIALS'] = {
+    'facebook': {
+        'id': os.environ['FACEBOOK_AUTH'],
+        'secret': os.environ['FACEBOOK_AUTH_SECRET']
+    },
+    'google': {
+        'id': os.environ['GOOGLE_AUTH'],
+        'secret': os.environ['GOOGLE_AUTH_SECRET']
     }
-else:
-    app.config['IMAGES_PATH'] = ['static/user_imgs']
-    app.config['OAUTH_CREDENTIALS'] = {
-        'facebook': {
-            'id': '953764817990569',
-            'secret': '5cca625e8873272007b723736bb4ed3b'
-        },
-        'google': {
-            'id': "1019317791133-9kqnupafvmhcgivbpmhoaviclkrs2jgt.apps.googleusercontent.com",
-            'secret': "6gcUnBwYLCxaXF0ofwfEsbXk"
-        }
-    }
-
-app.config['IMAGES_CACHE'] = CACHE_FOLDER
-
-
+}
 
 from flask.json import JSONEncoder
-
 
 class CustomJSONEncoder(JSONEncoder):
     """This class adds support for lazy translation texts to Flask's
@@ -102,9 +83,10 @@ if os.environ.get('HEROKU') is not None:
 app.jinja_env.globals['momentjs'] = momentjs
 
 app.config["S3_LOCATION"] = 'https://s3.amazonaws.com/netbardus/'
-app.config["S3_KEY"] = 'AKIAIACI76P6VC7MIQRA'
-app.config["S3_SECRET"] = '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'
-app.config["S3_UPLOAD_DIRECTORY"] = 'css'
+app.config["S3_UPLOAD_DIRECTORY"] = 'user_imgs'
 app.config["S3_BUCKET"] = 'netbardus'
+app.config["AWS_ACCESS_KEY_ID"] = os.environ['AWS_ACCESS_KEY_ID']
+app.config["AWS_SECRET_ACCESS_KEY"] = os.environ['AWS_SECRET_ACCESS_KEY']
+
 
 from app import views, models

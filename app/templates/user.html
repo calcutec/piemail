@@ -6,11 +6,7 @@
     <div class="well well-large" style="height: auto;">
         <div class="pull-right">
             {% if user.profile_photo %}
-                {% if user.profile_photo[0:4]=='http' %}
-                    <img src="{{ user.profile_photo }}" style="height:128px">
-                {% else %}
-                    <img src="{{url_for('.static', filename='user_imgs/' + user.profile_photo) }}" class="img-polaroid">
-                {% endif %}
+                <img src="{{ static_url }}user_imgs/{{ user.profile_photo }}" class="img-polaroid">
             {% else %}
                 <img src="{{ user.avatar(128) }}" class="img-polaroid">
             {% endif %}
