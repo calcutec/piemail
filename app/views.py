@@ -1,7 +1,7 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 from werkzeug.utils import secure_filename
-from flask import render_template, flash, redirect, session, url_for, request, g
+from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
 
 from flask.ext.login import login_user, logout_user, current_user, \
     login_required
@@ -248,6 +248,11 @@ def posts(slug):
                            page_mark=page_mark,
                            page_logo=page_logo,
                            **context)
+
+
+@app.route('/edit_in_place', methods=['POST', 'GET'])
+def edit_in_place():
+    return request.form['update_value']
 
 
 @app.route('/follow/<nickname>')

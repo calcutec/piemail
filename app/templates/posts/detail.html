@@ -2,7 +2,7 @@
 
 {% block content %}
   {% if post.body %}
-      <p>{{ post.body }}</p>
+      <p id="editme">{{ post.body }}</p>
   {% endif %}
         {% if post.photo and post.thumbnail %}
             <a href="{{ url_for('.static', filename=upload_folder_name + post.photo) }}" class="preview" target="_blank"><img src="{{ url_for('.static', filename=upload_folder_name + post.photo) }}" /></a>
@@ -34,6 +34,22 @@
            <p>{{ comment.body }}</p>
 		{% endfor %}
 	{% endif %}
+
+
+<script type="text/javascript">
+     $( document ).ready(function() {
+        $("#editme").editInPlace({
+    {#		callback: function(unused, enteredText) { return enteredText; },#}
+    		url: "{{ url_for('edit_in_place') }}",
+            bg_over: "#cff",
+            field_type: "textarea",
+            textarea_rows: "15",
+            textarea_cols: "50",
+            show_buttons: true
+        });
+    });
+</script>
+
 {% endblock %}
 
 
