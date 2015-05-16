@@ -20,19 +20,19 @@
         </div>
     </div>
 
-    <div class="well">
+    <div class="well" style="margin-top:40px">
     {% include 'flash.html' %}
         <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="post">
             {{ form.hidden_tag() }}
             <div class="control-group{% if form.header.errors %} error{% endif %}">
-{#                <label class="control-label" for="title">Title</label>#}
+                <label class="control-label" for="title">Title</label><br>
                     {{ form.header(size=15) }}
                     {% for error in form.header.errors %}
                         <span class="help-inline">[{{ error }}]</span><br>
                     {% endfor %}
             </div>
             <div class="control-group{% if form.post.errors %} error{% endif %}">
-{#                <label class="control-label" for="post">Poem text</label>#}
+                <label class="control-label" for="post">Poem</label><br>
                     {{ form.post() }}
                     {% for error in form.post.errors %}
                         <span class="help-inline">[{{ error }}]</span><br>
@@ -48,18 +48,15 @@
         </form>
     </div>
 
-
-{#    <div class="well" style="margin-top:40px">#}
-{#        <textarea class="post" placeholder="Enter text ..." style="width: 100%; height: 200px;"></textarea>#}
-{#    </div>#}
-
-
     <div class="nav-collapse collapse">
         {% if g.user.is_authenticated() %}
             <form class="navbar-search pull-left" action="{{ url_for('search') }}" method="post" name="search">{{ g.search_form.hidden_tag() }}{{ g.search_form.search(size=20, placeholder='Search', class="search-query")}}</form>
         {% endif %}
     </div>
 <script>
-  $('#post').wysihtml5({toolbar: { fa: true, "link": false, "image": false }});
+  $('#post').wysihtml5({
+      toolbar: { fa: true, "link": false, "image": false },
+      "events": {"load": function() {alert("Loaded!");}}
+  });
 </script>
 {% endblock %}

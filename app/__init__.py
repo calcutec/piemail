@@ -20,8 +20,6 @@ lm.login_message = 'Please log in to access this page.'
 mail = Mail(app)
 
 
-
-app.config['IMAGES_PATH'] = ['static/user_imgs']
 app.config['OAUTH_CREDENTIALS'] = {
     'facebook': {
         'id': os.environ['FACEBOOK_AUTH'],

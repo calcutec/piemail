@@ -357,12 +357,7 @@ body {
 header {
 	padding: 2rem 0;
 	border-bottom: 1px solid #ddd;
-}
-
-
-#default header,
-#test header {
-	border: 0;
+    margin-bottom: 5px;
 }
 
 .icon img {
@@ -388,108 +383,16 @@ nav li {
 	display: inline-block;
 }
 
-/*Work*/
-
-#default .work article,
-#test .work article {
-	width: 48%;
-	float: left;
-	position: relative;
-	overflow: hidden;
-	margin: 1%;
-	padding: 0;
-	vertical-align: top;
-	transition: width,height 0.2s;
-	}
-
-.work article {
-	border: 0;
-}
-
-#default .work article h2,
-#test .work article h2 {
-	margin: 0;
-	padding-top:75%;
-}
-
-#default .work article h2 a,
-#test .work article h2 a{
-	text-indent: -999em;
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-	z-index: 2;
-	padding: 1em;
-}
-
-#default .work article h2 a:hover,
-#test .work article h2 a:hover{
-	text-indent: 0;
-	background: rgba(233,91,53,0.8);
-	color: #fff;
-}
-
-#default .work article .body,
-#test .work article .body {
-	overflow: hidden;
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-}
-
-.work article .body {
-	padding: 0;
-	margin: 0;
-}
-
-.work article img {
-	margin: 0;
-}
-
-.work .centered img {
-	margin: 0 auto;
-}
-
-.work .body ul {
-	list-style-type: none;
-	max-width: 33em;
-}
 
 /*Float Clearance*/
 #journal article:after,
-.work:after,
-.covers:after,
-#contact #content:after,
-#default #main:after,
-.clients:after,
-.playlist ol:after  {
+#contact #content:after {
    content: "";
    clear: both;
    display: block;
  }
 
-/*Clients*/
-
-.clients {
-	padding: 2rem 0;
-	line-height: 1.6;
-	/*font-size: 0.875rem;*/
-}
-
-.clients img {
-  display: inline-block;
-  margin: 0.5rem 4%;
-  vertical-align: middle;
-  max-width: 24%;
-}
-
-
 /*Journal*/
-
 article {
 	margin: 1rem 0;
 	padding: 0 0 1rem 0;
@@ -987,4 +890,12 @@ margin-right: 10px;
 -webkit-border-radius: 6px;
 -moz-border-radius: 6px;
 border-radius: 6px;
+}
+
+form label {
+  margin-bottom: -1px;
+}
+
+.wysihtml5-toolbar {
+    display: none;
 }

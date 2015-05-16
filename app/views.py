@@ -1,7 +1,7 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 from werkzeug.utils import secure_filename
-from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
+from flask import render_template, flash, redirect, session, url_for, request, g
 
 from flask.ext.login import login_user, logout_user, current_user, \
     login_required
@@ -15,22 +15,23 @@ from slugify import slugify
 from .forms import SignupForm, LoginForm, EditForm, PostForm, SearchForm, CommentForm
 from .models import User, Post, Comment
 from .emails import follower_notification
-from .utils import generate_thumbnail, OAuthSignIn, pre_upload
+from .utils import OAuthSignIn, pre_upload
 from PIL import Image
 
 
 @app.context_processor
 def inject_static_url():
-    if app.debug:
-        static_url = app.static_url_path
-    else:
-        static_url = 'https://s3.amazonaws.com/netbardus/'
-
+    local_static_url = app.static_url_path
+    static_url = 'https://s3.amazonaws.com/netbardus/'
     if not static_url.endswith('/'):
         static_url += '/'
+    if not local_static_url.endswith('/'):
+        local_static_url += '/'
     return dict(
-        static_url=static_url
+        static_url=static_url,
+        local_static_url=local_static_url
     )
+
 
 
 @lm.user_loader
@@ -61,13 +62,13 @@ def after_request(response):
 
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('404.html'), 404
+    return render_template('404.html', error=error), 404
 
 
 @app.errorhandler(500)
 def internal_error(error):
     db.session.rollback()
-    return render_template('500.html'), 500
+    return render_template('500.html', error=error), 500
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -233,7 +234,7 @@ def edit():
 
 @app.route("/detail/<slug>", methods=['GET', 'POST'])
 def posts(slug):
-    post = Post.query.filter(Post.slug==slug).first()
+    post = Post.query.filter(Post.slug == slug).first()
     form = CommentForm()
     context = {"post": post, "form": form, "upload_folder_name" : app.config['UPLOAD_FOLDER_NAME']}
     if form.validate_on_submit():
@@ -244,7 +245,7 @@ def posts(slug):
         return redirect(url_for('posts', slug=slug))
     page_mark = 'forum'
     page_logo = 'img/icons/workshop.svg'
-    return render_template('posts/detail.html',
+    return render_template('post_detail.html',
                            page_mark=page_mark,
                            page_logo=page_logo,
                            **context)
