@@ -1,5 +1,5 @@
 from flask.ext.wtf import Form
-from wtforms import StringField, BooleanField, TextAreaField, SubmitField, PasswordField
+from wtforms import StringField, BooleanField, TextAreaField, SubmitField, PasswordField, SelectField
 from flask.ext.wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.validators import DataRequired, Email, Length, ValidationError
 from .models import User
@@ -77,8 +77,10 @@ class EditForm(Form):
 
 
 class PostForm(Form):
-    post = TextAreaField('post', validators=[DataRequired()])
-    header = StringField('header', validators=[DataRequired()])
+    my_choices = [('poem', 'Poem'), ('op-ed', 'Op-ed'), ('essay', 'Essay')]
+    post = TextAreaField('Post', validators=[DataRequired()])
+    header = StringField('Header', validators=[DataRequired()])
+    type = SelectField('Post Type', choices=my_choices, default='poem')
     photo = FileField('Your photo', validators=[FileAllowed(['jpg','png'], 'Images only!')])
     submit = SubmitField("Send")
 

@@ -5,21 +5,7 @@
 {#        {% if post.photo and post.thumbnail %}#}
 {#            <img class="post-thumb>"src="{{ url_for('.static', filename=upload_folder_name + post.thumbnail) }}" />#}
 {#        {% endif %}#}
-        <span id="post{{ post.id }}" class="post-text">{{ post.body|safe }}</span>
+        <span id="post{{ post.id }}" class="post-text editme">{{ post.body|safe }}</span>
         </div>
     </div>
-    <ul class="details">
-        <li class="posted"><span>{{ post.timestamp.strftime('%Y') }}</span><b>{{ post.timestamp.strftime('%d %b') }}</b></li>
-        <li class="Posted By"><span>Author</span>
-            <a href="{{ url_for('user', nickname=post.author.nickname) }}" rel="tag">{{ post.author.nickname }}</a>
-        </li>
-        <li class="twitter"><span>Comments</span>
-        <a href="{{ url_for('posts', slug=post.slug) }}">
-            {% with total=post.comments.all()|length %}{{ total }} comment {%- if total != 1 %}s{%- endif -%}{% endwith %}
-        </a></li>
-        {% if post.author.id == g.user.id %}
-            <li class="last"><span>Remove</span>
-            <a href="{{ url_for('delete', id = post.id) }}">Delete</a></li>
-        {% endif %}
-    </ul>
 </article>

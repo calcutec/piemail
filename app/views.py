@@ -1,7 +1,7 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 from werkzeug.utils import secure_filename
-from flask import render_template, flash, redirect, session, url_for, request, g
+from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
 
 from flask.ext.login import login_user, logout_user, current_user, \
     login_required
@@ -31,7 +31,6 @@ def inject_static_url():
         static_url=static_url,
         local_static_url=local_static_url
     )
-
 
 
 @lm.user_loader
@@ -129,11 +128,15 @@ def logout():
 
 
 @app.route('/', methods=['GET', 'POST'])
-def index():
+def index(page=1):
+    posts_this_page = 1
     page_mark = 'home'
     page_logo = 'img/icons/home.svg'
+    super_user = User.query.filter_by(type=1).first()
+    op_ed_posts = super_user.all_posts().paginate(page, posts_this_page, False)
     return render_template('index.html',
                            title='Home',
+                           posts=op_ed_posts,
                            page_mark=page_mark,
                            page_logo=page_logo)
 
@@ -152,22 +155,12 @@ def essays():
 @app.route('/workshop/<int:page>', methods=['GET', 'POST'])
 @login_required
 def workshop(page=1):
-    form = PostForm()
-    if form.validate_on_submit():
-        slug = slugify(form.header.data)
-        post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-                    author=g.user, photo=None, thumbnail=None, header=form.header.data, slug=slug)
-        db.session.add(post)
-        db.session.commit()
-        flash('Your post is now live!')
-        return redirect(url_for('workshop'))
-    # favorite_posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
     all_posts = g.user.all_posts().paginate(page, POSTS_PER_PAGE, False)
+    # favorite_posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
     page_mark = 'workshop'
     page_logo = 'img/icons/workshop.svg'
     return render_template('workshop.html',
                            title='Workshop',
-                           form=form,
                            posts=all_posts,
                            page_mark=page_mark,
                            page_logo=page_logo,
@@ -184,18 +177,28 @@ def poetry():
                            page_logo=page_logo)
 
 
-@app.route('/user/<nickname>')
-@app.route('/user/<nickname>/<int:page>')
+@app.route('/user/<nickname>', methods=['GET', 'POST'])
+@app.route('/user/<nickname>/<int:page>', methods=['GET', 'POST'])
 @login_required
 def user(nickname, page=1):
     present_user = User.query.filter_by(nickname=nickname).first()
     if present_user is None:
         flash('User %(nickname)s not found.' % nickname)
         return redirect(url_for('index'))
+    form = PostForm()
+    if form.validate_on_submit():
+        slug = slugify(form.header.data)
+        post = Post(body=form.post.data, timestamp=datetime.utcnow(),
+                    author=g.user, photo=None, thumbnail=None, header=form.header.data, type=form.type.data, slug=slug)
+        db.session.add(post)
+        db.session.commit()
+        flash('Your post is now live!')
+        return redirect(request.args.get('next') or url_for('user', nickname=present_user.nickname))
     user_posts = present_user.posts.paginate(page, POSTS_PER_PAGE, False)
     page_mark = 'profile'
     page_logo = 'img/icons/profile.svg'
     return render_template('user.html',
+                           form=form,
                            user=present_user,
                            page_mark=page_mark,
                            page_logo=page_logo,
@@ -234,9 +237,12 @@ def edit():
 
 @app.route("/detail/<slug>", methods=['GET', 'POST'])
 def posts(slug):
-    post = Post.query.filter(Post.slug == slug).first()
+    if request.is_xhr:
+        post = jsonify(request.form['content'])
+    else:
+        post = Post.query.filter(Post.slug == slug).first()
     form = CommentForm()
-    context = {"post": post, "form": form, "upload_folder_name" : app.config['UPLOAD_FOLDER_NAME']}
+    context = {"post": post, "form": form}
     if form.validate_on_submit():
         comment = Comment(body=form.comment.data, created_at=datetime.utcnow(), user_id=g.user.id, post_id=post.id)
         db.session.add(comment)
@@ -251,9 +257,13 @@ def posts(slug):
                            **context)
 
 
-@app.route('/edit_in_place', methods=['POST', 'GET'])
+@app.route('/edit_in_place', methods=['POST'])
 def edit_in_place():
-    return request.form['update_value']
+    update_post = Post.query.get(request.form['post_id'])
+    update_post.body=request.form['content']
+    update_post.header=request.form['header']
+    db.session.commit()
+    return request.form['content']
 
 
 @app.route('/follow/<nickname>')
@@ -310,7 +320,7 @@ def delete(id):
     db.session.delete(post)
     db.session.commit()
     flash('Your post has been deleted.')
-    return redirect(url_for('workshop'))
+    return redirect(url_for('user', nickname=post.author.nickname))
 
 
 @app.route('/search', methods=['POST'])
@@ -339,6 +349,7 @@ def oauth_authorize(provider):
     oauth = OAuthSignIn.get_provider(provider)
     return oauth.authorize()
 
+
 @app.route('/callback/<provider>')
 def oauth_callback(provider):
     if not current_user.is_anonymous():
@@ -348,9 +359,9 @@ def oauth_callback(provider):
     if email is None:
         flash('Authentication failed.')
         return redirect(url_for('index'))
-    currentuser=User.query.filter_by(email=email).first()
+    currentuser = User.query.filter_by(email=email).first()
     if not currentuser:
-        currentuser=User(nickname=username, email=email)
+        currentuser = User(nickname=username, email=email)
         db.session.add(currentuser)
         db.session.add(currentuser.follow(currentuser))
         db.session.commit()
@@ -360,5 +371,3 @@ def oauth_callback(provider):
         session.pop('remember_me', None)
     login_user(currentuser, remember=remember_me)
     return redirect(request.args.get('next') or url_for('user', nickname=currentuser.nickname))
-
-

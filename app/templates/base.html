@@ -61,7 +61,7 @@
             <script src="{{ static_url }}js/wysihtml5x-toolbar.min.js"></script>
             <script src="{{ static_url }}js/handlebars.runtime.min.js"></script>
             <script src="{{ static_url }}js/bootstrap3-wysihtml5.min.js"></script>
-            <script src="{{ static_url }}js/jquery.editinplace.js"></script>
+            <script src="{{ local_static_url }}js/editinplace.js"></script>
 
 
 	</head>
@@ -75,7 +75,7 @@
                     <li class="n-login"><a href="{{ url_for('login') }}">Login</a></li>
                 {% endif %}
                 {% if g.user.is_authenticated() %}
-                    <li class="n-profile"><a href="{{ url_for('user', nickname=g.user.nickname) }}">Profile</a></li>
+                    <li class="n-profile"><a href="{{ url_for('user', nickname=g.user.nickname) }}">Portfolio</a></li>
                     <li class="n-logout"><a href="{{ url_for('logout') }}">Logout</a></li>
 				{% endif %}
 			</ul>
@@ -85,7 +85,7 @@
 			<ul>
 				<li class="n-home"><a href="{{ url_for('index') }}">Home</a></li>
 				<li class="n-poetry"><a href="{{ url_for('poetry') }}">Poetry</a></li>
-				<li class="n-essays"><a href="{{ url_for('essays') }}">Essays</a></li>
+{#				<li class="n-essays"><a href="{{ url_for('essays') }}">Essays</a></li>#}
                 {% if g.user.is_authenticated() %}
                     <li class="n-workshop"><a href="{{ url_for('workshop') }}">Workshop</a></li>
 				{% endif %}
@@ -108,7 +108,14 @@
 
     		<div id="side">
 				<section>
-					<h3>I think that I shall never see, a website lovely as a tree</h3>
+                    <div class="archives">
+                        <h3>Recent Poems</h3>
+                            <h4><span> 4.06.15</span> <a href="http://hicksdesign.co.uk/journal/troika-6-my-turn-to-be-poorly" title="Go and read Troika #6: My Turn to be Poorly">My Turn to be Poorly</a></h4>
+                            <h4><span> 4.03.15</span> <a href="http://hicksdesign.co.uk/journal/a-taste-of-the-track" title="Go and read A Taste of the Track">A Taste of the Track</a></h4>
+                            <h4><span> 4.02.15</span> <a href="http://hicksdesign.co.uk/journal/troika-5-new-gaze" title="Go and read Troika #5: New Gaze">New Gaze</a></h4>
+                            <h4><span>3.25.15</span> <a href="http://hicksdesign.co.uk/journal/sufjan-stevens-carrie-lowell-album-stream" title="Go and read Sufjan Stevens – Carrie &amp; Lowell: album stream">My Test Poems</a></h4>
+                            <h4><span>2.19.15</span> <a href="http://hicksdesign.co.uk/journal/troika-4-light-music" title="Go and read Troika #4: Light Music">Light Music</a></h4>
+                    </div>
 				</section>
 
 				<section class="social">

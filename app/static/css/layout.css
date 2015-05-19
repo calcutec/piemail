@@ -878,6 +878,12 @@ form textarea#post {
      margin-bottom: 2%;
 }
 
+form textarea#op-ed-post {
+     width: 95%;
+     height: 300px;
+     margin-bottom: 2%;
+}
+
 form #header {
      width: 95%;
 }

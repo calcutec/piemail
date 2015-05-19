@@ -25,6 +25,7 @@ followers = db.Table(
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.Integer)
     firstname = db.Column(db.String(100))
     lastname = db.Column(db.String(100))
     nickname = db.Column(db.String(64), index=True, unique=True)
@@ -52,7 +53,6 @@ class User(UserMixin, db.Model):
         if lastname is not None:
             self.lastname = lastname.title()
 
-
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
 
@@ -75,9 +75,14 @@ class User(UserMixin, db.Model):
             version += 1
         return new_nickname
 
-
     def is_authenticated(self):
         return True
+
+    def is_superuser(self):
+        if self.type == 1:
+            return True
+        else:
+            return False
 
     def is_active(self):
         return True
@@ -110,7 +115,7 @@ class User(UserMixin, db.Model):
             followers.c.followed_id == user.id).count() > 0
 
     def all_posts(self):
-        return Post.query.order_by(Post.timestamp.desc())
+        return Post.query.filter(Post.type == 'op_ed').order_by(Post.timestamp.desc())
 
     def followed_posts(self):
         return Post.query.join(
@@ -131,17 +136,22 @@ class Post(db.Model):
     body = db.Column(db.Text())
     timestamp = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    language = db.Column(db.String(5))
+    type = db.Column(db.String(32))
     photo = db.Column(db.String(240))
     thumbnail = db.Column(db.String(240))
     comments = db.relationship('Comment', backref='original_post', lazy='dynamic')
     slug = db.Column(db.String(255))
 
+    def __init__(self, **kwargs):
+        super(Post, self).__init__(**kwargs)
+        if self.type is None:
+            self.type == "poem"
+
     def get_absolute_url(self):
         return url_for('post', kwargs={"slug": self.slug})
 
     def __repr__(self):  # pragma: no cover
-        return '<Post %r>' % (self.body)
+        return '<Post %r>' % self.body
 
 
 class Comment(db.Model):
@@ -157,5 +167,3 @@ class Comment(db.Model):
 
 if enable_search:
     whooshalchemy.whoosh_index(app, Post)
-
-

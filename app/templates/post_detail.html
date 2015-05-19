@@ -1,17 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% if post.body %}
-      <div id="editme">{{ post.body|safe }} style="margin-top:40px"</div>
-    {% endif %}
-    {% if post.photo and post.thumbnail %}
-        <a href="{{ url_for('.static', filename=upload_folder_name + post.photo) }}" class="preview" target="_blank"><img src="{{ url_for('.static', filename=upload_folder_name + post.photo) }}" /></a>
-    {% endif %}
-    {% if post.timestamp %}
-      <p>First posted on {{ post.timestamp.strftime('%Y-%m-%d %H:%M ') }}</p>
-    {% endif %}
-    <div id="target">Click to edit poem</div>
-    <hr>
+{#    {% if post.header %}#}
+{#        <h2 class="editme_full">{{ post.header }}</h2>#}
+{#    {% endif %}#}
+{#    {% if post.body %}#}
+{#        <div class="editme">{{ post.body|safe }}</div>#}
+{#    {% endif %}#}
+    {% include 'post.html' %}
+    {% include 'details.html' %}
+
 	<h2>Comments</h2>
 	{% include 'flash.html' %}
 	<div class="well">
@@ -35,38 +33,6 @@
            <p>{{ comment.body }}</p>
 		{% endfor %}
 	{% endif %}
-
-<script>
-    $( document ).ready(function() {
-        var hideToolbar = function() {
-            $('.wysihtml5-toolbar').hide("slow");
-            $('div[contenteditable="true"]').attr('contenteditable', false);
-            $('#target').html("Edit Poem");
-        };
-
-        var showToolbar = function() {
-            $('.wysihtml5-toolbar').show("slow");
-            $('div[contenteditable="false"]').attr('contenteditable', true);
-            $('#target').html("Submit Changes");
-        };
-
-        $('#editme').wysihtml5({
-            toolbar: { fa: true, "link": false, "image": false },
-            "events": {"load": function() {hideToolbar();}}
-        });
-
-        var editable = false;
-        $( "#target" ).click(function() {
-            if (!editable){
-                showToolbar();
-                editable = true;
-            } else {
-                hideToolbar();
-                editable = false;
-            }
-        });
-    });
-</script>
 {% endblock %}
 
 
