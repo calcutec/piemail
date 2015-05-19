@@ -1,0 +1,18 @@
+<ul class="details">
+    <li class="posted"><span>{{ post.timestamp.strftime('%Y') }}</span><b>{{ post.timestamp.strftime('%d %b') }}</b></li>
+    <li class="Posted By"><span>Author</span>
+        <a href="{{ url_for('user', nickname=post.author.nickname) }}" rel="tag">{{ post.author.nickname }}</a>
+    </li>
+    <li><span>Comments</span>
+    <a href="{{ url_for('posts', slug=post.slug) }}">
+        {% with total=post.comments.all()|length %}{{ total }} comment {%- if total != 1 %}s{%- endif -%}{% endwith %}
+    </a></li>
+    {% if g.user.type == 1 and post.author.type == 1 %}
+        <li><span>Post Type</span>
+        <p>{{ post.type }}</p></li>
+    {% endif %}
+    {% if post.author.id == g.user.id %}
+        <li><span id="edit-button">Edit</span>
+        <a href="{{ url_for('delete', id = post.id) }}">Delete</a></li>
+    {% endif %}
+</ul>
