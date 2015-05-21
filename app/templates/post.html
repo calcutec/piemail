@@ -1,11 +1,10 @@
 <article>
     <h2><a href="{{ url_for('posts', slug=post.slug) }}">{{ post.header }}</a></h2>
     <div class="body">
-        <div >
-{#        {% if post.photo and post.thumbnail %}#}
-{#            <img class="post-thumb>"src="{{ url_for('.static', filename=upload_folder_name + post.thumbnail) }}" />#}
-{#        {% endif %}#}
-        <span id="post{{ post.id }}" class="post-text editme">{{ post.body|safe }}</span>
+        <div id="edit-me">
+            {{ post.body|safe }}
         </div>
+        {% include 'details.html' %}
+        <span id="post-id" class="hide">{{ post.id }}</span>
     </div>
 </article>

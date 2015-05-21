@@ -1,18 +1,25 @@
-<ul class="details">
-    <li class="posted"><span>{{ post.timestamp.strftime('%Y') }}</span><b>{{ post.timestamp.strftime('%d %b') }}</b></li>
-    <li class="Posted By"><span>Author</span>
-        <a href="{{ url_for('user', nickname=post.author.nickname) }}" rel="tag">{{ post.author.nickname }}</a>
-    </li>
-    <li><span>Comments</span>
-    <a href="{{ url_for('posts', slug=post.slug) }}">
-        {% with total=post.comments.all()|length %}{{ total }} comment {%- if total != 1 %}s{%- endif -%}{% endwith %}
-    </a></li>
-    {% if g.user.type == 1 and post.author.type == 1 %}
-        <li><span>Post Type</span>
-        <p>{{ post.type }}</p></li>
+<ul class="details" style="width:100%">
+    {% if page_mark != "home" %}
+        <li class="Posted By"><a href="{{ url_for('portfolio', id=post.author.id) }}" rel="tag">{{ post.author.nickname }}</a></li>
     {% endif %}
-    {% if post.author.id == g.user.id %}
-        <li><span id="edit-button">Edit</span>
-        <a href="{{ url_for('delete', id = post.id) }}">Delete</a></li>
+
+        <li class="posted"><b>{{ post.timestamp.strftime('%d %b %Y') }}</b></li>
+
+    {% if page_mark != "home" %}
+        <li><a href="{{ url_for('posts', slug=post.slug) }}">
+            {% with total=post.comments.all()|length %}
+                {{ total }} comment
+                {%- if total != 1 %}s{%- endif -%}
+            {% endwith %}</a>
+        </li>
+    {% endif %}
+
+    {% if page_mark == "post_detail" and post.author.id == g.user.id %}
+        <li id="edit-button">Edit</li>
+        <li><a href="{{ url_for('delete', id = post.id) }}">Delete</a></li>
+    {% endif %}
+
+    {% if (page_mark == "post_detail" or page_mark == "portfolio") and g.user.type == 1 and post.author.type == 1 %}
+        <li>({{ post.writing_type }})</li>
     {% endif %}
 </ul>

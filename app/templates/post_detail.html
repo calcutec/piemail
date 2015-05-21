@@ -1,22 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-{#    {% if post.header %}#}
-{#        <h2 class="editme_full">{{ post.header }}</h2>#}
-{#    {% endif %}#}
-{#    {% if post.body %}#}
-{#        <div class="editme">{{ post.body|safe }}</div>#}
-{#    {% endif %}#}
     {% include 'post.html' %}
-    {% include 'details.html' %}
-
 	<h2>Comments</h2>
 	{% include 'flash.html' %}
 	<div class="well">
 		<form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="comment">
 			{{ form.hidden_tag() }}
 			<div class="control-group{% if form.comment.errors %} error{% endif %}">
-				<label class="control-label" for="comment">Add your comment!:</label>
+				<label class="control-label" for="comment">Add your comment!:</label><br>
 				<div class="controls">
 					{{ form.comment(size=30, maxlength=140) }}
 					{% for error in form.comment.errors %}
@@ -33,6 +25,7 @@
            <p>{{ comment.body }}</p>
 		{% endfor %}
 	{% endif %}
+    <script src="{{ local_static_url }}js/editinplace.js"></script>
 {% endblock %}
 
 

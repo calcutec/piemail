@@ -77,10 +77,10 @@ class EditForm(Form):
 
 
 class PostForm(Form):
-    my_choices = [('poem', 'Poem'), ('op-ed', 'Op-ed'), ('essay', 'Essay')]
+    my_choices = [('poem', 'Poem'), ('op-ed', 'Op-ed')]
     post = TextAreaField('Post', validators=[DataRequired()])
     header = StringField('Header', validators=[DataRequired()])
-    type = SelectField('Post Type', choices=my_choices, default='poem')
+    writing_type = SelectField('Post Type', choices=my_choices, default='poem')
     photo = FileField('Your photo', validators=[FileAllowed(['jpg','png'], 'Images only!')])
     submit = SubmitField("Send")
 

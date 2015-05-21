@@ -1,12 +1,12 @@
 <div class="postie">
     <div class="backanforth">
         {% if posts.has_prev %}
-            <div class="previous"><a href="{{ url_for('workshop', page=posts.prev_num) }}">Earlier posts</a></div>
+            <div class="previous"><a href="{{ url_for(page_mark, page=posts.prev_num) }}">Earlier posts</a></div>
         {% else %}
             <div class="previous disabled"><a href="#">No earlier posts</a></div>
         {% endif %}
         {% if posts.has_next %}
-            <div class="next"><a href="{{ url_for('workshop', page=posts.next_num) }}">Later posts</a></div>
+            <div class="next"><a href="{{ url_for(page_mark, page=posts.next_num) }}">Later posts</a></div>
         {% else %}
             <div class="next disabled"><a href="#">No later posts</a></div>
         {% endif %}

@@ -1,7 +1,7 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 from werkzeug.utils import secure_filename
-from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
+from flask import render_template, flash, redirect, session, url_for, request, g
 
 from flask.ext.login import login_user, logout_user, current_user, \
     login_required
@@ -73,7 +73,7 @@ def internal_error(error):
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if g.user is not None and g.user.is_authenticated():
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     form = SignupForm()
 
     if form.validate_on_submit():
@@ -87,7 +87,7 @@ def signup():
             remember_me = session['remember_me']
             session.pop('remember_me', None)
         login_user(newuser, remember=remember_me)
-        return redirect(url_for('user', nickname=newuser.nickname))
+        return redirect(url_for('portfolio', id=g.user.id))
 
     page_mark = 'signup'
     page_logo = 'img/icons/login.svg'
@@ -101,8 +101,8 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if g.user is not None and g.user.is_authenticated():
-        return redirect(url_for('index'))
-    form = LoginForm()  # update login.html template to use form
+        return redirect(url_for('home'))
+    form = LoginForm()
     if form.validate_on_submit():
         newuser = User.query.filter_by(email=form.email.data).first()
         remember_me = False
@@ -110,7 +110,7 @@ def login():
             remember_me = session['remember_me']
             session.pop('remember_me', None)
         login_user(newuser, remember=remember_me)
-        return redirect(url_for('user', nickname=newuser.nickname))
+        return redirect(url_for('portfolio', id=g.user.id))
 
     page_mark = 'login'
     page_logo = 'img/icons/login.svg'
@@ -128,43 +128,18 @@ def logout():
 
 
 @app.route('/', methods=['GET', 'POST'])
-def index(page=1):
+@app.route('/home/<int:page>', methods=['GET', 'POST'])
+def home(page=1):
     posts_this_page = 1
     page_mark = 'home'
     page_logo = 'img/icons/home.svg'
     super_user = User.query.filter_by(type=1).first()
-    op_ed_posts = super_user.all_posts().paginate(page, posts_this_page, False)
-    return render_template('index.html',
+    op_ed_posts = super_user.all_op_eds().paginate(page, posts_this_page, False)
+    return render_template('home.html',
                            title='Home',
                            posts=op_ed_posts,
                            page_mark=page_mark,
                            page_logo=page_logo)
-
-
-@app.route('/essays', methods=['GET', 'POST'])
-def essays():
-    page_mark = 'essays'
-    page_logo = 'img/icons/essays.svg'
-    return render_template('essays.html',
-                           title='Essays',
-                           page_mark=page_mark,
-                           page_logo=page_logo)
-
-
-@app.route('/workshop', methods=['GET', 'POST'])
-@app.route('/workshop/<int:page>', methods=['GET', 'POST'])
-@login_required
-def workshop(page=1):
-    all_posts = g.user.all_posts().paginate(page, POSTS_PER_PAGE, False)
-    # favorite_posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
-    page_mark = 'workshop'
-    page_logo = 'img/icons/workshop.svg'
-    return render_template('workshop.html',
-                           title='Workshop',
-                           posts=all_posts,
-                           page_mark=page_mark,
-                           page_logo=page_logo,
-                           upload_folder_name=app.config['UPLOAD_FOLDER_NAME'])
 
 
 @app.route('/poetry', methods=['GET', 'POST'])
@@ -177,32 +152,74 @@ def poetry():
                            page_logo=page_logo)
 
 
-@app.route('/user/<nickname>', methods=['GET', 'POST'])
-@app.route('/user/<nickname>/<int:page>', methods=['GET', 'POST'])
+@app.route('/workshop', methods=['GET', 'POST'])
+@app.route('/workshop/<int:page>', methods=['GET', 'POST'])
 @login_required
-def user(nickname, page=1):
-    present_user = User.query.filter_by(nickname=nickname).first()
-    if present_user is None:
-        flash('User %(nickname)s not found.' % nickname)
-        return redirect(url_for('index'))
+def workshop(page=1):
+    all_posts = g.user.all_poems().paginate(page, POSTS_PER_PAGE, False)
+    # favorite_posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
+    page_mark = 'workshop'
+    page_logo = 'img/icons/workshop.svg'
+    return render_template('workshop.html',
+                           title='Workshop',
+                           posts=all_posts,
+                           page_mark=page_mark,
+                           page_logo=page_logo,
+                           upload_folder_name=app.config['UPLOAD_FOLDER_NAME'])
+
+
+@app.route('/essays', methods=['GET', 'POST'])
+def essays():
+    page_mark = 'essays'
+    page_logo = 'img/icons/essays.svg'
+    return render_template('essays.html',
+                           title='Essays',
+                           page_mark=page_mark,
+                           page_logo=page_logo)
+
+
+@app.route('/portfolio/<int:id>', methods=['GET', 'POST'])
+@app.route('/portfolio/<int:id>/<int:page>', methods=['GET', 'POST'])
+@login_required
+def portfolio(id, page=1):
+    portfolio_owner = User.query.get(id)
+    if portfolio_owner is None:
+        flash('User %(id)s not found.', id=id)
+        return redirect(url_for('home'))
     form = PostForm()
     if form.validate_on_submit():
         slug = slugify(form.header.data)
         post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-                    author=g.user, photo=None, thumbnail=None, header=form.header.data, type=form.type.data, slug=slug)
+                    author=g.user, photo=None, thumbnail=None, header=form.header.data,
+                    writing_type=form.writing_type.data, slug=slug)
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
-        return redirect(request.args.get('next') or url_for('user', nickname=present_user.nickname))
-    user_posts = present_user.posts.paginate(page, POSTS_PER_PAGE, False)
+        return redirect(request.args.get('next') or url_for('user', nickname=g.user.nickname))
+    portfolio_owner_posts = portfolio_owner.posts.paginate(page, POSTS_PER_PAGE, False)
+    page_mark = 'portfolio'
+    page_logo = 'img/icons/portfolio.svg'
+    return render_template('portfolio.html',
+                           form=form,
+                           posts=portfolio_owner_posts,
+                           title='Portfolio',
+                           page_mark=page_mark,
+                           page_logo=page_logo)
+
+
+@app.route('/user/<int:id>', methods=['GET', 'POST'])
+@login_required
+def user(id):
+    present_user = User.query.get(id)
+    if present_user is None:
+        flash('User %(id)s not found.' % id)
+        return redirect(url_for('home'))
     page_mark = 'profile'
     page_logo = 'img/icons/profile.svg'
     return render_template('user.html',
-                           form=form,
                            user=present_user,
                            page_mark=page_mark,
-                           page_logo=page_logo,
-                           posts=user_posts)
+                           page_logo=page_logo)
 
 
 @app.route('/edit', methods=['GET', 'POST'])
@@ -216,14 +233,14 @@ def edit():
                            photo_type="thumb", crop=True,
                            extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
             profile_photo_name = pre_upload(img_obj)
-            flash('{src} uploaded to S3'.format(src=profile_photo_name))
+            # flash('{src} uploaded to S3'.format(src=profile_photo_name))
             g.user.profile_photo = profile_photo_name
         g.user.nickname = form.nickname.data
         g.user.about_me = form.about_me.data
         db.session.add(g.user)
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('user', nickname=g.user.nickname))
+        return redirect(url_for('user', id=g.user.id))
     elif request.method != "POST":
         form.nickname.data = g.user.nickname
         form.about_me.data = g.user.about_me
@@ -237,10 +254,7 @@ def edit():
 
 @app.route("/detail/<slug>", methods=['GET', 'POST'])
 def posts(slug):
-    if request.is_xhr:
-        post = jsonify(request.form['content'])
-    else:
-        post = Post.query.filter(Post.slug == slug).first()
+    post = Post.query.filter(Post.slug == slug).first()
     form = CommentForm()
     context = {"post": post, "form": form}
     if form.validate_on_submit():
@@ -249,7 +263,7 @@ def posts(slug):
         db.session.commit()
         flash('Your comment is now live!')
         return redirect(url_for('posts', slug=slug))
-    page_mark = 'forum'
+    page_mark = 'post_detail'
     page_logo = 'img/icons/workshop.svg'
     return render_template('post_detail.html',
                            page_mark=page_mark,
@@ -260,8 +274,8 @@ def posts(slug):
 @app.route('/edit_in_place', methods=['POST'])
 def edit_in_place():
     update_post = Post.query.get(request.form['post_id'])
-    update_post.body=request.form['content']
-    update_post.header=request.form['header']
+    update_post.body = request.form['content']
+    # update_post.header=request.form['header']
     db.session.commit()
     return request.form['content']
 
@@ -272,7 +286,7 @@ def follow(nickname):
     user = User.query.filter_by(nickname=nickname).first()
     if user is None:
         flash('User %s not found.' % nickname)
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     if user == g.user:
         flash('You can\'t follow yourself!')
         return redirect(url_for('user', nickname=nickname))
@@ -293,7 +307,7 @@ def unfollow(nickname):
     user = User.query.filter_by(nickname=nickname).first()
     if user is None:
         flash('User %s not found.' % nickname)
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     if user == g.user:
         flash('You can\'t unfollow yourself!')
         return redirect(url_for('user', nickname=nickname))
@@ -313,21 +327,21 @@ def delete(id):
     post = Post.query.get(id)
     if post is None:
         flash('Post not found.')
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     if post.author.id != g.user.id:
         flash('You cannot delete this post.')
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     db.session.delete(post)
     db.session.commit()
     flash('Your post has been deleted.')
-    return redirect(url_for('user', nickname=post.author.nickname))
+    return redirect(url_for('portfolio', id=post.author.id))
 
 
 @app.route('/search', methods=['POST'])
 @login_required
 def search():
     if not g.search_form.validate_on_submit():
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     return redirect(url_for('search_results', query=g.search_form.search.data))
 
 
@@ -345,7 +359,7 @@ def search_results(query):
 @app.route('/authorize/<provider>')
 def oauth_authorize(provider):
     if not current_user.is_anonymous():
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     oauth = OAuthSignIn.get_provider(provider)
     return oauth.authorize()
 
@@ -353,12 +367,12 @@ def oauth_authorize(provider):
 @app.route('/callback/<provider>')
 def oauth_callback(provider):
     if not current_user.is_anonymous():
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     oauth = OAuthSignIn.get_provider(provider)
     username, email = oauth.callback()
     if email is None:
         flash('Authentication failed.')
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     currentuser = User.query.filter_by(email=email).first()
     if not currentuser:
         currentuser = User(nickname=username, email=email)
@@ -370,4 +384,4 @@ def oauth_callback(provider):
         remember_me = session['remember_me']
         session.pop('remember_me', None)
     login_user(currentuser, remember=remember_me)
-    return redirect(request.args.get('next') or url_for('user', nickname=currentuser.nickname))
+    return redirect(request.args.get('next') or url_for('portfolio', id=currentuser.id))

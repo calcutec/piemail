@@ -115,7 +115,13 @@ class User(UserMixin, db.Model):
             followers.c.followed_id == user.id).count() > 0
 
     def all_posts(self):
-        return Post.query.filter(Post.type == 'op_ed').order_by(Post.timestamp.desc())
+        return Post.query.order_by(Post.timestamp.desc())
+
+    def all_poems(self):
+        return Post.query.filter(Post.writing_type == 'poem').order_by(Post.timestamp.desc())
+
+    def all_op_eds(self):
+        return Post.query.filter(Post.writing_type == 'op-ed').order_by(Post.timestamp.desc())
 
     def followed_posts(self):
         return Post.query.join(
@@ -136,7 +142,7 @@ class Post(db.Model):
     body = db.Column(db.Text())
     timestamp = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    type = db.Column(db.String(32))
+    writing_type = db.Column(db.String(32))
     photo = db.Column(db.String(240))
     thumbnail = db.Column(db.String(240))
     comments = db.relationship('Comment', backref='original_post', lazy='dynamic')
@@ -144,8 +150,8 @@ class Post(db.Model):
 
     def __init__(self, **kwargs):
         super(Post, self).__init__(**kwargs)
-        if self.type is None:
-            self.type == "poem"
+        if self.writing_type is None:
+            self.writing_type == "poem"
 
     def get_absolute_url(self):
         return url_for('post', kwargs={"slug": self.slug})

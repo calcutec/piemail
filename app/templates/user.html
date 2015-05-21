@@ -25,40 +25,4 @@
         {% endif %}
         </p>
     </div>
-    {% for post in posts.items %}
-        {% include 'post.html' %}
-    {% endfor %}
-    <div class="well" style="margin-top:40px">
-        <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="post">
-            {{ form.hidden_tag() }}
-            <div class="control-group{% if form.header.errors %} error{% endif %}">
-                <label class="control-label" for="title">Title</label><br>
-                    {{ form.header(size=15) }}
-                    {% for error in form.header.errors %}
-                        <span class="help-inline">[{{ error }}]</span><br>
-                    {% endfor %}
-            </div>
-            {% if g.user.type == 1 %}
-            <div class="control-group{% if form.type.errors %} error{% endif %}">
-                <label class="control-label" for="type">Type</label><br>
-                    {{ form.type() }}
-                    {% for error in form.type.errors %}
-                        <span class="help-inline">[{{ error }}]</span><br>
-                    {% endfor %}
-            </div>
-            {% endif %}
-            <div class="control-group{% if form.post.errors %} error{% endif %}">
-                <label class="control-label" for="post">Text</label><br>
-                    {% if g.user.type == 1 %}
-                        {{ form.post(id='op-ed-post') }}
-                    {% else %}
-                        {{ form.post(id='post') }}
-                    {% endif %}
-                    {% for error in form.post.errors %}
-                        <span class="help-inline">[{{ error }}]</span><br>
-                    {% endfor %}
-            </div>
-            <input class="btn btn-primary" type="submit" value="Post">
-        </form>
-    </div>
 {% endblock %}

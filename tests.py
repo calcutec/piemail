@@ -12,7 +12,6 @@ from datetime import datetime, timedelta
 from config import basedir
 from app import app, db
 from app.models import User, Post
-from app.translate import microsoft_translate
 
 
 class TestCase(unittest.TestCase):
@@ -163,11 +162,6 @@ class TestCase(unittest.TestCase):
         db.session.delete(p)
         db.session.commit()
 
-    #def test_translation(self):
-        #assert microsoft_translate(u'English', 'en', 'es') == u'Inglés'
-        #assert microsoft_translate(u'Español', 'es', 'en') == u'Spanish'
-
-
 if __name__ == '__main__':
     try:
         unittest.main()
@@ -177,6 +171,6 @@ if __name__ == '__main__':
     cov.save()
     print "\n\nCoverage Report:\n"
     cov.report()
-    print "\nHTML version: " + os.path.join(basedir, "tmp/coverage/index.html")
+    print "\nHTML version: " + os.path.join(basedir, "tmp/coverage/home.html")
     cov.html_report(directory='tmp/coverage')
     cov.erase()

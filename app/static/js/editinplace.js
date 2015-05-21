@@ -1,14 +1,46 @@
 $( document ).ready(function() {
-    var hideToolbar = function() {
-        $('.wysihtml5-toolbar').hide();
-        $('div[contenteditable="true"]').attr('contenteditable', false);
-        $('#edit-button').html("Edit Poem");
+    var showToolbar = function() {
+        if($("body").attr("class") != "wysihtml5-supported") {
+            if ($('#user-type').html() == 1) {
+                $('#edit-me').wysihtml5({
+                    toolbar: {
+                        "style": true,
+                        "font-styles": true,
+                        "emphasis": false,
+                        "lists": true,
+                        "html": false,
+                        "link": true,
+                        "image": false,
+                        "color": false,
+                        fa: true
+                    }
+                });
+            } else {
+               $('#edit-me').wysihtml5({
+                    toolbar: {
+                        "style": true,
+                        "font-styles": true,
+                        "emphasis": true,
+                        "lists": true,
+                        "html": false,
+                        "link": false,
+                        "image": false,
+                        "color": false,
+                        "quote": false,
+                        fa: true
+                    }
+                });
+            }
+        } else {
+            $('.wysihtml5-toolbar').show()
+        }
+        $('#edit-button').html("Submit Changes");
     };
 
-    var showToolbar = function() {
-        $('.wysihtml5-toolbar:last').show("slow");
-        $('div[contenteditable="false"]').attr('contenteditable', true);
-        $('#edit-button').html("Submit Changes");
+
+    var hideToolbar = function() {
+        $('#edit-button').html("Edit Poem");
+        $('.wysihtml5-toolbar').hide()
     };
 
     var editable = false;
@@ -17,65 +49,15 @@ $( document ).ready(function() {
             showToolbar();
             editable = true;
         } else {
-            var header = $('.editme:first').html();
-            var content = $('.editme:last').html();
-            var post_id = $('#post_id').html();
+            var content = $('#edit-me').html();
+            var post_id = $('#post-id').html();
             hideToolbar();
             editable = false;
             $.ajax({
                 type: "POST",
                 url:'/edit_in_place',
-                data: {header:header, content: content, post_id: post_id}
-                //success: function(response)
-                //    console.log(response);
-                //    $('#editme').html(response);
+                data: {content: content, post_id: post_id}
             });
         }
-    });
-
-
-
-
-    $('.editme_full').wysihtml5({
-        toolbar: {
-            fa: true,
-            "style": true,
-            "font-styles": true,
-            "emphasis": true,
-            "lists": true,
-            "html": true,
-            "link": true,
-            "image": true,
-            "color": false,
-            parser: function(html) {return html;}
-        },
-        "events": {"load": function() {hideToolbar();}}
-    });
-
-    $('#post').wysihtml5({
-        toolbar: {
-            fa: true,
-            "link": false,
-            "image": false
-        }
-
-    });
-
-    $('#op-ed-post').wysihtml5({
-        toolbar: {
-            "style": true,
-            "font-styles": true,
-            "emphasis": true,
-            "lists": false,
-            "html": true,
-            "link": true,
-            "image": true,
-            "color": true,
-            fa: true,
-            parser: function(html) {
-                return html;
-            }
-        }
-
     });
 });

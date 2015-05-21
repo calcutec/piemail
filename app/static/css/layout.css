@@ -90,10 +90,6 @@ h2 {
 	text-align: center;
 }
 
-.work article h2 {
-	font-size: 1rem;
-}
-
 .archives h4+h2 {
 	border-top: 1px solid #ddd;
 	margin: 1rem 0 0.5em 0;
@@ -138,7 +134,7 @@ figcaption, .caption {
 	font-size: 0.8125rem;
 }
 
-#journal figcaption, .caption {
+#home figcaption, .caption {
 	font-style: italic;
 }
 
@@ -154,7 +150,7 @@ img {
 }
 
 blockquote {
-    margin: 2% 0 2% 30%;
+    margin: 2% 0 2% 15%;
 }
 
 blockquote p {
@@ -246,9 +242,9 @@ nav a {
 
 /*selected states*/
 #home .n-home a,
-#essays .n-essays a,
+#poetry .n-poetry a,
 #workshop .n-workshop a,
-#poetry .n-poetry a {
+#portfolio .n-portfolio a {
 	color: #000;
 	border-bottom: 2px solid #E1B200;
 }
@@ -264,9 +260,8 @@ nav a {
 	list-style: none;
 	font-size: 0.875rem;
 	padding: 0;
-	margin: 2rem 0 1rem 0;
-	white-space: nowrap;
-	}
+	margin: 1.5rem 0 0 0;
+}
 
 .details li {
 	display: inline-block;
@@ -277,7 +272,7 @@ nav a {
 	padding: 0 1rem 0 0;
 	margin: 0 1rem 0 0;
 	border-right: 1px solid #ddd;
-	}
+}
 
 .details li:last-child {
 	border-right: none;
@@ -287,24 +282,24 @@ li.tags,
 li.service {
 	border-right: 0;
 	padding: 0 1rem 0 0;
-	}
+}
 
 .posted b {
 	letter-spacing: 0.1rem;
 	font-weight: normal;
 	color: #666;
-	}
+}
 
 .details span {
 	display: block;
 	line-height: 1;
-	}
+}
 
 footer {
 	color: #666;
 	font-size: 0.875rem;
 	letter-spacing: 0.05rem;
-	}
+}
 
 
 .social p {
@@ -313,7 +308,7 @@ footer {
 	font-weight: bold;
 	text-transform: uppercase;
 	letter-spacing: 0.1rem;
-	}
+}
 
 .vcard p { margin: 0; }
 .vcard .adr { margin: 0 0 0.875em 0; overflow: hidden;}
@@ -325,11 +320,13 @@ footer {
 /* @group Responsive Typesetting */
 
 @media screen and (min-width: 1280px) {
-	html { font-size: 106%;}}
+	html { font-size: 106%;}
+}
 
 
 @media screen and (min-width: 1680px) {
-	html { font-size: 112%;}}
+	html { font-size: 112%;}
+}
 
 /* @end */
 
@@ -339,7 +336,7 @@ footer {
 /*html5 elements*/
 article,section,nav,header,footer,figure,figcaption {
 	display: block;
-	}
+}
 
 .hide {
   display: none;
@@ -347,7 +344,7 @@ article,section,nav,header,footer,figure,figcaption {
 
 body {
 	padding: 2rem 8%;
-	}
+}
 
 .page {
 	max-width: 40rem;
@@ -385,19 +382,20 @@ nav li {
 
 
 /*Float Clearance*/
-#journal article:after,
+#home article:after,
 #contact #content:after {
    content: "";
    clear: both;
    display: block;
  }
 
-/*Journal*/
+/*Home*/
+
 article {
 	margin: 1rem 0;
 	padding: 0 0 1rem 0;
 	border-bottom: 1px solid #ddd;
-	}
+}
 
 #tag article:last-child {
 	border-bottom: 0;
@@ -409,9 +407,7 @@ article img,
 	/*max-height:85vh;*/
 	display: block;
 	margin: 0 auto;
-	}
-
-
+}
 
 figure {
 	margin: 2em 0;
@@ -453,7 +449,7 @@ li.tags {
 	border-bottom: 1px solid #ddd;
 	margin: 0 0 1.5rem 0;
 	text-align: center;
-	}
+}
 
 .previous, .next {
 	display: inline-block;
@@ -472,8 +468,8 @@ li.tags {
 	width: 100%;
 }
 
-.previous a { background-image: url("http://hicksdesign.co.uk/images/older.png");}
-.next a { background-image: url("http://hicksdesign.co.uk/images/newer.png");}
+.previous a { background-image: url("../img/older.png");}
+.next a { background-image: url("../img/newer.png");}
 
 .previous a:hover, .next a:hover {
 	background-color: #f9f2e3;
@@ -481,45 +477,45 @@ li.tags {
 
 .archives {
 	margin: 1rem 0;
-	}
+}
 
 .archives h4 {
 	padding: 0 0 0.25rem 5rem;
-	}
+}
 
 .archives h4 span {
 	float: left;
 	width: 5rem;
-	color: #e60000;
+	/*color: #e60000;*/
 	color: #888;
 	margin: 0 0 0 -5rem;
-	}
+}
 
 #archive .archives span {
 	width: 1.5rem;
 	margin: 0 1rem 0 -1.5rem;
-	}
+}
 
 #archive .archives h4 {
 	padding: 0 0 0 1.5rem;
 	margin: 0 0 0.25rem 2rem;
-	}
+}
 
 .search {
 	border-top: 1px solid #ddd;
 	padding: 2em 0 0 0;
-	}
+}
 
 .search label {
 	margin: 0 1em 0 0;
-	}
+}
 
 .search #q {
 	padding: 0.5rem;
 	border: 1px solid #ddd;
 	width: 30%;
 	font-size: 0.875em;
-	}
+}
 
 input.submit {
 	border-radius: 0 6px 6px 0;
@@ -529,18 +525,18 @@ input.submit {
 	font-size: 0.875em;
 	padding: 0.5em;
 	margin: 0 0 0 -1px;
-	}
+}
 
 
 /*Side Sections*/
 #side section {
 	margin: 0 0 1rem 0;
-	padding: 1.5rem 0 0 0;
+	/*padding: 1.5rem 0 0 0;*/
 	background-repeat: no-repeat;
 	background-position: 0 0.5em;
 	font-size: 0.875rem;
 	border-top: 1px solid #ddd;
-	}
+}
 
 #side section:first-child {
   border-top: none;
@@ -553,12 +549,12 @@ input.submit {
 #side section.social {
 	background-image: url("../img/icons/Social.svg");
 	padding: 2.5rem 0 1.25rem 0;
-	}
+}
 
 #side section.contact {
 	background-image: url("../img/icons/Contact.svg");
 	padding: 2.5rem 0 1.25rem 0;
-	}
+}
 
 .social img {
 	margin: -0.4rem 0.3rem 0 0;
@@ -578,7 +574,7 @@ input.submit {
 
 #contact .next {
 	width: 100%;
-	}
+}
 
 .emaillink .next a {
 	text-align: center;
@@ -721,17 +717,17 @@ input.submit {
 
 	/*selected states*/
     #home .n-home a,
-	#essays .n-essays a,
+    #poetry .n-poetry a,
     #workshop .n-workshop a,
-    #poetry .n-poetry a {
+	#portfolio .n-portfolio a {
 	    color: #000;
         border-bottom: None;
 	}
 
     #home .n-home a:before,
-    #essays .n-essays a:before,
+    #poetry .n-poetry a:before,
     #workshop .n-workshop a:before,
-    #poetry .n-poetry a:before {
+    #portfolio .n-portfolio a:before {
 		position: absolute;
 		left: -1.5rem;
         margin-top: 5px;
@@ -776,10 +772,6 @@ input.submit {
 		background: url("../img/paulsmith.gif");
 		}
 
-	.clients img {
-  		width: 20%;
-	}
-
 	#contact #main {
 		float: left;
 		width: 66%;
@@ -790,38 +782,10 @@ input.submit {
 		float: right;
 		width: 30%;
 	}
-
-	/*Work Section*/
-	#default .work article,#test .work article {width: 31%;}
-
-	.clients .col {
-	  max-width: 33%;
-	  float: right;
-	}
-
-	.clients img {
-	  width: 13%;
-	}
-
 }
 
 
 @media screen and (min-width: 1200px) {
-
-	#default .work article:first-child,
-	#test .work article:first-child {
-		width: 48%;
-	}
-
-	#default .work article:first-child img,
-	#test .work article:first-child img {
-		width: 100%;
-	}
-
-	#default .work article,
-	#test .work article {
-		width: 23%;
-		}
 
 	#main {
 		float: left;
@@ -872,16 +836,14 @@ input.submit {
     background: rgb(255,255,255);
 }
 
-form textarea#post {
+form textarea#edit-me {
      width: 95%;
      height: 300px;
      margin-bottom: 2%;
 }
 
-form textarea#op-ed-post {
-     width: 95%;
-     height: 300px;
-     margin-bottom: 2%;
+#edit-button {
+    color:#8787c1;
 }
 
 form #header {
@@ -899,9 +861,17 @@ border-radius: 6px;
 }
 
 form label {
-  margin-bottom: -1px;
+    margin-bottom: -1px;
 }
 
 .wysihtml5-toolbar {
     display: none;
+}
+
+.form-horizontal .controls {
+    margin-left: 0;
+}
+
+#edit-me {
+    padding: 0 1% 0 1%;
 }

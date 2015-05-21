@@ -23,7 +23,6 @@
                 </div>
                 <div class="col-sm-6" id="email-login">
                     <h3 style="margin-bottom: 15px;">Email Login</h3>
-
                     <form action="{{ url_for('login') }}" id="login-form" method="post" accept-charset="utf-8">
                         {{ form.csrf_token }}
                         {{ form.email.label }}

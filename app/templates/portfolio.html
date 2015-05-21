@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% include 'flash.html' %}
+    <div class="btn-info" id="create-poem">Create New Poem</div>
+    <div id="post-div" class="hide">
+        <div class="well" style="margin-top:40px">
+            <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="post">
+                {{ form.hidden_tag() }}
+                <div class="control-group{% if form.header.errors %} error{% endif %}">
+                    <label class="control-label" for="title">Title</label><br>
+                        {{ form.header(size=15) }}
+                        {% for error in form.header.errors %}
+                            <span class="help-inline">[{{ error }}]</span><br>
+                        {% endfor %}
+                </div>
+                {% if g.user.type == 1 %}
+                <div class="control-group{% if form.writing_type.errors %} error{% endif %}">
+                    <label class="control-label" for="type">Type</label><br>
+                        {{ form.writing_type() }}
+                        {% for error in form.writing_type.errors %}
+                            <span class="help-inline">[{{ error }}]</span><br>
+                        {% endfor %}
+                </div>
+                {% endif %}
+                <div class="control-group{% if form.post.errors %} error{% endif %}">
+                    <label class="control-label" for="post">Text</label><br>
+                        {{ form.post(id='edit-me') }}
+                        {% for error in form.post.errors %}
+                            <span class="help-inline">[{{ error }}]</span><br>
+                        {% endfor %}
+                </div>
+                <input class="btn btn-primary" type="submit" value="Post">
+            </form>
+        </div>
+    </div>
+    {% for post in posts.items %}
+        {% include 'post.html' %}
+    {% endfor %}
+    {% include 'postie.html' %}
+    <script>
+    $( document ).ready(function() {
+        var postform_showing = false;
+        var showToolbar = function() {
+            $( "#post-div").show();
+            if($("body").attr("class") != "wysihtml5-supported") {
+                if ($('#user-type').html() == 1) {
+                    $('#edit-me').wysihtml5({
+                        toolbar: {
+                            "style": true,
+                            "font-styles": true,
+                            "emphasis": true,
+                            "lists": false,
+                            "html": true,
+                            "link": false,
+                            "image": false,
+                            "color": false,
+                            fa: true
+                        }
+                    });
+                } else {
+                   $('#edit-me').wysihtml5({
+                        toolbar: {
+                            "style": true,
+                            "font-styles": true,
+                            "emphasis": true,
+                            "lists": false,
+                            "html": false,
+                            "link": false,
+                            "image": false,
+                            "color": false,
+                            fa: true
+                        }
+                    });
+                }
+            }
+            $( "#create-poem" ).html("Cancel");
+            postform_showing = true;
+        };
+
+        var hideToolbar = function() {
+            $('#create-poem').html("Create New Poem");
+            $( "#post-div").hide();
+            postform_showing = false;
+        };
+
+        $( "#create-poem" ).click(function() {
+            if (postform_showing) {
+                hideToolbar();
+            }
+            else {
+                showToolbar();
+            }
+        });
+    });
+    </script>
+{% endblock %}
