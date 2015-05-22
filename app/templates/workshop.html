@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block header %}
+    Showing all public poems. Click <strong>here</strong> to see poems by people you follow.
+{% endblock %}
+
 {% block content %}
     {% for post in posts.items %}
         {% include 'post.html' %}

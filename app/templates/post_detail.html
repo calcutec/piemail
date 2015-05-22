@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-
-{% block content %}
-    {% include 'post.html' %}
-	<h2>Comments</h2>
-	{% include 'flash.html' %}
-	<div class="well">
+{% block header %}
+    {% if g.user.id == post.author.id %}
+        Click <strong>here</strong> to edit your poem
+        {% else %}
+        <div id="comment-button">Click <strong>here</strong> to comment on this poem</div>
+    {% endif %}
+    <div id="comment-form" class="hide">
 		<form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="comment">
 			{{ form.hidden_tag() }}
 			<div class="control-group{% if form.comment.errors %} error{% endif %}">
@@ -14,12 +15,20 @@
 					{% for error in form.comment.errors %}
 						<span class="help-inline">[{{ error }}]</span><br>
 					{% endfor %}
-					<input class="btn btn-primary" type="submit" value="Post!">
+					<input class="btn btn-primary" type="submit" value="Send">
 				</div>
 			</div>
 		</form>
 	</div>
+{% endblock %}
+
+{% block content %}
+
+    {% include 'flash.html' %}
+    {% include 'post.html' %}
+
 	{% if post.comments %}
+        <h2>Comments</h2>
 		{% for comment in post.comments %}
 		   <p>{% if comment.created_at %}<small>On {{ comment.created_at.strftime('%H:%M %Y-%m-%d') }}, </small>{% endif %}{{ comment.author.nickname }} commented: </p>
            <p>{{ comment.body }}</p>

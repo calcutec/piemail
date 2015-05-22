@@ -1,6 +1,6 @@
 <ul class="details" style="width:100%">
     {% if page_mark != "home" %}
-        <li class="Posted By"><a href="{{ url_for('portfolio', id=post.author.id) }}" rel="tag">{{ post.author.nickname }}</a></li>
+        <li class="Posted By"><a href="{{ url_for('profile', nickname=post.author.nickname) }}" rel="tag">{{ post.author.nickname }}</a></li>
     {% endif %}
 
         <li class="posted"><b>{{ post.timestamp.strftime('%d %b %Y') }}</b></li>
@@ -16,10 +16,43 @@
 
     {% if page_mark == "post_detail" and post.author.id == g.user.id %}
         <li id="edit-button">Edit</li>
-        <li><a href="{{ url_for('delete', id = post.id) }}">Delete</a></li>
+    {% endif %}
+
+
+    {% if post.author.id == g.user.id %}
+        <li><a href="{{ url_for('delete', post_id = post.id) }}">Delete</a></li>
     {% endif %}
 
     {% if (page_mark == "post_detail" or page_mark == "portfolio") and g.user.type == 1 and post.author.type == 1 %}
         <li>({{ post.writing_type }})</li>
     {% endif %}
 </ul>
+<form role="form">
+    <label class="checkbox-inline">
+      <input type="checkbox" value="">Show in Workshop
+    </label>
+    <label class="checkbox-inline">
+      <input type="checkbox" value="">Show in Profile
+    </label>
+    <label class="checkbox-inline">
+      <input type="checkbox" value="">Submit to Editor
+    </label>
+</form>
+{#<input type="checkbox" value="a" name="letter[]">Show in Workshop</input>#}
+{#<input type="checkbox" value="b" name="letter[]">Show in Profile</input>#}
+{#<input type="checkbox" value="c" name="letter[]">Submit to Editor</input>#}
+{#<input type="button" id="btn_" value="submit" />#}
+
+
+<script>
+    $("#btn_").on('click', function () {
+        var checkbox_value = "";
+        $(":checkbox").each(function () {
+            var ischecked = $(this).is(":checked");
+            if (ischecked) {
+                checkbox_value += $(this).val() + "|";
+            }
+    });
+    alert(checkbox_value);
+    });
+</script>

@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
+
+{% block header %}<strong id="create-poem">Create Poem</strong>{% endblock %}
+
 {% block content %}
     {% include 'flash.html' %}
-    <div class="btn-info" id="create-poem">Create New Poem</div>
-    <div id="post-div" class="hide">
-        <div class="well" style="margin-top:40px">
+    <div id="post-div">
+        <div class="well">
             <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="post">
                 {{ form.hidden_tag() }}
                 <div class="control-group{% if form.header.errors %} error{% endif %}">
@@ -40,58 +42,59 @@
     {% include 'postie.html' %}
     <script>
     $( document ).ready(function() {
-        var postform_showing = false;
-        var showToolbar = function() {
-            $( "#post-div").show();
-            if($("body").attr("class") != "wysihtml5-supported") {
-                if ($('#user-type').html() == 1) {
-                    $('#edit-me').wysihtml5({
-                        toolbar: {
-                            "style": true,
-                            "font-styles": true,
-                            "emphasis": true,
-                            "lists": false,
-                            "html": true,
-                            "link": false,
-                            "image": false,
-                            "color": false,
-                            fa: true
-                        }
-                    });
-                } else {
-                   $('#edit-me').wysihtml5({
-                        toolbar: {
-                            "style": true,
-                            "font-styles": true,
-                            "emphasis": true,
-                            "lists": false,
-                            "html": false,
-                            "link": false,
-                            "image": false,
-                            "color": false,
-                            fa: true
-                        }
-                    });
-                }
+        if($("body").attr("class") != "wysihtml5-supported") {
+            if ($('#user-type').html() == 1) {
+                $('#edit-me').wysihtml5({
+                    toolbar: {
+                        "style": true,
+                        "font-styles": true,
+                        "emphasis": true,
+                        "lists": true,
+                        "html": true,
+                        "link": false,
+                        "image": false,
+                        "color": false,
+                        fa: true
+                    }
+                });
+            } else {
+               $('#edit-me').wysihtml5({
+                    toolbar: {
+                        "style": true,
+                        "font-styles": true,
+                        "emphasis": true,
+                        "lists": true,
+                        "html": false,
+                        "link": false,
+                        "image": false,
+                        "color": false,
+                        fa: true
+                    }
+                });
             }
-            $( "#create-poem" ).html("Cancel");
-            postform_showing = true;
-        };
+        }
 
-        var hideToolbar = function() {
-            $('#create-poem').html("Create New Poem");
-            $( "#post-div").hide();
-            postform_showing = false;
-        };
+{#        $( "#create-poem" ).click(function() {#}
+{#            if ($("#post-div").attr("class") === "hide") {#}
+{#                $("#post-div").removeClass('hide');#}
+{#                $( "#create-poem" ).html("Cancel");#}
+{#            }#}
+{#            else {#}
+{#                $("#post-div").addClass('hide');#}
+{#                $('#create-poem').html("Create New Poem");#}
+{#            }#}
+{#        });#}
 
-        $( "#create-poem" ).click(function() {
-            if (postform_showing) {
-                hideToolbar();
-            }
-            else {
-                showToolbar();
-            }
-        });
+    $( "#create-poem" ).click(function () {
+      if ( $( "#post-div" ).is( ":hidden" ) ) {
+        $( "#post-div" ).slideDown( "slow" );
+        $( "#create-poem" ).html("Cancel");
+      } else {
+        $( "#post-div" ).hide("slow");
+        $('#create-poem').html("Create New Poem");
+      }
+    });
+
     });
     </script>
 {% endblock %}

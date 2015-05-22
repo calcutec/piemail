@@ -255,6 +255,17 @@ nav a {
 }
 
 /*posts*/
+.checkbox-details {
+	display: inline-block;
+	box-sizing: border-box;
+	vertical-align: top;
+	color: #aaa;
+	padding: 0 2rem 0 0;
+	margin: 0 2rem 0 0;
+    text-align:center;
+}
+
+
 
 .details {
 	list-style: none;
@@ -370,6 +381,7 @@ header {
 	background-position: 46% 0;
 	background-size: auto 100%;
 	height: 4rem;
+    min-width: 190px;
 	}
 
 nav {
@@ -615,6 +627,7 @@ input.submit {
 		float: left;
 		background-position: 0 0 ;
 		width: 30%;
+        min-width: 190px;
 	}
 
 	nav {
@@ -815,63 +828,75 @@ input.submit {
 }
 
 /*Form Overrides*/
-#login-btns {
-  width: 300px;
+.login-btns {
+    width: 50%;
+    float: left;
+    margin-top: 3%;
 }
 
-#login-btns ul {
+.login-btns:last-child {
+    border-left: #0044cc 2px solid;
+    padding-left: 2%;
+}
+
+.login-btns ul {
   list-style-type:none;
   padding:0;
   margin:0;
 }
 
-#login-btns ul li { margin-bottom:10px; }
+.login-btns ul li { margin-bottom:10px; }
 
-#login-btns ul li a {
-  width:200px;
-  text-align:left;
+.login-btns ul li a {
+    text-align:center;
+    width: 95%;
 }
 
 .well {
     background: rgb(255,255,255);
 }
 
-form textarea#edit-me {
-     width: 95%;
-     height: 300px;
-     margin-bottom: 2%;
-}
+/*form textarea#edit-me {*/
+     /*width: 95%;*/
+     /*height: 300px;*/
+     /*margin-bottom: 2%;*/
+/*}*/
 
-#edit-button {
-    color:#8787c1;
-}
+/*#edit-button {*/
+    /*color:#8787c1;*/
+/*}*/
 
-form #header {
-     width: 95%;
-}
+/*form #header {*/
+     /*width: 95%;*/
+/*}*/
 
 .btn.jumbo {
-font-size: 20px;
-font-weight: normal;
-padding: 14px 24px;
-margin-right: 10px;
--webkit-border-radius: 6px;
--moz-border-radius: 6px;
-border-radius: 6px;
+    font-size: 16px;
+    margin-bottom: 1%;
+    font-weight: normal;
+    padding: 7px 12px;
+
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
 }
 
-form label {
-    margin-bottom: -1px;
-}
+/*form label {*/
+    /*margin-bottom: -1px;*/
+/*}*/
 
 .wysihtml5-toolbar {
     display: none;
 }
 
-.form-horizontal .controls {
-    margin-left: 0;
+#post-div {
+    display: none;
 }
 
-#edit-me {
-    padding: 0 1% 0 1%;
-}
+/*.form-horizontal .controls {*/
+    /*margin-left: 0;*/
+/*}*/
+
+/*#edit-me {*/
+    /*padding: 0 1% 0 1%;*/
+/*}*/

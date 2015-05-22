@@ -44,7 +44,7 @@ class User(UserMixin, db.Model):
                                lazy='dynamic')
 
     def __init__(self, nickname, email, password=None, firstname=None, lastname=None):
-        self.nickname = nickname
+        self.nickname = self.make_unique_nickname(self.make_valid_nickname(nickname))
         self.email = email.lower()
         if password is not None:
             self.set_password(password)
@@ -67,6 +67,7 @@ class User(UserMixin, db.Model):
     def make_unique_nickname(nickname):
         if User.query.filter_by(nickname=nickname).first() is None:
             return nickname
+        new_nickname = nickname
         version = 2
         while True:
             new_nickname = nickname + str(version)
@@ -114,13 +115,16 @@ class User(UserMixin, db.Model):
         return self.followed.filter(
             followers.c.followed_id == user.id).count() > 0
 
-    def all_posts(self):
+    @staticmethod
+    def all_posts():
         return Post.query.order_by(Post.timestamp.desc())
 
-    def all_poems(self):
+    @staticmethod
+    def all_poems():
         return Post.query.filter(Post.writing_type == 'poem').order_by(Post.timestamp.desc())
 
-    def all_op_eds(self):
+    @staticmethod
+    def all_op_eds():
         return Post.query.filter(Post.writing_type == 'op-ed').order_by(Post.timestamp.desc())
 
     def followed_posts(self):

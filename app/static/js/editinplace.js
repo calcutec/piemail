@@ -60,4 +60,17 @@ $( document ).ready(function() {
             });
         }
     });
+
+    var commentable = false;
+    $( "#comment-button" ).click(function() {
+        if (!commentable){
+            $('#comment-form').show("slow");
+            $('#comment-button').html("<strong>Cancel</strong>");
+            commentable = true;
+        } else {
+            $('#comment-form').hide("slow");
+            $('#comment-button').html("Click <strong>here</strong> to comment on this poem!");
+            commentable = false;
+        }
+    });
 });

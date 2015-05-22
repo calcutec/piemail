@@ -87,7 +87,7 @@ def signup():
             remember_me = session['remember_me']
             session.pop('remember_me', None)
         login_user(newuser, remember=remember_me)
-        return redirect(url_for('portfolio', id=g.user.id))
+        return redirect(url_for('portfolio', user_id=g.user.id))
 
     page_mark = 'signup'
     page_logo = 'img/icons/login.svg'
@@ -110,7 +110,7 @@ def login():
             remember_me = session['remember_me']
             session.pop('remember_me', None)
         login_user(newuser, remember=remember_me)
-        return redirect(url_for('portfolio', id=g.user.id))
+        return redirect(url_for('portfolio', user_id=g.user.id))
 
     page_mark = 'login'
     page_logo = 'img/icons/login.svg'
@@ -178,13 +178,16 @@ def essays():
                            page_logo=page_logo)
 
 
-@app.route('/portfolio/<int:id>', methods=['GET', 'POST'])
-@app.route('/portfolio/<int:id>/<int:page>', methods=['GET', 'POST'])
+@app.route('/portfolio/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/portfolio/<int:user_id>/<int:page>', methods=['GET', 'POST'])
 @login_required
-def portfolio(id, page=1):
-    portfolio_owner = User.query.get(id)
+def portfolio(user_id, page=1):
+    if user_id != g.user.id:
+        flash('You cannot access this portfolio.')
+        return redirect(url_for('home'))
+    portfolio_owner = User.query.get(user_id)
     if portfolio_owner is None:
-        flash('User %(id)s not found.', id=id)
+        flash('User %(id)s not found.', user_id)
         return redirect(url_for('home'))
     form = PostForm()
     if form.validate_on_submit():
@@ -195,7 +198,7 @@ def portfolio(id, page=1):
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
-        return redirect(request.args.get('next') or url_for('user', nickname=g.user.nickname))
+        return redirect(request.args.get('next') or url_for('portfolio', user_id=g.user.id))
     portfolio_owner_posts = portfolio_owner.posts.paginate(page, POSTS_PER_PAGE, False)
     page_mark = 'portfolio'
     page_logo = 'img/icons/portfolio.svg'
@@ -207,17 +210,20 @@ def portfolio(id, page=1):
                            page_logo=page_logo)
 
 
-@app.route('/user/<int:id>', methods=['GET', 'POST'])
+@app.route('/profile/<nickname>')
+@app.route('/profile/<nickname>/<int:page>')
 @login_required
-def user(id):
-    present_user = User.query.get(id)
-    if present_user is None:
-        flash('User %(id)s not found.' % id)
+def profile(nickname, page=1):
+    this_user = User.query.filter_by(nickname=nickname).first()
+    if this_user is None:
+        flash('User %(nickname)s not found.', nickname)
         return redirect(url_for('home'))
+    profile_owner_posts = this_user.posts.paginate(page, POSTS_PER_PAGE, False)
     page_mark = 'profile'
     page_logo = 'img/icons/profile.svg'
-    return render_template('user.html',
-                           user=present_user,
+    return render_template('profile.html',
+                           user=this_user,
+                           posts=profile_owner_posts,
                            page_mark=page_mark,
                            page_logo=page_logo)
 
@@ -240,7 +246,7 @@ def edit():
         db.session.add(g.user)
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('user', id=g.user.id))
+        return redirect(url_for('profile', nickname=g.user.nickname))
     elif request.method != "POST":
         form.nickname.data = g.user.nickname
         form.about_me.data = g.user.about_me
@@ -289,16 +295,16 @@ def follow(nickname):
         return redirect(url_for('home'))
     if user == g.user:
         flash('You can\'t follow yourself!')
-        return redirect(url_for('user', nickname=nickname))
+        return redirect(url_for('profile', nickname=nickname))
     u = g.user.follow(user)
     if u is None:
         flash('Cannot follow %s.' % nickname)
-        return redirect(url_for('user', nickname=nickname))
+        return redirect(url_for('profile', nickname=nickname))
     db.session.add(u)
     db.session.commit()
     flash('You are now following %s.' % nickname)
     follower_notification(user, g.user)
-    return redirect(url_for('user', nickname=nickname))
+    return redirect(url_for('profile', nickname=nickname))
 
 
 @app.route('/unfollow/<nickname>')
@@ -310,21 +316,21 @@ def unfollow(nickname):
         return redirect(url_for('home'))
     if user == g.user:
         flash('You can\'t unfollow yourself!')
-        return redirect(url_for('user', nickname=nickname))
+        return redirect(url_for('profile', nickname=nickname))
     u = g.user.unfollow(user)
     if u is None:
         flash('Cannot unfollow %s.' % nickname)
-        return redirect(url_for('user', nickname=nickname))
+        return redirect(url_for('profile', nickname=nickname))
     db.session.add(u)
     db.session.commit()
     flash('You have stopped following %s.' % nickname)
-    return redirect(url_for('user', nickname=nickname))
+    return redirect(url_for('profile', nickname=nickname))
 
 
-@app.route('/delete/<int:id>')
+@app.route('/delete/<int:post_id>')
 @login_required
-def delete(id):
-    post = Post.query.get(id)
+def delete(post_id):
+    post = Post.query.get(post_id)
     if post is None:
         flash('Post not found.')
         return redirect(url_for('home'))
@@ -334,7 +340,7 @@ def delete(id):
     db.session.delete(post)
     db.session.commit()
     flash('Your post has been deleted.')
-    return redirect(url_for('portfolio', id=post.author.id))
+    return redirect(url_for('portfolio', user_id=post.author.id))
 
 
 @app.route('/search', methods=['POST'])
@@ -369,13 +375,13 @@ def oauth_callback(provider):
     if not current_user.is_anonymous():
         return redirect(url_for('home'))
     oauth = OAuthSignIn.get_provider(provider)
-    username, email = oauth.callback()
+    nickname, email = oauth.callback()
     if email is None:
         flash('Authentication failed.')
         return redirect(url_for('home'))
     currentuser = User.query.filter_by(email=email).first()
     if not currentuser:
-        currentuser = User(nickname=username, email=email)
+        currentuser = User(nickname=nickname, email=email)
         db.session.add(currentuser)
         db.session.add(currentuser.follow(currentuser))
         db.session.commit()
@@ -384,4 +390,4 @@ def oauth_callback(provider):
         remember_me = session['remember_me']
         session.pop('remember_me', None)
     login_user(currentuser, remember=remember_me)
-    return redirect(request.args.get('next') or url_for('portfolio', id=currentuser.id))
+    return redirect(request.args.get('next') or url_for('portfolio', user_id=currentuser.id))

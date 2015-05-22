@@ -7,6 +7,7 @@ import json
 import urllib2
 import cStringIO
 from flask import request, redirect, url_for
+from models import User
 
 
 def pre_upload(img_obj):
@@ -135,7 +136,10 @@ class FacebookSignIn(OAuthSignIn):
                   'redirect_uri': self.get_callback_url()}
         )
         me = oauth_session.get('me').json()
-        return me.get('email').split('@')[0], me.get('email')
+        nickname = me.get('email').split('@')[0]
+        nickname = User.make_valid_nickname(nickname)
+        nickname = User.make_unique_nickname(nickname)
+        return nickname, me.get('email')
 
 
 class GoogleSignIn(OAuthSignIn):
@@ -170,4 +174,7 @@ class GoogleSignIn(OAuthSignIn):
                 decoder=json.loads
         )
         me = oauth_session.get('').json()
-        return me['name'], me['email']
+        nickname = me['name']
+        nickname = User.make_valid_nickname(nickname)
+        nickname = User.make_unique_nickname(nickname)
+        return nickname, me['email']

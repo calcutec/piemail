@@ -33,12 +33,13 @@
 
 		<!-- CSS -->
 			<!--[if gte IE 7]><!-->
-                <link rel="stylesheet" type="text/css" href="{{ local_static_url }}css/bootstrap.min.css" />
-		        <link rel="stylesheet" href="{{ local_static_url }}css/bootstrap-responsive.min.css" />
+{#                <link rel="stylesheet" type="text/css" href="{{ local_static_url }}css/bootstrap.min.css" />#}
+                <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+{#		        <link rel="stylesheet" href="{{ local_static_url }}css/bootstrap-responsive.min.css" />#}
 		        <link rel="stylesheet" type="text/css" media="all" href="{{ local_static_url }}css/layout.css" />
 		        <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cabin:400,500,600,700,400italic,500italic,600italic,700italic' data-noprefix />
                 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-                <link rel="stylesheet" type="text/css" href="{{ local_static_url }}css/bootstrap3-wysihtml5.min.css" />
+{#                <link rel="stylesheet" type="text/css" href="{{ local_static_url }}css/bootstrap3-wysihtml5.min.css" />#}
 			<!--<![endif]-->
 
 
@@ -54,11 +55,11 @@
 
 		<!-- JS -->
             <script src="{{ static_url }}js/jquery.min.js"></script>
-            <script src="http://code.jquery.com/jquery-migrate-1.2.1.js"></script>
+            <script src="{{ local_static_url }}js/jquery-migrate-1.2.1.min.js"></script>
 			<script src="{{ static_url }}js/prefixfree.min.js"></script>
-            <script src="{{ static_url }}js/bootstrap.min.js"></script>
+            <script src="{{ local_static_url }}js/bootstrap.min.js"></script>
 	        <script src="{{ static_url }}js/moment.min.js"></script>
-            <script src="{{ static_url }}js/bootstrap3-wysihtml5.all.min.js"></script>
+{#            <script src="{{ static_url }}js/bootstrap3-wysihtml5.all.min.js"></script>#}
 
 
 	</head>
@@ -72,9 +73,10 @@
                     <li class="n-login"><a href="{{ url_for('login') }}">Login</a></li>
                 {% endif %}
                 {% if g.user.is_authenticated() %}
-                    <li class="n-user-id">Welcome back&nbsp;{{ g.user.nickname }}!</li>
+                    <li class="n-user-id">Hi&nbsp;{{ g.user.nickname }}!</li>
                     <li class="n-logout"><a href="{{ url_for('logout') }}">Logout</a></li>
-                    <li class="n-profile"><a href="{{ url_for('edit') }}">Edit Profile</a></li>
+                    <li class="n-profile"><a href="{{ url_for('edit') }}">Profile</a></li>
+                    <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
                     <span id="user-type" class="hide">{{ g.user.type }}</span>
 				{% endif %}
 			</ul>
@@ -82,11 +84,10 @@
 
 		<nav>
 			<ul>
-				<li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
 				<li class="n-poetry"><a href="{{ url_for('poetry') }}">Poetry</a></li>
                 {% if g.user.is_authenticated() %}
                     <li class="n-workshop"><a href="{{ url_for('workshop') }}">Workshop</a></li>
-                    <li class="n-portfolio"><a href="{{ url_for('portfolio', id=g.user.id) }}">Portfolio</a></li>
+                    <li class="n-portfolio"><a href="{{ url_for('portfolio', user_id=g.user.id) }}">Portfolio</a></li>
 				{% endif %}
 			</ul>
 		</nav>
@@ -97,7 +98,7 @@
                     <img src="{{ static_url }}{{ page_logo }}" alt="{{ page_logo }}"/>
                 </div>
                 <h1>
-					Create, discuss, and share poetry
+				{% block header %}Create, discuss, and share poetry{% endblock %}
 				</h1>
 			</header>
 
@@ -109,11 +110,11 @@
 				<section>
                     <div class="archives">
                         <h3>Recent Poems</h3>
-                            <h4><span> 4.06.15</span> <a href="/journal/troika-6-my-turn-to-be-poorly" title="Go and read Troika #6: My Turn to be Poorly">My Turn to be Poorly</a></h4>
-                            <h4><span> 4.03.15</span> <a href="/journal/a-taste-of-the-track" title="Go and read A Taste of the Track">A Taste of the Track</a></h4>
-                            <h4><span> 4.02.15</span> <a href="/journal/troika-5-new-gaze" title="Go and read Troika #5: New Gaze">New Gaze</a></h4>
-                            <h4><span>3.25.15</span> <a href="/journal/sufjan-stevens-carrie-lowell-album-stream" title="Go and read Sufjan Stevens – Carrie &amp; Lowell: album stream">My Test Poems</a></h4>
-                            <h4><span>2.19.15</span> <a href="/journal/troika-4-light-music" title="Go and read Troika #4: Light Music">Light Music</a></h4>
+                            <h4><span> 4.06.15</span> <a href="/" title="Go and read Troika #6: My Turn to be Poorly">My Turn to be Poorly</a></h4>
+                            <h4><span> 4.03.15</span> <a href="/" title="Go and read A Taste of the Track">A Taste of the Track</a></h4>
+                            <h4><span> 4.02.15</span> <a href="/" title="Go and read Troika #5: New Gaze">New Gaze</a></h4>
+                            <h4><span>3.25.15</span> <a href="/" title="Go and read Sufjan Stevens – Carrie &amp; Lowell: album stream">My Test Poems</a></h4>
+                            <h4><span>2.19.15</span> <a href="/" title="Go and read Troika #4: Light Music">Light Music</a></h4>
                     </div>
 				</section>
 

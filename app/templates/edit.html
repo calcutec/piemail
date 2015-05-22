@@ -1,7 +1,7 @@
 {% extends "base.html" %}
+{% block header %}<a href="{{ url_for('profile', nickname=g.user.nickname) }}">Cancel</a>{% endblock %}
 
 {% block content %}
-    <h1>Edit Your Profile</h1>
     {% include 'flash.html' %}
     <div class="well">
         <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="edit">
