@@ -1,17 +1,26 @@
 {% extends "base.html" %}
 
 
-{% block header %}<strong id="create-poem">Create Poem</strong>{% endblock %}
+{% block header %}
+<div class="container">
+  <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Create Poem</button>
 
-{% block content %}
-    {% include 'flash.html' %}
-    <div id="post-div">
-        <div class="well">
-            <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="post">
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h3 class="modal-title">My New Poem</h3>
+        </div>
+        <div class="modal-body">
+            <form id="contact-form" class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="post">
                 {{ form.hidden_tag() }}
                 <div class="control-group{% if form.header.errors %} error{% endif %}">
                     <label class="control-label" for="title">Title</label><br>
-                        {{ form.header(size=15) }}
+                        <input type="text" class="form-control" id="header" name="header" value="">
                         {% for error in form.header.errors %}
                             <span class="help-inline">[{{ error }}]</span><br>
                         {% endfor %}
@@ -25,76 +34,116 @@
                         {% endfor %}
                 </div>
                 {% endif %}
-                <div class="control-group{% if form.post.errors %} error{% endif %}">
-                    <label class="control-label" for="post">Text</label><br>
-                        {{ form.post(id='edit-me') }}
-                        {% for error in form.post.errors %}
-                            <span class="help-inline">[{{ error }}]</span><br>
-                        {% endfor %}
+
+
+                <div class="control-group">
+                  <label class="control-label" for="post">Text</label>
+                    <textarea class="form-control hide" rows="10" id="post" name="post"></textarea>
+                    <div id="editable"></div>
+                    {% for error in form.post.errors %}
+                        <span class="help-inline">[{{ error }}]</span><br>
+                    {% endfor %}
                 </div>
+                <br>
                 <input class="btn btn-primary" type="submit" value="Post">
+                <button class="btn btn-default" type="button">Cancel</button>
             </form>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
     </div>
-    {% for post in posts.items %}
-        {% include 'post.html' %}
-    {% endfor %}
-    {% include 'postie.html' %}
-    <script>
-    $( document ).ready(function() {
-        if($("body").attr("class") != "wysihtml5-supported") {
-            if ($('#user-type').html() == 1) {
-                $('#edit-me').wysihtml5({
-                    toolbar: {
-                        "style": true,
-                        "font-styles": true,
-                        "emphasis": true,
-                        "lists": true,
-                        "html": true,
-                        "link": false,
-                        "image": false,
-                        "color": false,
-                        fa: true
-                    }
-                });
-            } else {
-               $('#edit-me').wysihtml5({
-                    toolbar: {
-                        "style": true,
-                        "font-styles": true,
-                        "emphasis": true,
-                        "lists": true,
-                        "html": false,
-                        "link": false,
-                        "image": false,
-                        "color": false,
-                        fa: true
-                    }
-                });
-            }
+  </div>
+
+</div>
+{% endblock %}
+
+{% block content %}
+{% include 'flash.html' %}
+{% for post in posts.items %}
+    {% include 'post.html' %}
+{% endfor %}
+
+{% include 'postie.html' %}
+
+<script>
+$(function() {
+    var myCustomTemplates = {
+        ellipsis: function(context) {
+        return "<li>" + "<a class='btn btn-default' data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='&hellip;'>hellip</a>" + "</li>";
+        },
+        strikethrough: function(context) {
+        return "<li>" + "<a class='btn btn-default' tabindex='-1' style='color:red' data-edit='strikethrough' title='Strikethrough' data-wysihtml5-command='strikeTHROUGH' data-wysihtml5-command-value='madeup'><i class='fa fa-strikethrough'></i></a>" + "</li>";
         }
+    };
 
-{#        $( "#create-poem" ).click(function() {#}
-{#            if ($("#post-div").attr("class") === "hide") {#}
-{#                $("#post-div").removeClass('hide');#}
-{#                $( "#create-poem" ).html("Cancel");#}
-{#            }#}
-{#            else {#}
-{#                $("#post-div").addClass('hide');#}
-{#                $('#create-poem').html("Create New Poem");#}
-{#            }#}
-{#        });#}
+    if($("body").attr("class") != "wysihtml5-supported") {
+        if ($('#user-type').html() == 1) {
+            $('#editable').wysihtml5({
+                toolbar: {
+                    "style": true,
+                    "font-styles": true,
+                    "emphasis": true,
+                    "lists": true,
+                    "html": false,
+                    "link": false,
+                    "image": false,
+                    "color": false,
+                    fa: true,
+                    ellipsis: false,
+                    strikethrough: true
+                },
+                customTemplates: myCustomTemplates
+            });
+        } else {
+           $('#editable').wysihtml5({
+                toolbar: {
+                    "style": true,
+                    "font-styles": true,
+                    "emphasis": true,
+                    "lists": true,
+                    "html": false,
+                    "link": false,
+                    "image": false,
+                    "color": false,
+                    fa: true,
+                    ellipsis: false,
+                    strikethrough: true
+                },
+                customTemplates: myCustomTemplates
+            });
+        }
+    }
 
-    $( "#create-poem" ).click(function () {
-      if ( $( "#post-div" ).is( ":hidden" ) ) {
-        $( "#post-div" ).slideDown( "slow" );
-        $( "#create-poem" ).html("Cancel");
-      } else {
-        $( "#post-div" ).hide("slow");
-        $('#create-poem').html("Create New Poem");
-      }
+    $("#contact-form").submit(function(e) {
+        e.preventDefault();
+        $form = $(this);
+        var poem_text = $('#editable').html();
+        $('#post').html(poem_text);
+
+        $.post("{{ url_for('create_poem') }}", $form.serialize(),
+            function(data, textStatus) {
+            var errors = $.parseJSON(data);
+                $("#error_title").text("");
+                $("#error_description").text("");
+                $("#error_tags").text("");
+
+                if(errors.iserror)
+                {
+                    if(errors.title!=undefined) $("#error_title").text(errors.title[0]);
+                    if(errors.description!=undefined) $("#error_description").text(errors.description[0]);
+                    if(errors.tags!=undefined) $("#error_tags").text(errors.tags[0]);
+                }else if (errors.savedsuccess)
+                {
+                    $("#myModal").modal('hide');
+                    location.reload();
+                }
+        });
     });
 
-    });
-    </script>
+
+});
+</script>
 {% endblock %}

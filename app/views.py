@@ -17,6 +17,7 @@ from .models import User, Post, Comment
 from .emails import follower_notification
 from .utils import OAuthSignIn, pre_upload
 from PIL import Image
+import json
 
 
 @app.context_processor
@@ -197,7 +198,7 @@ def portfolio(user_id, page=1):
                     writing_type=form.writing_type.data, slug=slug)
         db.session.add(post)
         db.session.commit()
-        flash('Your post is now live!')
+        flash('Your poem is now live!')
         return redirect(request.args.get('next') or url_for('portfolio', user_id=g.user.id))
     portfolio_owner_posts = portfolio_owner.posts.paginate(page, POSTS_PER_PAGE, False)
     page_mark = 'portfolio'
@@ -284,6 +285,27 @@ def edit_in_place():
     # update_post.header=request.form['header']
     db.session.commit()
     return request.form['content']
+
+
+@app.route('/create_poem', methods=['POST'])
+def create_poem():
+    form = PostForm(request.form)
+    if form.validate_on_submit():
+        result = {'iserror': False}
+        slug = slugify(form.header.data)
+        try:
+            post = Post(body=form.post.data, timestamp=datetime.utcnow(),
+                        author=g.user, photo=None, thumbnail=None, header=form.header.data,
+                        writing_type=form.writing_type.data, slug=slug)
+            db.session.add(post)
+            db.session.commit()
+            flash('Your poem is now live!')
+            result['savedsuccess'] = True
+        except:
+            result['savedsuccess'] = False
+        return json.dumps(result)
+    form.errors['iserror'] = True
+    return json.dumps(form.errors)
 
 
 @app.route('/follow/<nickname>')
