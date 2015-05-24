@@ -21,17 +21,19 @@
                 <div class="control-group{% if form.header.errors %} error{% endif %}">
                     <label class="control-label" for="title">Title</label><br>
                         <input type="text" class="form-control" id="header" name="header" value="">
-                        {% for error in form.header.errors %}
-                            <span class="help-inline">[{{ error }}]</span><br>
-                        {% endfor %}
+{#                        {% for error in form.header.errors %}#}
+{#                            <span class="help-inline">[{{ error }}]</span><br>#}
+{#                        {% endfor %}#}
+                        <span id="error_header" class="help-inline"></span><br>
                 </div>
                 {% if g.user.type == 1 %}
                 <div class="control-group{% if form.writing_type.errors %} error{% endif %}">
                     <label class="control-label" for="type">Type</label><br>
                         {{ form.writing_type() }}
-                        {% for error in form.writing_type.errors %}
-                            <span class="help-inline">[{{ error }}]</span><br>
-                        {% endfor %}
+{#                        {% for error in form.writing_type.errors %}#}
+{#                            <span class="help-inline">[{{ error }}]</span><br>#}
+{#                        {% endfor %}#}
+                        <span id=error_writing_type class="help-inline"></span><br>
                 </div>
                 {% endif %}
 
@@ -40,9 +42,10 @@
                   <label class="control-label" for="post">Text</label>
                     <textarea class="form-control hide" rows="10" id="post" name="post"></textarea>
                     <div id="editable"></div>
-                    {% for error in form.post.errors %}
-                        <span class="help-inline">[{{ error }}]</span><br>
-                    {% endfor %}
+{#                    {% for error in form.post.errors %}#}
+{#                        <span class="help-inline">[{{ error }}]</span><br>#}
+{#                    {% endfor %}#}
+                      <span id="error_post" class="help-inline"></span><br>
                 </div>
                 <br>
                 <input class="btn btn-primary" type="submit" value="Post">
@@ -126,15 +129,15 @@ $(function() {
         $.post("{{ url_for('create_poem') }}", $form.serialize(),
             function(data, textStatus) {
             var errors = $.parseJSON(data);
-                $("#error_title").text("");
-                $("#error_description").text("");
-                $("#error_tags").text("");
+                $("#error_header").text("");
+                $("#error_post").text("");
+                $("#error_writing_type").text("");
 
                 if(errors.iserror)
                 {
-                    if(errors.title!=undefined) $("#error_title").text(errors.title[0]);
-                    if(errors.description!=undefined) $("#error_description").text(errors.description[0]);
-                    if(errors.tags!=undefined) $("#error_tags").text(errors.tags[0]);
+                    if(errors.header!=undefined) $("#error_header").text(errors.header[0]);
+                    if(errors.post!=undefined) $("#error_post").text(errors.post[0]);
+                    if(errors.writing_type!=undefined) $("#error_writing_type").text(errors.writing_type[0]);
                 }else if (errors.savedsuccess)
                 {
                     $("#myModal").modal('hide');

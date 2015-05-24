@@ -290,7 +290,7 @@ def edit_in_place():
 @app.route('/create_poem', methods=['POST'])
 def create_poem():
     form = PostForm(request.form)
-    if form.validate_on_submit():
+    if form.validate():
         result = {'iserror': False}
         slug = slugify(form.header.data)
         try:
