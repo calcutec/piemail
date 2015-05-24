@@ -137,6 +137,12 @@ class User(UserMixin, db.Model):
         return '<User %r>' % self.nickname
 
 
+post_upvotes = db.Table('post_upvotes',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('post_id', db.Integer, db.ForeignKey('post.id'))
+)
+
+
 class Post(db.Model):
     __searchable__ = ['body']
     __tablename__ = 'post'
@@ -151,11 +157,68 @@ class Post(db.Model):
     thumbnail = db.Column(db.String(240))
     comments = db.relationship('Comment', backref='original_post', lazy='dynamic')
     slug = db.Column(db.String(255))
+    votes = db.Column(db.Integer, default=1)
 
     def __init__(self, **kwargs):
         super(Post, self).__init__(**kwargs)
         if self.writing_type is None:
             self.writing_type == "poem"
+        if self.votes is None:
+            self.votes == "1"
+
+    def get_voter_ids(self):
+        """
+        return ids of users who voted this post up
+        """
+        select = post_upvotes.select(post_upvotes.c.post_id==self.id)
+        rs = db.engine.execute(select)
+        ids = rs.fetchall() # list of tuples
+        return ids
+
+    def has_voted(self, user_id):
+        """
+        did the user vote already
+        """
+        select_votes = post_upvotes.select(
+                db.and_(
+                    post_upvotes.c.user_id == user_id,
+                    post_upvotes.c.post_id == self.id
+                )
+        )
+        rs = db.engine.execute(select_votes)
+        return False if rs.rowcount == 0 else True
+
+    def vote(self, user_id):
+        """
+        allow a user to vote on a post. if we have voted already
+        (and they are clicking again), this means that they are trying
+        to unvote the post, return status of the vote for that user
+        """
+        already_voted = self.has_voted(user_id)
+        vote_status = None
+        if not already_voted:
+            # vote up the post
+            db.engine.execute(
+                post_upvotes.insert(),
+                user_id   = user_id,
+                post_id = self.id
+            )
+            self.votes = self.votes + 1
+            vote_status = True
+        else:
+            # unvote the post
+            db.engine.execute(
+                post_upvotes.delete(
+                    db.and_(
+                        post_upvotes.c.user_id == user_id,
+                        post_upvotes.c.post_id == self.id
+                    )
+                )
+            )
+            self.votes = self.votes - 1
+            vote_status = False
+        db.session.commit() # for the vote count
+        return vote_status
 
     def get_absolute_url(self):
         return url_for('post', kwargs={"slug": self.slug})

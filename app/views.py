@@ -1,7 +1,7 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 from werkzeug.utils import secure_filename
-from flask import render_template, flash, redirect, session, url_for, request, g
+from flask import render_template, flash, redirect, session, url_for, request, g, abort, jsonify
 
 from flask.ext.login import login_user, logout_user, current_user, \
     login_required
@@ -276,6 +276,23 @@ def posts(slug):
                            page_mark=page_mark,
                            page_logo=page_logo,
                            **context)
+
+
+@app.route('/posts/vote/', methods=['POST'])
+# @login_required
+def vote_poem():
+    """
+    Submit votes via ajax
+    """
+    post_id = int(request.form['post_id'])
+    user_id = g.user.id
+
+    if not post_id:
+        abort(404)
+
+    post = Post.query.get_or_404(int(post_id))
+    vote_status = post.vote(user_id=user_id)
+    return jsonify(new_votes=post.votes, vote_status=vote_status)
 
 
 @app.route('/edit_in_place', methods=['POST'])

@@ -8,8 +8,7 @@
     {% if page_mark != "home" %}
         <li><a href="{{ url_for('posts', slug=post.slug) }}">
             {% with total=post.comments.all()|length %}
-                {{ total }} comment
-                {%- if total != 1 %}s{%- endif -%}
+                {{ total }} comment{% if total != 1 %}s{% endif %}
             {% endwith %}</a>
         </li>
     {% endif %}
@@ -23,22 +22,67 @@
         <li><a href="{{ url_for('delete', post_id = post.id) }}">Delete</a></li>
     {% endif %}
 
+    {% if g.user.is_authenticated() %}
+        <li class="">
+            {% if post.has_voted(g.user.id) %}
+              <a data-voted="true" style="color:#eb6864;" href="javascript:void(0)" class="listing-vote-button"><i class="fa fa-smile-o"></i></a>
+            {% else %}
+              <a data-voted="false" style="color:#000;" href="javascript:void(0)" class="listing-vote-button"><i class="fa fa-meh-o"></i></a>
+            {% endif %}
+        </li>
+        <li class="listing-votes-number">{{ post.votes }} like{% if post.votes != 1 %}s{% endif %}</li>
+    {% endif %}
+
 {#    {% if (page_mark == "post_detail" or page_mark == "portfolio") and g.user.type == 1 and post.author.type == 1 %}#}
 {#        <li>({{ post.writing_type }})</li>#}
 {#    {% endif %}#}
 </ul>
 
-{% if page_mark != "home" %}
-<form role="form">
-    <label class="checkbox-inline">
-      <input type="checkbox" value="a" name="letter[]">Workshop
-    </label>
-    <label class="checkbox-inline">
-      <input type="checkbox" value="b" name="letter[]">Profile
-    </label>
-    <label class="checkbox-inline">
-      <input type="checkbox" value="c" name="letter[]">Editor
-    </label>
-</form>
-{% endif %}
+
+
+
+{#{% if page_mark != "home" %}#}
+{#<form role="form">#}
+{#    <label class="checkbox-inline">#}
+{#      <input type="checkbox" value="a" name="letter[]">Workshop#}
+{#    </label>#}
+{#    <label class="checkbox-inline">#}
+{#      <input type="checkbox" value="b" name="letter[]">Profile#}
+{#    </label>#}
+{#    <label class="checkbox-inline">#}
+{#      <input type="checkbox" value="c" name="letter[]">Editor#}
+{#    </label>#}
+{#</form>#}
+{#{% endif %}#}
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $(document).on('click', 'a.listing-vote-button', function() {
+        var $vote_button = $(this); // cache this! can't access in callback!
+        var post_id = {{ post.id }};
+        var post_to = '/posts/vote/';
+        if ($vote_button.attr("data-voted") === "true") {
+            $vote_button.css("color", "#000");
+            $vote_button.html("<i class='fa fa-meh-o'></i>");
+            $vote_button.attr("data-voted", "false");
+        } else {
+            $vote_button.css("color", "rgb(235, 104, 100)");
+            $vote_button.html("<i class='fa fa-smile-o'>");
+            $vote_button.attr("data-voted", "true");
+        }
+        $.post(post_to, { post_id: post_id },
+            function(response) {
+                if (response.new_votes === 1){
+                    var likephrase = "like";
+                } else {
+                    var likephrase = "likes";
+                }
+                var new_vote_count = response.new_votes.toString();
+                var vote_status = response.vote_status;
+                $vote_button.parent().next().html(new_vote_count + "&nbsp;" + likephrase);
+            }, 'json'
+        );
+    });
+});
+</script>
 
