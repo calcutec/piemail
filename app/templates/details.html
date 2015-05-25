@@ -25,9 +25,9 @@
     {% if g.user.is_authenticated() %}
         <li class="">
             {% if post.has_voted(g.user.id) %}
-              <a data-voted="true" style="color:#eb6864;" href="javascript:void(0)" class="listing-vote-button"><i class="fa fa-smile-o"></i></a>
+              <a data-voted="true" style="color:#eb6864;" href="javascript:void(0)" class="listing-vote-button"><i class="fa fa-smile-o fa-lg"></i></a>
             {% else %}
-              <a data-voted="false" style="color:#000;" href="javascript:void(0)" class="listing-vote-button"><i class="fa fa-meh-o"></i></a>
+              <a data-voted="false" style="color:#000;" href="javascript:void(0)" class="listing-vote-button"><i class="fa fa-meh-o fa-lg"></i></a>
             {% endif %}
         </li>
         <li class="listing-votes-number">{{ post.votes }} like{% if post.votes != 1 %}s{% endif %}</li>
@@ -63,11 +63,11 @@ $(document).ready(function() {
         var post_to = '/posts/vote/';
         if ($vote_button.attr("data-voted") === "true") {
             $vote_button.css("color", "#000");
-            $vote_button.html("<i class='fa fa-meh-o'></i>");
+            $vote_button.html("<i class='fa fa-meh-o fa-lg'></i>");
             $vote_button.attr("data-voted", "false");
         } else {
             $vote_button.css("color", "rgb(235, 104, 100)");
-            $vote_button.html("<i class='fa fa-smile-o'>");
+            $vote_button.html("<i class='fa fa-smile-o fa-lg'>");
             $vote_button.attr("data-voted", "true");
         }
         $.post(post_to, { post_id: post_id },
