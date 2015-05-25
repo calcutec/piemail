@@ -2,7 +2,7 @@
 
 {% block header %}
     {% if user.id == g.user.id %}
-        <a href="{{ url_for('edit') }}">Edit profile</a>
+        Click<span><a href="{{ url_for('edit') }}" > here </a></span>to edit your profile
     {% elif not g.user.is_following(user) %}
         <a href="{{ url_for('follow', nickname=user.nickname) }}">Click <strong>here</strong> to follow {{ user.nickname }}</a>
     {% else %}

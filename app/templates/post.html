@@ -1,4 +1,10 @@
 <article>
+    <ul class="details" style="width:100%">
+        {% if page_mark != "home" %}
+            <li class="Posted By"><a href="{{ url_for('profile', nickname=post.author.nickname) }}" rel="tag">{{ post.author.nickname }}</a></li>
+        {% endif %}
+            <li class="posted"><b>{{ post.timestamp.strftime('%d %b %Y') }}</b></li>
+    </ul>
     <h2><a href="{{ url_for('posts', slug=post.slug) }}">{{ post.header }}</a></h2>
     <div class="body">
         <div id="edit-me">

@@ -1,11 +1,5 @@
 <ul class="details" style="width:100%">
     {% if page_mark != "home" %}
-        <li class="Posted By"><a href="{{ url_for('profile', nickname=post.author.nickname) }}" rel="tag">{{ post.author.nickname }}</a></li>
-    {% endif %}
-
-        <li class="posted"><b>{{ post.timestamp.strftime('%d %b %Y') }}</b></li>
-
-    {% if page_mark != "home" %}
         <li><a href="{{ url_for('posts', slug=post.slug) }}">
             {% with total=post.comments.all()|length %}
                 {{ total }} comment{% if total != 1 %}s{% endif %}
@@ -17,17 +11,16 @@
         <li id="edit-button">Edit</li>
     {% endif %}
 
-
-    {% if post.author.id == g.user.id and page_mark != "home" %}
+    {% if post.author.id == g.user.id and page_mark == "post_detail" %}
         <li><a href="{{ url_for('delete', post_id = post.id) }}">Delete</a></li>
     {% endif %}
 
     {% if g.user.is_authenticated() %}
-        <li class="">
+        <li>
             {% if post.has_voted(g.user.id) %}
-              <a data-voted="true" style="color:#eb6864;" href="javascript:void(0)" class="listing-vote-button"><i class="fa fa-smile-o fa-lg"></i></a>
+              <a data-voted="true" style="color:#eb6864;" href="javascript:void(0)" class="{{ post.id }}"><i class="fa fa-smile-o fa-lg"></i></a>
             {% else %}
-              <a data-voted="false" style="color:#000;" href="javascript:void(0)" class="listing-vote-button"><i class="fa fa-meh-o fa-lg"></i></a>
+              <a data-voted="false" style="color:#000;" href="javascript:void(0)" class="{{ post.id }}"><i class="fa fa-meh-o fa-lg"></i></a>
             {% endif %}
         </li>
         <li class="listing-votes-number">{{ post.votes }} like{% if post.votes != 1 %}s{% endif %}</li>
@@ -57,9 +50,10 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
-    $(document).on('click', 'a.listing-vote-button', function() {
+    var post_id = {{ post.id }};
+    var vote_button_selector = "a." + post_id;
+    $(vote_button_selector).click(function() {
         var $vote_button = $(this); // cache this! can't access in callback!
-        var post_id = {{ post.id }};
         var post_to = '/posts/vote/';
         if ($vote_button.attr("data-voted") === "true") {
             $vote_button.css("color", "#000");

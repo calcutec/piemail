@@ -203,6 +203,8 @@ class Post(db.Model):
                 user_id   = user_id,
                 post_id = self.id
             )
+            if self.votes == None:
+                self.votes = 1
             self.votes = self.votes + 1
             vote_status = True
         else:
