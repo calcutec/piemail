@@ -20,6 +20,56 @@ from PIL import Image
 import json
 
 
+from flask.views import MethodView
+
+class PoemAPI(MethodView):
+    def get(self, user_id):
+        if user_id is None:
+            users = User.query.all()
+            json_results = [{'name': u.name, 'age': u.age} for u in users]
+        else:
+            user = User.query.get_or_404(user_id)
+            json_results = [{'name': user.name, 'age': user.age}]
+        return jsonify(item=json_results)
+
+    def post(self):
+      pass
+
+    def delete(self, user_id):
+      pass
+
+    def put(self, user_id):
+      pass
+
+poem_api_view = PoemAPI.as_view('poem_api')
+app.add_url_rule('/poetry', defaults={'user_id': None},
+                 view_func = poem_api_view, methods=["GET",])
+
+
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/home/<int:page>', methods=['GET', 'POST'])
+def home(page=1):
+    posts_this_page = 1
+    page_mark = 'home'
+    page_logo = 'img/icons/home.svg'
+    super_user = User.query.filter_by(type=1).first()
+    op_ed_posts = super_user.all_op_eds().paginate(page, posts_this_page, False)
+    return render_template('home.html',
+                           title='Home',
+                           posts=op_ed_posts,
+                           page_mark=page_mark,
+                           page_logo=page_logo)
+
+@app.route('/poetry', methods=['GET', 'POST'])
+def poetry():
+    page_mark = 'poetry'
+    page_logo = 'img/icons/poetry.svg'
+    return render_template('poetry.html',
+                           title='Poetry',
+                           page_mark=page_mark,
+                           page_logo=page_logo)
+
+
 @app.context_processor
 def inject_static_url():
     local_static_url = app.static_url_path
@@ -128,6 +178,7 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
 
 
 @app.route('/', methods=['GET', 'POST'])
