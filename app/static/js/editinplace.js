@@ -67,7 +67,7 @@ $( document ).ready(function() {
                 }else if (result.savedsuccess) {
                     $("#myModal").modal('hide');
                     $("#main").prepend(result.new_poem);
-                    location.reload();
+                    //location.reload();
                 }
         });
     });
@@ -77,36 +77,19 @@ $( document ).ready(function() {
 
     var showToolbar = function() {
         if($("body").attr("class") != "wysihtml5-supported") {
-            if ($('#user-type').html() == 1) {
-                $('#edit-me').wysihtml5({
-                    toolbar: {
-                        "style": true,
-                        "font-styles": true,
-                        "emphasis": false,
-                        "lists": true,
-                        "html": false,
-                        "link": true,
-                        "image": false,
-                        "color": false,
-                        fa: true
-                    }
-                });
-            } else {
-               $('#edit-me').wysihtml5({
-                    toolbar: {
-                        "style": true,
-                        "font-styles": true,
-                        "emphasis": true,
-                        "lists": true,
-                        "html": false,
-                        "link": false,
-                        "image": false,
-                        "color": false,
-                        "quote": false,
-                        fa: true
-                    }
-                });
-            }
+            $('.edit-me').wysihtml5({
+                toolbar: {
+                    "style": true,
+                    "font-styles": true,
+                    "emphasis": false,
+                    "lists": true,
+                    "html": false,
+                    "link": true,
+                    "image": false,
+                    "color": false,
+                    fa: true
+                }
+            });
         } else {
             $('.wysihtml5-toolbar').show()
         }
@@ -124,11 +107,15 @@ $( document ).ready(function() {
         if (!editable){
             showToolbar();
             editable = true;
+            $('.edit-me').css({"border":"2px #2237ff dotted"});
+            $('.edit-me').attr('contenteditable', false);
         } else {
-            var content = $('#edit-me').html();
-            var post_id = $('#post-id').html();
+            var content = $('.edit-me').html();
+            var post_id = $('.post-id').html();
             hideToolbar();
             editable = false;
+            $('.edit-me').css({"border":"none"});
+            $('.edit-me').attr('contenteditable', false);
             $.ajax({
                 type: "POST",
                 url:'/edit_in_place',

@@ -171,16 +171,6 @@ def workshop(page=1):
                            upload_folder_name=app.config['UPLOAD_FOLDER_NAME'])
 
 
-@app.route('/essays', methods=['GET', 'POST'])
-def essays():
-    page_mark = 'essays'
-    page_logo = 'img/icons/essays.svg'
-    return render_template('essays.html',
-                           title='Essays',
-                           page_mark=page_mark,
-                           page_logo=page_logo)
-
-
 @app.route('/portfolio/<int:user_id>', methods=['GET', 'POST'])
 @app.route('/portfolio/<int:user_id>/<int:page>', methods=['GET', 'POST'])
 @login_required
