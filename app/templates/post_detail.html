@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block header %}
     {% if g.user.id == post.author.id %}
-        Click <strong>here</strong> to edit your poem
+        <h3>Click <strong>here</strong> to edit your poem</h3>
         {% else %}
         <div id="comment-button">Click <strong>here</strong> to comment on this poem</div>
     {% endif %}
@@ -27,14 +27,13 @@
     {% include 'flash.html' %}
     {% include 'post.html' %}
 
-	{% if post.comments %}
+	{% if post.comments > 0 %}
         <h2>Comments</h2>
 		{% for comment in post.comments %}
 		   <p>{% if comment.created_at %}<small>On {{ comment.created_at.strftime('%H:%M %Y-%m-%d') }}, </small>{% endif %}{{ comment.author.nickname }} commented: </p>
            <p>{{ comment.body }}</p>
 		{% endfor %}
 	{% endif %}
-    <script src="{{ local_static_url }}js/editinplace.js"></script>
 {% endblock %}
 
 

@@ -144,7 +144,6 @@ def home(page=1):
                            page_mark=page_mark,
                            page_logo=page_logo)
 
-
 @app.route('/poetry', methods=['GET', 'POST'])
 def poetry():
     page_mark = 'poetry'
