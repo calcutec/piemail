@@ -7,10 +7,11 @@
     </ul>
     <h2><a href="{{ url_for('posts', slug=post.slug) }}">{{ post.header }}</a></h2>
     <div class="body">
-        <div id="edit-me">
-            {{ post.body|safe }}
+        <div class="edit-me">
+            {{ post.body|safe }}{% if (page_mark == "post_detail" or page_mark == "portfolio") and g.user.type == 1 and
+            post.author.type == 1 and post.writing_type == "Op-ed"%}({{ post.writing_type }}){% endif %}
         </div>
         {% include 'details.html' %}
-        <span id="post-id" class="hide">{{ post.id }}</span>
+        <span class="post-id hide">{{ post.id }}</span>
     </div>
 </article>

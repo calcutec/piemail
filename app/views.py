@@ -213,6 +213,29 @@ def portfolio(user_id, page=1):
                            page_logo=page_logo)
 
 
+@app.route('/create_poem', methods=['POST'])
+def create_poem():
+    form = PostForm(request.form)
+    if form.validate():
+        result = {'iserror': False}
+        slug = slugify(form.header.data)
+        try:
+            post = Post(body=form.post.data, timestamp=datetime.utcnow(),
+                        author=g.user, photo=None, thumbnail=None, header=form.header.data,
+                        writing_type=form.writing_type.data, slug=slug)
+            db.session.add(post)
+            db.session.commit()
+            flash('Your poem is now live!')
+            result['savedsuccess'] = True
+
+        except:
+            result['savedsuccess'] = False
+        result['new_poem'] = render_template('post.html', page_mark='portfolio', post=post, g=g)
+        return json.dumps(result)
+    form.errors['iserror'] = True
+    return json.dumps(form.errors)
+
+
 @app.route('/profile/<nickname>')
 @app.route('/profile/<nickname>/<int:page>')
 @login_required
@@ -304,27 +327,6 @@ def edit_in_place():
     # update_post.header=request.form['header']
     db.session.commit()
     return request.form['content']
-
-
-@app.route('/create_poem', methods=['POST'])
-def create_poem():
-    form = PostForm(request.form)
-    if form.validate():
-        result = {'iserror': False}
-        slug = slugify(form.header.data)
-        try:
-            post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-                        author=g.user, photo=None, thumbnail=None, header=form.header.data,
-                        writing_type=form.writing_type.data, slug=slug)
-            db.session.add(post)
-            db.session.commit()
-            flash('Your poem is now live!')
-            result['savedsuccess'] = True
-        except:
-            result['savedsuccess'] = False
-        return json.dumps(result)
-    form.errors['iserror'] = True
-    return json.dumps(form.errors)
 
 
 @app.route('/follow/<nickname>')

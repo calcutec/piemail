@@ -10,7 +10,7 @@
 		<meta name="description" content="Pending" />
 		<meta name="keywords" content="Pending" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+{#		<meta http-equiv="X-UA-Compatible" content="IE=Edge">#}
 
 
 		<!-- OpenSearch -->
@@ -45,19 +45,19 @@
 				<link rel="stylesheet" media="all" href="http://universal-ie6-css.googlecode.com/files/ie6.1.1.css" />
 			<![endif]-->
 
-            <!-- to help IE recognise the new HTML tags -->
+                <!-- to help IE recognise the new HTML tags -->
             <!--[if lte IE 8]>
                 <script src="{{ static_url }}js/html5.js"></script>
                 <script src="{{ static_url }}js/css3-mediaqueries.js"></script>
             <![endif]-->
 
-		<!-- JS -->
-            <script src="{{ static_url }}js/jquery.min.js"></script>
-            <script src="{{ static_url }}js/jquery-migrate-1.2.1.min.js"></script>
-			<script src="{{ static_url }}js/prefixfree.min.js"></script>
-            <script src="{{ static_url }}js/bootstrap.min.js"></script>
-	        <script src="{{ static_url }}js/moment.min.js"></script>
-            <script src="{{ static_url }}js/bootstrap3-wysihtml5.all.min.js"></script>
+            <script src="{{ local_static_url }}js/jquery.min.js"></script>
+            <script src="{{ local_static_url }}js/jquery-migrate-1.2.1.min.js"></script>
+            <script src="{{ local_static_url }}js/prefixfree.min.js"></script>
+            <script src="{{ local_static_url }}js/bootstrap.min.js"></script>
+            <script src="{{ local_static_url }}js/moment.min.js"></script>
+            <script src="{{ local_static_url }}js/bootstrap3-wysihtml5.all.min.js"></script>
+            <script src="{{ local_static_url }}js/editinplace.js"></script>
 	</head>
 	<body>
 	<div class="page">
@@ -72,14 +72,14 @@
                     <li class="n-user-id">Hi&nbsp;{{ g.user.nickname }}!</li>
                     <li class="n-logout"><a href="{{ url_for('logout') }}">Logout</a></li>
                     <li class="n-profile"><a href="{{ url_for('edit') }}">Profile</a></li>
-                    <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
-                    <span id="user-type" class="hide">{{ g.user.type }}</span>
+                    <li id="user-type" class="hide">{{ g.user.type }}</li>
 				{% endif %}
 			</ul>
 		</div>
 
 		<nav>
 			<ul>
+                <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
 				<li class="n-poetry"><a href="{{ url_for('poetry') }}">Poetry</a></li>
                 {% if g.user.is_authenticated() %}
                     <li class="n-workshop"><a href="{{ url_for('workshop') }}">Workshop</a></li>
@@ -93,9 +93,7 @@
                 <div class="icon">
                     <img src="{{ static_url }}{{ page_logo }}" alt="{{ page_logo }}"/>
                 </div>
-                <h1>
-				{% block header %}Create, discuss, and share poetry{% endblock %}
-				</h1>
+				{% block header %}<h1>Create, discuss, and share poetry</h1>{% endblock %}
 			</header>
 
 			<div id="main">
@@ -136,6 +134,7 @@
 				</section>
 
 				<section class="hc">
+                    <h3>For the techies</h3>
 					<p>Netbard is built with Python and the Flask framework, and hosted by the folks at <a href="https://www.heroku.com/">Heroku</a></p>
 				</section>
 			</div><!-- /side -->

@@ -1,4 +1,80 @@
 $( document ).ready(function() {
+
+    var myCustomTemplates = {
+        ellipsis: function(context) {
+        return "<li>" + "<a class='btn btn-default' data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='&hellip;'>hellip</a>" + "</li>";
+        },
+        strikethrough: function(context) {
+        return "<li>" + "<a class='btn btn-default' tabindex='-1' style='color:red' data-edit='strikethrough' title='Strikethrough' data-wysihtml5-command='strikeTHROUGH' data-wysihtml5-command-value='madeup'><i class='fa fa-strikethrough'></i></a>" + "</li>";
+        }
+    };
+
+    if($("body").attr("class") != "wysihtml5-supported") {
+        if ($('#user-type').html() == 1) {
+            $('#editable').wysihtml5({
+                toolbar: {
+                    "style": true,
+                    "font-styles": true,
+                    "emphasis": true,
+                    "lists": true,
+                    "html": false,
+                    "link": false,
+                    "image": false,
+                    "color": false,
+                    fa: true,
+                    ellipsis: false,
+                    strikethrough: true
+                },
+                customTemplates: myCustomTemplates
+            });
+        } else {
+           $('#editable').wysihtml5({
+                toolbar: {
+                    "style": true,
+                    "font-styles": true,
+                    "emphasis": true,
+                    "lists": true,
+                    "html": false,
+                    "link": false,
+                    "image": false,
+                    "color": false,
+                    fa: true,
+                    ellipsis: false,
+                    strikethrough: true
+                },
+                customTemplates: myCustomTemplates
+            });
+        }
+    }
+
+    $("#poem-form").submit(function(e) {
+        e.preventDefault();
+        $form = $(this);
+        var poem_text = $('#editable').html();
+        $('#post').html(poem_text);
+
+        $.post("/create_poem", $form.serialize(),
+            function(data, textStatus) {
+            var result = $.parseJSON(data);
+                $("#error_header").text("");
+                $("#error_post").text("");
+                $("#error_writing_type").text("");
+
+                if(result.iserror) {
+                    if(result.header!=undefined) $("#error_header").text(result.header[0]);
+                    if(result.post!=undefined) $("#error_post").text(result.post[0]);
+                    if(result.writing_type!=undefined) $("#error_writing_type").text(result.writing_type[0]);
+                }else if (result.savedsuccess) {
+                    $("#myModal").modal('hide');
+                    $("#main").prepend(result.new_poem);
+                    location.reload();
+                }
+        });
+    });
+
+
+
+
     var showToolbar = function() {
         if($("body").attr("class") != "wysihtml5-supported") {
             if ($('#user-type').html() == 1) {
@@ -74,3 +150,30 @@ $( document ).ready(function() {
         }
     });
 });
+
+function voteClick(post_id) {
+    var vote_button_selector = "a." + post_id;
+    var $vote_button = $(vote_button_selector); // cache this! can't access in callback!
+    var post_to = '/posts/vote/';
+    if ($vote_button.attr("data-voted") === "true") {
+        $vote_button.css("color", "#000");
+        $vote_button.html("<i class='fa fa-meh-o fa-lg'></i>");
+        $vote_button.attr("data-voted", "false");
+    } else {
+        $vote_button.css("color", "rgb(235, 104, 100)");
+        $vote_button.html("<i class='fa fa-smile-o fa-lg'>");
+        $vote_button.attr("data-voted", "true");
+    }
+    $.post(post_to, { post_id: post_id },
+        function(response) {
+            if (response.new_votes === 1){
+                var likephrase = "like";
+            } else {
+                var likephrase = "likes";
+            }
+            var new_vote_count = response.new_votes.toString();
+            var vote_status = response.vote_status;
+            $vote_button.parent().next().html(new_vote_count + "&nbsp;" + likephrase);
+        }, 'json'
+    );
+}
