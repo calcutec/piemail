@@ -1,10 +1,10 @@
 $( document ).ready(function() {
 
     var myCustomTemplates = {
-        ellipsis: function(context) {
+        ellipsis: function() {
         return "<li>" + "<a class='btn btn-default' data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='&hellip;'>hellip</a>" + "</li>";
         },
-        strikethrough: function(context) {
+        strikethrough: function() {
         return "<li>" + "<a class='btn btn-default' tabindex='-1' style='color:red' data-edit='strikethrough' title='Strikethrough' data-wysihtml5-command='strikeTHROUGH' data-wysihtml5-command-value='madeup'><i class='fa fa-strikethrough'></i></a>" + "</li>";
         }
     };
@@ -49,12 +49,12 @@ $( document ).ready(function() {
 
     $("#poem-form").submit(function(e) {
         e.preventDefault();
-        $form = $(this);
+        var $form = $(this);
         var poem_text = $('#editable').html();
         $('#post').html(poem_text);
 
         $.post("/create_poem", $form.serialize(),
-            function(data, textStatus) {
+            function(data) {
             var result = $.parseJSON(data);
                 $("#error_header").text("");
                 $("#error_post").text("");
@@ -67,7 +67,6 @@ $( document ).ready(function() {
                 }else if (result.savedsuccess) {
                     $("#myModal").modal('hide');
                     $("#main").prepend(result.new_poem);
-                    //location.reload();
                 }
         });
     });
@@ -104,18 +103,19 @@ $( document ).ready(function() {
 
     var editable = false;
     $( "#edit-button" ).click(function() {
+        var editme = $('.edit-me');
         if (!editable){
             showToolbar();
             editable = true;
-            $('.edit-me').css({"border":"2px #2237ff dotted"});
-            $('.edit-me').attr('contenteditable', false);
+            editme.css({"border":"2px #2237ff dotted"});
+            editme.attr('contenteditable', false);
         } else {
             var content = $('.edit-me').html();
             var post_id = $('.post-id').html();
             hideToolbar();
             editable = false;
-            $('.edit-me').css({"border":"none"});
-            $('.edit-me').attr('contenteditable', false);
+            editme.css({"border":"none"});
+            editme.attr('contenteditable', false);
             $.ajax({
                 type: "POST",
                 url:'/edit_in_place',
