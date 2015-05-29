@@ -6,7 +6,7 @@
             <div class="hide"><a href="#">No earlier posts</a></div>
         {% endif %}
         {% if posts.has_next %}
-            <div class="next"><a href="{{ url_for(page_mark, user_id=g.user.id, page=posts.next_num) }}">Later posts</a></div>
+            <div class="next"><a href="{{ url_for(page_mark, page=posts.next_num) }}">Later posts</a></div>
         {% else %}
             <div class="hide"><a href="#">No later posts</a></div>
         {% endif %}

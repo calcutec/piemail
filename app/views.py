@@ -21,15 +21,15 @@ import json
 from flask.views import View, MethodView
 
 class GenericListView(View):
-    def __init__(self, template_name):
-        self.template_name = template_name
+    def __init__(self, view_data):
+        self.view_data = view_data
 
     def get_template_name(self):
-        return self.template_name
+        return self.view_data.template_name
 
     def get_context(self):
-        context = {'posts': User.query.filter_by(type=1).first().all_poems().paginate(1, POSTS_PER_PAGE, False), 'title': self.template_name.split('.')[0].title(), 'page_logo': "img/icons/" + self.template_name.split('.')[0] + ".svg",
-                   'page_mark': self.template_name.split('.')[0]}
+        context = {'posts': self.view_data.get_items(), 'title': self.view_data.title, 'page': self.view_data.get_page(request),
+                   'page_logo': self.view_data.page_logo, 'page_mark': self.view_data.page_mark}
         return context
 
     def dispatch_request(self):
@@ -39,34 +39,51 @@ class GenericListView(View):
     def render_template(self, context):
         return render_template(self.get_template_name(), **context)
 
-# class ListViewData(object):
-#     items = None
-#
-#     def __init__(self, view, target_user=None, page=1, posts_this_page=None):
-#         self.view = view
-#         self.template_name = view + ".html"
-#         self.title = view.title()
-#         self.page_logo = "img/icons/" + view + ".svg"
-#         self.page_mark = view
-#         self.page = page
-#         self.target_user = target_user
-#         if posts_this_page is None:
-#             self.posts_per_page = POSTS_PER_PAGE
-#         else:
-#             self.posts_per_page = posts_this_page
-#
-#     def get_items(self):
-#         if self.view == 'poetry':
-#             self.items = User.query.filter_by(type=1).first().all_poems().paginate(self.page, self.posts_per_page, False)
-#             return self.items
-#         if self.view == 'home':
-#             self.items = User.query.filter_by(type=1).first().all_op_eds().paginate(self.page, self.posts_per_page, False)
-#             return self.items
+class ListViewData(object):
+    items = None
+
+    def __init__(self, view, target_user=None, page=1, posts_this_page=None):
+        self.view = view
+        self.template_name = view + ".html"
+        self.title = view.title()
+        self.page_logo = "img/icons/" + view + ".svg"
+        self.page_mark = view
+        self.page = page
+        self.target_user = target_user
+        if posts_this_page is None:
+            self.posts_per_page = POSTS_PER_PAGE
+        else:
+            self.posts_per_page = posts_this_page
+
+    def get_page(self, request):
+        if 'page' in request.args:
+            return int(request.args['page'])
+        else:
+            return 1
 
 
-app.add_url_rule('/poetry/', 'poetry', view_func=GenericListView.as_view('poetry', template_name='poetry.html'))
-app.add_url_rule('/home/', 'home', view_func=GenericListView.as_view('home', template_name='home.html'))
-app.add_url_rule('/home/<int:page>', 'home_archive_page', defaults={'instid': None}, view_func=GenericListView.as_view('home', template_name='home.html'), methods = ['GET'])
+    def get_items(self):
+        if self.view == 'poetry':
+            self.items = User.query.filter_by(type=1).first().all_poems().paginate(int(self.page), self.posts_per_page, False)
+            return self.items
+        if self.view == 'home':
+            self.items = User.query.filter_by(type=1).first().all_op_eds().paginate(int(self.page), self.posts_per_page, False)
+            return self.items
+
+
+
+@app.route('/')
+def index():
+    return redirect('/home')
+
+
+poetry_dict = {'view': 'poetry'}
+app.add_url_rule('/poetry/', view_func=GenericListView.as_view('poetry', view_data = ListViewData(**poetry_dict)))
+
+home_dict = {'view': 'home', 'posts_this_page': 1}
+app.add_url_rule('/home/', view_func=GenericListView.as_view('home', view_data = ListViewData(**home_dict)))
+
+
 
 # @app.route('/', methods=['GET', 'POST'])
 # @app.route('/home/<int:page>', methods=['GET', 'POST'])
