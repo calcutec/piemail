@@ -18,97 +18,33 @@ from .emails import follower_notification
 from .utils import OAuthSignIn, pre_upload
 from PIL import Image
 import json
-from flask.views import View, MethodView
-
-class GenericListView(View):
-    def __init__(self, view_data):
-        self.view_data = view_data
-
-    def get_template_name(self):
-        return self.view_data.template_name
-
-    def get_context(self):
-        context = {'posts': self.view_data.get_items(), 'title': self.view_data.title, 'page': self.view_data.get_page(request),
-                   'page_logo': self.view_data.page_logo, 'page_mark': self.view_data.page_mark}
-        return context
-
-    def dispatch_request(self):
-        context = self.get_context()
-        return self.render_template(context)
-
-    def render_template(self, context):
-        return render_template(self.get_template_name(), **context)
-
-class ListViewData(object):
-    items = None
-
-    def __init__(self, view, target_user=None, page=1, posts_this_page=None):
-        self.view = view
-        self.template_name = view + ".html"
-        self.title = view.title()
-        self.page_logo = "img/icons/" + view + ".svg"
-        self.page_mark = view
-        self.page = page
-        self.target_user = target_user
-        if posts_this_page is None:
-            self.posts_per_page = POSTS_PER_PAGE
-        else:
-            self.posts_per_page = posts_this_page
-
-    def get_page(self, request):
-        if 'page' in request.args:
-            return int(request.args['page'])
-        else:
-            return 1
 
 
-    def get_items(self):
-        if self.view == 'poetry':
-            self.items = User.query.filter_by(type=1).first().all_poems().paginate(int(self.page), self.posts_per_page, False)
-            return self.items
-        if self.view == 'home':
-            self.items = User.query.filter_by(type=1).first().all_op_eds().paginate(int(self.page), self.posts_per_page, False)
-            return self.items
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/home/', methods=['GET', 'POST'])
+def home():
+    page_mark = 'home'
+    page_logo = 'img/icons/home.svg'
+    op_ed = Post.query.filter_by(writing_type="op-ed").first()
+    return render_template('home.html',
+                           title='Home',
+                           post=op_ed,
+                           page_mark=page_mark,
+                           page_logo=page_logo)
 
 
-
-@app.route('/')
-def index():
-    return redirect('/home')
-
-
-poetry_dict = {'view': 'poetry'}
-app.add_url_rule('/poetry/', view_func=GenericListView.as_view('poetry', view_data = ListViewData(**poetry_dict)))
-
-home_dict = {'view': 'home', 'posts_this_page': 1}
-app.add_url_rule('/home/', view_func=GenericListView.as_view('home', view_data = ListViewData(**home_dict)))
-
-
-
-# @app.route('/', methods=['GET', 'POST'])
-# @app.route('/home/<int:page>', methods=['GET', 'POST'])
-# def home(page=1):
-#     posts_this_page = 1
-#     page_mark = 'home'
-#     page_logo = 'img/icons/home.svg'
-#     super_user = User.query.filter_by(type=1).first()
-#     op_ed_posts = super_user.all_op_eds().paginate(page, posts_this_page, False)
-#     return render_template('home.html',
-#                            title='Home',
-#                            posts=op_ed_posts,
-#                            page_mark=page_mark,
-#                            page_logo=page_logo)
-
-# @app.route('/poetry', methods=['GET', 'POST'])
-# def poetry():
-#     page_mark = 'poetry'
-#     page_logo = 'img/icons/poetry.svg'
-#     poems = Post.query.all()
-#     return render_template('poetry.html',
-#                            title='Poetry',
-#                            posts=poems,
-#                            page_mark=page_mark,
-#                            page_logo=page_logo)
+@app.route('/poetry', methods=['GET'])
+@app.route('/poetry/<int:page>', methods=['GET'])
+def poetry(page=1):
+    POSTS_PER_PAGE = 3
+    page_mark = 'poetry'
+    page_logo = 'img/icons/poetry.svg'
+    selected_posts = Post.query.filter_by(writing_type="poem").paginate(page, POSTS_PER_PAGE, False)
+    return render_template('poetry.html',
+                           title='Poetry',
+                           posts=selected_posts,
+                           page_mark=page_mark,
+                           page_logo=page_logo)
 
 
 @app.context_processor
@@ -221,11 +157,11 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/workshop', methods=['GET', 'POST'])
+@app.route('/workshop/', methods=['GET', 'POST'])
 @app.route('/workshop/<int:page>', methods=['GET', 'POST'])
 @login_required
 def workshop(page=1):
-    all_posts = g.user.all_poems().paginate(page, POSTS_PER_PAGE, False)
+    all_posts = Post.query.filter_by(writing_type="poem").paginate(page, POSTS_PER_PAGE, False)
     # favorite_posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
     page_mark = 'workshop'
     page_logo = 'img/icons/workshop.svg'
@@ -233,21 +169,13 @@ def workshop(page=1):
                            title='Workshop',
                            posts=all_posts,
                            page_mark=page_mark,
-                           page_logo=page_logo,
-                           upload_folder_name=app.config['UPLOAD_FOLDER_NAME'])
+                           page_logo=page_logo)
 
 
-@app.route('/portfolio/<int:user_id>', methods=['GET', 'POST'])
-@app.route('/portfolio/<int:user_id>/<int:page>', methods=['GET', 'POST'])
+@app.route('/portfolio/', methods=['GET', 'POST'])
+@app.route('/portfolio/<int:page>', methods=['GET', 'POST'])
 @login_required
-def portfolio(user_id, page=1):
-    if user_id != g.user.id:
-        flash('You cannot access this portfolio.')
-        return redirect(url_for('home'))
-    portfolio_owner = User.query.get(user_id)
-    if portfolio_owner is None:
-        flash('User %(id)s not found.', user_id)
-        return redirect(url_for('home'))
+def portfolio(page=1):
     form = PostForm()
     if form.validate_on_submit():
         slug = slugify(form.header.data)
@@ -258,7 +186,7 @@ def portfolio(user_id, page=1):
         db.session.commit()
         flash('Your poem is now live!')
         return redirect(request.args.get('next') or url_for('portfolio', user_id=g.user.id))
-    portfolio_owner_posts = portfolio_owner.posts.paginate(page, POSTS_PER_PAGE, False)
+    portfolio_owner_posts = g.user.posts.paginate(page, POSTS_PER_PAGE, False)
     page_mark = 'portfolio'
     page_logo = 'img/icons/portfolio.svg'
     return render_template('portfolio.html',

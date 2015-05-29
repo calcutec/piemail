@@ -1,7 +1,7 @@
 <div class="postie">
     <div class="backanforth">
         {% if posts.has_prev %}
-            <div class="previous"><a href="{{ url_for(page_mark, user_id=g.user.id, page=posts.prev_num) }}">Earlier posts</a></div>
+            <div class="previous"><a href="{{ url_for(page_mark, page=posts.prev_num) }}">Earlier posts</a></div>
         {% else %}
             <div class="hide"><a href="#">No earlier posts</a></div>
         {% endif %}

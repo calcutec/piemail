@@ -1,11 +1,9 @@
 <ul class="details" style="width:100%">
-    {% if page_mark != "home" %}
-        <li><a href="{{ url_for('posts', slug=post.slug) }}">
-            {% with total=post.comments.all()|length %}
-                {{ total }} comment{% if total != 1 %}s{% endif %}
-            {% endwith %}</a>
-        </li>
-    {% endif %}
+    <li><a href="{{ url_for('posts', slug=post.slug) }}">
+        {% with total=post.comments.all()|length %}
+            {{ total }} comment{% if total != 1 %}s{% endif %}
+        {% endwith %}</a>
+    </li>
 
     {% if page_mark == "post_detail" and post.author.id == g.user.id %}
         <li id="edit-button">Edit</li>
@@ -25,24 +23,7 @@
         </li>
         <li class="listing-votes-number">{{ post.votes }} like{% if post.votes != 1 %}s{% endif %}</li>
     {% endif %}
-
-{#    {% if (page_mark == "post_detail" or page_mark == "portfolio") and g.user.type == 1 and post.author.type == 1 %}#}
-{#        <li>({{ post.writing_type }})</li>#}
-{#    {% endif %}#}
 </ul>
-{#{% if page_mark != "home" %}#}
-{#<form role="form">#}
-{#    <label class="checkbox-inline">#}
-{#      <input type="checkbox" value="a" name="letter[]">Workshop#}
-{#    </label>#}
-{#    <label class="checkbox-inline">#}
-{#      <input type="checkbox" value="b" name="letter[]">Profile#}
-{#    </label>#}
-{#    <label class="checkbox-inline">#}
-{#      <input type="checkbox" value="c" name="letter[]">Editor#}
-{#    </label>#}
-{#</form>#}
-{#{% endif %}#}
 
 
 

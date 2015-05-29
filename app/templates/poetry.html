@@ -2,10 +2,8 @@
 
 {% block content %}
     {% include 'flash.html' %}
-    {{ time }}
     {% for post in posts.items %}
         {% include 'post.html' %}
     {% endfor %}
-
     {% include 'postie.html' %}
 {% endblock %}

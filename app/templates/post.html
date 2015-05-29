@@ -8,10 +8,9 @@
     <h2><a href="{{ url_for('posts', slug=post.slug) }}">{{ post.header }}</a></h2>
     <div class="body">
         <div class="edit-me">
-            {{ post.body|safe }}{% if (page_mark == "post_detail" or page_mark == "portfolio") and g.user.type == 1 and
-            post.author.type == 1 and post.writing_type == "Op-ed"%}({{ post.writing_type }}){% endif %}
+            {{ post.body|safe }}
         </div>
-        {% include 'details.html' %}
+        {% if page_mark != "home" %}{% include 'details.html' %}{% endif %}
         <span class="post-id hide">{{ post.id }}</span>
     </div>
 </article>

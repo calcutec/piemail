@@ -83,7 +83,7 @@
 				<li class="n-poetry"><a href="{{ url_for('poetry') }}">Poetry</a></li>
                 {% if g.user.is_authenticated() %}
                     <li class="n-workshop"><a href="{{ url_for('workshop') }}">Workshop</a></li>
-                    <li class="n-portfolio"><a href="{{ url_for('portfolio', user_id=g.user.id) }}">Portfolio</a></li>
+                    <li class="n-portfolio"><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
 				{% endif %}
 			</ul>
 		</nav>
