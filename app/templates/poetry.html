@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Content TBD</h1>
+    {% include 'flash.html' %}
+    {{ time }}
+    {% for post in posts.items %}
+        {% include 'post.html' %}
+    {% endfor %}
+
+    {% include 'postie.html' %}
 {% endblock %}

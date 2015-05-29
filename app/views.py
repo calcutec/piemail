@@ -18,56 +18,80 @@ from .emails import follower_notification
 from .utils import OAuthSignIn, pre_upload
 from PIL import Image
 import json
+from flask.views import View, MethodView
+
+class GenericListView(View):
+    def __init__(self, template_name):
+        self.template_name = template_name
+
+    def get_template_name(self):
+        return self.template_name
+
+    def get_context(self):
+        context = {'posts': User.query.filter_by(type=1).first().all_poems().paginate(1, POSTS_PER_PAGE, False), 'title': self.template_name.split('.')[0].title(), 'page_logo': "img/icons/" + self.template_name.split('.')[0] + ".svg",
+                   'page_mark': self.template_name.split('.')[0]}
+        return context
+
+    def dispatch_request(self):
+        context = self.get_context()
+        return self.render_template(context)
+
+    def render_template(self, context):
+        return render_template(self.get_template_name(), **context)
+
+# class ListViewData(object):
+#     items = None
+#
+#     def __init__(self, view, target_user=None, page=1, posts_this_page=None):
+#         self.view = view
+#         self.template_name = view + ".html"
+#         self.title = view.title()
+#         self.page_logo = "img/icons/" + view + ".svg"
+#         self.page_mark = view
+#         self.page = page
+#         self.target_user = target_user
+#         if posts_this_page is None:
+#             self.posts_per_page = POSTS_PER_PAGE
+#         else:
+#             self.posts_per_page = posts_this_page
+#
+#     def get_items(self):
+#         if self.view == 'poetry':
+#             self.items = User.query.filter_by(type=1).first().all_poems().paginate(self.page, self.posts_per_page, False)
+#             return self.items
+#         if self.view == 'home':
+#             self.items = User.query.filter_by(type=1).first().all_op_eds().paginate(self.page, self.posts_per_page, False)
+#             return self.items
 
 
-from flask.views import MethodView
+app.add_url_rule('/poetry/', 'poetry', view_func=GenericListView.as_view('poetry', template_name='poetry.html'))
+app.add_url_rule('/home/', 'home', view_func=GenericListView.as_view('home', template_name='home.html'))
+app.add_url_rule('/home/<int:page>', 'home_archive_page', defaults={'instid': None}, view_func=GenericListView.as_view('home', template_name='home.html'), methods = ['GET'])
 
-class PoemAPI(MethodView):
-    def get(self, user_id):
-        if user_id is None:
-            users = User.query.all()
-            json_results = [{'name': u.name, 'age': u.age} for u in users]
-        else:
-            user = User.query.get_or_404(user_id)
-            json_results = [{'name': user.name, 'age': user.age}]
-        return jsonify(item=json_results)
+# @app.route('/', methods=['GET', 'POST'])
+# @app.route('/home/<int:page>', methods=['GET', 'POST'])
+# def home(page=1):
+#     posts_this_page = 1
+#     page_mark = 'home'
+#     page_logo = 'img/icons/home.svg'
+#     super_user = User.query.filter_by(type=1).first()
+#     op_ed_posts = super_user.all_op_eds().paginate(page, posts_this_page, False)
+#     return render_template('home.html',
+#                            title='Home',
+#                            posts=op_ed_posts,
+#                            page_mark=page_mark,
+#                            page_logo=page_logo)
 
-    def post(self):
-      pass
-
-    def delete(self, user_id):
-      pass
-
-    def put(self, user_id):
-      pass
-
-poem_api_view = PoemAPI.as_view('poem_api')
-app.add_url_rule('/poetry', defaults={'user_id': None},
-                 view_func = poem_api_view, methods=["GET",])
-
-
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/home/<int:page>', methods=['GET', 'POST'])
-def home(page=1):
-    posts_this_page = 1
-    page_mark = 'home'
-    page_logo = 'img/icons/home.svg'
-    super_user = User.query.filter_by(type=1).first()
-    op_ed_posts = super_user.all_op_eds().paginate(page, posts_this_page, False)
-    return render_template('home.html',
-                           title='Home',
-                           posts=op_ed_posts,
-                           page_mark=page_mark,
-                           page_logo=page_logo)
-
-@app.route('/poetry', methods=['GET', 'POST'])
-def poetry():
-    page_mark = 'poetry'
-    page_logo = 'img/icons/poetry.svg'
-    return render_template('poetry.html',
-                           title='Poetry',
-                           page_mark=page_mark,
-                           page_logo=page_logo)
+# @app.route('/poetry', methods=['GET', 'POST'])
+# def poetry():
+#     page_mark = 'poetry'
+#     page_logo = 'img/icons/poetry.svg'
+#     poems = Post.query.all()
+#     return render_template('poetry.html',
+#                            title='Poetry',
+#                            posts=poems,
+#                            page_mark=page_mark,
+#                            page_logo=page_logo)
 
 
 @app.context_processor
@@ -178,31 +202,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
-
-
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/home/<int:page>', methods=['GET', 'POST'])
-def home(page=1):
-    posts_this_page = 1
-    page_mark = 'home'
-    page_logo = 'img/icons/home.svg'
-    super_user = User.query.filter_by(type=1).first()
-    op_ed_posts = super_user.all_op_eds().paginate(page, posts_this_page, False)
-    return render_template('home.html',
-                           title='Home',
-                           posts=op_ed_posts,
-                           page_mark=page_mark,
-                           page_logo=page_logo)
-
-@app.route('/poetry', methods=['GET', 'POST'])
-def poetry():
-    page_mark = 'poetry'
-    page_logo = 'img/icons/poetry.svg'
-    return render_template('poetry.html',
-                           title='Poetry',
-                           page_mark=page_mark,
-                           page_logo=page_logo)
 
 
 @app.route('/workshop', methods=['GET', 'POST'])
