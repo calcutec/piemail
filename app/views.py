@@ -19,33 +19,185 @@ from .utils import OAuthSignIn, pre_upload
 from PIL import Image
 import json
 
+from flask.views import View, MethodView
 
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/home/', methods=['GET', 'POST'])
-def home():
-    page_mark = 'home'
-    page_logo = 'img/icons/home.svg'
-    op_ed = Post.query.filter_by(writing_type="op-ed").first()
-    return render_template('home.html',
-                           title='Home',
-                           post=op_ed,
+class GenericListView(View):
+    def __init__(self, view_data):
+        self.view_data = view_data
+
+    def get_template_name(self):
+        return self.view_data.template_name
+
+    def get_context(self):
+        context = {'posts': self.view_data.get_items(), 'title': self.view_data.title,
+                   'page_logo': self.view_data.page_logo, 'page_mark': self.view_data.page_mark, 'form': self.view_data.form}
+        return context
+
+    def dispatch_request(self):
+        context = self.get_context()
+        return self.render_template(context)
+
+    def render_template(self, context):
+        return render_template(self.get_template_name(), **context)
+
+class LoginRequiredListView(GenericListView):
+    decorators = [login_required]
+
+class ViewData(object):
+    def __init__(self, page_mark):
+        self.page = 1
+        self.page_mark = page_mark
+        self.template_name = page_mark + ".html"
+        self.title = page_mark.title()
+        self.page_logo = "img/icons/" + page_mark + ".svg"
+        self.items = self.get_items()
+        self.form = self.get_form()
+
+    def get_items(self):
+        if self.page_mark == 'home':
+            self.items = Post.query.filter_by(writing_type="op-ed")
+            return self.items
+        if self.page_mark == 'poetry':
+            self.items = Post.query.filter_by(writing_type="selected").paginate(self.page, POSTS_PER_PAGE, False)
+            return self.items
+        if self.page_mark == 'workshop':
+            self.items = Post.query.filter_by(writing_type="poem").paginate(self.page, POSTS_PER_PAGE, False)
+            return self.items
+        if self.page_mark == 'portfolio':
+            self.items = current_user.posts.paginate(1, POSTS_PER_PAGE, False)
+            return self.items
+
+    def get_form(self):
+        if self.page_mark == 'portfolio':
+            form = PostForm()
+        else:
+            form = None
+        return form
+
+@app.route('/', methods=['GET'])
+def index():
+    return redirect(url_for('home'))
+
+home_data = ViewData("home")
+app.add_url_rule('/home/', view_func=GenericListView.as_view('home', home_data), methods=["GET", ])
+
+poetry_data = ViewData("poetry")
+app.add_url_rule('/poetry/', view_func=GenericListView.as_view('poetry', poetry_data), methods=["GET", ])
+
+workshop_data = ViewData("workshop")
+app.add_url_rule('/workshop/', view_func=LoginRequiredListView.as_view('workshop', workshop_data), methods=["GET", ])
+
+
+class PostAPI(MethodView):
+    decorators = [login_required]
+
+    def get(self, post_id):
+        if post_id is None:
+            portfolio_data = ViewData("portfolio")
+            return render_template(portfolio_data.template_name,
+                                   form=portfolio_data.form,
+                                   posts=portfolio_data.items,
+                                   title=portfolio_data.title,
+                                   page_mark=portfolio_data.page_mark,
+                                   page_logo=portfolio_data.page_logo)
+        else:
+            post = Post.query.get_or_404(post_id)
+            json_results = [{'header': post.header, 'body': post.body}]
+        return jsonify(item=json_results)
+
+    def post(self):
+        form = PostForm(request.form)
+        if form.validate():
+            result = {'iserror': False}
+            slug = slugify(form.header.data)
+            try:
+                post = Post(body=form.post.data, timestamp=datetime.utcnow(),
+                            author=g.user, photo=None, thumbnail=None, header=form.header.data,
+                            writing_type=form.writing_type.data, slug=slug)
+                db.session.add(post)
+                db.session.commit()
+                flash('Your poem is now live!')
+                result['savedsuccess'] = True
+
+            except:
+                result['savedsuccess'] = False
+            result['new_poem'] = render_template('post.html', page_mark='portfolio', post=post, g=g)
+            return json.dumps(result)
+        form.errors['iserror'] = True
+        return json.dumps(form.errors)
+
+    def delete(self, user_id):
+        pass
+
+    def put(self, user_id):
+        pass
+
+# urls for Post API
+user_api_view = PostAPI.as_view('portfolio')
+app.add_url_rule('/portfolio/', defaults={'post_id': None}, view_func=user_api_view, methods=["GET", ])
+app.add_url_rule('/portfolio/', view_func=user_api_view, methods=["POST", ])
+app.add_url_rule('/portfolio/<int:post_id>', view_func=user_api_view, methods=["GET", "PUT", "DELETE"])
+
+# Read Single
+@app.route("/detail/<slug>", methods=['GET', 'POST'])
+def posts(slug):
+    post = Post.query.filter(Post.slug == slug).first()
+    form = CommentForm()
+    context = {"post": post, "form": form}
+    if form.validate_on_submit():
+        comment = Comment(body=form.comment.data, created_at=datetime.utcnow(), user_id=g.user.id, post_id=post.id)
+        db.session.add(comment)
+        db.session.commit()
+        flash('Your comment is now live!')
+        return redirect(url_for('posts', slug=slug))
+    page_mark = 'post_detail'
+    page_logo = 'img/icons/workshop.svg'
+    return render_template('post_detail.html',
                            page_mark=page_mark,
-                           page_logo=page_logo)
+                           page_logo=page_logo,
+                           **context)
 
+# Update
+@app.route('/edit_in_place', methods=['POST'])
+def edit_in_place():
+    update_post = Post.query.get(request.form['post_id'])
+    update_post.body = request.form['content']
+    # update_post.header=request.form['header']
+    db.session.commit()
+    return request.form['content']
 
-@app.route('/poetry', methods=['GET'])
-@app.route('/poetry/<int:page>', methods=['GET'])
-def poetry(page=1):
-    POSTS_PER_PAGE = 3
-    page_mark = 'poetry'
-    page_logo = 'img/icons/poetry.svg'
-    selected_posts = Post.query.filter_by(writing_type="poem").paginate(page, POSTS_PER_PAGE, False)
-    return render_template('poetry.html',
-                           title='Poetry',
-                           posts=selected_posts,
-                           page_mark=page_mark,
-                           page_logo=page_logo)
+# Destroy
+@app.route('/delete/<int:post_id>')
+@login_required
+def delete(post_id):
+    post = Post.query.get(post_id)
+    if post is None:
+        flash('Post not found.')
+        return redirect(url_for('home'))
+    if post.author.id != g.user.id:
+        flash('You cannot delete this post.')
+        return redirect(url_for('home'))
+    db.session.delete(post)
+    db.session.commit()
+    flash('Your post has been deleted.')
+    return redirect(url_for('portfolio', user_id=post.author.id))
 
+# Post Vote
+@app.route('/posts/vote/', methods=['POST'])
+# @login_required
+def vote_poem():
+    """
+    Submit votes via ajax
+    """
+    post_id = int(request.form['post_id'])
+    user_id = g.user.id
+
+    if not post_id:
+        abort(404)
+
+    post = Post.query.get_or_404(int(post_id))
+    vote_status = post.vote(user_id=user_id)
+    return jsonify(new_votes=post.votes, vote_status=vote_status)
 
 @app.context_processor
 def inject_static_url():
@@ -157,69 +309,6 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/workshop/', methods=['GET', 'POST'])
-@app.route('/workshop/<int:page>', methods=['GET', 'POST'])
-@login_required
-def workshop(page=1):
-    all_posts = Post.query.filter_by(writing_type="poem").paginate(page, POSTS_PER_PAGE, False)
-    # favorite_posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
-    page_mark = 'workshop'
-    page_logo = 'img/icons/workshop.svg'
-    return render_template('workshop.html',
-                           title='Workshop',
-                           posts=all_posts,
-                           page_mark=page_mark,
-                           page_logo=page_logo)
-
-
-@app.route('/portfolio/', methods=['GET', 'POST'])
-@app.route('/portfolio/<int:page>', methods=['GET', 'POST'])
-@login_required
-def portfolio(page=1):
-    form = PostForm()
-    if form.validate_on_submit():
-        slug = slugify(form.header.data)
-        post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-                    author=g.user, photo=None, thumbnail=None, header=form.header.data,
-                    writing_type=form.writing_type.data, slug=slug)
-        db.session.add(post)
-        db.session.commit()
-        flash('Your poem is now live!')
-        return redirect(request.args.get('next') or url_for('portfolio', user_id=g.user.id))
-    portfolio_owner_posts = g.user.posts.paginate(page, POSTS_PER_PAGE, False)
-    page_mark = 'portfolio'
-    page_logo = 'img/icons/portfolio.svg'
-    return render_template('portfolio.html',
-                           form=form,
-                           posts=portfolio_owner_posts,
-                           title='Portfolio',
-                           page_mark=page_mark,
-                           page_logo=page_logo)
-
-
-@app.route('/create_poem', methods=['POST'])
-def create_poem():
-    form = PostForm(request.form)
-    if form.validate():
-        result = {'iserror': False}
-        slug = slugify(form.header.data)
-        try:
-            post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-                        author=g.user, photo=None, thumbnail=None, header=form.header.data,
-                        writing_type=form.writing_type.data, slug=slug)
-            db.session.add(post)
-            db.session.commit()
-            flash('Your poem is now live!')
-            result['savedsuccess'] = True
-
-        except:
-            result['savedsuccess'] = False
-        result['new_poem'] = render_template('post.html', page_mark='portfolio', post=post, g=g)
-        return json.dumps(result)
-    form.errors['iserror'] = True
-    return json.dumps(form.errors)
-
-
 @app.route('/profile/<nickname>')
 @app.route('/profile/<nickname>/<int:page>')
 @login_required
@@ -268,51 +357,6 @@ def edit():
                            page_logo=page_logo)
 
 
-@app.route("/detail/<slug>", methods=['GET', 'POST'])
-def posts(slug):
-    post = Post.query.filter(Post.slug == slug).first()
-    form = CommentForm()
-    context = {"post": post, "form": form}
-    if form.validate_on_submit():
-        comment = Comment(body=form.comment.data, created_at=datetime.utcnow(), user_id=g.user.id, post_id=post.id)
-        db.session.add(comment)
-        db.session.commit()
-        flash('Your comment is now live!')
-        return redirect(url_for('posts', slug=slug))
-    page_mark = 'post_detail'
-    page_logo = 'img/icons/workshop.svg'
-    return render_template('post_detail.html',
-                           page_mark=page_mark,
-                           page_logo=page_logo,
-                           **context)
-
-
-@app.route('/posts/vote/', methods=['POST'])
-# @login_required
-def vote_poem():
-    """
-    Submit votes via ajax
-    """
-    post_id = int(request.form['post_id'])
-    user_id = g.user.id
-
-    if not post_id:
-        abort(404)
-
-    post = Post.query.get_or_404(int(post_id))
-    vote_status = post.vote(user_id=user_id)
-    return jsonify(new_votes=post.votes, vote_status=vote_status)
-
-
-@app.route('/edit_in_place', methods=['POST'])
-def edit_in_place():
-    update_post = Post.query.get(request.form['post_id'])
-    update_post.body = request.form['content']
-    # update_post.header=request.form['header']
-    db.session.commit()
-    return request.form['content']
-
-
 @app.route('/follow/<nickname>')
 @login_required
 def follow(nickname):
@@ -352,22 +396,6 @@ def unfollow(nickname):
     db.session.commit()
     flash('You have stopped following %s.' % nickname)
     return redirect(url_for('profile', nickname=nickname))
-
-
-@app.route('/delete/<int:post_id>')
-@login_required
-def delete(post_id):
-    post = Post.query.get(post_id)
-    if post is None:
-        flash('Post not found.')
-        return redirect(url_for('home'))
-    if post.author.id != g.user.id:
-        flash('You cannot delete this post.')
-        return redirect(url_for('home'))
-    db.session.delete(post)
-    db.session.commit()
-    flash('Your post has been deleted.')
-    return redirect(url_for('portfolio', user_id=post.author.id))
 
 
 @app.route('/search', methods=['POST'])

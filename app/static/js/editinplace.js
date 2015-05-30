@@ -53,7 +53,7 @@ $( document ).ready(function() {
         var poem_text = $('#editable').html();
         $('#post').html(poem_text);
 
-        $.post("/create_poem", $form.serialize(),
+        $.post("/portfolio/", $form.serialize(),
             function(data) {
             var result = $.parseJSON(data);
                 $("#error_header").text("");
