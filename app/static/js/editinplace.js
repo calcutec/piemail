@@ -1,130 +1,147 @@
 $( document ).ready(function() {
 
-    var myCustomTemplates = {
-        ellipsis: function() {
+// Create
+var myCustomTemplates = {
+    ellipsis: function() {
         return "<li>" + "<a class='btn btn-default' data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='&hellip;'>hellip</a>" + "</li>";
-        },
-        strikethrough: function() {
+    },
+    strikethrough: function() {
         return "<li>" + "<a class='btn btn-default' tabindex='-1' style='color:red' data-edit='strikethrough' title='Strikethrough' data-wysihtml5-command='strikeTHROUGH' data-wysihtml5-command-value='madeup'><i class='fa fa-strikethrough'></i></a>" + "</li>";
-        }
-    };
-
-    if($("body").attr("class") != "wysihtml5-supported") {
-        if ($('#user-type').html() == 1) {
-            $('#editable').wysihtml5({
-                toolbar: {
-                    "style": true,
-                    "font-styles": true,
-                    "emphasis": true,
-                    "lists": true,
-                    "html": false,
-                    "link": false,
-                    "image": false,
-                    "color": false,
-                    fa: true,
-                    ellipsis: false,
-                    strikethrough: true
-                },
-                customTemplates: myCustomTemplates
-            });
-        } else {
-           $('#editable').wysihtml5({
-                toolbar: {
-                    "style": true,
-                    "font-styles": true,
-                    "emphasis": true,
-                    "lists": true,
-                    "html": false,
-                    "link": false,
-                    "image": false,
-                    "color": false,
-                    fa: true,
-                    ellipsis: false,
-                    strikethrough: true
-                },
-                customTemplates: myCustomTemplates
-            });
-        }
     }
+};
 
-    $("#poem-form").submit(function(e) {
-        e.preventDefault();
-        var $form = $(this);
-        var poem_text = $('#editable').html();
-        $('#post').html(poem_text);
-
-        $.post("/portfolio/", $form.serialize(),
-            function(data) {
-            var result = $.parseJSON(data);
-                $("#error_header").text("");
-                $("#error_post").text("");
-                $("#error_writing_type").text("");
-
-                if(result.iserror) {
-                    if(result.header!=undefined) $("#error_header").text(result.header[0]);
-                    if(result.post!=undefined) $("#error_post").text(result.post[0]);
-                    if(result.writing_type!=undefined) $("#error_writing_type").text(result.writing_type[0]);
-                }else if (result.savedsuccess) {
-                    $("#myModal").modal('hide');
-                    $("#main").prepend(result.new_poem);
-                }
+if($("body").attr("class") != "wysihtml5-supported") {
+    if ($('#user-type').html() == 1) {
+        $('#editable').wysihtml5({
+            toolbar: {
+                "style": true,
+                "font-styles": true,
+                "emphasis": true,
+                "lists": true,
+                "html": false,
+                "link": false,
+                "image": false,
+                "color": false,
+                fa: true,
+                ellipsis: false,
+                strikethrough: true
+            },
+            customTemplates: myCustomTemplates
         });
+    } else {
+       $('#editable').wysihtml5({
+            toolbar: {
+                "style": true,
+                "font-styles": true,
+                "emphasis": true,
+                "lists": true,
+                "html": false,
+                "link": false,
+                "image": false,
+                "color": false,
+                fa: true,
+                ellipsis: false,
+                strikethrough: true
+            },
+            customTemplates: myCustomTemplates
+        });
+    }
+}
+
+$("#poem-form").submit(function(e) {
+    e.preventDefault();
+    var $form = $(this);
+    var poem_text = $('#editable').html();
+    $('#post').html(poem_text);
+
+    $.post("/detail/", $form.serialize(),
+        function(data) {
+        var result = $.parseJSON(data);
+            $("#error_header").text("");
+            $("#error_post").text("");
+            $("#error_writing_type").text("");
+
+            if(result.iserror) {
+                if(result.header!=undefined) $("#error_header").text(result.header[0]);
+                if(result.post!=undefined) $("#error_post").text(result.post[0]);
+                if(result.writing_type!=undefined) $("#error_writing_type").text(result.writing_type[0]);
+            }else if (result.savedsuccess) {
+                $("#myModal").modal('hide');
+                $("#main").prepend(result.new_poem);
+            }
     });
+});
 
 
 
+//Update
+var showToolbar = function() {
+    if($("body").attr("class") != "wysihtml5-supported") {
+        $('.edit-me').wysihtml5({
+            toolbar: {
+                "style": true,
+                "font-styles": true,
+                "emphasis": true,
+                "lists": true,
+                "html": false,
+                "link": false,
+                "image": false,
+                "color": false,
+                fa: true
+            }
+        });
+    } else {
+        $('.wysihtml5-toolbar').show()
+    }
+    $('#edit-button').html("Submit Changes");
+};
 
-    var showToolbar = function() {
-        if($("body").attr("class") != "wysihtml5-supported") {
-            $('.edit-me').wysihtml5({
-                toolbar: {
-                    "style": true,
-                    "font-styles": true,
-                    "emphasis": false,
-                    "lists": true,
-                    "html": false,
-                    "link": true,
-                    "image": false,
-                    "color": false,
-                    fa: true
-                }
-            });
-        } else {
-            $('.wysihtml5-toolbar').show()
-        }
-        $('#edit-button').html("Submit Changes");
-    };
 
+var hideToolbar = function() {
+    $('#edit-button').html("Edit Poem");
+    $('.wysihtml5-toolbar').hide()
+};
 
-    var hideToolbar = function() {
-        $('#edit-button').html("Edit Poem");
-        $('.wysihtml5-toolbar').hide()
-    };
+var editable = false;
+$( "#edit-button" ).click(function() {
+    var editme = $('.edit-me');
+    if (!editable){
+        showToolbar();
+        editable = true;
+        editme.css({"border":"2px #2237ff dotted"});
+        editme.attr('contenteditable', false);
+    } else {
+        var content = $('.edit-me').html();
+        var post_id = $('.post-id').html();
+        hideToolbar();
+        editable = false;
+        editme.css({"border":"none"});
+        editme.attr('contenteditable', false);
+        $.ajax({
+            type: "PUT",
+            url:'/detail/' + post_id,
+            data: {content: content, post_id: post_id}
+        });
+    }
+});
 
-    var editable = false;
-    $( "#edit-button" ).click(function() {
-        var editme = $('.edit-me');
-        if (!editable){
-            showToolbar();
-            editable = true;
-            editme.css({"border":"2px #2237ff dotted"});
-            editme.attr('contenteditable', false);
-        } else {
-            var content = $('.edit-me').html();
-            var post_id = $('.post-id').html();
-            hideToolbar();
-            editable = false;
-            editme.css({"border":"none"});
-            editme.attr('contenteditable', false);
-            $.ajax({
-                type: "POST",
-                url:'/edit_in_place',
-                data: {content: content, post_id: post_id}
-            });
+//Destroy
+$( "#delete-button" ).click(function() {
+    var deleteme = $('.edit-me');
+    var post_id = $('.post-id').html();
+    $.ajax({
+        url: '/detail/' + post_id,
+        type: 'DELETE',
+        success: function(result) {
+            // When backbone is complete, remove poem from the current DOM
+            location.href = "/portfolio"
         }
     });
+});
 
-    var commentable = false;
+
+//Comments
+var commentable = false;
     $( "#comment-button" ).click(function() {
         if (!commentable){
             $('#comment-form').show("slow");
@@ -138,10 +155,11 @@ $( document ).ready(function() {
     });
 });
 
+// Voting
 function voteClick(post_id) {
     var vote_button_selector = "a." + post_id;
     var $vote_button = $(vote_button_selector); // cache this! can't access in callback!
-    var post_to = '/posts/vote/';
+    var post_to = '/vote/';
     if ($vote_button.attr("data-voted") === "true") {
         $vote_button.css("color", "#000");
         $vote_button.html("<i class='fa fa-meh-o fa-lg'></i>");
@@ -162,5 +180,5 @@ function voteClick(post_id) {
             var vote_status = response.vote_status;
             $vote_button.parent().next().html(new_vote_count + "&nbsp;" + likephrase);
         }, 'json'
-    );
+);
 }

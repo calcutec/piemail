@@ -1,10 +1,6 @@
 {% extends "base.html" %}
-{% block header %}
-    {% if g.user.id == post.author.id %}
-        <h3>Click <strong>here</strong> to edit your poem</h3>
-        {% else %}
-        <div id="comment-button">Click <strong>here</strong> to comment on this poem</div>
-    {% endif %}
+
+{% block content %}
     <div id="comment-form" class="hide">
 		<form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="comment">
 			{{ form.hidden_tag() }}
@@ -20,9 +16,6 @@
 			</div>
 		</form>
 	</div>
-{% endblock %}
-
-{% block content %}
 
     {% include 'flash.html' %}
     {% include 'post.html' %}

@@ -869,9 +869,13 @@ input.submit {
      /*margin-bottom: 2%;*/
 /*}*/
 
-/*#edit-button {*/
-    /*color:#8787c1;*/
-/*}*/
+#edit-button {
+    color:#8787c1;
+}
+
+#delete-button {
+    color:#8787c1;
+}
 
 /*form #header {*/
      /*width: 95%;*/

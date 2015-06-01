@@ -1,16 +1,17 @@
 <ul class="details" style="width:100%">
-    <li><a href="{{ url_for('posts', slug=post.slug) }}">
+    <li><a href="{{ url_for('detail', slug=post.slug) }}">
         {% with total=post.comments.all()|length %}
             {{ total }} comment{% if total != 1 %}s{% endif %}
         {% endwith %}</a>
     </li>
 
-    {% if page_mark == "post_detail" and post.author.id == g.user.id %}
+    {% if page_mark == "detail" and post.author.id == g.user.id %}
         <li id="edit-button">Edit</li>
     {% endif %}
 
-    {% if post.author.id == g.user.id and page_mark == "post_detail" %}
-        <li><a href="{{ url_for('delete', post_id = post.id) }}">Delete</a></li>
+    {% if post.author.id == g.user.id and page_mark == "detail" %}
+{#        <li id="delete-button"><a href="{{ url_for('detail', post_id = post.id) }}">Delete</a></li>#}
+        <li id="delete-button">Delete</li>
     {% endif %}
 
     {% if g.user.is_authenticated() %}
