@@ -1,13 +1,16 @@
-import os
 import boto
 from PIL import Image
 from app import app
+from config import POSTS_PER_PAGE
+from forms import SignupForm, EditForm, PostForm, CommentForm, LoginForm
 from rauth import OAuth2Service
 import json
 import urllib2
 import cStringIO
-from flask import request, redirect, url_for
-from models import User
+from flask import request, redirect, url_for, render_template, g
+from flask.views import View
+from flask.ext.login import login_required
+from models import User, Post, Comment
 
 
 def pre_upload(img_obj):
@@ -79,6 +82,99 @@ def generate_thumbnail(filename, img, box, photo_type, crop, extension):
     return thumbnail_name, thumbnail_file
 
 
+class GenericListView(View):
+    def __init__(self, view_data):
+        self.view_data = view_data
+
+    def get_template_name(self):
+        return self.view_data.template_name
+
+    def get_context(self):
+        context = self.view_data.context
+        return context
+
+    def dispatch_request(self):
+        context = self.get_context()
+        return self.render_template(context)
+
+    def render_template(self, context):
+        return render_template(self.get_template_name(), **context)
+
+
+class LoginRequiredListView(GenericListView):
+    decorators = [login_required]
+
+
+class ViewData(object):
+    def __init__(self, page_mark, slug=None, nickname=None):
+        self.slug = slug
+        self.nickname = nickname
+        self.page = 1
+        self.page_mark = page_mark
+        self.template_name = page_mark + ".html"
+        self.form = self.get_form()
+        self.title = page_mark.title()
+        self.page_logo = "img/icons/" + page_mark + ".svg"
+        self.profile_user = None
+
+        if self.nickname is not None:
+            self.profile_user = User.query.filter_by(nickname=self.nickname).first()
+        else:
+            self.profile_user = None
+
+        if self.page_mark is "signup" or page_mark is "login":
+            self.items = None
+            self.post = None
+        elif slug is not None:
+            self.post = self.get_items()
+            self.items = None
+        else:
+            self.items = self.get_items()
+            self.post = None
+
+        self.context = self.get_context()
+
+    def get_items(self):
+        if self.page_mark == 'home':
+            self.items = Post.query.filter_by(writing_type="op-ed")
+            return self.items
+        if self.page_mark == 'poetry':
+            self.items = Post.query.filter_by(writing_type="selected").paginate(self.page, POSTS_PER_PAGE, False)
+            return self.items
+        if self.page_mark == 'workshop':
+            self.items = Post.query.filter_by(writing_type="poem").paginate(self.page, POSTS_PER_PAGE, False)
+            return self.items
+        if self.page_mark == 'portfolio':
+            self.items = g.user.posts.paginate(1, POSTS_PER_PAGE, False)
+            return self.items
+        if self.page_mark == 'detail':
+            self.post = Post.query.filter(Post.slug == self.slug).first()
+            return self.post
+        if self.page_mark == 'profile':
+            self.items = self.profile_user.posts.paginate(self.page, POSTS_PER_PAGE, False)
+            return self.items
+
+    def get_form(self):
+        if self.page_mark == 'portfolio':
+            form = PostForm()
+        elif self.page_mark == 'detail':
+            form = CommentForm()
+        elif self.page_mark == 'profile':
+            form = EditForm(self.nickname)
+        elif self.page_mark == 'signup':
+            form = SignupForm()
+        elif self.page_mark == 'signup':
+            form = LoginForm()
+        else:
+            form = None
+        return form
+
+    def get_context(self):
+        context = {'post': self.post, 'posts': self.items, 'title': self.title, 'profile_user': self.profile_user,
+                   'page_logo': self.page_logo, 'page_mark': self.page_mark, 'form': self.form}
+        return context
+
+
 class OAuthSignIn(object):
     providers = None
 
@@ -95,7 +191,7 @@ class OAuthSignIn(object):
         pass
 
     def get_callback_url(self):
-        return url_for('oauth_callback', provider=self.provider_name,
+        return url_for('login', provider=self.provider_name,
                        _external=True)
 
     @classmethod

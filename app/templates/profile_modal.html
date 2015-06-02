@@ -10,7 +10,7 @@
           <h3 class="modal-title">Fill in fields below</h3>
         </div>
         <div class="modal-body">
-        <form id="profile-form" class="form-horizontal" action="{{ url_for("profile") }}" method="post" enctype="multipart/form-data" name="edit">
+        <form id="profile-form" class="form-horizontal" action="{{ url_for("profile", nickname=g.user.nickname) }}" method="post" enctype="multipart/form-data" name="edit">
             {{ form.hidden_tag() }}
             <div class="control-group{% if form.nickname.errors %} error{% endif %}">
                 <label class="control-label" for="nickname">Your nickname:</label>
@@ -32,7 +32,7 @@
             </div>
             <div class="control-group">
                 <label class="control-label" form="post">Add or update profile image:</label>
-                <div class="controls">{{ form.profile_photo }}</div>
+                <input id="photo" name="photo" type="file" />
             </div>
             <div class="control-group">
                 <div class="controls">

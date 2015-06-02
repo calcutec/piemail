@@ -252,6 +252,7 @@ nav a {
 #login .n-login a,
 #profile .n-profile a {
 	color: #000;
+    border-bottom: 1px solid #E1B200;
 }
 
 /*posts*/

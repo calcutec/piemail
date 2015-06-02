@@ -15,9 +15,9 @@
                 <div class="span5 login-btns">
                     <h3>1-Click-Login</h3>
                     <ul>
-                        <li><a href="{{ url_for('oauth_authorize', provider='facebook') }}" class="btn btn-warning"><i class="fa fa-facebook fa-lg"></i>&nbsp; Facebook Login</a></li>
-                        <li><a href="{{ url_for('oauth_authorize', provider='twitter') }}" class="btn btn-primary"><i class="fa fa-twitter fa-lg"></i>&nbsp; Twitter Login</a></li>
-                        <li><a href="{{ url_for('oauth_authorize', provider='google') }}" class="btn btn-info"><i class="fa fa-google-plus fa-lg"></i>&nbsp; Google Login</a></li>
+                        <li><a href="{{ url_for('login', get_provider='facebook') }}" class="btn btn-warning"><i class="fa fa-facebook fa-lg"></i>&nbsp; Facebook Login</a></li>
+                        <li><a href="{{ url_for('login', get_provider='twitter') }}" class="btn btn-primary"><i class="fa fa-twitter fa-lg"></i>&nbsp; Twitter Login</a></li>
+                        <li><a href="{{ url_for('login', get_provider='google') }}" class="btn btn-info"><i class="fa fa-google-plus fa-lg"></i>&nbsp; Google Login</a></li>
                     </ul>
                     <div class="form-group">
                         <label style="font-weight: normal;">Keep me logged in</label>

@@ -8,106 +8,17 @@ from flask.ext.login import login_user, logout_user, current_user, \
 from flask.ext.sqlalchemy import get_debug_queries
 from datetime import datetime
 from app import app, db, lm
-from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS, \
-    DATABASE_QUERY_TIMEOUT
+from config import MAX_SEARCH_RESULTS, DATABASE_QUERY_TIMEOUT
 from slugify import slugify
 
 from .forms import SignupForm, LoginForm, EditForm, PostForm, SearchForm, CommentForm
 from .models import User, Post, Comment
 from .emails import follower_notification
-from .utils import OAuthSignIn, pre_upload
+from .utils import OAuthSignIn, pre_upload, GenericListView, LoginRequiredListView, ViewData
 from PIL import Image
 import json
 
-from flask.views import View, MethodView
-
-
-class GenericListView(View):
-    def __init__(self, view_data):
-        self.view_data = view_data
-
-    def get_template_name(self):
-        return self.view_data.template_name
-
-    def get_context(self):
-        context = self.view_data.context
-        return context
-
-    def dispatch_request(self):
-        context = self.get_context()
-        return self.render_template(context)
-
-    def render_template(self, context):
-        return render_template(self.get_template_name(), **context)
-
-class LoginRequiredListView(GenericListView):
-    decorators = [login_required]
-
-class ViewData(object):
-    def __init__(self, page_mark, slug=None, nickname=None):
-        self.slug = slug
-        self.nickname = nickname
-        self.page = 1
-        self.page_mark = page_mark
-        self.template_name = page_mark + ".html"
-        self.form = self.get_form()
-        self.title = page_mark.title()
-        self.page_logo = "img/icons/" + page_mark + ".svg"
-        self.profile_user = None
-
-        if self.nickname is not None:
-            self.profile_user = User.query.filter_by(nickname=self.nickname).first()
-        else:
-            self.profile_user = None
-        if slug is not None:
-            self.post = self.get_items()
-            self.items = None
-        elif slug is None and self.page_mark is not "signup":
-            self.items = self.get_items()
-            self.post = None
-        else:
-            self.items = None
-            self.post = None
-        self.context = self.get_context()
-
-    def get_items(self):
-        if self.page_mark == 'home':
-            self.items = Post.query.filter_by(writing_type="op-ed")
-            return self.items
-        if self.page_mark == 'poetry':
-            self.items = Post.query.filter_by(writing_type="selected").paginate(self.page, POSTS_PER_PAGE, False)
-            return self.items
-        if self.page_mark == 'workshop':
-            self.items = Post.query.filter_by(writing_type="poem").paginate(self.page, POSTS_PER_PAGE, False)
-            return self.items
-        if self.page_mark == 'portfolio':
-            self.items = g.user.posts.paginate(1, POSTS_PER_PAGE, False)
-            return self.items
-        if self.page_mark == 'detail':
-            self.post = Post.query.filter(Post.slug == self.slug).first()
-            return self.post
-        if self.page_mark == 'profile':
-            self.items = self.profile_user.posts.paginate(self.page, POSTS_PER_PAGE, False)
-            return self.items
-
-    def get_form(self):
-        if self.page_mark == 'portfolio':
-            form = PostForm()
-        elif self.page_mark == 'detail':
-            form = CommentForm()
-        elif self.page_mark == 'profile':
-            form = EditForm(self.nickname)
-        elif self.page_mark == 'signup':
-            form = SignupForm()
-        else:
-            form = None
-        return form
-
-    def get_context(self):
-        context = {'post': self.post, 'posts': self.items, 'title': self.title, 'profile_user': self.profile_user,
-                   'page_logo': self.page_logo, 'page_mark': self.page_mark, 'form': self.form}
-        return context
-
+from flask.views import MethodView
 
 @app.route('/', methods=['GET'])
 def index():
@@ -210,30 +121,50 @@ def vote_poem():
 
 
 class UserAPI(MethodView):
-    # decorators = [login_required]
-
     # Create a new User
-    def post(self):
-        form = SignupForm(request.form)
-        if form.validate():
-            result = {'iserror': False}
-            newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data, lastname=form.lastname.data,
-                           password=form.password.data)
-            db.session.add(newuser)
-            db.session.add(newuser.follow(newuser))
-            db.session.commit()
-            remember_me = False
-            if 'remember_me' in session:
-                remember_me = session['remember_me']
-                session.pop('remember_me', None)
-            login_user(newuser, remember=remember_me)
-            # todo: return json and insert into html in backbone version
-            result['savedsuccess'] = True
-            # result['new_profile'] = render_template('profile_user.html', profile_user=g.user)
-            result['new_profile'] = g.user.nickname
-            return json.dumps(result)
-        form.errors['iserror'] = True
-        return json.dumps(form.errors)
+    def post(self, nickname=None):
+        if nickname is None:
+            form = SignupForm(request.form)
+            if form.validate():
+                result = {'iserror': False}
+                newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data, lastname=form.lastname.data,
+                               password=form.password.data)
+                db.session.add(newuser)
+                db.session.add(newuser.follow(newuser))
+                db.session.commit()
+                remember_me = False
+                if 'remember_me' in session:
+                    remember_me = session['remember_me']
+                    session.pop('remember_me', None)
+                login_user(newuser, remember=remember_me)
+                # todo: return json and insert into html in backbone version
+                result['savedsuccess'] = True
+                # result['new_profile'] = render_template('profile_user.html', profile_user=g.user)
+                result['new_profile'] = g.user.nickname
+                return json.dumps(result)
+            form.errors['iserror'] = True
+            return json.dumps(form.errors)
+        else:
+            form = EditForm(request.form)
+            if form.validate():
+                result = {'iserror': False}
+                filename = form.profile_photo.data
+                if filename is not u'':
+                    img_obj = dict(filename=filename, img=Image.open(request.files['profile_photo']), box=(128, 128),
+                                   photo_type="thumb", crop=True,
+                                   extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
+                    profile_photo_name = pre_upload(img_obj)
+                    g.user.profile_photo = profile_photo_name
+                g.user.nickname = form.nickname.data
+                g.user.about_me = form.about_me.data
+                db.session.add(g.user)
+                db.session.commit()
+                result['savedsuccess'] = True
+                # result['new_profile'] = render_template('profile_user.html', profile_user=g.user)
+                result['new_profile'] = g.user.nickname
+                return json.dumps(result)
+            form.errors['iserror'] = True
+            return json.dumps(form.errors)
 
     # Read a single profile
     def get(self, nickname=None):
@@ -246,7 +177,6 @@ class UserAPI(MethodView):
         else:
             if g.user is not None and g.user.is_authenticated():
                 return redirect(url_for('home'))
-            form = SignupForm()
             signup_data = ViewData("signup")
             return render_template(signup_data.template_name, **signup_data.context)
 
@@ -284,16 +214,113 @@ class UserAPI(MethodView):
 user_api_view = UserAPI.as_view('profile')
 # Create a new user
 app.add_url_rule('/profile/', view_func=user_api_view, methods=["POST", ])
+# Update user
+app.add_url_rule('/profile/<nickname>', view_func=user_api_view, methods=["POST", ])
 # Read a single user
 app.add_url_rule('/profile/<nickname>', view_func=user_api_view, methods=["GET", ])
 # Read multiple users
 app.add_url_rule('/profile/', view_func=user_api_view, methods=["GET", ])
-# Update a single user
-app.add_url_rule('/profile/<int:profile_user_id>', view_func=user_api_view, methods=["PUT", ])
+# # Update a single user Todo: Ajax currently not working with files
+# app.add_url_rule('/profile/<int:profile_user_id>', view_func=user_api_view, methods=["PUT", ])
 # Delete a single user
 app.add_url_rule('/profile/<int:user_id>', view_func=user_api_view, methods=["DELETE"])
 
 
+class AuthAPI(MethodView):
+
+    def post(self):
+        # Manual login authorization
+        form = LoginForm(request.form)
+        if form.validate_on_submit():
+            newuser = User.query.filter_by(email=form.email.data).first()
+            remember_me = False
+            if 'remember_me' in session:
+                remember_me = session['remember_me']
+                session.pop('remember_me', None)
+            login_user(newuser, remember=remember_me)
+            return redirect(url_for('portfolio'))
+        else:
+            return internal_error(form.errors[0])
+
+    def get(self, get_provider=None, provider=None):
+        # Provider oauth callback
+        if provider is not None:
+            if not current_user.is_anonymous():
+                return redirect(url_for('home'))
+            oauth = OAuthSignIn.get_provider(provider)
+            nickname, email = oauth.callback()
+            if email is None:
+                flash('Authentication failed.')
+                return redirect(url_for('home'))
+            currentuser = User.query.filter_by(email=email).first()
+            if not currentuser:
+                currentuser = User(nickname=nickname, email=email)
+                db.session.add(currentuser)
+                db.session.add(currentuser.follow(currentuser))
+                db.session.commit()
+            remember_me = False
+            if 'remember_me' in session:
+                remember_me = session['remember_me']
+                session.pop('remember_me', None)
+            login_user(currentuser, remember=remember_me)
+            return redirect(request.args.get('next') or url_for('portfolio'))
+        # Request to oauth provider
+        elif get_provider is not None:
+            if not current_user.is_anonymous():
+                return redirect(url_for('home'))
+            oauth = OAuthSignIn.get_provider(get_provider)
+            return oauth.authorize()
+        # Manual login form
+        else:
+            if g.user is not None and g.user.is_authenticated():
+                return redirect(url_for('home'))
+            login_data = ViewData("login")
+            return render_template(login_data.template_name, **login_data.context)
+
+
+# urls for User API
+auth_api_view = AuthAPI.as_view('login')
+# Authenticate user
+app.add_url_rule('/login/', view_func=auth_api_view, methods=["POST", ])
+# Login form for returning user
+app.add_url_rule('/login/', view_func=auth_api_view, methods=["GET", ])
+# Oauth login
+app.add_url_rule('/login/<get_provider>', view_func=auth_api_view, methods=["GET", ])
+# Oauth provider callback
+app.add_url_rule('/callback/<provider>', view_func=auth_api_view, methods=["GET", ])
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+
+@app.route('/testupload/', methods=['POST', ])
+def testupload():
+    form = EditForm(request.form)
+    if form.validate():
+        result = {'iserror': False}
+        filename = form.profile_photo.data
+        if filename is not u'':
+            img_obj = dict(filename=filename, img=Image.open(request.files['profile_photo']), box=(128, 128),
+                           photo_type="thumb", crop=True,
+                           extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
+            profile_photo_name = pre_upload(img_obj)
+            g.user.profile_photo = profile_photo_name
+        g.user.nickname = form.nickname.data
+        g.user.about_me = form.about_me.data
+        db.session.add(g.user)
+        db.session.commit()
+        result['savedsuccess'] = True
+        # result['new_profile'] = render_template('profile_user.html', profile_user=g.user)
+        result['new_profile'] = g.user.nickname
+        return json.dumps(result)
+    form.errors['iserror'] = True
+    return json.dumps(form.errors)
+
+
+# Follow and Unfollow
 @app.route('/follow/<nickname>')
 @login_required
 def follow(nickname):
@@ -334,66 +361,6 @@ def unfollow(nickname):
     flash('You have stopped following %s.' % nickname)
     return redirect(url_for('profile', nickname=nickname))
 
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if g.user is not None and g.user.is_authenticated():
-        return redirect(url_for('home'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        newuser = User.query.filter_by(email=form.email.data).first()
-        remember_me = False
-        if 'remember_me' in session:
-            remember_me = session['remember_me']
-            session.pop('remember_me', None)
-        login_user(newuser, remember=remember_me)
-        return redirect(url_for('portfolio'))
-
-    page_mark = 'login'
-    page_logo = 'img/icons/login.svg'
-    return render_template('login.html',
-                           title='Sign In',
-                           form=form,
-                           page_mark=page_mark,
-                           page_logo=page_logo)
-
-
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('login'))
-
-
-@app.route('/authorize/<provider>')
-def oauth_authorize(provider):
-    if not current_user.is_anonymous():
-        return redirect(url_for('home'))
-    oauth = OAuthSignIn.get_provider(provider)
-    return oauth.authorize()
-
-
-@app.route('/callback/<provider>')
-def oauth_callback(provider):
-    if not current_user.is_anonymous():
-        return redirect(url_for('home'))
-    oauth = OAuthSignIn.get_provider(provider)
-    nickname, email = oauth.callback()
-    if email is None:
-        flash('Authentication failed.')
-        return redirect(url_for('home'))
-    currentuser = User.query.filter_by(email=email).first()
-    if not currentuser:
-        currentuser = User(nickname=nickname, email=email)
-        db.session.add(currentuser)
-        db.session.add(currentuser.follow(currentuser))
-        db.session.commit()
-    remember_me = False
-    if 'remember_me' in session:
-        remember_me = session['remember_me']
-        session.pop('remember_me', None)
-    login_user(currentuser, remember=remember_me)
-    return redirect(request.args.get('next') or url_for('portfolio', user_id=currentuser.id))
-
 # Search
 @app.route('/search', methods=['POST'])
 @login_required
@@ -413,8 +380,7 @@ def search_results(query):
                            results=results,
                            upload_folder_name=upload_folder_name)
 
-
-# Other Helpers
+# Helpers
 @app.context_processor
 def inject_static_url():
     local_static_url = app.static_url_path

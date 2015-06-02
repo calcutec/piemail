@@ -206,33 +206,37 @@ $("#update-form").submit(function(e) {
         });
 });
 
-// Update Profile
-$("#profile-form").submit(function(e) {
-    e.preventDefault();
-    var $form = $(this);
-    var profile_user_id = $('.btn-lg').attr('id');
+//// Update Profile
+//$("#profile-form").submit(function(e) {
+//    e.preventDefault();
+//    var $form = $(this);
+//    var profile_user_id = $('.btn-lg').attr('id');
+//
+//    $.ajax({
+//      url: '/profile/' + profile_user_id,
+//      type: 'PUT',
+//      data: $form.serialize(),
+//      success: function(data) {
+//        var result = $.parseJSON(data);
+//        //$("#error_header").text("");
+//        //$("#error_post").text("");
+//        //$("#error_writing_type").text("");
+//
+//        if(result.iserror) {
+//            alert('you need to clean up these errors!');
+//            //if(result.header!=undefined) $("#error_header").text(result.header[0]);
+//            //if(result.post!=undefined) $("#error_post").text(result.post[0]);
+//            //if(result.writing_type!=undefined) $("#error_writing_type").text(result.writing_type[0]);
+//        }else if (result.savedsuccess) {
+//            $("#myModal").modal('hide');
+//            location.href = "/profile/" + result.new_profile
+//            //$("#main").prepend(result.new_profile);
+//        }
+//      }
+//    });
+//});
 
-    $.ajax({
-      url: '/profile/' + profile_user_id,
-      type: 'PUT',
-      data: $form.serialize(),
-      success: function(data) {
-        var result = $.parseJSON(data);
-        //$("#error_header").text("");
-        //$("#error_post").text("");
-        //$("#error_writing_type").text("");
 
-        if(result.iserror) {
-            alert('you need to clean up these errors!');
-            //if(result.header!=undefined) $("#error_header").text(result.header[0]);
-            //if(result.post!=undefined) $("#error_post").text(result.post[0]);
-            //if(result.writing_type!=undefined) $("#error_writing_type").text(result.writing_type[0]);
-        }else if (result.savedsuccess) {
-            $("#myModal").modal('hide');
-            location.href = "/profile/" + result.new_profile
-            //$("#main").prepend(result.new_profile);
-        }
-      }
-    });
-});
+
+
 
