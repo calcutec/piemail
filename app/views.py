@@ -46,6 +46,7 @@ class LoginRequiredListView(GenericListView):
 class ViewData(object):
     def __init__(self, page_mark, slug=None, nickname=None):
         self.slug = slug
+        self.nickname = nickname
         self.page = 1
         self.page_mark = page_mark
         self.template_name = page_mark + ".html"
@@ -53,15 +54,19 @@ class ViewData(object):
         self.title = page_mark.title()
         self.page_logo = "img/icons/" + page_mark + ".svg"
         self.profile_user = None
-        if nickname is not None:
-            self.profile_user = User.query.filter_by(nickname=nickname).first()
+
+        if self.nickname is not None:
+            self.profile_user = User.query.filter_by(nickname=self.nickname).first()
         else:
             self.profile_user = None
         if slug is not None:
             self.post = self.get_items()
             self.items = None
-        else:
+        elif slug is None and self.page_mark is not "signup":
             self.items = self.get_items()
+            self.post = None
+        else:
+            self.items = None
             self.post = None
         self.context = self.get_context()
 
@@ -90,6 +95,10 @@ class ViewData(object):
             form = PostForm()
         elif self.page_mark == 'detail':
             form = CommentForm()
+        elif self.page_mark == 'profile':
+            form = EditForm(self.nickname)
+        elif self.page_mark == 'signup':
+            form = SignupForm()
         else:
             form = None
         return form
@@ -201,40 +210,72 @@ def vote_poem():
 
 
 class UserAPI(MethodView):
-    decorators = [login_required]
+    # decorators = [login_required]
 
     # Create a new User
     def post(self):
-        pass
+        form = SignupForm(request.form)
+        if form.validate():
+            result = {'iserror': False}
+            newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data, lastname=form.lastname.data,
+                           password=form.password.data)
+            db.session.add(newuser)
+            db.session.add(newuser.follow(newuser))
+            db.session.commit()
+            remember_me = False
+            if 'remember_me' in session:
+                remember_me = session['remember_me']
+                session.pop('remember_me', None)
+            login_user(newuser, remember=remember_me)
+            # todo: return json and insert into html in backbone version
+            result['savedsuccess'] = True
+            # result['new_profile'] = render_template('profile_user.html', profile_user=g.user)
+            result['new_profile'] = g.user.nickname
+            return json.dumps(result)
+        form.errors['iserror'] = True
+        return json.dumps(form.errors)
 
     # Read a single profile
-    def get(self, nickname):
-        profile_data = ViewData("profile", nickname=nickname)
-        return render_template(profile_data.template_name, **profile_data.context)
+    def get(self, nickname=None):
+        if nickname is not None:
+            profile_data = ViewData("profile", nickname=nickname)
+            profile_data.form.nickname.data = g.user.nickname
+            profile_data.form.about_me.data = g.user.about_me
+            db.session.commit()
+            return render_template(profile_data.template_name, **profile_data.context)
+        else:
+            if g.user is not None and g.user.is_authenticated():
+                return redirect(url_for('home'))
+            form = SignupForm()
+            signup_data = ViewData("signup")
+            return render_template(signup_data.template_name, **signup_data.context)
 
     # Update User
-    def put(self, user_id):
-        nickname = g.user.nickname
-        profile_data = ViewData("profile", nickname)
-        if profile_data.form.validate_on_submit():
-            filename = secure_filename(profile_data.form.profile_photo.data.filename)
-            if filename is not None and filename is not '':
+    @login_required
+    def put(self, profile_user_id):
+        form = EditForm(request.form)
+        if form.validate():
+            result = {'iserror': False}
+            filename = form.profile_photo.data
+            if filename is not u'':
                 img_obj = dict(filename=filename, img=Image.open(request.files['profile_photo']), box=(128, 128),
                                photo_type="thumb", crop=True,
-                               extension=profile_data.form['profile_photo'].data.mimetype.split('/')[1].upper())
+                               extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
                 profile_photo_name = pre_upload(img_obj)
                 g.user.profile_photo = profile_photo_name
-            g.user.nickname = profile_data.form.nickname.data
-            g.user.about_me = profile_data.form.about_me.data
+            g.user.nickname = form.nickname.data
+            g.user.about_me = form.about_me.data
             db.session.add(g.user)
             db.session.commit()
-            flash('Your changes have been saved.')
-            return redirect(url_for('profile', nickname=g.user.nickname))
-        profile_data.form.nickname.data = g.user.nickname
-        profile_data.form.about_me.data = g.user.about_me
-        return render_template(profile_data.template_name, **profile_data.context)
+            result['savedsuccess'] = True
+            # result['new_profile'] = render_template('profile_user.html', profile_user=g.user)
+            result['new_profile'] = g.user.nickname
+            return json.dumps(result)
+        form.errors['iserror'] = True
+        return json.dumps(form.errors)
 
     # Delete User
+    @login_required
     def delete(self, post_id):
         pass
 
@@ -248,39 +289,9 @@ app.add_url_rule('/profile/<nickname>', view_func=user_api_view, methods=["GET",
 # Read multiple users
 app.add_url_rule('/profile/', view_func=user_api_view, methods=["GET", ])
 # Update a single user
-app.add_url_rule('/profile/', view_func=user_api_view, methods=["PUT", ])
+app.add_url_rule('/profile/<int:profile_user_id>', view_func=user_api_view, methods=["PUT", ])
 # Delete a single user
-# app.add_url_rule('/profile/<int:user_id>', view_func=user_api_view, methods=["DELETE"])
-
-
-@app.route('/profile', methods=['PUT'])
-@login_required
-def edit():
-    form = EditForm(g.user.nickname)
-    if form.validate_on_submit():
-        filename = secure_filename(form.profile_photo.data.filename)
-        if filename is not None and filename is not '':
-            img_obj = dict(filename=filename, img=Image.open(request.files['profile_photo']), box=(128, 128),
-                           photo_type="thumb", crop=True,
-                           extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
-            profile_photo_name = pre_upload(img_obj)
-            # flash('{src} uploaded to S3'.format(src=profile_photo_name))
-            g.user.profile_photo = profile_photo_name
-        g.user.nickname = form.nickname.data
-        g.user.about_me = form.about_me.data
-        db.session.add(g.user)
-        db.session.commit()
-        flash('Your changes have been saved.')
-        return redirect(url_for('profile', nickname=g.user.nickname))
-    elif request.method != "POST":
-        form.nickname.data = g.user.nickname
-        form.about_me.data = g.user.about_me
-    page_mark = 'profile'
-    page_logo = 'img/icons/profile.svg'
-    return render_template('edit.html',
-                           form=form,
-                           page_mark=page_mark,
-                           page_logo=page_logo)
+app.add_url_rule('/profile/<int:user_id>', view_func=user_api_view, methods=["DELETE"])
 
 
 @app.route('/follow/<nickname>')
@@ -322,34 +333,6 @@ def unfollow(nickname):
     db.session.commit()
     flash('You have stopped following %s.' % nickname)
     return redirect(url_for('profile', nickname=nickname))
-
-# User Signup and Login
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if g.user is not None and g.user.is_authenticated():
-        return redirect(url_for('home'))
-    form = SignupForm()
-
-    if form.validate_on_submit():
-        newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data, lastname=form.lastname.data,
-                       password=form.password.data)
-        db.session.add(newuser)
-        db.session.add(newuser.follow(newuser))
-        db.session.commit()
-        remember_me = False
-        if 'remember_me' in session:
-            remember_me = session['remember_me']
-            session.pop('remember_me', None)
-        login_user(newuser, remember=remember_me)
-        return redirect(url_for('portfolio', user_id=g.user.id))
-
-    page_mark = 'signup'
-    page_logo = 'img/icons/login.svg'
-    return render_template('signup.html',
-                           title='Sign In',
-                           form=form,
-                           page_mark=page_mark,
-                           page_logo=page_logo)
 
 
 @app.route('/login', methods=['GET', 'POST'])

@@ -2,7 +2,7 @@
 
 {% block header %}
     {% if profile_user.id == g.user.id %}
-        <h1>Click<a href="{{ url_for('edit') }}" > here</a> to edit your profile</h1>
+        {% include 'profile_modal.html' %}
     {% elif not g.user.is_following(profile_user) %}
         <h1>Click <a href="{{ url_for('follow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to follow {{ profile_user.nickname }}</h1>
     {% else %}
@@ -12,22 +12,7 @@
 
 {% block content %}
     {% include 'flash.html' %}
-    <div class="well well-large" style="height: auto;">
-        <div class="pull-right">
-            {% if profile_user.profile_photo %}
-                <img src="{{ static_url }}user_imgs/{{ profile_user.profile_photo }}" class="img-polaroid" alt="profile_pic" >
-            {% else %}
-                <img src="{{ profile_user.avatar(128) }}" class="img-polaroid" alt="profile_pic">
-            {% endif %}
-        </div>
-        <h1>{{ profile_user.nickname }}</h1>
-        {% if profile_user.about_me %}<p>{{ profile_user.about_me }}</p>{% endif %}
-        {% if profile_user.last_seen %}
-        <p><em>Last seen: {{ momentjs(profile_user.last_seen).calendar() }}</em></p>
-        {% endif %}
-        <p>Followers: {{ profile_user.followers.count() - 1 }} | Following: {{ profile_user.followed.count() - 1 }}
-        </p>
-    </div>
+    {% include 'profile_user.html' %}
     {% for post in posts.items %}
         {% include 'post.html' %}
     {% endfor %}

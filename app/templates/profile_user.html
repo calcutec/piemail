@@ -1,0 +1,16 @@
+<div class="well well-large" style="height: auto;">
+    <div class="pull-right">
+        {% if profile_user.profile_photo %}
+            <img src="{{ static_url }}user_imgs/{{ profile_user.profile_photo }}" class="img-polaroid" alt="profile_pic" >
+        {% else %}
+            <img src="{{ profile_user.avatar(128) }}" class="img-polaroid" alt="profile_pic">
+        {% endif %}
+    </div>
+    <h1>{{ profile_user.nickname }}</h1>
+    {% if profile_user.about_me %}<p>{{ profile_user.about_me }}</p>{% endif %}
+    {% if profile_user.last_seen %}
+    <p><em>Last seen: {{ momentjs(profile_user.last_seen).calendar() }}</em></p>
+    {% endif %}
+    <p>Followers: {{ profile_user.followers.count() - 1 }} | Following: {{ profile_user.followed.count() - 1 }}
+    </p>
+</div>
