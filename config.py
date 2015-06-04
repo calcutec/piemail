@@ -39,5 +39,5 @@ MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 ADMINS = ['burton.wj@gmail.com']
 
 # pagination
-POSTS_PER_PAGE = 10
+POSTS_PER_PAGE = 3
 MAX_SEARCH_RESULTS = 50

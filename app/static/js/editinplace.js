@@ -136,24 +136,12 @@ $( document ).ready(function() {
                 // When backbone is complete, remove poem from the current DOM
                 location.href = "/portfolio"
             }
+        });
     });
-});
 
 
-//Comment on Post
-var commentable = false;
-    $( "#comment-button" ).click(function() {
-        if (!commentable){
-            $('#comment-form').show("slow");
-            $('#comment-button').html("<strong>Cancel</strong>");
-            commentable = true;
-        } else {
-            $('#comment-form').hide("slow");
-            $('#comment-button').html("Click <strong>here</strong> to comment on this poem!");
-            commentable = false;
-        }
-    });
 });
+
 
 // Vote on Post
 function voteClick(post_id) {
@@ -180,63 +168,60 @@ function voteClick(post_id) {
             var vote_status = response.vote_status;
             $vote_button.parent().next().html(new_vote_count + "&nbsp;" + likephrase);
         }, 'json'
-);
+    );
 }
 
 // Create Profile
 $("#update-form").submit(function(e) {
-        e.preventDefault();
-        var $form = $(this);
+    e.preventDefault();
+    var $form = $(this);
 
-        $.post("/profile/", $form.serialize(),
-            function(data) {
-            var result = $.parseJSON(data);
-            $("#error_firstname").text("");
-            $("#error_lastname").text("");
-            $("#error_email").text("");
-            $("#error_password").text("");
+    $.post("/profile/", $form.serialize(),
+        function(data) {
+        var result = $.parseJSON(data);
+        $("#error_firstname").text("");
+        $("#error_lastname").text("");
+        $("#error_email").text("");
+        $("#error_password").text("");
 
-            if(result.iserror) {
-                if(result.firstname!=undefined) $("#error_firstname").text(result.firstname[0]);
-                if(result.lastname!=undefined) $("#error_lastname").text(result.lastname[0]);
-                if(result.email!=undefined) $("#error_email").text(result.email[0]);
-            }else if (result.savedsuccess) {
-                location.href = "/profile/" + result.new_profile
-            }
-        });
+        if(result.iserror) {
+            if(result.firstname!=undefined) $("#error_firstname").text(result.firstname[0]);
+            if(result.lastname!=undefined) $("#error_lastname").text(result.lastname[0]);
+            if(result.email!=undefined) $("#error_email").text(result.email[0]);
+        }else if (result.savedsuccess) {
+            location.href = "/profile/" + result.new_profile
+        }
+    });
 });
 
-//// Update Profile
-//$("#profile-form").submit(function(e) {
-//    e.preventDefault();
-//    var $form = $(this);
-//    var profile_user_id = $('.btn-lg').attr('id');
-//
-//    $.ajax({
-//      url: '/profile/' + profile_user_id,
-//      type: 'PUT',
-//      data: $form.serialize(),
-//      success: function(data) {
-//        var result = $.parseJSON(data);
-//        //$("#error_header").text("");
-//        //$("#error_post").text("");
-//        //$("#error_writing_type").text("");
-//
-//        if(result.iserror) {
-//            alert('you need to clean up these errors!');
-//            //if(result.header!=undefined) $("#error_header").text(result.header[0]);
-//            //if(result.post!=undefined) $("#error_post").text(result.post[0]);
-//            //if(result.writing_type!=undefined) $("#error_writing_type").text(result.writing_type[0]);
-//        }else if (result.savedsuccess) {
-//            $("#myModal").modal('hide');
-//            location.href = "/profile/" + result.new_profile
-//            //$("#main").prepend(result.new_profile);
-//        }
-//      }
-//    });
-//});
 
-
+//Todo: Can not send files by ajax and async false ajax is deprecated
+// Validate Update Profile
+$("#profile-form").submit(function(e) {
+    var $form = $(this);
+    var profile_user_id = $('.btn-lg').attr('id');
+    $.ajax({
+      url: '/profile/' + profile_user_id,
+      type: 'PUT',
+      data: $form.serialize(),
+      async: false,
+      success: function(data) {
+        var result = $.parseJSON(data);
+        $("#error_nickname").text("");
+        $("#error_about_me").text("");
+        $("#error_profile_photo").text("");
+        if(result.iserror) {
+            e.preventDefault();
+            if(result.nickname!=undefined) $("#error_nickname").text(result.nickname[0]);
+            if(result.about_me!=undefined) $("#error_about_me").text(result.about_me[0]);
+            if(result.profile_photo!=undefined) $("#error_profile_photo").text(result.profile_photo[0]);
+        }else if (result.savedsuccess) {
+            $("#myModal").modal('hide');
+            return true;
+        }
+      }
+    });
+});
 
 
 

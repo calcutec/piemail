@@ -19,6 +19,7 @@
                     {% for error in form.nickname.errors %}
                         <span class="help-inline">[{{ error }}]</span><br>
                     {% endfor %}
+                    <span id="error_nickname" class="help-inline"></span><br>
                 </div>
             </div>
             <div class="control-group{% if form.about_me.errors %} error{% endif %}">
@@ -28,11 +29,18 @@
                     {% for error in form.about_me.errors %}
                         <span class="help-inline">[{{ error }}]</span><br>
                     {% endfor %}
+                    <span id="error_about_me" class="help-inline"></span><br>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label" form="post">Add or update profile image:</label>
-                <input id="photo" name="photo" type="file" />
+            <div class="control-group{% if form.profile_photo.errors %} error{% endif %}">
+                <label class="control-label" for="photo">Select a photo</label>
+                <div class="controls">
+                    {{ form.profile_photo() }}
+                    {% for error in form.profile_photo.errors %}
+                        <span class="help-inline">[{{ error }}]</span><br>
+                    {% endfor %}
+                    <span id="error_profile_photo" class="help-inline"></span><br>
+                </div>
             </div>
             <div class="control-group">
                 <div class="controls">

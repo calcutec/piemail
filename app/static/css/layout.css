@@ -85,7 +85,7 @@ h1 strong {
 h2 {
 	font-size: 1.3125rem;
 	line-height: 1.2;
-	margin: 0 0 2rem 0;
+	margin: 0 0 1rem 0;
 	/*color: #e38549;*/
 	text-align: center;
 }
@@ -272,7 +272,6 @@ nav a {
 	list-style: none;
 	font-size: 0.875rem;
 	padding: 0;
-	margin: 1.5rem 0 0 0;
 }
 
 .details li {
@@ -284,6 +283,11 @@ nav a {
 	padding: 0 1rem 0 0;
 	margin: 0 1rem 0 0;
 	border-right: 1px solid #ddd;
+}
+
+.details li .top {
+	text-transform: none;
+	border-right: none;
 }
 
 .details li:last-child {
@@ -551,9 +555,9 @@ input.submit {
 	border-top: 1px solid #ddd;
 }
 
-#side section:first-child {
-  border-top: none;
-}
+/*#side section:first-child {*/
+  /*border-top: none;*/
+/*}*/
 
 #side section:last-child {
   border-bottom: none;

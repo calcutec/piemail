@@ -160,7 +160,7 @@ class ViewData(object):
         elif self.page_mark == 'detail':
             form = CommentForm()
         elif self.page_mark == 'profile':
-            form = EditForm(self.nickname)
+            form = EditForm()
         elif self.page_mark == 'signup':
             form = SignupForm()
         elif self.page_mark == 'signup':

@@ -65,12 +65,6 @@ class PostAPI(MethodView):
     # Read a single Post
     def get(self, slug):
         detail_data = ViewData("detail", slug)
-        if detail_data.form.validate_on_submit():
-            comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=detail_data.form.comment.data, post_id=detail_data.post.id)
-            db.session.add(comment)
-            db.session.commit()
-            flash('Your comment is now live!')
-            return redirect(url_for('posts', slug=slug))
         return render_template(detail_data.template_name, **detail_data.context)
 
     # Update Post
@@ -147,10 +141,9 @@ class UserAPI(MethodView):
         else:
             form = EditForm(request.form)
             if form.validate():
-                result = {'iserror': False}
-                filename = form.profile_photo.data
-                if filename is not u'':
-                    img_obj = dict(filename=filename, img=Image.open(request.files['profile_photo']), box=(128, 128),
+                if form.profile_photo.data is not u'':
+                    filename=form.profile_photo.data.filename
+                    img_obj = dict(filename=filename, img=Image.open(form.profile_photo.data.stream), box=(128, 128),
                                    photo_type="thumb", crop=True,
                                    extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
                     profile_photo_name = pre_upload(img_obj)
@@ -159,12 +152,7 @@ class UserAPI(MethodView):
                 g.user.about_me = form.about_me.data
                 db.session.add(g.user)
                 db.session.commit()
-                result['savedsuccess'] = True
-                # result['new_profile'] = render_template('profile_user.html', profile_user=g.user)
-                result['new_profile'] = g.user.nickname
-                return json.dumps(result)
-            form.errors['iserror'] = True
-            return json.dumps(form.errors)
+            return redirect(url_for('profile', nickname=g.user.nickname))
 
     # Read a single profile
     def get(self, nickname=None):
@@ -186,20 +174,7 @@ class UserAPI(MethodView):
         form = EditForm(request.form)
         if form.validate():
             result = {'iserror': False}
-            filename = form.profile_photo.data
-            if filename is not u'':
-                img_obj = dict(filename=filename, img=Image.open(request.files['profile_photo']), box=(128, 128),
-                               photo_type="thumb", crop=True,
-                               extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
-                profile_photo_name = pre_upload(img_obj)
-                g.user.profile_photo = profile_photo_name
-            g.user.nickname = form.nickname.data
-            g.user.about_me = form.about_me.data
-            db.session.add(g.user)
-            db.session.commit()
             result['savedsuccess'] = True
-            # result['new_profile'] = render_template('profile_user.html', profile_user=g.user)
-            result['new_profile'] = g.user.nickname
             return json.dumps(result)
         form.errors['iserror'] = True
         return json.dumps(form.errors)
@@ -220,10 +195,10 @@ app.add_url_rule('/profile/<nickname>', view_func=user_api_view, methods=["POST"
 app.add_url_rule('/profile/<nickname>', view_func=user_api_view, methods=["GET", ])
 # Read multiple users
 app.add_url_rule('/profile/', view_func=user_api_view, methods=["GET", ])
-# # Update a single user Todo: Ajax currently not working with files
-# app.add_url_rule('/profile/<int:profile_user_id>', view_func=user_api_view, methods=["PUT", ])
 # Delete a single user
 app.add_url_rule('/profile/<int:user_id>', view_func=user_api_view, methods=["DELETE"])
+# Update a single user Todo: Ajax currently not working with files
+app.add_url_rule('/profile/<int:profile_user_id>', view_func=user_api_view, methods=["PUT", ])
 
 
 class AuthAPI(MethodView):
@@ -290,35 +265,31 @@ app.add_url_rule('/login/<get_provider>', view_func=auth_api_view, methods=["GET
 app.add_url_rule('/callback/<provider>', view_func=auth_api_view, methods=["GET", ])
 
 
+class HelpersAPI(MethodView):
+    def post(self, post_id=None):
+        form = CommentForm()
+        if form.validate_on_submit():
+            result = {'iserror': False}
+            comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data, post_id=post_id)
+            db.session.add(comment)
+            db.session.commit()
+            result['savedsuccess'] = True
+            result['new_comment'] = render_template('comment.html', comment=comment)
+            return json.dumps(result)
+        form.errors['iserror'] = True
+        return json.dumps(form.errors)
+
+
+
+# urls for Helpers API
+helpers_api_view = HelpersAPI.as_view('helpers')
+# Process comment
+app.add_url_rule('/comment/<int:post_id>', view_func=helpers_api_view, methods=["POST", ])
+
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
-
-@app.route('/testupload/', methods=['POST', ])
-def testupload():
-    form = EditForm(request.form)
-    if form.validate():
-        result = {'iserror': False}
-        filename = form.profile_photo.data
-        if filename is not u'':
-            img_obj = dict(filename=filename, img=Image.open(request.files['profile_photo']), box=(128, 128),
-                           photo_type="thumb", crop=True,
-                           extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
-            profile_photo_name = pre_upload(img_obj)
-            g.user.profile_photo = profile_photo_name
-        g.user.nickname = form.nickname.data
-        g.user.about_me = form.about_me.data
-        db.session.add(g.user)
-        db.session.commit()
-        result['savedsuccess'] = True
-        # result['new_profile'] = render_template('profile_user.html', profile_user=g.user)
-        result['new_profile'] = g.user.nickname
-        return json.dumps(result)
-    form.errors['iserror'] = True
-    return json.dumps(form.errors)
-
 
 # Follow and Unfollow
 @app.route('/follow/<nickname>')

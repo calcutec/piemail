@@ -53,15 +53,12 @@ class EditForm(Form):
     about_me = TextAreaField('about_me', validators=[Length(min=0, max=140)])
     profile_photo = FileField('Your photo', validators=[FileAllowed(['jpg','png'], 'Images only!')])
 
-    def __init__(self, original_nickname, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
-        self.original_nickname = original_nickname
 
     def validate(self):
         if not Form.validate(self):
             return False
-        if self.nickname.data == self.original_nickname:
-            return True
         if self.nickname.data != User.make_valid_nickname(self.nickname.data):
             self.nickname.errors.append(
                 'This nickname has invalid characters. '
@@ -70,8 +67,7 @@ class EditForm(Form):
         user = User.query.filter_by(nickname=self.nickname.data).first()
         if user is not None:
             self.nickname.errors.append(
-                'This nickname is already in use. '
-                'Please choose another one.')
+                'This nickname is already in use.')
             return False
         return True
 
