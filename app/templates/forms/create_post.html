@@ -1,0 +1,21 @@
+<form id="poem-form" class="form-horizontal" action="{{ url_for("create_post") }}" method="post" enctype="multipart/form-data" name="post">
+    {{ form.hidden_tag() }}
+    <div class="control-group">
+        <label class="control-label">Author</label><br>
+        {{ form.author() }}
+        <span id="error_author" class="help-inline"></span>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Title</label><br>
+        {{ form.title() }}
+        <span id="error_title" class="help-inline"></span>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="body">Poem</label><br>
+        {{ form.body() }}
+{#              <div id="editable">Here's some mock text..</div>#}
+        <span id="error_body" class="help-inline"></span>
+    </div>
+    <br>
+        {{ form.submit(id="poem-submit") }}
+</form>
