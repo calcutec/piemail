@@ -60,8 +60,8 @@ class PostAPI(MethodView):
             vote_status = post.vote(user_id=user_id)
             return jsonify(new_votes=post.votes, vote_status=vote_status)
 
-    #  Read Posts
-    def get(self, page_mark=None, slug=None, ):
+    #  Read Post or Posts
+    def get(self, page_mark=None, slug=None):
         if slug is None:    # Read all posts
             view_data = ViewData(page_mark)
             return render_template(view_data.template_name, **view_data.context)
@@ -97,7 +97,7 @@ app.add_url_rule('/vote/<int:post_id>', view_func=post_api_view, methods=["POST"
 # Read a single post
 app.add_url_rule('/detail/<slug>', view_func=post_api_view, methods=["GET", ])
 # Read all posts for a specific view, optionally for a specific page number
-app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["GET", ])
+app.add_url_rule('/<page_mark>', view_func=post_api_view, methods=["GET", ])
 # Update a single post
 app.add_url_rule('/detail/', view_func=post_api_view, methods=["PUT", ])
 # Delete a single post
@@ -228,7 +228,7 @@ class AuthAPI(MethodView):
                 remember_me = session['remember_me']
                 session.pop('remember_me', None)
             login_user(currentuser, remember=remember_me)
-            return redirect(request.args.get('next') or url_for('portfolio'))
+            return redirect(request.args.get('next') or url_for('posts', page_mark='portfolio'))
         # Request to oauth provider
         elif get_provider is not None:
             if not current_user.is_anonymous():

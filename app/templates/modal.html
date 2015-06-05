@@ -9,7 +9,7 @@
           <h3 class="modal-title">Fill in fields below</h3>
         </div>
         <div class="modal-body">
-            <form id="poem-form" class="form-horizontal" action="{{ url_for("detail") }}" method="post" enctype="multipart/form-data" name="post">
+            <form id="poem-form" class="form-horizontal" action="{{ url_for("posts") }}" method="post" enctype="multipart/form-data" name="post">
                 {{ form.hidden_tag() }}
 
                 <div class="control-group{% if form.header.errors %} error{% endif %}">

@@ -57,14 +57,17 @@ $( document ).ready(function() {
         $.post("/detail/", $form.serialize(),
             function(data) {
             var result = $.parseJSON(data);
-            $("#error_header").text("");
-            $("#error_post").text("");
-            $("#error_writing_type").text("");
+            var error_header = $("#error_header");
+            var error_post = $("#error_post");
+            var error_writing_type = $("#error_writing_type");
+            error_header.text("");
+            error_post.text("");
+            error_writing_type.text("");
 
             if(result.iserror) {
-                if(result.header!=undefined) $("#error_header").text(result.header[0]);
-                if(result.post!=undefined) $("#error_post").text(result.post[0]);
-                if(result.writing_type!=undefined) $("#error_writing_type").text(result.writing_type[0]);
+                if(result.header!=undefined) error_header.text(result.header[0]);
+                if(result.post!=undefined) error_post.text(result.post[0]);
+                if(result.writing_type!=undefined) error_writing_type.text(result.writing_type[0]);
             }else if (result.savedsuccess) {
                 $("#myModal").modal('hide');
                 $("#main").prepend(result.new_poem);
@@ -110,7 +113,7 @@ $( document ).ready(function() {
             editme.css({"border":"2px #2237ff dotted"});
             editme.attr('contenteditable', false);
         } else {
-            var content = $('.edit-me').html();
+            var content = editme.html();
             var post_id = $('.post-id').html();
             hideToolbar();
             editable = false;
@@ -127,7 +130,6 @@ $( document ).ready(function() {
 
     //Destroy Post
     $( "#delete-button" ).click(function() {
-        var deleteme = $('.edit-me');
         var post_id = $('.post-id').html();
         $.ajax({
             url: '/detail/' + post_id,
@@ -179,15 +181,19 @@ $("#update-form").submit(function(e) {
     $.post("/profile/", $form.serialize(),
         function(data) {
         var result = $.parseJSON(data);
-        $("#error_firstname").text("");
-        $("#error_lastname").text("");
-        $("#error_email").text("");
-        $("#error_password").text("");
+        var error_firstname = $("#error_firstname");
+        var error_lastname = $("#error_lastname");
+        var error_email = $("#error_email");
+        var error_password = $("#error_password")
+        error_firstname.text("");
+        error_lastname.text("");
+        error_email.text("");
+        error_password.text("");
 
         if(result.iserror) {
-            if(result.firstname!=undefined) $("#error_firstname").text(result.firstname[0]);
-            if(result.lastname!=undefined) $("#error_lastname").text(result.lastname[0]);
-            if(result.email!=undefined) $("#error_email").text(result.email[0]);
+            if(result.firstname!=undefined) error_firstname.text(result.firstname[0]);
+            if(result.lastname!=undefined) error_lastname.text(result.lastname[0]);
+            if(result.email!=undefined) error_email.text(result.email[0]);
         }else if (result.savedsuccess) {
             location.href = "/profile/" + result.new_profile
         }
@@ -207,14 +213,17 @@ $("#profile-form").submit(function(e) {
       async: false,
       success: function(data) {
         var result = $.parseJSON(data);
-        $("#error_nickname").text("");
-        $("#error_about_me").text("");
-        $("#error_profile_photo").text("");
+        var error_nickname = $("#error_nickname");
+        var error_about_me = $("#error_about_me");
+        var error_profile_photo = $("#error_profile_photo");
+        error_nickname.text("");
+        error_about_me.text("");
+        error_profile_photo.text("");
         if(result.iserror) {
             e.preventDefault();
-            if(result.nickname!=undefined) $("#error_nickname").text(result.nickname[0]);
-            if(result.about_me!=undefined) $("#error_about_me").text(result.about_me[0]);
-            if(result.profile_photo!=undefined) $("#error_profile_photo").text(result.profile_photo[0]);
+            if(result.nickname!=undefined) error_nickname.text(result.nickname[0]);
+            if(result.about_me!=undefined) error_about_me.text(result.about_me[0]);
+            if(result.profile_photo!=undefined) error_profile_photo.text(result.profile_photo[0]);
         }else if (result.savedsuccess) {
             $("#myModal").modal('hide');
             return true;

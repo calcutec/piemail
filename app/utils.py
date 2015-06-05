@@ -106,10 +106,10 @@ class LoginRequiredListView(GenericListView):
 
 
 class ViewData(object):
-    def __init__(self, page_mark, slug=None, nickname=None):
+    def __init__(self, page_mark, slug=None, nickname=None, page=1):
         self.slug = slug
         self.nickname = nickname
-        self.page = 1
+        self.page = page
         self.page_mark = page_mark
         self.template_name = page_mark + ".html"
         self.form = self.get_form()

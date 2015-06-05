@@ -14,10 +14,10 @@
         <li id="delete-button">Delete</li>
     {% endif %}
 
-    {% if g.user.is_authenticated() %}
+    {% if g.user.is_authenticated() and page_mark == "detail" %}
         <li>
             {% if post.has_voted(g.user.id) %}
-              <a onclick="voteClick({{ post.id|tojson|safe }});" data-voted="true" style="color:#eb6864;" href="javascript:void(0)"><i class="fa fa-smile-o fa-lg"></i></a>
+              <a onclick="voteClick({{ post.id|tojson|safe }});" data-voted="true" style="color:#eb6864;" href="javascript:void(0)" class="{{ post.id }}><i class="fa fa-smile-o fa-lg"></i></a>
             {% else %}
               <a onclick="voteClick({{ post.id|tojson|safe }});" data-voted="false" style="color:#000;" href="javascript:void(0)" class="{{ post.id }}"><i class="fa fa-meh-o fa-lg"></i></a>
             {% endif %}
