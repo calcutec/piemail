@@ -133,7 +133,7 @@ class UserAPI(MethodView):
             form = EditForm(request.form)
             if form.validate():
                 if form.profile_photo.data is not u'':
-                    filename=form.profile_photo.data.filename
+                    filename = form.profile_photo.data.filename
                     img_obj = dict(filename=filename, img=Image.open(form.profile_photo.data.stream), box=(128, 128),
                                    photo_type="thumb", crop=True,
                                    extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
@@ -161,11 +161,10 @@ class UserAPI(MethodView):
 
     # Update User
     @login_required
-    def put(self, profile_user_id):
+    def put(self):
         form = EditForm(request.form)
         if form.validate():
-            result = {'iserror': False}
-            result['savedsuccess'] = True
+            result = {'iserror': False, 'savedsuccess': True}
             return json.dumps(result)
         form.errors['iserror'] = True
         return json.dumps(form.errors)
@@ -271,16 +270,16 @@ class HelpersAPI(MethodView):
         return json.dumps(form.errors)
 
 
-
 # urls for Helpers API
 helpers_api_view = HelpersAPI.as_view('helpers')
-# Process comment
 app.add_url_rule('/comment/<int:post_id>', view_func=helpers_api_view, methods=["POST", ])
+
 
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
 
 # Follow and Unfollow
 @app.route('/follow/<nickname>')
@@ -323,6 +322,7 @@ def unfollow(nickname):
     flash('You have stopped following %s.' % nickname)
     return redirect(url_for('profile', nickname=nickname))
 
+
 # Search
 @app.route('/search', methods=['POST'])
 @login_required
@@ -341,6 +341,7 @@ def search_results(query):
                            query=query,
                            results=results,
                            upload_folder_name=upload_folder_name)
+
 
 # Helpers
 @app.context_processor
