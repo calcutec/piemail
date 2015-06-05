@@ -1,5 +1,5 @@
 <ul class="details" style="width:100%">
-    <li><a href="{{ url_for('detail', slug=post.slug) }}">
+    <li><a href="{{ url_for('posts',  slug=post.slug) }}">
         {% with total=post.comments.all()|length %}
             {{ total }} comment{% if total != 1 %}s{% endif %}
         {% endwith %}</a>
@@ -10,7 +10,7 @@
     {% endif %}
 
     {% if post.author.id == g.user.id and page_mark == "detail" %}
-{#        <li id="delete-button"><a href="{{ url_for('detail', post_id = post.id) }}">Delete</a></li>#}
+{#        <li id="delete-button"><a href="{{ url_for('posts', '/detail/',post_id = post.id) }}">Delete</a></li>#}
         <li id="delete-button">Delete</li>
     {% endif %}
 

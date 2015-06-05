@@ -147,7 +147,7 @@ $( document ).ready(function() {
 function voteClick(post_id) {
     var vote_button_selector = "a." + post_id;
     var $vote_button = $(vote_button_selector); // cache this! can't access in callback!
-    var post_to = '/vote/';
+    var post_to = '/vote/' + post_id;
     if ($vote_button.attr("data-voted") === "true") {
         $vote_button.css("color", "#000");
         $vote_button.html("<i class='fa fa-meh-o fa-lg'></i>");
@@ -157,7 +157,7 @@ function voteClick(post_id) {
         $vote_button.html("<i class='fa fa-smile-o fa-lg'>");
         $vote_button.attr("data-voted", "true");
     }
-    $.post(post_to, { post_id: post_id },
+    $.post(post_to,
         function(response) {
             if (response.new_votes === 1){
                 var likephrase = "like";

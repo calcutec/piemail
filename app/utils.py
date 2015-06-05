@@ -117,18 +117,18 @@ class ViewData(object):
         self.page_logo = "img/icons/" + page_mark + ".svg"
         self.profile_user = None
 
+        # Get user for profile page
         if self.nickname is not None:
             self.profile_user = User.query.filter_by(nickname=self.nickname).first()
-        else:
-            self.profile_user = None
 
-        if self.page_mark is "signup" or page_mark is "login":
+        # Get post or posts as appropriate to the page
+        if self.page_mark is "signup" or page_mark is "login":  # No posts shown on signup or login pages
             self.items = None
             self.post = None
-        elif slug is not None:
+        elif slug is not None:  # Get specific post for detail page
             self.post = self.get_items()
             self.items = None
-        else:
+        else: # Get all posts for all other pages
             self.items = self.get_items()
             self.post = None
 

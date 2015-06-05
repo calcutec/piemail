@@ -1,6 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <!-- external template -->
+{#    <script id="postTemplate" type="text/template">#}
+{#        <a id="open" class="btn">open modal</a>#}
+{#    </script>#}
+{#    <script id="poemTemplate" type="text/template">#}
+{#        <%= title %> is by <%= author %> and goes as follows <%= body %>#}
+{#        <button class="edit">Edit</button>#}
+{#        <button class="delete">Delete</button>#}
+{#    </script>#}
+{##}
+{#    <script id="formTemplate" type="text/template">#}
+{#        {% include 'forms/create_post.html' %}#}
+{#    </script>#}
+{##}
+{#    <div id="theForm"></div>#}
     {% include 'flash.html' %}
     {% for post in posts.items %}
         {% include 'post.html' %}

@@ -32,31 +32,24 @@
 			<meta name="application-name" content="Netbard">
 
 		<!-- CSS -->
-			<!--[if gte IE 7]><!-->
-                <link rel="stylesheet" href="{{ local_static_url }}css/bootstrap.min.css" />
-		        <link rel="stylesheet" type="text/css" media="all" href="{{ local_static_url }}css/layout.css" />
-		        <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cabin:400,500,600,700,400italic,500italic,600italic,700italic' data-noprefix />
-                <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-                <link rel="stylesheet" type="text/css" href="{{ local_static_url }}css/bootstrap3-wysihtml5.min.css" />
-			<!--<![endif]-->
+            <link rel="stylesheet" href="{{ local_static_url }}css/bootstrap.min.css" />
+            <link rel="stylesheet" type="text/css" media="all" href="{{ local_static_url }}css/layout.css" />
+            <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cabin:400,500,600,700,400italic,500italic,600italic,700italic' data-noprefix />
+            <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+            <link rel="stylesheet" type="text/css" href="{{ local_static_url }}css/bootstrap3-wysihtml5.min.css" />
 
 
-			<!--[if lte IE 7]>
-				<link rel="stylesheet" media="all" href="http://universal-ie6-css.googlecode.com/files/ie6.1.1.css" />
-			<![endif]-->
-
-                <!-- to help IE recognise the new HTML tags -->
-            <!--[if lte IE 8]>
-                <script src="{{ static_url }}js/html5.js"></script>
-                <script src="{{ static_url }}js/css3-mediaqueries.js"></script>
-            <![endif]-->
-
-            <script src="{{ local_static_url }}js/jquery.min.js"></script>
-            <script src="{{ local_static_url }}js/jquery-migrate-1.2.1.min.js"></script>
-            <script src="{{ local_static_url }}js/prefixfree.min.js"></script>
-            <script src="{{ local_static_url }}js/bootstrap.min.js"></script>
-            <script src="{{ local_static_url }}js/moment.min.js"></script>
-            <script src="{{ local_static_url }}js/bootstrap3-wysihtml5.all.min.js"></script>
+		<!-- JS -->
+            <script src="{{ local_static_url }}js/_libs/backbone/underscore.js"></script>
+            <script src="{{ local_static_url }}js/_libs/jquery/jquery.min.js"></script>
+            <script src="{{ local_static_url }}js/_libs/jquery/jquery-migrate-1.2.1.min.js"></script>
+            <script src="{{ local_static_url }}js/_libs/prefixfree.min.js"></script>
+            <script src="{{ local_static_url }}js/_libs/bootstrap/bootstrap.min.js"></script>
+            <script src="{{ local_static_url }}js/_libs/bootstrap/bootstrap3-wysihtml5.all.min.js"></script>
+            <script src="{{ local_static_url }}js/_libs/moment.min.js"></script>
+            <script src="{{ local_static_url }}js/_libs/backbone/backbone.js"></script>
+            <script src="{{ local_static_url }}js/_libs/backbone/backbone-forms.js"></script>
+            <script src="{{ local_static_url }}js/_libs/backbone/backbone.bootstrap-modal.js"></script>
 	</head>
 	<body>
 	<div class="page">
@@ -79,10 +72,10 @@
 		<nav>
 			<ul>
                 <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
-				<li class="n-poetry"><a href="{{ url_for('poetry') }}">Poetry</a></li>
                 {% if g.user.is_authenticated() %}
-                    <li class="n-workshop"><a href="{{ url_for('workshop') }}">Workshop</a></li>
-                    <li class="n-portfolio"><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
+                    <li class="n-poetry"><a href="{{ url_for('posts', page_mark = 'poetry') }}">Poetry</a></li>
+                    <li class="n-workshop"><a href="{{ url_for('posts', page_mark = 'workshop') }}">Workshop</a></li>
+                    <li class="n-portfolio"><a href="{{ url_for('posts', page_mark = 'portfolio') }}">Portfolio</a></li>
 				{% endif %}
 			</ul>
 		</nav>
@@ -145,7 +138,8 @@
 	</div><!-- /page -->
 		<b id="te"></b>
 	{% block scripts %}
-            <script src="{{ local_static_url }}js/editinplace.js"></script>
+        <script src="{{ local_static_url }}js/editinplace.js"></script>
+        <script src="{{ local_static_url }}js/app.js"></script>
 	{% endblock %}
 	</body>
 </html>

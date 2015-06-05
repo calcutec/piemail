@@ -1,6 +1,5 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
-from werkzeug.utils import secure_filename
 from flask import render_template, flash, redirect, session, url_for, request, g, abort, jsonify
 
 from flask.ext.login import login_user, logout_user, current_user, \
@@ -14,11 +13,11 @@ from slugify import slugify
 from .forms import SignupForm, LoginForm, EditForm, PostForm, SearchForm, CommentForm
 from .models import User, Post, Comment
 from .emails import follower_notification
-from .utils import OAuthSignIn, pre_upload, GenericListView, LoginRequiredListView, ViewData
+from .utils import OAuthSignIn, pre_upload, GenericListView, ViewData
 from PIL import Image
 import json
-
 from flask.views import MethodView
+
 
 @app.route('/', methods=['GET'])
 def index():
@@ -27,48 +26,51 @@ def index():
 home_data = ViewData("home")
 app.add_url_rule('/home/', view_func=GenericListView.as_view('home', home_data), methods=["GET", ])
 
-poetry_data = ViewData("poetry")
-app.add_url_rule('/poetry/', view_func=GenericListView.as_view('poetry', poetry_data), methods=["GET", ])
-
-workshop_data = ViewData("workshop")
-app.add_url_rule('/workshop/', view_func=LoginRequiredListView.as_view('workshop', workshop_data), methods=["GET", ])
-
-@app.route('/portfolio/', methods=['GET', ])
-@login_required
-def portfolio():
-    portfolio_data = ViewData("portfolio")
-    return render_template(portfolio_data.template_name, **portfolio_data.context)
 
 class PostAPI(MethodView):
     decorators = [login_required]
 
     # Create a new Post
-    def post(self):
-        form = PostForm(request.form)
-        if form.validate():
-            result = {'iserror': False}
-            slug = slugify(form.header.data)
-            try:
-                post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-                            author=g.user, photo=None, thumbnail=None, header=form.header.data,
-                            writing_type=form.writing_type.data, slug=slug)
-                db.session.add(post)
-                db.session.commit()
-                result['savedsuccess'] = True
-            except:
-                result['savedsuccess'] = False
-            result['new_poem'] = render_template('post.html', page_mark='detail', post=post, g=g)
-            return json.dumps(result)
-        form.errors['iserror'] = True
-        return json.dumps(form.errors)
+    def post(self, post_id=None):
+        if post_id is None:
+            form = PostForm(request.form)
+            if form.validate():
+                result = {'iserror': False}
+                slug = slugify(form.header.data)
+                try:
+                    post = Post(body=form.post.data, timestamp=datetime.utcnow(),
+                                author=g.user, photo=None, thumbnail=None, header=form.header.data,
+                                writing_type=form.writing_type.data, slug=slug)
+                    db.session.add(post)
+                    db.session.commit()
+                    result['savedsuccess'] = True
+                    result['new_poem'] = render_template('post.html', page_mark='detail', post=post, g=g)
+                except:
+                    result['savedsuccess'] = False
 
-    # Read a single Post
-    def get(self, slug):
-        detail_data = ViewData("detail", slug)
-        return render_template(detail_data.template_name, **detail_data.context)
+                return json.dumps(result)
+            form.errors['iserror'] = True
+            return json.dumps(form.errors)
+        else:
+            post_id = post_id
+            user_id = g.user.id
+            if not post_id:
+                abort(404)
+            post = Post.query.get_or_404(int(post_id))
+            vote_status = post.vote(user_id=user_id)
+            return jsonify(new_votes=post.votes, vote_status=vote_status)
+
+    #  Read Posts
+    def get(self, page_mark=None, slug=None, ):
+        if slug is None:    # Read all posts
+            view_data = ViewData(page_mark)
+            return render_template(view_data.template_name, **view_data.context)
+        else:       # Read a single post
+            detail_data = ViewData("detail", slug=slug)
+            return render_template(detail_data.template_name, **detail_data.context)
 
     # Update Post
-    def put(self, post_id):
+    def put(self):
         update_post = Post.query.get(request.form['post_id'])
         update_post.body = request.form['content']
         db.session.commit()
@@ -87,31 +89,19 @@ class PostAPI(MethodView):
 
 
 # urls for Post API
-post_api_view = PostAPI.as_view('detail')
+post_api_view = PostAPI.as_view('posts')
 # Create a new post
 app.add_url_rule('/detail/', view_func=post_api_view, methods=["POST", ])
+# Vote on post
+app.add_url_rule('/vote/<int:post_id>', view_func=post_api_view, methods=["POST", ])
 # Read a single post
 app.add_url_rule('/detail/<slug>', view_func=post_api_view, methods=["GET", ])
+# Read all posts for a specific view, optionally for a specific page number
+app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["GET", ])
 # Update a single post
-app.add_url_rule('/detail/<int:post_id>', view_func=post_api_view, methods=["PUT", ])
+app.add_url_rule('/detail/', view_func=post_api_view, methods=["PUT", ])
 # Delete a single post
 app.add_url_rule('/detail/<int:post_id>', view_func=post_api_view, methods=["DELETE", ])
-
-
-# Vote on Post
-@app.route('/vote/', methods=['POST'])
-@login_required
-def vote_poem():
-    """
-    Submit votes via ajax
-    """
-    post_id = int(request.form['post_id'])
-    user_id = g.user.id
-    if not post_id:
-        abort(404)
-    post = Post.query.get_or_404(int(post_id))
-    vote_status = post.vote(user_id=user_id)
-    return jsonify(new_votes=post.votes, vote_status=vote_status)
 
 
 class UserAPI(MethodView):
@@ -121,7 +111,8 @@ class UserAPI(MethodView):
             form = SignupForm(request.form)
             if form.validate():
                 result = {'iserror': False}
-                newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data, lastname=form.lastname.data,
+                newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data,
+                               lastname=form.lastname.data,
                                password=form.password.data)
                 db.session.add(newuser)
                 db.session.add(newuser.follow(newuser))
@@ -253,7 +244,7 @@ class AuthAPI(MethodView):
             return render_template(login_data.template_name, **login_data.context)
 
 
-# urls for User API
+# urls for Auth API
 auth_api_view = AuthAPI.as_view('login')
 # Authenticate user
 app.add_url_rule('/login/', view_func=auth_api_view, methods=["POST", ])
