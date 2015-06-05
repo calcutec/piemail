@@ -1,0 +1,11 @@
+{% extends "pages/../base.html" %}
+
+{% block content %}
+
+<h1>Search Results</h1>
+{% include 'comps/flash.html' %}
+{% for post in results %}
+    {% include 'comps/post.html' %}
+{% endfor %}
+
+{% endblock %}

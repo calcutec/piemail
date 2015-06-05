@@ -44,7 +44,7 @@ class PostAPI(MethodView):
                     db.session.add(post)
                     db.session.commit()
                     result['savedsuccess'] = True
-                    result['new_poem'] = render_template('post.html', page_mark='detail', post=post, g=g)
+                    result['new_poem'] = render_template('comps/post.html', page_mark='detail', post=post, g=g)
                 except:
                     result['savedsuccess'] = False
 
@@ -74,7 +74,8 @@ class PostAPI(MethodView):
         update_post = Post.query.get(request.form['post_id'])
         update_post.body = request.form['content']
         db.session.commit()
-        return request.form['content']
+        result = {'updatedsuccess': True}
+        return json.dumps(result)
 
     # Delete Post
     def delete(self, post_id):
@@ -264,7 +265,7 @@ class HelpersAPI(MethodView):
             db.session.add(comment)
             db.session.commit()
             result['savedsuccess'] = True
-            result['new_comment'] = render_template('comment.html', comment=comment)
+            result['new_comment'] = render_template('comps/detail/comment.html', comment=comment)
             return json.dumps(result)
         form.errors['iserror'] = True
         return json.dumps(form.errors)
@@ -337,7 +338,7 @@ def search():
 def search_results(query):
     results = Post.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
     upload_folder_name = app.config['UPLOAD_FOLDER_NAME']
-    return render_template('search_results.html',
+    return render_template('comps/search_results.html',
                            query=query,
                            results=results,
                            upload_folder_name=upload_folder_name)
@@ -388,10 +389,10 @@ def after_request(response):
 
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('404.html', error=error), 404
+    return render_template('comps/404_500/404.html', error=error), 404
 
 
 @app.errorhandler(500)
 def internal_error(error):
     db.session.rollback()
-    return render_template('500.html', error=error), 500
+    return render_template('comps/404_500/500.html', error=error), 500

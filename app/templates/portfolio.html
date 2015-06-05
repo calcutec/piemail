@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block header %}
-    {% include 'modal.html' %}
+    {% include 'comps/detail/post_modal.html' %}
 {% endblock %}
 
 {% block content %}
-    {% include 'flash.html' %}
+    {% include 'comps/flash.html' %}
     {% for post in posts.items %}
-        {% include 'post.html' %}
+        {% include 'comps/post.html' %}
     {% endfor %}
 
-    {% include 'postie.html' %}
+    {% include 'comps/postie.html' %}
 {% endblock %}
 

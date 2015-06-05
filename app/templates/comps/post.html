@@ -10,7 +10,7 @@
         <div class="edit-me">
             {{ post.body|safe }}
         </div>
-        {% if page_mark != "home" %}{% include 'details.html' %}{% endif %}
+        {% if page_mark != "home" %}{% include 'comps/details.html' %}{% endif %}
         <span class="post-id hide">{{ post.id }}</span>
     </div>
 </article>

@@ -121,7 +121,7 @@ $( document ).ready(function() {
             editme.attr('contenteditable', false);
             $.ajax({
                 type: "PUT",
-                url:'/detail/' + post_id,
+                url:'/detail/',
                 data: {content: content, post_id: post_id}
             });
         }
