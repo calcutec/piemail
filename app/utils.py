@@ -142,13 +142,13 @@ class ViewData(object):
             self.items = Post.query.filter_by(writing_type="op-ed")
             return self.items
         elif self.page_mark == 'poetry':
-            self.items = Post.query.filter_by(writing_type="selected").paginate(self.page, POSTS_PER_PAGE, False)
+            self.items = Post.query.filter_by(writing_type="featured").paginate(self.page, POSTS_PER_PAGE, False)
             return self.items
         elif self.page_mark == 'workshop':
             self.items = Post.query.filter_by(writing_type="poem").paginate(self.page, POSTS_PER_PAGE, False)
             return self.items
         elif self.page_mark == 'portfolio':
-            self.items = g.user.posts.paginate(1, POSTS_PER_PAGE, False)
+            self.items = g.user.posts.paginate(self.page, POSTS_PER_PAGE, False)
             return self.items
         elif self.page_mark == 'detail':
             self.post = Post.query.filter(Post.slug == self.slug).first()

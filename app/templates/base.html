@@ -60,19 +60,20 @@
 			<ul>
                 {% if not g.user.is_authenticated() %}
                     <li class="n-login"><a href="{{ url_for('login') }}">Login</a></li>
+                    <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
                 {% endif %}
                 {% if g.user.is_authenticated() %}
                     <li class="n-user-id">Hi&nbsp;{{ g.user.nickname }}!</li>
                     <li class="n-logout"><a href="{{ url_for('helpers') }}">Logout</a></li>
                     <li class="n-profile"><a href="{{ url_for('profile', nickname=g.user.nickname) }}">Profile</a></li>
                     <li id="user-type" class="hide">{{ g.user.type }}</li>
+                    <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
 				{% endif %}
 			</ul>
 		</div>
 
 		<nav>
 			<ul>
-                <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
                 {% if g.user.is_authenticated() %}
                     <li class="n-poetry"><a href="{{ url_for('posts', page_mark = 'poetry') }}">Poetry</a></li>
                     <li class="n-workshop"><a href="{{ url_for('posts', page_mark = 'workshop') }}">Workshop</a></li>
@@ -118,10 +119,9 @@
 						<h3>Contact</h3>
 						<div class="adr">
 							<p><span class="organization-name fn n org">editor@netbard.com</span></p>
-							<p><span class="street-address">12 Newman Way</span></p>
+							<p><span class="street-address">P.O. Box 119</span></p>
 							<p><span class="locality">Arlington</span></p>
 							<p><span class="region">Massachusetts</span>, <span class="country-name">USA</span></p>
-							<p><span class="postal-code">02474</span></p>
 						</div>
 					</div>
 				</section>

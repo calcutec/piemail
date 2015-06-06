@@ -11,12 +11,13 @@
 
  {% if page_mark == "profile" %}
     {% if profile_user.id == g.user.id %}
-        {% include 'comps/profile/profile_modal.html' %}
+        <h3>{% include 'comps/profile/profile_modal.html' %}</h3>
     {% elif not g.user.is_following(profile_user) %}
         <h1>Click <a href="{{ url_for('follow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to follow {{ profile_user.nickname }}</h1>
     {% else %}
         <h1>Click <a href="{{ url_for('unfollow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to unfollow {{ profile_user.nickname }}</h1>
     {% endif %}
+    {% include 'comps/profile/profile_user.html' %}
  {% endif %}
 {% endblock %}
 
@@ -26,9 +27,8 @@
     {% if page_mark == "login" %}{% include 'comps/forms/login_form.html' %}{% endif %}
     {% if page_mark == "signup" %}{% include 'comps/forms/signup_form.html' %}{% endif %}
     {% if page_mark == "home" %}{% for post in posts %}{% include 'comps/post.html' %}{% endfor %}{% endif %}
-    {% if page_mark == "profile" %}{% include 'comps/profile/profile_user.html' %}{% endif %}
 
-    {% if page_mark == "home" or page_mark == "poetry" or page_mark == "workshop" or page_mark == "portfolio" %}
+    {% if page_mark == "home" or page_mark == "poetry" or page_mark == "workshop" or page_mark == "portfolio" or page_mark == "profile" %}
         {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
         {% include 'comps/postie.html' %}
     {% endif %}
