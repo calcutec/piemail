@@ -307,7 +307,7 @@ class HelpersAPI(MethodView):
                 return json.dumps(result)
             form.errors['iserror'] = True
             return json.dumps(form.errors)
-        else:   # Process Search
+        else:   # Process Search  Todo: Reimplement search
             if not g.search_form.validate_on_submit():
                 return redirect(url_for('home'))
             return redirect(url_for('search_results', query=g.search_form.search.data))
@@ -316,7 +316,7 @@ class HelpersAPI(MethodView):
         if query is None:   # Logout
             logout_user()
             return redirect(url_for('login'))
-        else:   # Search Results
+        else:   # Search Results  Todo: Reimplement search
             results = Post.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
             upload_folder_name = app.config['UPLOAD_FOLDER_NAME']
             return render_template('search_results.html',
@@ -328,8 +328,8 @@ class HelpersAPI(MethodView):
 # Urls for Helpers API
 helpers_api_view = HelpersAPI.as_view('helpers')
 app.add_url_rule('/comment/<int:post_id>', view_func=helpers_api_view, methods=["POST", ])
-app.add_url_rule('/search', view_func=helpers_api_view, methods=["POST", ])
 app.add_url_rule('/logout', view_func=helpers_api_view, methods=["Get", ])
+app.add_url_rule('/search', view_func=helpers_api_view, methods=["POST", ])
 
 
 # Helper functions

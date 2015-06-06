@@ -5,12 +5,12 @@
         {% endif %}
             <li class="posted"><b>{{ post.timestamp.strftime('%d %b %Y') }}</b></li>
     </ul>
-    <h2><a href="/detail/{{ post.slug }}">{{ post.header }}</a></h2>
-    <div class="body">
+    <div class="body frame">
+        <h2><a href="/detail/{{ post.slug }}">{{ post.header }}</a></h2>
         <div class="edit-me">
             {{ post.body|safe }}
         </div>
-        {% if page_mark != "home" %}{% include 'comps/details.html' %}{% endif %}
-        <span class="post-id hide">{{ post.id }}</span>
     </div>
+    {% if page_mark != "home" %}{% include 'comps/details.html' %}{% endif %}
+    <span class="post-id hide">{{ post.id }}</span>
 </article>
