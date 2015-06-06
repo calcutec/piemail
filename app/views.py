@@ -37,17 +37,13 @@ class PostAPI(MethodView):
             if form.validate():
                 result = {'iserror': False}
                 slug = slugify(form.header.data)
-                try:
-                    post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-                                author=g.user, photo=None, thumbnail=None, header=form.header.data,
-                                writing_type=form.writing_type.data, slug=slug)
-                    db.session.add(post)
-                    db.session.commit()
-                    result['savedsuccess'] = True
-                    result['new_poem'] = render_template('comps/post.html', page_mark='detail', post=post, g=g)
-                except:
-                    result['savedsuccess'] = False
-
+                post = Post(body=form.post.data, timestamp=datetime.utcnow(),
+                            author=g.user, photo=None, thumbnail=None, header=form.header.data,
+                            writing_type=form.writing_type.data, slug=slug)
+                db.session.add(post)
+                db.session.commit()
+                result['savedsuccess'] = True
+                result['new_poem'] = render_template('comps/post.html', page_mark='detail', post=post, g=g)
                 return json.dumps(result)
             form.errors['iserror'] = True
             return json.dumps(form.errors)
@@ -79,13 +75,10 @@ class PostAPI(MethodView):
 
     # Delete Post
     def delete(self, post_id):
+        post = Post.query.get(post_id)
+        db.session.delete(post)
+        db.session.commit()
         result = {'deletedsuccess': True}
-        try:
-            post = Post.query.get(post_id)
-            db.session.delete(post)
-            db.session.commit()
-        except:
-            result['deletedsuccess'] = False
         return json.dumps(result)
 
 
@@ -213,7 +206,7 @@ def follow(nickname):
     return redirect(url_for('profile', nickname=nickname))
 
 
-@app.route('/unfollow/<nickname>')  #  Unfollow a User
+@app.route('/unfollow/<nickname>')  # Unfollow a User
 @login_required
 def unfollow(nickname):
     user = User.query.filter_by(nickname=nickname).first()
@@ -305,7 +298,8 @@ class HelpersAPI(MethodView):
             form = CommentForm()
             if form.validate_on_submit():
                 result = {'iserror': False}
-                comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data, post_id=post_id)
+                comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data,
+                                  post_id=post_id)
                 db.session.add(comment)
                 db.session.commit()
                 result['savedsuccess'] = True
