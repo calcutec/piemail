@@ -29,6 +29,7 @@ app.add_url_rule('/home/', view_func=GenericListView.as_view('home', home_data),
 
 class PostAPI(MethodView):
     decorators = [login_required]
+
     # Create a new Post
     def post(self, post_id=None):
         if post_id is None:     # Create a new post
@@ -190,8 +191,8 @@ app.add_url_rule('/profile/<int:user_id>', view_func=user_api_view, methods=["DE
 # Update a single user Todo: Ajax currently not working with files
 app.add_url_rule('/profile/<int:profile_user_id>', view_func=user_api_view, methods=["PUT", ])
 
-# Follow a User
-@app.route('/follow/<nickname>')
+
+@app.route('/follow/<nickname>')    # Follow a User
 @login_required
 def follow(nickname):
     user = User.query.filter_by(nickname=nickname).first()
@@ -211,8 +212,8 @@ def follow(nickname):
     follower_notification(user, g.user)
     return redirect(url_for('profile', nickname=nickname))
 
-#  Unfollow a User
-@app.route('/unfollow/<nickname>')
+
+@app.route('/unfollow/<nickname>')  #  Unfollow a User
 @login_required
 def unfollow(nickname):
     user = User.query.filter_by(nickname=nickname).first()
