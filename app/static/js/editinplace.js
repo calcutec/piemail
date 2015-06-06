@@ -135,13 +135,15 @@ $( document ).ready(function() {
             url: '/detail/' + post_id,
             type: 'DELETE',
             success: function(result) {
-                // When backbone is complete, remove poem from the current DOM
-                location.href = "/portfolio"
+                if(result.iserror) {
+                    alert("An error occurred while deleting the last item..")
+                }else if (result.savedsuccess) {
+                    // When backbone is complete, remove poem from the current DOM
+                    location.href = "/portfolio"
+                }
             }
         });
     });
-
-
 });
 
 
@@ -161,13 +163,14 @@ function voteClick(post_id) {
     }
     $.post(post_to,
         function(response) {
+            var likephrase;
             if (response.new_votes === 1){
-                var likephrase = "like";
+                likephrase = "like";
             } else {
-                var likephrase = "likes";
+                likephrase = "likes";
             }
             var new_vote_count = response.new_votes.toString();
-            var vote_status = response.vote_status;
+            //var vote_status = response.vote_status;
             $vote_button.parent().next().html(new_vote_count + "&nbsp;" + likephrase);
         }, 'json'
     );
@@ -184,7 +187,7 @@ $("#update-form").submit(function(e) {
         var error_firstname = $("#error_firstname");
         var error_lastname = $("#error_lastname");
         var error_email = $("#error_email");
-        var error_password = $("#error_password")
+        var error_password = $("#error_password");
         error_firstname.text("");
         error_lastname.text("");
         error_email.text("");
@@ -231,6 +234,27 @@ $("#profile-form").submit(function(e) {
       }
     });
 });
+
+
+//Comment on Post
+function post_comment(post_id) {
+    $.ajax({
+      url: '/comment/' + post_id,
+      type: 'POST',
+      data: $('#comment-form').serialize(),
+      success: function(data) {
+        var result = $.parseJSON(data);
+        var error_comment = $("#error_comment");
+        error_comment.text("");
+        if(result.iserror) {
+            if(result.comment!=undefined) error_comment.text(result.comment[0]);
+        }else if (result.savedsuccess) {
+            $("#comment").val("");
+            $("#comments").append(result.new_comment);
+        }
+      }
+    });
+}
 
 
 

@@ -1,43 +1,9 @@
 {% extends "base.html" %}
+
+{% block header %}<h1>Detail page text placeholder</h1>{% endblock %}
+
 {% block content %}
-    <script type="text/javascript">
-        function post_comment(post_id) {
-            $.ajax({
-              url: '/comment/' + post_id,
-              type: 'POST',
-              data: $('#comment-form').serialize(),
-              success: function(data) {
-                var result = $.parseJSON(data);
-                var error_comment = $("#error_comment");
-                error_comment.text("");
-                if(result.iserror) {
-                    if(result.comment!=undefined) error_comment.text(result.comment[0]);
-                }else if (result.savedsuccess) {
-                    $("#comment").val("");
-                    $("#comments").append(result.new_comment);
-                }
-              }
-            });
-        }
-    </script>
     {% include 'comps/flash.html' %}
     {% include 'comps/post.html' %}
-    <div id="comments">
-        <h2>Comments</h2>
-        <form id="comment-form" class="form-horizontal" action="javascript:post_comment('{{ post.id }}');" method="post" enctype="multipart/form-data" name="comment">
-            {{ form.hidden_tag() }}
-            <div class="control-group{% if form.comment.errors %} error{% endif %}">
-                <label class="control-label" for="comment">Add your comment!:</label><br>
-                <div class="controls">
-                    {{ form.comment(class="form-control") }}
-                    <input class="btn btn-primary" type="submit" value="Send">
-                    <span id="error_comment" class="help-inline"></span>
-
-                </div>
-            </div>
-        </form>
-        {% for comment in post.comments %}
-            {% include 'comps/detail/comment.html' %}
-        {% endfor %}
-    </div>
+    {% include 'comps/comment_form.html' %}
 {% endblock %}

@@ -10,7 +10,7 @@ import cStringIO
 from flask import request, redirect, url_for, render_template, g
 from flask.views import View
 from flask.ext.login import login_required
-from models import User, Post, Comment
+from models import User, Post
 
 
 def pre_upload(img_obj):
@@ -128,43 +128,43 @@ class ViewData(object):
         elif slug is not None:  # Get specific post for detail page
             self.post = self.get_items()
             self.items = None
-        else: # Get all posts for all other pages
+        else:   # Get all posts for all other pages
             self.items = self.get_items()
             self.post = None
 
         self.context = self.get_context()
 
     def get_items(self):
-        if self.page_mark == 'home':
-            self.items = Post.query.filter_by(writing_type="op-ed")
-            return self.items
-        if self.page_mark == 'poetry':
-            self.items = Post.query.filter_by(writing_type="selected").paginate(self.page, POSTS_PER_PAGE, False)
-            return self.items
-        if self.page_mark == 'workshop':
-            self.items = Post.query.filter_by(writing_type="poem").paginate(self.page, POSTS_PER_PAGE, False)
-            return self.items
-        if self.page_mark == 'portfolio':
-            self.items = g.user.posts.paginate(1, POSTS_PER_PAGE, False)
-            return self.items
-        if self.page_mark == 'detail':
-            self.post = Post.query.filter(Post.slug == self.slug).first()
-            return self.post
         if self.page_mark == 'profile':
             self.items = self.profile_user.posts.paginate(self.page, POSTS_PER_PAGE, False)
             return self.items
+        elif self.page_mark == 'home':
+            self.items = Post.query.filter_by(writing_type="op-ed")
+            return self.items
+        elif self.page_mark == 'poetry':
+            self.items = Post.query.filter_by(writing_type="selected").paginate(self.page, POSTS_PER_PAGE, False)
+            return self.items
+        elif self.page_mark == 'workshop':
+            self.items = Post.query.filter_by(writing_type="poem").paginate(self.page, POSTS_PER_PAGE, False)
+            return self.items
+        elif self.page_mark == 'portfolio':
+            self.items = g.user.posts.paginate(1, POSTS_PER_PAGE, False)
+            return self.items
+        elif self.page_mark == 'detail':
+            self.post = Post.query.filter(Post.slug == self.slug).first()
+            return self.post
 
     def get_form(self):
-        if self.page_mark == 'portfolio':
+        if self.page_mark == 'signup':
+            form = SignupForm()
+        elif self.page_mark == 'login':
+            form = LoginForm()
+        elif self.page_mark == 'profile':
+            form = EditForm()
+        elif self.page_mark == 'portfolio':
             form = PostForm()
         elif self.page_mark == 'detail':
             form = CommentForm()
-        elif self.page_mark == 'profile':
-            form = EditForm()
-        elif self.page_mark == 'signup':
-            form = SignupForm()
-        elif self.page_mark == 'signup':
-            form = LoginForm()
         else:
             form = None
         return form
@@ -244,12 +244,12 @@ class GoogleSignIn(OAuthSignIn):
         googleinfo = urllib2.urlopen('https://accounts.google.com/.well-known/openid-configuration')
         google_params = json.load(googleinfo)
         self.service = OAuth2Service(
-                name='google',
-                client_id=self.consumer_id,
-                client_secret=self.consumer_secret,
-                authorize_url=google_params.get('authorization_endpoint'),
-                base_url=google_params.get('userinfo_endpoint'),
-                access_token_url=google_params.get('token_endpoint')
+            name='google',
+            client_id=self.consumer_id,
+            client_secret=self.consumer_secret,
+            authorize_url=google_params.get('authorization_endpoint'),
+            base_url=google_params.get('userinfo_endpoint'),
+            access_token_url=google_params.get('token_endpoint')
         )
 
     def authorize(self):
@@ -263,11 +263,10 @@ class GoogleSignIn(OAuthSignIn):
         if 'code' not in request.args:
             return None, None, None
         oauth_session = self.service.get_auth_session(
-                data={'code': request.args['code'],
-                      'grant_type': 'authorization_code',
-                      'redirect_uri': self.get_callback_url()
-                     },
-                decoder=json.loads
+            data={'code': request.args['code'],
+                  'grant_type': 'authorization_code',
+                  'redirect_uri': self.get_callback_url()},
+            decoder=json.loads
         )
         me = oauth_session.get('').json()
         nickname = me['name']
