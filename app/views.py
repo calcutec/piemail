@@ -29,7 +29,6 @@ app.add_url_rule('/home/', view_func=GenericListView.as_view('home', home_data),
 
 class PostAPI(MethodView):
     decorators = [login_required]
-
     # Create a new Post
     def post(self, post_id=None):
         if post_id is None:     # Create a new post
@@ -191,9 +190,49 @@ app.add_url_rule('/profile/<int:user_id>', view_func=user_api_view, methods=["DE
 # Update a single user Todo: Ajax currently not working with files
 app.add_url_rule('/profile/<int:profile_user_id>', view_func=user_api_view, methods=["PUT", ])
 
+# Follow a User
+@app.route('/follow/<nickname>')
+@login_required
+def follow(nickname):
+    user = User.query.filter_by(nickname=nickname).first()
+    if user is None:
+        flash('User %s not found.' % nickname)
+        return redirect(url_for('home'))
+    if user == g.user:
+        flash('You can\'t follow yourself!')
+        return redirect(url_for('profile', nickname=nickname))
+    u = g.user.follow(user)
+    if u is None:
+        flash('Cannot follow %s.' % nickname)
+        return redirect(url_for('profile', nickname=nickname))
+    db.session.add(u)
+    db.session.commit()
+    flash('You are now following %s.' % nickname)
+    follower_notification(user, g.user)
+    return redirect(url_for('profile', nickname=nickname))
+
+#  Unfollow a User
+@app.route('/unfollow/<nickname>')
+@login_required
+def unfollow(nickname):
+    user = User.query.filter_by(nickname=nickname).first()
+    if user is None:
+        flash('User %s not found.' % nickname)
+        return redirect(url_for('home'))
+    if user == g.user:
+        flash('You can\'t unfollow yourself!')
+        return redirect(url_for('profile', nickname=nickname))
+    u = g.user.unfollow(user)
+    if u is None:
+        flash('Cannot unfollow %s.' % nickname)
+        return redirect(url_for('profile', nickname=nickname))
+    db.session.add(u)
+    db.session.commit()
+    flash('You have stopped following %s.' % nickname)
+    return redirect(url_for('profile', nickname=nickname))
+
 
 class AuthAPI(MethodView):
-
     def post(self):
         # Authorize data from manual login form
         form = LoginForm(request.form)
@@ -245,7 +284,7 @@ class AuthAPI(MethodView):
             return render_template(login_data.template_name, **login_data.context)
 
 
-# urls for Auth API
+# Urls for Auth API
 auth_api_view = AuthAPI.as_view('login')
 # Authenticate user
 app.add_url_rule('/login/', view_func=auth_api_view, methods=["POST", ])
@@ -258,94 +297,47 @@ app.add_url_rule('/login/', view_func=auth_api_view, methods=["GET", ])
 
 
 class HelpersAPI(MethodView):
+    decorators = [login_required]
+
     def post(self, post_id=None):
-        form = CommentForm()
-        if form.validate_on_submit():
-            result = {'iserror': False}
-            comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data, post_id=post_id)
-            db.session.add(comment)
-            db.session.commit()
-            result['savedsuccess'] = True
-            result['new_comment'] = render_template('comps/detail/comment.html', comment=comment)
-            return json.dumps(result)
-        form.errors['iserror'] = True
-        return json.dumps(form.errors)
+        if post_id is not None:     # Process Comment Form
+            form = CommentForm()
+            if form.validate_on_submit():
+                result = {'iserror': False}
+                comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data, post_id=post_id)
+                db.session.add(comment)
+                db.session.commit()
+                result['savedsuccess'] = True
+                result['new_comment'] = render_template('comps/detail/comment.html', comment=comment)
+                return json.dumps(result)
+            form.errors['iserror'] = True
+            return json.dumps(form.errors)
+        else:   # Process Search
+            if not g.search_form.validate_on_submit():
+                return redirect(url_for('home'))
+            return redirect(url_for('search_results', query=g.search_form.search.data))
+
+    def get(self, query=None):
+        if query is None:   # Logout
+            logout_user()
+            return redirect(url_for('login'))
+        else:   # Search Results
+            results = Post.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
+            upload_folder_name = app.config['UPLOAD_FOLDER_NAME']
+            return render_template('search_results.html',
+                                   query=query,
+                                   results=results,
+                                   upload_folder_name=upload_folder_name)
 
 
-# urls for Helpers API
+# Urls for Helpers API
 helpers_api_view = HelpersAPI.as_view('helpers')
 app.add_url_rule('/comment/<int:post_id>', view_func=helpers_api_view, methods=["POST", ])
+app.add_url_rule('/search', view_func=helpers_api_view, methods=["POST", ])
+app.add_url_rule('/logout', view_func=helpers_api_view, methods=["Get", ])
 
 
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('login'))
-
-
-# Follow and Unfollow
-@app.route('/follow/<nickname>')
-@login_required
-def follow(nickname):
-    user = User.query.filter_by(nickname=nickname).first()
-    if user is None:
-        flash('User %s not found.' % nickname)
-        return redirect(url_for('home'))
-    if user == g.user:
-        flash('You can\'t follow yourself!')
-        return redirect(url_for('profile', nickname=nickname))
-    u = g.user.follow(user)
-    if u is None:
-        flash('Cannot follow %s.' % nickname)
-        return redirect(url_for('profile', nickname=nickname))
-    db.session.add(u)
-    db.session.commit()
-    flash('You are now following %s.' % nickname)
-    follower_notification(user, g.user)
-    return redirect(url_for('profile', nickname=nickname))
-
-
-@app.route('/unfollow/<nickname>')
-@login_required
-def unfollow(nickname):
-    user = User.query.filter_by(nickname=nickname).first()
-    if user is None:
-        flash('User %s not found.' % nickname)
-        return redirect(url_for('home'))
-    if user == g.user:
-        flash('You can\'t unfollow yourself!')
-        return redirect(url_for('profile', nickname=nickname))
-    u = g.user.unfollow(user)
-    if u is None:
-        flash('Cannot unfollow %s.' % nickname)
-        return redirect(url_for('profile', nickname=nickname))
-    db.session.add(u)
-    db.session.commit()
-    flash('You have stopped following %s.' % nickname)
-    return redirect(url_for('profile', nickname=nickname))
-
-
-# Search
-@app.route('/search', methods=['POST'])
-@login_required
-def search():
-    if not g.search_form.validate_on_submit():
-        return redirect(url_for('home'))
-    return redirect(url_for('search_results', query=g.search_form.search.data))
-
-
-@app.route('/search_results/<query>')
-@login_required
-def search_results(query):
-    results = Post.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
-    upload_folder_name = app.config['UPLOAD_FOLDER_NAME']
-    return render_template('search_results.html',
-                           query=query,
-                           results=results,
-                           upload_folder_name=upload_folder_name)
-
-
-# Helpers
+# Helper functions
 @app.context_processor
 def inject_static_url():
     local_static_url = app.static_url_path
