@@ -8,6 +8,7 @@
  {% if page_mark == "workshop" %}<h1>Workshop page text placeholder</h1>{% endif %}
  {% if page_mark == "portfolio" %}<h1>{% include 'comps/detail/post_modal.html' %}</h1>{% endif %}
  {% if page_mark == "detail" %}<h1>Detail page text placeholder</h1>{% endif %}
+
  {% if page_mark == "profile" %}
     {% if profile_user.id == g.user.id %}
         {% include 'comps/profile/profile_modal.html' %}
@@ -25,13 +26,9 @@
     {% if page_mark == "login" %}{% include 'comps/forms/login_form.html' %}{% endif %}
     {% if page_mark == "signup" %}{% include 'comps/forms/signup_form.html' %}{% endif %}
     {% if page_mark == "home" %}{% for post in posts %}{% include 'comps/post.html' %}{% endfor %}{% endif %}
+    {% if page_mark == "profile" %}{% include 'comps/profile/profile_user.html' %}{% endif %}
 
-    {% if page_mark == "home" or page_mark == "workshop" or page_mark == "portfolio" %}
-        {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
-        {% include 'comps/postie.html' %}
-    {% endif %}
-
-    {% if page_mark == "home" or page_mark == "workshop" or page_mark == "portfolio" %}
+    {% if page_mark == "home" or page_mark == "poetry" or page_mark == "workshop" or page_mark == "portfolio" %}
         {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
         {% include 'comps/postie.html' %}
     {% endif %}

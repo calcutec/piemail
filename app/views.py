@@ -32,7 +32,7 @@ class PostAPI(MethodView):
 
     # Create a new Post
     def post(self, post_id=None):
-        if post_id is None:
+        if post_id is None:     # Create a new post
             form = PostForm(request.form)
             if form.validate():
                 result = {'iserror': False}
@@ -51,7 +51,7 @@ class PostAPI(MethodView):
                 return json.dumps(result)
             form.errors['iserror'] = True
             return json.dumps(form.errors)
-        else:
+        else:   # Vote on post
             post_id = post_id
             user_id = g.user.id
             if not post_id:
@@ -97,7 +97,7 @@ app.add_url_rule('/detail/', view_func=post_api_view, methods=["POST", ])
 app.add_url_rule('/vote/<int:post_id>', view_func=post_api_view, methods=["POST", ])
 # Read a single post
 app.add_url_rule('/detail/<slug>', view_func=post_api_view, methods=["GET", ])
-# Read all posts for a specific view, optionally for a specific page number
+# Read all posts for a specific view
 app.add_url_rule('/<page_mark>', view_func=post_api_view, methods=["GET", ])
 # Update a single post
 app.add_url_rule('/detail/', view_func=post_api_view, methods=["PUT", ])
@@ -195,7 +195,7 @@ app.add_url_rule('/profile/<int:profile_user_id>', view_func=user_api_view, meth
 class AuthAPI(MethodView):
 
     def post(self):
-        # Manual login authorization
+        # Authorize data from manual login form
         form = LoginForm(request.form)
         if form.validate_on_submit():
             newuser = User.query.filter_by(email=form.email.data).first()
@@ -209,8 +209,14 @@ class AuthAPI(MethodView):
             return internal_error(form.errors[0])
 
     def get(self, get_provider=None, provider=None):
-        # Provider oauth callback
-        if provider is not None:
+        # Internal request to get oauth provider info
+        if get_provider is not None:
+            if not current_user.is_anonymous():
+                return redirect(url_for('home'))
+            oauth = OAuthSignIn.get_provider(get_provider)
+            return oauth.authorize()
+        # Handles external provider oauth callback
+        elif provider is not None:
             if not current_user.is_anonymous():
                 return redirect(url_for('home'))
             oauth = OAuthSignIn.get_provider(provider)
@@ -230,12 +236,7 @@ class AuthAPI(MethodView):
                 session.pop('remember_me', None)
             login_user(currentuser, remember=remember_me)
             return redirect(request.args.get('next') or url_for('posts', page_mark='portfolio'))
-        # Request to oauth provider
-        elif get_provider is not None:
-            if not current_user.is_anonymous():
-                return redirect(url_for('home'))
-            oauth = OAuthSignIn.get_provider(get_provider)
-            return oauth.authorize()
+
         # Manual login form
         else:
             if g.user is not None and g.user.is_authenticated():
@@ -248,12 +249,12 @@ class AuthAPI(MethodView):
 auth_api_view = AuthAPI.as_view('login')
 # Authenticate user
 app.add_url_rule('/login/', view_func=auth_api_view, methods=["POST", ])
-# Login form for returning user
-app.add_url_rule('/login/', view_func=auth_api_view, methods=["GET", ])
 # Oauth login
 app.add_url_rule('/login/<get_provider>', view_func=auth_api_view, methods=["GET", ])
 # Oauth provider callback
 app.add_url_rule('/callback/<provider>', view_func=auth_api_view, methods=["GET", ])
+# Login form for returning user
+app.add_url_rule('/login/', view_func=auth_api_view, methods=["GET", ])
 
 
 class HelpersAPI(MethodView):
@@ -338,7 +339,7 @@ def search():
 def search_results(query):
     results = Post.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
     upload_folder_name = app.config['UPLOAD_FOLDER_NAME']
-    return render_template('comps/search_results.html',
+    return render_template('search_results.html',
                            query=query,
                            results=results,
                            upload_folder_name=upload_folder_name)
@@ -389,10 +390,10 @@ def after_request(response):
 
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('comps/404_500/404.html', error=error), 404
+    return render_template('404.html', error=error), 404
 
 
 @app.errorhandler(500)
 def internal_error(error):
     db.session.rollback()
-    return render_template('comps/404_500/500.html', error=error), 500
+    return render_template('500.html', error=error), 500

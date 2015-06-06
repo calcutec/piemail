@@ -111,7 +111,7 @@ class ViewData(object):
         self.nickname = nickname
         self.page = page
         self.page_mark = page_mark
-        self.template_name = page_mark + ".html"
+        self.template_name = "base_template.html"
         self.form = self.get_form()
         self.title = page_mark.title()
         self.page_logo = "img/icons/" + page_mark + ".svg"

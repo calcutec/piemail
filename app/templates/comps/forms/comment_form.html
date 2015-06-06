@@ -1,0 +1,19 @@
+<div id="comments">
+    <h2>Comments</h2>
+    <form onclick="post_comment('{{ post.id }}');" id="comment-form" class="form-horizontal" action="javascript:void(0)" method="post"
+          enctype="multipart/form-data" name="comment">
+        {{ form.hidden_tag() }}
+        <div class="control-group{% if form.comment.errors %} error{% endif %}">
+            <label class="control-label" for="comment">Add your comment!:</label><br>
+            <div class="controls">
+                {{ form.comment(class="form-control") }}
+                <input class="btn btn-primary" type="submit" value="Send">
+                <span id="error_comment" class="help-inline"></span>
+
+            </div>
+        </div>
+    </form>
+    {% for comment in post.comments %}
+        {% include 'comps/detail/comment.html' %}
+    {% endfor %}
+</div>
