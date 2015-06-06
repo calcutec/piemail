@@ -13,8 +13,6 @@
 {% block content %}
     {% include 'comps/flash.html' %}
     {% include 'comps/profile/profile_user.html' %}
-    {% for post in posts.items %}
-        {% include 'comps/post.html' %}
-    {% endfor %}
+    {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
     {% include 'comps/postie.html' %}
 {% endblock %}

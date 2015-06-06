@@ -1,13 +1,9 @@
 {% extends "base.html" %}
 
-{% block header %}
-    <h1>Poetry page text placeholder</h1>
-{% endblock %}
+{% block header %}<h1>Poetry page text placeholder</h1>{% endblock %}
 
 {% block content %}
     {% include 'comps/flash.html' %}
-    {% for post in posts.items %}
-        {% include 'comps/post.html' %}
-    {% endfor %}
+    {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
     {% include 'comps/postie.html' %}
 {% endblock %}

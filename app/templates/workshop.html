@@ -4,8 +4,6 @@
 
 {% block content %}
     {% include 'comps/flash.html' %}
-    {% for post in posts.items %}
-        {% include 'comps/post.html' %}
-    {% endfor %}
+    {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
     {% include 'comps/postie.html' %}
 {% endblock %}

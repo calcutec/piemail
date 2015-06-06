@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block header %}
+ {% if page_mark == "login" %}<h1>Login page text placeholder</h1>{% endif %}
+ {% if page_mark == "signup" %}<h1>Signup page text placeholder</h1>{% endif %}
+ {% if page_mark == "home" %}<h1>Home page text placeholder</h1>{% endif %}
+ {% if page_mark == "poetry" %}<h1>Poetry page text placeholder</h1>{% endif %}
+ {% if page_mark == "workshop" %}<h1>Workshop page text placeholder</h1>{% endif %}
+ {% if page_mark == "portfolio" %}<h1>{% include 'comps/detail/post_modal.html' %}</h1>{% endif %}
+ {% if page_mark == "detail" %}<h1>Detail page text placeholder</h1>{% endif %}
+ {% if page_mark == "profile" %}
+    {% if profile_user.id == g.user.id %}
+        {% include 'comps/profile/profile_modal.html' %}
+    {% elif not g.user.is_following(profile_user) %}
+        <h1>Click <a href="{{ url_for('follow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to follow {{ profile_user.nickname }}</h1>
+    {% else %}
+        <h1>Click <a href="{{ url_for('unfollow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to unfollow {{ profile_user.nickname }}</h1>
+    {% endif %}
+ {% endif %}
+{% endblock %}
+
+
+{% block content %}
+    {% include 'comps/flash.html' %}
+    {% if page_mark == "login" %}{% include 'comps/forms/login_form.html' %}{% endif %}
+    {% if page_mark == "signup" %}{% include 'comps/forms/signup_form.html' %}{% endif %}
+    {% if page_mark == "home" %}{% for post in posts %}{% include 'comps/post.html' %}{% endfor %}{% endif %}
+
+    {% if page_mark == "home" or page_mark == "workshop" or page_mark == "portfolio" %}
+        {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
+        {% include 'comps/postie.html' %}
+    {% endif %}
+
+    {% if page_mark == "home" or page_mark == "workshop" or page_mark == "portfolio" %}
+        {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
+        {% include 'comps/postie.html' %}
+    {% endif %}
+
+    {% if page_mark == "detail" %}
+        {% include 'comps/post.html' %}
+        {% include 'comps/comment_form.html' %}
+    {% endif %}
+
+{% endblock %}
