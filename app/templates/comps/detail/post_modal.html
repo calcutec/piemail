@@ -25,7 +25,7 @@
                 </div>
                 {% endif %}
 
-                <div class="control-group">{% if form.post.errors %} error{% endif %}">
+                <div class="control-group{% if form.post.errors %} error{% endif %}">
                     <label class="control-label" for="post">Poem</label>
                     {{ form.post(class="form-control hide") }}
                     <div id="editable"></div>
