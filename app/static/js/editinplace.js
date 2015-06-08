@@ -204,37 +204,42 @@ $("#update-form").submit(function(e) {
 });
 
 
-//Todo: Can not send files by ajax and async false ajax is deprecated
-// Validate Update Profile
 $("#profile-form").submit(function(e) {
-    var $form = $(this);
     var profile_user_id = $('.btn-lg').attr('id');
+    var $form = $(this);
+    var url = '/profile/' + profile_user_id
     $.ajax({
-      url: '/profile/' + profile_user_id,
-      type: 'PUT',
-      data: $form.serialize(),
-      async: false,
-      success: function(data) {
-        var result = $.parseJSON(data);
-        var error_nickname = $("#error_nickname");
-        var error_about_me = $("#error_about_me");
-        var error_profile_photo = $("#error_profile_photo");
-        error_nickname.text("");
-        error_about_me.text("");
-        error_profile_photo.text("");
-        if(result.iserror) {
-            e.preventDefault();
-            if(result.nickname!=undefined) error_nickname.text(result.nickname[0]);
-            if(result.about_me!=undefined) error_about_me.text(result.about_me[0]);
-            if(result.profile_photo!=undefined) error_profile_photo.text(result.profile_photo[0]);
-        }else if (result.savedsuccess) {
-            $("#myModal").modal('hide');
-            return true;
+        type: 'POST',
+        url: url,
+        data: $form.serialize(),
+        async: false,
+        success: function(data) {
+            var result = $.parseJSON(data);
+            var error_nickname = $("#error_nickname");
+            var error_about_me = $("#error_about_me");
+            var error_profile_photo = $("#error_profile_photo");
+            error_nickname.text("");
+            error_about_me.text("");
+            error_profile_photo.text("");
+            if(result.iserror) {
+                e.preventDefault();
+                if(result.nickname!=undefined) error_nickname.text(result.nickname[0]);
+                if(result.about_me!=undefined) error_about_me.text(result.about_me[0]);
+                if(result.profile_photo!=undefined) error_profile_photo.text(result.profile_photo[0]);
+            }else if (result.savedsuccess) {
+                $("#myModal").modal('hide');
+                return true;
+            }
+        },
+        error: function() {
+            console.log('there was a problem checking the fields');
         }
-      }
     });
 });
-
+//
+//function resetErrors() {
+//    $('.help-inline').text('');
+//}
 
 //Comment on Post
 function post_comment(post_id) {

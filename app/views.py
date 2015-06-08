@@ -1,6 +1,7 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 from flask import render_template, flash, redirect, session, url_for, request, g, abort, jsonify
+from werkzeug.utils import secure_filename
 
 from flask.ext.login import login_user, logout_user, current_user, \
     login_required
@@ -13,7 +14,7 @@ from slugify import slugify
 from .forms import SignupForm, LoginForm, EditForm, PostForm, SearchForm, CommentForm
 from .models import User, Post, Comment
 from .emails import follower_notification
-from .utils import OAuthSignIn, pre_upload, GenericListView, ViewData
+from .utils import OAuthSignIn, pre_upload, GenericListView, ViewData, allowed_file
 from PIL import Image
 import json
 from flask.views import MethodView
@@ -99,9 +100,8 @@ app.add_url_rule('/detail/<int:post_id>', view_func=post_api_view, methods=["DEL
 
 
 class UserAPI(MethodView):
-    # Create a new User
-    def post(self, nickname=None):
-        if nickname is None:
+    def post(self, user_name=None):
+        if user_name is None:   # Create a new User
             form = SignupForm(request.form)
             if form.validate():
                 result = {'iserror': False}
@@ -116,28 +116,38 @@ class UserAPI(MethodView):
                     remember_me = session['remember_me']
                     session.pop('remember_me', None)
                 login_user(newuser, remember=remember_me)
-                # todo: return json and insert into html in backbone version
                 result['savedsuccess'] = True
                 # result['new_profile'] = render_template('profile_user.html', profile_user=g.user)
                 result['new_profile'] = g.user.nickname
                 return json.dumps(result)
             form.errors['iserror'] = True
             return json.dumps(form.errors)
-        else:
-            form = EditForm(request.form)
-            if form.validate():
-                if form.profile_photo.data is not u'':
-                    filename = form.profile_photo.data.filename
-                    img_obj = dict(filename=filename, img=Image.open(form.profile_photo.data.stream), box=(128, 128),
-                                   photo_type="thumb", crop=True,
-                                   extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
-                    profile_photo_name = pre_upload(img_obj)
-                    g.user.profile_photo = profile_photo_name
-                g.user.nickname = form.nickname.data
-                g.user.about_me = form.about_me.data
-                db.session.add(g.user)
-                db.session.commit()
-            return redirect(url_for('profile', nickname=g.user.nickname))
+        else:   # Update User details
+            form = EditForm()
+            if request.is_xhr:  # First validate form using an async request
+                form = EditForm()
+                if form.validate(g.user):
+                    result = {'iserror': False, 'savedsuccess': True}
+                    return json.dumps(result)
+                form.errors['iserror'] = True
+                return json.dumps(form.errors)
+            else: # Once form is valid, original form is called and processed
+                if form.validate(g.user):
+                    profile_photo = request.files['profile_photo']
+                    if profile_photo and allowed_file(profile_photo.filename):
+                        filename = secure_filename(profile_photo.filename)
+                        img_obj = dict(filename=filename, img=Image.open(profile_photo.stream), box=(128, 128),
+                                       photo_type="thumb", crop=True,
+                                       extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
+                        profile_photo_name = pre_upload(img_obj)
+                        g.user.profile_photo = profile_photo_name
+                    g.user.nickname = form.nickname.data
+                    g.user.about_me = form.about_me.data
+                    db.session.add(g.user)
+                    db.session.commit()
+                    return redirect("/profile/" + g.user.nickname)
+                profile_data = ViewData("profile", nickname=g.user.nickname, form=form)
+                return render_template(profile_data.template_name, **profile_data.context)
 
     # Read a single profile
     def get(self, nickname=None):
@@ -153,16 +163,6 @@ class UserAPI(MethodView):
             signup_data = ViewData("signup")
             return render_template(signup_data.template_name, **signup_data.context)
 
-    # Update User
-    @login_required
-    def put(self):
-        form = EditForm(request.form)
-        if form.validate():
-            result = {'iserror': False, 'savedsuccess': True}
-            return json.dumps(result)
-        form.errors['iserror'] = True
-        return json.dumps(form.errors)
-
     # Delete User
     @login_required
     def delete(self, post_id):
@@ -174,15 +174,14 @@ user_api_view = UserAPI.as_view('profile')
 # Create a new user
 app.add_url_rule('/profile/', view_func=user_api_view, methods=["POST", ])
 # Update user
-app.add_url_rule('/profile/<nickname>', view_func=user_api_view, methods=["POST", ])
+app.add_url_rule('/profile/<int:user_name>', view_func=user_api_view, methods=["POST", ])
 # Read a single user
 app.add_url_rule('/profile/<nickname>', view_func=user_api_view, methods=["GET", ])
 # Read multiple users
 app.add_url_rule('/profile/', view_func=user_api_view, methods=["GET", ])
 # Delete a single user
-app.add_url_rule('/profile/<int:user_id>', view_func=user_api_view, methods=["DELETE"])
-# Update a single user Todo: Ajax currently not working with files
-app.add_url_rule('/profile/<int:profile_user_id>', view_func=user_api_view, methods=["PUT", ])
+app.add_url_rule('/profile/', view_func=user_api_view, methods=["DELETE"])
+
 
 
 @app.route('/follow/<nickname>')    # Follow a User

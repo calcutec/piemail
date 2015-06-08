@@ -1,7 +1,7 @@
 import boto
 from PIL import Image
 from app import app
-from config import POSTS_PER_PAGE
+from config import POSTS_PER_PAGE, ALLOWED_EXTENSIONS
 from forms import SignupForm, EditForm, PostForm, CommentForm, LoginForm
 from rauth import OAuth2Service
 import json
@@ -11,6 +11,11 @@ from flask import request, redirect, url_for, render_template, g
 from flask.views import View
 from flask.ext.login import login_required
 from models import User, Post
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 def pre_upload(img_obj):
@@ -106,16 +111,19 @@ class LoginRequiredListView(GenericListView):
 
 
 class ViewData(object):
-    def __init__(self, page_mark, slug=None, nickname=None, page=1):
+    def __init__(self, page_mark, slug=None, nickname=None, page=1, form=None):
         self.slug = slug
         self.nickname = nickname
         self.page = page
         self.page_mark = page_mark
         self.template_name = "base_template.html"
-        self.form = self.get_form()
         self.title = page_mark.title()
         self.page_logo = "img/icons/" + page_mark + ".svg"
         self.profile_user = None
+        if form is None:
+            self.form = self.get_form()
+        else:
+            self.form = form
 
         # Get user for profile page
         if self.nickname is not None:

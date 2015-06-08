@@ -58,7 +58,7 @@ class EditForm(Form):
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
 
-    def validate(self):
+    def validate(self, current_user=None):
         if not Form.validate(self):
             return False
         if self.nickname.data != User.make_valid_nickname(self.nickname.data):
@@ -68,9 +68,10 @@ class EditForm(Form):
             return False
         user = User.query.filter_by(nickname=self.nickname.data).first()
         if user is not None:
-            self.nickname.errors.append(
-                'This nickname is already in use.')
-            return False
+            if user.id is not current_user.id:
+                self.nickname.errors.append(
+                    'This nickname is already in use.')
+                return False
         return True
 
 

@@ -4,13 +4,11 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
 from flask.ext.mail import Mail
 from config import ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
-    MAIL_PASSWORD, UPLOAD_FOLDER, UPLOAD_FOLDER_NAME, SQLALCHEMY_DATABASE_URI
+    MAIL_PASSWORD, SQLALCHEMY_DATABASE_URI
 from .momentjs import momentjs
 
 app = Flask(__name__)
 app.config.from_object('config')
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['UPLOAD_FOLDER_NAME'] = UPLOAD_FOLDER_NAME
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 db = SQLAlchemy(app)
 lm = LoginManager()
