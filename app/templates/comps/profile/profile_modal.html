@@ -44,7 +44,7 @@ $(document).ready(function() {
             <div class="control-group{% if form.profile_photo.errors %} error{% endif %}">
                 <label class="control-label" for="profile_photo">Select a photo</label>
                 <div class="controls">
-                    {{ form.profile_photo() }}
+                    {{ form.profile_photo(class="btn") }}
                     {% for error in form.profile_photo.errors %}
                         <span class="help-inline">[{{ error }}]</span><br>
                     {% endfor %}

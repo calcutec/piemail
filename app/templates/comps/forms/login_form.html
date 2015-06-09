@@ -16,13 +16,13 @@
                     <li><a href="{{ url_for('login', get_provider='google') }}" class="btn btn-info"><i class="fa fa-google-plus fa-lg"></i>&nbsp; Google Login</a></li>
                 </ul>
                 <div class="form-group">
-                    <label style="font-weight: normal;">Keep me logged in</label>
+                    <label for="rememember-me-auto" style="font-weight: normal;">Keep me logged in</label>
                     <input type="checkbox" class="" id="remember-me-auto" value="1">
                 </div>
             </div>
             <div class="span5 login-btns">
                 <h3>Email Login</h3>
-                <form action="/login" id="login-form" method="post" accept-charset="utf-8">
+                <form action="/login/" id="login-form" method="post" accept-charset="utf-8">
                 {{ form.csrf_token }}
                     <div class="form-group">
                         <label for="email">Email</label>

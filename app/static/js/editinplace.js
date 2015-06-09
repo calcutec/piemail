@@ -207,7 +207,7 @@ $("#update-form").submit(function(e) {
 $("#profile-form").submit(function(e) {
     var profile_user_id = $('.btn-lg').attr('id');
     var $form = $(this);
-    var url = '/profile/' + profile_user_id
+    var url = '/profile/' + profile_user_id;
     $.ajax({
         type: 'POST',
         url: url,

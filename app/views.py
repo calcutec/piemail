@@ -92,7 +92,7 @@ app.add_url_rule('/vote/<int:post_id>', view_func=post_api_view, methods=["POST"
 # Read a single post
 app.add_url_rule('/detail/<slug>', view_func=post_api_view, methods=["GET", ])
 # Read all posts for a specific view
-app.add_url_rule('/<page_mark>', view_func=post_api_view, methods=["GET", ])
+app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["GET", ])
 # Update a single post
 app.add_url_rule('/detail/', view_func=post_api_view, methods=["PUT", ])
 # Delete a single post
@@ -131,7 +131,7 @@ class UserAPI(MethodView):
                     return json.dumps(result)
                 form.errors['iserror'] = True
                 return json.dumps(form.errors)
-            else: # Once form is valid, original form is called and processed
+            else:  # Once form is valid, original form is called and processed
                 if form.validate(g.user):
                     profile_photo = request.files['profile_photo']
                     if profile_photo and allowed_file(profile_photo.filename):
@@ -183,7 +183,6 @@ app.add_url_rule('/profile/', view_func=user_api_view, methods=["GET", ])
 app.add_url_rule('/profile/', view_func=user_api_view, methods=["DELETE"])
 
 
-
 @app.route('/follow/<nickname>')    # Follow a User
 @login_required
 def follow(nickname):
@@ -228,7 +227,7 @@ def unfollow(nickname):
 class AuthAPI(MethodView):
     def post(self):
         # Authorize data from manual login form
-        form = LoginForm(request.form)
+        form = LoginForm()
         if form.validate_on_submit():
             newuser = User.query.filter_by(email=form.email.data).first()
             remember_me = False
@@ -236,7 +235,7 @@ class AuthAPI(MethodView):
                 remember_me = session['remember_me']
                 session.pop('remember_me', None)
             login_user(newuser, remember=remember_me)
-            return redirect(url_for('portfolio'))
+            return redirect(url_for('profile'))
         else:
             return internal_error(form.errors[0])
 

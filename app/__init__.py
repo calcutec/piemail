@@ -6,6 +6,7 @@ from flask.ext.mail import Mail
 from config import ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
     MAIL_PASSWORD, SQLALCHEMY_DATABASE_URI
 from .momentjs import momentjs
+from flask.json import JSONEncoder
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -29,7 +30,6 @@ app.config['OAUTH_CREDENTIALS'] = {
     }
 }
 
-from flask.json import JSONEncoder
 
 class CustomJSONEncoder(JSONEncoder):
     """This class adds support for lazy translation texts to Flask's

@@ -120,21 +120,23 @@ var ModalView = Backbone.View.extend({
     submit: function(e) {
         e.preventDefault();
         var $form = $('#poem-form');
-        var f
         //var poem_text = $('#editable').html();
         //$('#post').html(poem_text);
 
         $.post("/poem/", $form.serialize(),
             function(data) {
             var result = $.parseJSON(data);
-            $("#error_header").text("");
-            $("#error_post").text("");
-            $("#error_writing_type").text("");
+            var error_header = $("#error_header");
+            var error_post = $("#error_post");
+            var error_writing_type = $("#error_writing_type");
+            error_header.text("");
+            error_post.text("");
+            error_writing_type.text("");
 
             if(result.iserror) {
-                if(result.header!=undefined) $("#error_header").text(result.header[0]);
-                if(result.post!=undefined) $("#error_post").text(result.post[0]);
-                if(result.writing_type!=undefined) $("#error_writing_type").text(result.writing_type[0]);
+                if(result.header!=undefined) error_header.text(result.header[0]);
+                if(result.post!=undefined) error_post.text(result.post[0]);
+                if(result.writing_type!=undefined) error_writing_type.text(result.writing_type[0]);
             }else if (result.savedsuccess) {
                 //$("#myModal").modal('hide');
                 //this.template.model.save({
