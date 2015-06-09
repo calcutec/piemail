@@ -1,5 +1,61 @@
 $( document ).ready(function() {
 
+     // Signup
+    $("#signup-form").submit(function(e) {
+        e.preventDefault();
+        var $form = $(this);
+
+        $.post("/signup/", $form.serialize(),
+            function(data) {
+            var result = $.parseJSON(data);
+            var error_firstname = $("#error_firstname");
+            var error_lastname = $("#error_lastname");
+            var error_email = $("#error_email");
+            var error_password = $("#error_password");
+            error_firstname.text("");
+            error_lastname.text("");
+            error_email.text("");
+            error_password.text("");
+
+            if(result.iserror) {
+                if(result.firstname!=undefined) error_firstname.text(result.firstname[0]);
+                if(result.lastname!=undefined) error_lastname.text(result.lastname[0]);
+                if(result.email!=undefined) error_email.text(result.email[0]);
+            }else if (result.savedsuccess) {
+                location.href = "/profile/" + result.newuser_nickname
+            }
+        });
+    });
+
+    // Login
+    $("#login-form").submit(function(e) {
+        e.preventDefault();
+        var $form = $(this);
+        var url = '/login/';
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: $form.serialize(),
+            success: function(data) {
+                var result = $.parseJSON(data);
+                var error_email = $("#error_email");
+                var error_password = $("#error_password");
+                error_email.text("");
+                error_password.text("");
+                if(result.iserror) {
+                    if(result.email!=undefined) error_email.text('['+result.email[0]+']');
+                    if(result.password!=undefined) error_password.text('['+result.password[0]+']');
+                }else if (result.savedsuccess) {
+                    location.href = "/profile/" + result.returninguser_nickname
+                }
+            },
+            error: function() {
+                console.log('there was a problem checking the fields');
+            }
+        });
+    });
+
+
     // Create Post
     var myCustomTemplates = {
         ellipsis: function() {
@@ -147,6 +203,26 @@ $( document ).ready(function() {
 });
 
 
+//Comment on Post
+function post_comment(post_id) {
+    $.ajax({
+      url: '/comment/' + post_id,
+      type: 'POST',
+      data: $('#comment-form').serialize(),
+      success: function(data) {
+        var result = $.parseJSON(data);
+        var error_comment = $("#error_comment");
+        error_comment.text("");
+        if(result.iserror) {
+            if(result.comment!=undefined) error_comment.text(result.comment[0]);
+        }else if (result.savedsuccess) {
+            $("#comment").val("");
+            $("#comments").append(result.new_comment);
+        }
+      }
+    });
+}
+
 // Vote on Post
 function voteClick(post_id) {
     var vote_button_selector = "a." + post_id;
@@ -176,34 +252,12 @@ function voteClick(post_id) {
     );
 }
 
-// Create Profile
-$("#update-form").submit(function(e) {
-    e.preventDefault();
-    var $form = $(this);
-
-    $.post("/signup/", $form.serialize(),
-        function(data) {
-        var result = $.parseJSON(data);
-        var error_firstname = $("#error_firstname");
-        var error_lastname = $("#error_lastname");
-        var error_email = $("#error_email");
-        var error_password = $("#error_password");
-        error_firstname.text("");
-        error_lastname.text("");
-        error_email.text("");
-        error_password.text("");
-
-        if(result.iserror) {
-            if(result.firstname!=undefined) error_firstname.text(result.firstname[0]);
-            if(result.lastname!=undefined) error_lastname.text(result.lastname[0]);
-            if(result.email!=undefined) error_email.text(result.email[0]);
-        }else if (result.savedsuccess) {
-            location.href = "/profile/" + result.newuser_nickname
-        }
-    });
-});
 
 
+
+
+
+// Update Profile
 $("#profile-form").submit(function(e) {
     var profile_user_id = $('.btn-lg').attr('id');
     var $form = $(this);
@@ -236,30 +290,5 @@ $("#profile-form").submit(function(e) {
         }
     });
 });
-//
-//function resetErrors() {
-//    $('.help-inline').text('');
-//}
-
-//Comment on Post
-function post_comment(post_id) {
-    $.ajax({
-      url: '/comment/' + post_id,
-      type: 'POST',
-      data: $('#comment-form').serialize(),
-      success: function(data) {
-        var result = $.parseJSON(data);
-        var error_comment = $("#error_comment");
-        error_comment.text("");
-        if(result.iserror) {
-            if(result.comment!=undefined) error_comment.text(result.comment[0]);
-        }else if (result.savedsuccess) {
-            $("#comment").val("");
-            $("#comments").append(result.new_comment);
-        }
-      }
-    });
-}
-
 
 

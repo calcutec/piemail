@@ -931,3 +931,7 @@ input.submit {
     border-radius: 10px;
     background-color: beige;
 }
+
+.pull-right img {
+	margin-top: 2rem;
+}

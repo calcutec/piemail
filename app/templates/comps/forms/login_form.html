@@ -17,7 +17,7 @@
                 </ul>
                 <div class="form-group">
                     <label for="rememember-me-auto" style="font-weight: normal;">Keep me logged in</label>
-                    <input type="checkbox" class="" id="remember-me-auto" value="1">
+                    <input type="checkbox" class="" id="remember-me-auto" value="1" title="checkbox">
                 </div>
             </div>
             <div class="span5 login-btns">
@@ -27,14 +27,22 @@
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" class="form-control" id="email" name="email" placeholder="Email" value="">
+                        {% for error in form.email.errors %}
+                            <span class="help-inline" style="color:red">[{{ error }}]</span><br>
+                        {% endfor %}
+                        <span id="error_email" class="help-inline" style="color:red"></span>
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" value="">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Password" value="">
+                        {% for error in form.password.errors %}
+                            <span class="help-inline" style="color:red">[{{ error }}]</span><br>
+                        {% endfor %}
+                        <span id="error_password" class="help-inline" style="color:red"></span>
                     </div>
                     <div class="form-group">
                         <label style="font-weight: normal;">Keep me logged in</label>
-                        <input type="checkbox" class="" id="remember-me-manual" value="1">
+                        <input type="checkbox" class="" id="remember-me-manual" value="1" title="checkbox">
                     </div>
                     <button class="btn btn-info" id="login-form-submit" type="submit">Login</button>
                 </form>

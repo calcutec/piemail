@@ -31,17 +31,23 @@ app.add_url_rule('/home/', view_func=GenericListView.as_view('home', home_data),
 class LoginAPI(MethodView):
     def post(self):
         form = LoginForm()  # LOGIN VALIDATION
-        if form.validate_on_submit():
-            returninguser = User.query.filter_by(email=form.email.data).first()
-            remember_me = False
-            if 'remember_me' in session:
-                remember_me = session['remember_me']
-                session.pop('remember_me', None)
-            login_user(returninguser, remember=remember_me)
-            return redirect(url_for('members', nickname=returninguser.nickname))
+        if request.is_xhr:
+            if form.validate_on_submit():
+                result = {'iserror': False}
+                returninguser = self.login_returning_user(form)
+                result['savedsuccess'] = True
+                result['returninguser_nickname'] = returninguser.nickname
+                return json.dumps(result)
+            else:
+                form.errors['iserror'] = True
+                return json.dumps(form.errors)
         else:
-            login_data = ViewData("login", form=form)
-            return render_template(login_data.template_name, **login_data.context)
+            if form.validate_on_submit():
+                returninguser = self.login_returning_user(form)
+                return redirect('/profile/' + returninguser.nickname)
+            else:
+                login_data = ViewData("login", form=form)
+                return render_template(login_data.template_name, **login_data.context)
 
     def get(self, get_provider=None, provider=None):
         if get_provider is not None:    # GET OAUTH PROVIDER
@@ -75,6 +81,15 @@ class LoginAPI(MethodView):
             login_data = ViewData("login")
             return render_template(login_data.template_name, **login_data.context)
 
+    def login_returning_user(self, form):
+        returninguser = User.query.filter_by(email=form.email.data).first()
+        remember_me = False
+        if 'remember_me' in session:
+            remember_me = session['remember_me']
+            session.pop('remember_me', None)
+        login_user(returninguser, remember=remember_me)
+        return returninguser
+
 login_api_view = LoginAPI.as_view('login')  # Urls for Login API
 # Authenticate user
 app.add_url_rule('/login/', view_func=login_api_view, methods=["POST", ])
@@ -92,8 +107,10 @@ class MembersAPI(MethodView):
             form = SignupForm()
             response = self.process_signup(form)
             return response
+
         else:   # PROFILE UPDATE
-            response = self.update_user()
+            form = EditForm()
+            response = self.update_user(form)
             return response
 
     def get(self, nickname=None, form=None):
@@ -113,51 +130,42 @@ class MembersAPI(MethodView):
     def delete(self, post_id):
         pass
 
+    def save_user(self, form):
+        newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data,
+                       lastname=form.lastname.data,
+                       password=form.password.data)
+        db.session.add(newuser)
+        db.session.add(newuser.follow(newuser))
+        db.session.commit()
+        remember_me = False
+        if 'remember_me' in session:
+            remember_me = session['remember_me']
+            session.pop('remember_me', None)
+        login_user(newuser, remember=remember_me)
+        return newuser
+
     def process_signup(self, form):
-        if request.is_xhr:  # First validate form using an async request
+        if request.is_xhr:
             if form.validate_on_submit():
                 result = {'iserror': False}
-                newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data,
-                               lastname=form.lastname.data,
-                               password=form.password.data)
-                db.session.add(newuser)
-                db.session.add(newuser.follow(newuser))
-                db.session.commit()
-                remember_me = False
-                if 'remember_me' in session:
-                    remember_me = session['remember_me']
-                    session.pop('remember_me', None)
-                login_user(newuser, remember=remember_me)
+                newuser = self.save_user(form)
                 result['savedsuccess'] = True
-                result['newuser_nickname'] = g.user.nickname
+                result['newuser_nickname'] = newuser.nickname
                 return json.dumps(result)
             else:
                 form.errors['iserror'] = True
                 return json.dumps(form.errors)
         else:
             if form.validate_on_submit():
-                newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data,
-                               lastname=form.lastname.data,
-                               password=form.password.data)
-                db.session.add(newuser)
-                db.session.add(newuser.follow(newuser))
-                db.session.commit()
-                remember_me = False
-                if 'remember_me' in session:
-                    remember_me = session['remember_me']
-                    session.pop('remember_me', None)
-                login_user(newuser, remember=remember_me)
-                result = render_template('profile_user.html', profile_user=g.user)
-                return result
+                newuser = self.save_user(form)
+                return redirect("/profile/" + newuser.nickname)
             else:
                 signup_data = ViewData("signup", form=form)
                 return render_template(signup_data.template_name, **signup_data.context)
 
     @login_required
-    def update_user(self):
-        form = EditForm()
+    def update_user(self, form):
         if request.is_xhr:  # First validate form using an async request
-            form = EditForm()
             if form.validate(g.user):
                 result = {'iserror': False, 'savedsuccess': True}
                 return json.dumps(result)
@@ -180,7 +188,6 @@ class MembersAPI(MethodView):
                 return redirect("/profile/" + g.user.nickname)
             profile_data = ViewData("profile", nickname=g.user.nickname, form=form)
             return render_template(profile_data.template_name, **profile_data.context)
-
 
 
 member_api_view = MembersAPI.as_view('members')  # URLS for MEMBER API
@@ -332,7 +339,6 @@ class HelpersAPI(MethodView):
     def get(self):
         logout_user()
         return redirect(url_for('login'))
-
 
 
 helpers_api_view = HelpersAPI.as_view('helpers')    # Urls for Helpers API

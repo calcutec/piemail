@@ -6,7 +6,7 @@
     </ul>
     <div class="tab-content">
         <div class="tab-pane fade in active" id="create-account" style="padding-top: 20px;">
-                <form action="{{ url_for('members') }}" id="update-form" method="post" accept-charset="utf-8">
+                <form action="{{ url_for('members') }}" id="signup-form" method="post" accept-charset="utf-8">
                 {{ form.csrf_token }}
                     <div class="form-group">
                         <label for="firstname">First Name</label>
@@ -14,7 +14,7 @@
                         {% for error in form.firstname.errors %}
                             <span class="help-inline">[{{ error }}]</span><br>
                         {% endfor %}
-                        <span id=error_firstname class="help-inline"></span>
+                        <span id="error_firstname" class="help-inline"></span>
                     </div>
                     <div class="form-group">
                         <label for="lastname">Last Name</label>
@@ -22,7 +22,7 @@
                         {% for error in form.lastname.errors %}
                             <span class="help-inline">[{{ error }}]</span><br>
                         {% endfor %}
-                        <span id=error_lastname class="help-inline"></span>
+                        <span id="error_lastname" class="help-inline"></span>
                     </div>
                     <div class="control-group{% if form.email.errors %} error{% endif %}">
                         <label for="email">Email</label>
@@ -30,7 +30,7 @@
                         {% for error in form.email.errors %}
                             <span class="help-inline">[{{ error }}]</span><br>
                         {% endfor %}
-{#                        <span id=error_email class="help-inline"></span>#}
+                        <span id="error_email" class="help-inline"></span>
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
@@ -38,7 +38,7 @@
                         {% for error in form.password.errors %}
                             <span class="help-inline">[{{ error }}]</span><br>
                         {% endfor %}
-                        <span id=error_password class="help-inline"></span>
+                        <span id="error_password" class="help-inline"></span>
                     </div>
                     <div class="form-group">
                         <label style="font-weight: normal;">Keep me logged in</label>
