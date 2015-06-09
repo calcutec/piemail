@@ -12,33 +12,33 @@
                         <label for="firstname">First Name</label>
                         {{ form.firstname(class="form-control", placeholder="First Name") }}
                         {% for error in form.firstname.errors %}
-                            <span class="help-inline">[{{ error }}]</span><br>
+                            <span class="help-inline" style="color:red">[{{ error }}]</span><br>
                         {% endfor %}
-                        <span id="error_firstname" class="help-inline"></span>
+                        <span id="error_firstname" class="help-inline" style="color:red"></span>
                     </div>
                     <div class="form-group">
                         <label for="lastname">Last Name</label>
                         {{ form.lastname(class="form-control", placeholder="Last Name") }}
                         {% for error in form.lastname.errors %}
-                            <span class="help-inline">[{{ error }}]</span><br>
+                            <span class="help-inline" style="color:red">[{{ error }}]</span><br>
                         {% endfor %}
-                        <span id="error_lastname" class="help-inline"></span>
+                        <span id="error_lastname" class="help-inline" style="color:red"></span>
                     </div>
                     <div class="control-group{% if form.email.errors %} error{% endif %}">
                         <label for="email">Email</label>
                         {{ form.email(class="form-control", placeholder="Email") }}
                         {% for error in form.email.errors %}
-                            <span class="help-inline">[{{ error }}]</span><br>
+                            <span class="help-inline" style="color:red">[{{ error }}]</span><br>
                         {% endfor %}
-                        <span id="error_email" class="help-inline"></span>
+                        <span id="error_email" class="help-inline" style="color:red"></span>
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
                         {{ form.password(class="form-control", placeholder="Password") }}
                         {% for error in form.password.errors %}
-                            <span class="help-inline">[{{ error }}]</span><br>
+                            <span class="help-inline" style="color:red">[{{ error }}]</span><br>
                         {% endfor %}
-                        <span id="error_password" class="help-inline"></span>
+                        <span id="error_password" class="help-inline" style="color:red"></span>
                     </div>
                     <div class="form-group">
                         <label style="font-weight: normal;">Keep me logged in</label>

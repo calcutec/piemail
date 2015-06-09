@@ -26,7 +26,7 @@
                 {{ form.csrf_token }}
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Email" value="">
+                        {{ form.email(class="form-control", placeholder="Email") }}
                         {% for error in form.email.errors %}
                             <span class="help-inline" style="color:red">[{{ error }}]</span><br>
                         {% endfor %}
@@ -34,7 +34,7 @@
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Password" value="">
+                        {{ form.password(class="form-control", placeholder="Password") }}
                         {% for error in form.password.errors %}
                             <span class="help-inline" style="color:red">[{{ error }}]</span><br>
                         {% endfor %}

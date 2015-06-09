@@ -324,17 +324,20 @@ class HelpersAPI(MethodView):
             return redirect(url_for('login'))
         else:   # Process Comment Form
             form = CommentForm()
-            if form.validate_on_submit():
-                result = {'iserror': False}
-                comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data,
-                                  post_id=post_id)
-                db.session.add(comment)
-                db.session.commit()
-                result['savedsuccess'] = True
-                result['new_comment'] = render_template('comps/detail/comment.html', comment=comment)
-                return json.dumps(result)
-            form.errors['iserror'] = True
-            return json.dumps(form.errors)
+            if request.is_xhr:
+                if form.validate_on_submit():
+                    result = {'iserror': False}
+                    comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data,
+                                      post_id=post_id)
+                    db.session.add(comment)
+                    db.session.commit()
+                    result['savedsuccess'] = True
+                    result['new_comment'] = render_template('comps/detail/comment.html', comment=comment)
+                    return json.dumps(result)
+                form.errors['iserror'] = True
+                return json.dumps(form.errors)
+            else:
+                pass
 
     def get(self):
         logout_user()
