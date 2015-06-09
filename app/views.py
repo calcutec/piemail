@@ -8,7 +8,7 @@ from flask.ext.login import login_user, logout_user, current_user, \
 from flask.ext.sqlalchemy import get_debug_queries
 from datetime import datetime
 from app import app, db, lm
-from config import MAX_SEARCH_RESULTS, DATABASE_QUERY_TIMEOUT
+from config import DATABASE_QUERY_TIMEOUT
 from slugify import slugify
 
 from .forms import SignupForm, LoginForm, EditForm, PostForm, SearchForm, CommentForm
