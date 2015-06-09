@@ -3,7 +3,7 @@
     <ul class="nav nav-tabs">
         <li>&nbsp;&nbsp;&nbsp;</li>
         <li class="active"><a href="{{ url_for('login') }}" data-toggle="tab">Login</a></li>
-        <li><a href="{{ url_for('profile') }}">Create Account</a></li>
+        <li><a href="{{ url_for('members') }}">Create Account</a></li>
     </ul>
 
     <div class="tab-content">
@@ -22,7 +22,7 @@
             </div>
             <div class="span5 login-btns">
                 <h3>Email Login</h3>
-                <form action="/login/" id="login-form" method="post" accept-charset="utf-8">
+                <form action="{{ url_for('login') }}" id="login-form" method="post" accept-charset="utf-8">
                 {{ form.csrf_token }}
                     <div class="form-group">
                         <label for="email">Email</label>
@@ -38,7 +38,7 @@
                     </div>
                     <button class="btn btn-info" id="login-form-submit" type="submit">Login</button>
                 </form>
-                <a href="/password-recovery" id="forgot-your-password" style="font-weight: normal">Forgot your Password?</a>
+{#                <a href="/password-recovery" id="forgot-your-password" style="font-weight: normal">Forgot your Password?</a>#}
             </div>
         </div>
     </div>

@@ -181,7 +181,7 @@ $("#update-form").submit(function(e) {
     e.preventDefault();
     var $form = $(this);
 
-    $.post("/profile/", $form.serialize(),
+    $.post("/signup/", $form.serialize(),
         function(data) {
         var result = $.parseJSON(data);
         var error_firstname = $("#error_firstname");
@@ -198,7 +198,7 @@ $("#update-form").submit(function(e) {
             if(result.lastname!=undefined) error_lastname.text(result.lastname[0]);
             if(result.email!=undefined) error_email.text(result.email[0]);
         }else if (result.savedsuccess) {
-            location.href = "/profile/" + result.new_profile
+            location.href = "/profile/" + result.newuser_nickname
         }
     });
 });

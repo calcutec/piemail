@@ -28,14 +28,223 @@ home_data = ViewData("home")
 app.add_url_rule('/home/', view_func=GenericListView.as_view('home', home_data), methods=["GET", ])
 
 
+class LoginAPI(MethodView):
+    def post(self):
+        form = LoginForm()  # LOGIN VALIDATION
+        if form.validate_on_submit():
+            returninguser = User.query.filter_by(email=form.email.data).first()
+            remember_me = False
+            if 'remember_me' in session:
+                remember_me = session['remember_me']
+                session.pop('remember_me', None)
+            login_user(returninguser, remember=remember_me)
+            return redirect(url_for('members', nickname=returninguser.nickname))
+        else:
+            login_data = ViewData("login", form=form)
+            return render_template(login_data.template_name, **login_data.context)
+
+    def get(self, get_provider=None, provider=None):
+        if get_provider is not None:    # GET OAUTH PROVIDER
+            if not current_user.is_anonymous():
+                return redirect(url_for('home'))
+            oauth = OAuthSignIn.get_provider(get_provider)
+            return oauth.authorize()
+        elif provider is not None:  # OAUTH PROVIDER CALLBACK
+            if not current_user.is_anonymous():
+                return redirect(url_for('home'))
+            oauth = OAuthSignIn.get_provider(provider)
+            nickname, email = oauth.callback()
+            if email is None:
+                flash('Authentication failed.')
+                return redirect(url_for('home'))
+            currentuser = User.query.filter_by(email=email).first()
+            if not currentuser:
+                currentuser = User(nickname=nickname, email=email)
+                db.session.add(currentuser)
+                db.session.add(currentuser.follow(currentuser))
+                db.session.commit()
+            remember_me = False
+            if 'remember_me' in session:
+                remember_me = session['remember_me']
+                session.pop('remember_me', None)
+            login_user(currentuser, remember=remember_me)
+            return redirect(request.args.get('next') or url_for('posts', page_mark='portfolio'))
+        else:   # LOGIN PAGE
+            if g.user is not None and g.user.is_authenticated():
+                return redirect(url_for('home'))
+            login_data = ViewData("login")
+            return render_template(login_data.template_name, **login_data.context)
+
+login_api_view = LoginAPI.as_view('login')  # Urls for Login API
+# Authenticate user
+app.add_url_rule('/login/', view_func=login_api_view, methods=["POST", ])
+# Oauth login
+app.add_url_rule('/login/<get_provider>', view_func=login_api_view, methods=["GET", ])
+# Oauth provider callback
+app.add_url_rule('/callback/<provider>', view_func=login_api_view, methods=["GET", ])
+# Login form for returning user
+app.add_url_rule('/login/', view_func=login_api_view, methods=["GET", ])
+
+
+class MembersAPI(MethodView):
+    def post(self, user_name=None):
+        if user_name is None:   # SIGNUP VALIDATION
+            form = SignupForm()
+            response = self.process_signup(form)
+            return response
+        else:   # PROFILE UPDATE
+            response = self.update_user()
+            return response
+
+    def get(self, nickname=None, form=None):
+        if nickname is None:    # SIGNUP PAGE
+            if g.user is not None and g.user.is_authenticated():
+                return redirect(url_for('home'))
+            signup_data = ViewData("signup", form=form)
+            return render_template(signup_data.template_name, **signup_data.context)
+        else:  # PROFILE PAGE
+            profile_data = ViewData("profile", nickname=nickname)
+            profile_data.form.nickname.data = g.user.nickname
+            profile_data.form.about_me.data = g.user.about_me
+            db.session.commit()
+            return render_template(profile_data.template_name, **profile_data.context)
+
+    @login_required
+    def delete(self, post_id):
+        pass
+
+    def process_signup(self, form):
+        if request.is_xhr:  # First validate form using an async request
+            if form.validate_on_submit():
+                result = {'iserror': False}
+                newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data,
+                               lastname=form.lastname.data,
+                               password=form.password.data)
+                db.session.add(newuser)
+                db.session.add(newuser.follow(newuser))
+                db.session.commit()
+                remember_me = False
+                if 'remember_me' in session:
+                    remember_me = session['remember_me']
+                    session.pop('remember_me', None)
+                login_user(newuser, remember=remember_me)
+                result['savedsuccess'] = True
+                result['newuser_nickname'] = g.user.nickname
+                return json.dumps(result)
+            else:
+                form.errors['iserror'] = True
+                return json.dumps(form.errors)
+        else:
+            if form.validate_on_submit():
+                newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data,
+                               lastname=form.lastname.data,
+                               password=form.password.data)
+                db.session.add(newuser)
+                db.session.add(newuser.follow(newuser))
+                db.session.commit()
+                remember_me = False
+                if 'remember_me' in session:
+                    remember_me = session['remember_me']
+                    session.pop('remember_me', None)
+                login_user(newuser, remember=remember_me)
+                result = render_template('profile_user.html', profile_user=g.user)
+                return result
+            else:
+                signup_data = ViewData("signup", form=form)
+                return render_template(signup_data.template_name, **signup_data.context)
+
+    @login_required
+    def update_user(self):
+        form = EditForm()
+        if request.is_xhr:  # First validate form using an async request
+            form = EditForm()
+            if form.validate(g.user):
+                result = {'iserror': False, 'savedsuccess': True}
+                return json.dumps(result)
+            form.errors['iserror'] = True
+            return json.dumps(form.errors)
+        else:  # Once form is valid, original form is called and processed
+            if form.validate(g.user):
+                profile_photo = request.files['profile_photo']
+                if profile_photo and allowed_file(profile_photo.filename):
+                    filename = secure_filename(profile_photo.filename)
+                    img_obj = dict(filename=filename, img=Image.open(profile_photo.stream), box=(128, 128),
+                                   photo_type="thumb", crop=True,
+                                   extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
+                    profile_photo_name = pre_upload(img_obj)
+                    g.user.profile_photo = profile_photo_name
+                g.user.nickname = form.nickname.data
+                g.user.about_me = form.about_me.data
+                db.session.add(g.user)
+                db.session.commit()
+                return redirect("/profile/" + g.user.nickname)
+            profile_data = ViewData("profile", nickname=g.user.nickname, form=form)
+            return render_template(profile_data.template_name, **profile_data.context)
+
+
+
+member_api_view = MembersAPI.as_view('members')  # URLS for MEMBER API
+# Signup validation
+app.add_url_rule('/signup/', view_func=member_api_view, methods=["POST", ])
+# Update member
+app.add_url_rule('/profile/<int:user_name>', view_func=member_api_view, methods=["POST", ])
+# Display signup page
+app.add_url_rule('/signup/', view_func=member_api_view, methods=["GET", ])
+# Display profile page
+app.add_url_rule('/profile/<nickname>', view_func=member_api_view, methods=["GET", ])
+# Delete a single member
+app.add_url_rule('/profile/', view_func=member_api_view, methods=["DELETE"])
+
+
+@app.route('/follow/<nickname>')    # Follow a User
+@login_required
+def follow(nickname):
+    user = User.query.filter_by(nickname=nickname).first()
+    if user is None:
+        flash('User %s not found.' % nickname)
+        return redirect(url_for('home'))
+    if user == g.user:
+        flash('You can\'t follow yourself!')
+        return redirect(url_for('profile', nickname=nickname))
+    u = g.user.follow(user)
+    if u is None:
+        flash('Cannot follow %s.' % nickname)
+        return redirect(url_for('profile', nickname=nickname))
+    db.session.add(u)
+    db.session.commit()
+    flash('You are now following %s.' % nickname)
+    follower_notification(user, g.user)
+    return redirect(url_for('profile', nickname=nickname))
+
+
+@app.route('/unfollow/<nickname>')  # Unfollow a User
+@login_required
+def unfollow(nickname):
+    user = User.query.filter_by(nickname=nickname).first()
+    if user is None:
+        flash('User %s not found.' % nickname)
+        return redirect(url_for('home'))
+    if user == g.user:
+        flash('You can\'t unfollow yourself!')
+        return redirect(url_for('profile', nickname=nickname))
+    u = g.user.unfollow(user)
+    if u is None:
+        flash('Cannot unfollow %s.' % nickname)
+        return redirect(url_for('profile', nickname=nickname))
+    db.session.add(u)
+    db.session.commit()
+    flash('You have stopped following %s.' % nickname)
+    return redirect(url_for('profile', nickname=nickname))
+
+
 class PostAPI(MethodView):
     decorators = [login_required]
 
     # Create a new Post
     def post(self, post_id=None):
         if post_id is None:     # Create a new post
-            form = PostForm(request.form)
-            if form.validate():
+            form = PostForm()
+            if form.validate_on_submit():
                 result = {'iserror': False}
                 slug = slugify(form.header.data)
                 post = Post(body=form.post.data, timestamp=datetime.utcnow(),
@@ -99,200 +308,14 @@ app.add_url_rule('/detail/', view_func=post_api_view, methods=["PUT", ])
 app.add_url_rule('/detail/<int:post_id>', view_func=post_api_view, methods=["DELETE", ])
 
 
-class UserAPI(MethodView):
-    def post(self, user_name=None):
-        if user_name is None:   # Create a new User
-            form = SignupForm(request.form)
-            if form.validate():
-                result = {'iserror': False}
-                newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data,
-                               lastname=form.lastname.data,
-                               password=form.password.data)
-                db.session.add(newuser)
-                db.session.add(newuser.follow(newuser))
-                db.session.commit()
-                remember_me = False
-                if 'remember_me' in session:
-                    remember_me = session['remember_me']
-                    session.pop('remember_me', None)
-                login_user(newuser, remember=remember_me)
-                result['savedsuccess'] = True
-                # result['new_profile'] = render_template('profile_user.html', profile_user=g.user)
-                result['new_profile'] = g.user.nickname
-                return json.dumps(result)
-            form.errors['iserror'] = True
-            return json.dumps(form.errors)
-        else:   # Update User details
-            form = EditForm()
-            if request.is_xhr:  # First validate form using an async request
-                form = EditForm()
-                if form.validate(g.user):
-                    result = {'iserror': False, 'savedsuccess': True}
-                    return json.dumps(result)
-                form.errors['iserror'] = True
-                return json.dumps(form.errors)
-            else:  # Once form is valid, original form is called and processed
-                if form.validate(g.user):
-                    profile_photo = request.files['profile_photo']
-                    if profile_photo and allowed_file(profile_photo.filename):
-                        filename = secure_filename(profile_photo.filename)
-                        img_obj = dict(filename=filename, img=Image.open(profile_photo.stream), box=(128, 128),
-                                       photo_type="thumb", crop=True,
-                                       extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
-                        profile_photo_name = pre_upload(img_obj)
-                        g.user.profile_photo = profile_photo_name
-                    g.user.nickname = form.nickname.data
-                    g.user.about_me = form.about_me.data
-                    db.session.add(g.user)
-                    db.session.commit()
-                    return redirect("/profile/" + g.user.nickname)
-                profile_data = ViewData("profile", nickname=g.user.nickname, form=form)
-                return render_template(profile_data.template_name, **profile_data.context)
-
-    # Read a single profile
-    def get(self, nickname=None):
-        if nickname is not None:
-            profile_data = ViewData("profile", nickname=nickname)
-            profile_data.form.nickname.data = g.user.nickname
-            profile_data.form.about_me.data = g.user.about_me
-            db.session.commit()
-            return render_template(profile_data.template_name, **profile_data.context)
-        else:
-            if g.user is not None and g.user.is_authenticated():
-                return redirect(url_for('home'))
-            signup_data = ViewData("signup")
-            return render_template(signup_data.template_name, **signup_data.context)
-
-    # Delete User
-    @login_required
-    def delete(self, post_id):
-        pass
-
-
-# urls for User API
-user_api_view = UserAPI.as_view('profile')
-# Create a new user
-app.add_url_rule('/profile/', view_func=user_api_view, methods=["POST", ])
-# Update user
-app.add_url_rule('/profile/<int:user_name>', view_func=user_api_view, methods=["POST", ])
-# Read a single user
-app.add_url_rule('/profile/<nickname>', view_func=user_api_view, methods=["GET", ])
-# Read multiple users
-app.add_url_rule('/profile/', view_func=user_api_view, methods=["GET", ])
-# Delete a single user
-app.add_url_rule('/profile/', view_func=user_api_view, methods=["DELETE"])
-
-
-@app.route('/follow/<nickname>')    # Follow a User
-@login_required
-def follow(nickname):
-    user = User.query.filter_by(nickname=nickname).first()
-    if user is None:
-        flash('User %s not found.' % nickname)
-        return redirect(url_for('home'))
-    if user == g.user:
-        flash('You can\'t follow yourself!')
-        return redirect(url_for('profile', nickname=nickname))
-    u = g.user.follow(user)
-    if u is None:
-        flash('Cannot follow %s.' % nickname)
-        return redirect(url_for('profile', nickname=nickname))
-    db.session.add(u)
-    db.session.commit()
-    flash('You are now following %s.' % nickname)
-    follower_notification(user, g.user)
-    return redirect(url_for('profile', nickname=nickname))
-
-
-@app.route('/unfollow/<nickname>')  # Unfollow a User
-@login_required
-def unfollow(nickname):
-    user = User.query.filter_by(nickname=nickname).first()
-    if user is None:
-        flash('User %s not found.' % nickname)
-        return redirect(url_for('home'))
-    if user == g.user:
-        flash('You can\'t unfollow yourself!')
-        return redirect(url_for('profile', nickname=nickname))
-    u = g.user.unfollow(user)
-    if u is None:
-        flash('Cannot unfollow %s.' % nickname)
-        return redirect(url_for('profile', nickname=nickname))
-    db.session.add(u)
-    db.session.commit()
-    flash('You have stopped following %s.' % nickname)
-    return redirect(url_for('profile', nickname=nickname))
-
-
-class AuthAPI(MethodView):
-    def post(self):
-        # Authorize data from manual login form
-        form = LoginForm()
-        if form.validate_on_submit():
-            newuser = User.query.filter_by(email=form.email.data).first()
-            remember_me = False
-            if 'remember_me' in session:
-                remember_me = session['remember_me']
-                session.pop('remember_me', None)
-            login_user(newuser, remember=remember_me)
-            return redirect(url_for('profile'))
-        else:
-            return internal_error(form.errors[0])
-
-    def get(self, get_provider=None, provider=None):
-        # Internal request to get oauth provider info
-        if get_provider is not None:
-            if not current_user.is_anonymous():
-                return redirect(url_for('home'))
-            oauth = OAuthSignIn.get_provider(get_provider)
-            return oauth.authorize()
-        # Handles external provider oauth callback
-        elif provider is not None:
-            if not current_user.is_anonymous():
-                return redirect(url_for('home'))
-            oauth = OAuthSignIn.get_provider(provider)
-            nickname, email = oauth.callback()
-            if email is None:
-                flash('Authentication failed.')
-                return redirect(url_for('home'))
-            currentuser = User.query.filter_by(email=email).first()
-            if not currentuser:
-                currentuser = User(nickname=nickname, email=email)
-                db.session.add(currentuser)
-                db.session.add(currentuser.follow(currentuser))
-                db.session.commit()
-            remember_me = False
-            if 'remember_me' in session:
-                remember_me = session['remember_me']
-                session.pop('remember_me', None)
-            login_user(currentuser, remember=remember_me)
-            return redirect(request.args.get('next') or url_for('posts', page_mark='portfolio'))
-
-        # Manual login form
-        else:
-            if g.user is not None and g.user.is_authenticated():
-                return redirect(url_for('home'))
-            login_data = ViewData("login")
-            return render_template(login_data.template_name, **login_data.context)
-
-
-# Urls for Auth API
-auth_api_view = AuthAPI.as_view('login')
-# Authenticate user
-app.add_url_rule('/login/', view_func=auth_api_view, methods=["POST", ])
-# Oauth login
-app.add_url_rule('/login/<get_provider>', view_func=auth_api_view, methods=["GET", ])
-# Oauth provider callback
-app.add_url_rule('/callback/<provider>', view_func=auth_api_view, methods=["GET", ])
-# Login form for returning user
-app.add_url_rule('/login/', view_func=auth_api_view, methods=["GET", ])
-
-
 class HelpersAPI(MethodView):
     decorators = [login_required]
 
     def post(self, post_id=None):
-        if post_id is not None:     # Process Comment Form
+        if post_id is None:     # LOGOUT MEMBER
+            logout_user()
+            return redirect(url_for('login'))
+        else:   # Process Comment Form
             form = CommentForm()
             if form.validate_on_submit():
                 result = {'iserror': False}
@@ -305,29 +328,17 @@ class HelpersAPI(MethodView):
                 return json.dumps(result)
             form.errors['iserror'] = True
             return json.dumps(form.errors)
-        else:   # Process Search  Todo: Reimplement search
-            if not g.search_form.validate_on_submit():
-                return redirect(url_for('home'))
-            return redirect(url_for('search_results', query=g.search_form.search.data))
 
-    def get(self, query=None):
-        if query is None:   # Logout
-            logout_user()
-            return redirect(url_for('login'))
-        else:   # Search Results  Todo: Reimplement search
-            results = Post.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
-            upload_folder_name = app.config['UPLOAD_FOLDER_NAME']
-            return render_template('search_results.html',
-                                   query=query,
-                                   results=results,
-                                   upload_folder_name=upload_folder_name)
+    def get(self):
+        logout_user()
+        return redirect(url_for('login'))
 
 
-# Urls for Helpers API
-helpers_api_view = HelpersAPI.as_view('helpers')
+
+helpers_api_view = HelpersAPI.as_view('helpers')    # Urls for Helpers API
 app.add_url_rule('/comment/<int:post_id>', view_func=helpers_api_view, methods=["POST", ])
 app.add_url_rule('/logout', view_func=helpers_api_view, methods=["Get", ])
-app.add_url_rule('/search', view_func=helpers_api_view, methods=["POST", ])
+app.add_url_rule('/logout', view_func=helpers_api_view, methods=["POST", ])
 
 
 # Helper functions
