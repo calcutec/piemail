@@ -242,3 +242,30 @@ class Comment(db.Model):
 
 if enable_search:
     whooshalchemy.whoosh_index(app, Post)
+
+class Poem(db.Model):
+    __searchable__ = ['body']
+    __tablename__ = 'poem'
+
+    id = db.Column(db.Integer, primary_key=True)
+    # user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    author = db.Column(db.String, unique=True)
+    title = db.Column(db.String, unique=True)
+    body = db.Column(db.Text())
+    slug = db.Column(db.String())
+    writing_type = db.Column(db.String(32))
+    votes = db.Column(db.Integer, default=1)
+
+    def __init__(self, **kwargs):
+        super(Poem, self).__init__(**kwargs)
+        if self.writing_type is None:
+            self.writing_type == "poem"
+
+    def get_absolute_url(self):
+        return url_for('poem', kwargs={"slug": self.slug})
+
+    def __repr__(self):  # pragma: no cover
+        return '<Poem %r>' % self.body
+
+    def json_view(self):
+        return {'id': self.id, 'author': self.author, 'title': self.title, 'body': self.body}

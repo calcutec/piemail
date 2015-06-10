@@ -50,7 +50,6 @@
             <script src="{{ local_static_url }}js/_libs/backbone/backbone.js"></script>
             <script src="{{ local_static_url }}js/_libs/backbone/backbone-forms.js"></script>
             <script src="{{ local_static_url }}js/_libs/backbone/backbone.bootstrap-modal.js"></script>
-            {% block headscripts %}{% endblock %}
 	</head>
 	<body>
 	<div class="page">
@@ -139,8 +138,8 @@
 	</div><!-- /page -->
 		<b id="te"></b>
 	{% block scripts %}
-        <script src="{{ local_static_url }}js/editinplace.js"></script>
-        {#        <script src="{{ local_static_url }}js/app.js"></script>#}
+{#        <script src="{{ local_static_url }}js/editinplace.js"></script>#}
+		<script src="{{ local_static_url }}js/app.js"></script>
 	{% endblock %}
 	</body>
 </html>

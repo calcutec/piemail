@@ -1,6 +1,5 @@
 $( document ).ready(function() {
-
-     // Signup
+ // Signup
     $("#signup-form").submit(function(e) {
         e.preventDefault();
         var $form = $(this);
@@ -27,7 +26,7 @@ $( document ).ready(function() {
         });
     });
 
-    // Login
+// Login
     $("#login-form").submit(function(e) {
         e.preventDefault();
         var $form = $(this);
@@ -55,7 +54,7 @@ $( document ).ready(function() {
         });
     });
 
-    // Update Profile
+// Update Profile
     $("#profile-form").submit(function(e) {
         var profile_user_id = $('.btn-lg').attr('id');
         var $form = $(this);
@@ -89,7 +88,8 @@ $( document ).ready(function() {
         });
     });
 
-    // Create Post
+
+// Create Post
     var myCustomTemplates = {
         ellipsis: function() {
             return "<li>" + "<a class='btn btn-default' data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='&hellip;'>hellip</a>" + "</li>";
@@ -165,7 +165,7 @@ $( document ).ready(function() {
     });
 
 
-    //Update Post
+//Update Post
     var showToolbar = function() {
         if($("body").attr("class") != "wysihtml5-supported") {
             $('.edit-me').wysihtml5({
@@ -217,7 +217,7 @@ $( document ).ready(function() {
     });
 
 
-    //Destroy Post
+//Destroy Post
     $( "#delete-button" ).click(function() {
         var post_id = $('.post-id').html();
         $.ajax({
@@ -234,7 +234,8 @@ $( document ).ready(function() {
         });
     });
 
-    //Comment on Post
+
+//Comment on Post
     $("#comment-form").submit(function(e) {
         e.preventDefault();
         var $form = $(this);
@@ -254,7 +255,7 @@ $( document ).ready(function() {
     });
 
 
-    //Vote on Post
+//Vote on Post
     $(".likeme").click(function() {
         var post_id = $('.post-id').html();
         var vote_button_selector = "a." + post_id;
@@ -283,42 +284,4 @@ $( document ).ready(function() {
             }, 'json'
         );
     });
-
 });
-
-
-
-//// Vote on Post
-//function voteClick(post_id) {
-//    var vote_button_selector = "a." + post_id;
-//    var $vote_button = $(vote_button_selector); // cache this! can't access in callback!
-//    var post_to = '/vote/' + post_id;
-//    if ($vote_button.attr("data-voted") === "true") {
-//        $vote_button.css("color", "#000");
-//        $vote_button.html("<i class='fa fa-meh-o fa-lg'></i>");
-//        $vote_button.attr("data-voted", "false");
-//    } else {
-//        $vote_button.css("color", "rgb(235, 104, 100)");
-//        $vote_button.html("<i class='fa fa-smile-o fa-lg'>");
-//        $vote_button.attr("data-voted", "true");
-//    }
-//    $.post(post_to,
-//        function(response) {
-//            var likephrase;
-//            if (response.new_votes === 1){
-//                likephrase = "like";
-//            } else {
-//                likephrase = "likes";
-//            }
-//            var new_vote_count = response.new_votes.toString();
-//            //var vote_status = response.vote_status;
-//            $vote_button.parent().next().html(new_vote_count + "&nbsp;" + likephrase);
-//        }, 'json'
-//    );
-//}
-
-
-
-
-
-

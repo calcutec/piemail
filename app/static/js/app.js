@@ -1,14 +1,16 @@
 //Testing bootstrap views
 var Poem = Backbone.Model.extend({
   defaults: {
-    title: 'any Title',
-    body: 'any Text'
+    author: 'any Text',
+    header: 'any Text',
+    writing_type: 'any Text',
+    post: 'any Text'
   },
   validate: function(attrs, options){
-    if ( !attrs.title ){
-        alert('Your poem must have a title!');
+    if ( !attrs.header ){
+        alert('Your poem must have a header!');
     }
-    if ( attrs.body.length < 10 ){
+    if ( attrs.post.length < 10 ){
         alert('Your poem is too short!');
     }
   },
@@ -33,9 +35,9 @@ var PoemView = Backbone.View.extend({
         });
     },
     editPoem: function(){
-        var newPoem = prompt("New poem title:", this.model.get('title')); // prompts for new name
+        var newPoem = prompt("New poem title:", this.model.get('header')); // prompts for new name
         if (!newPoem)return;  // no change if user hits cancel
-        this.model.set('title', newPoem); // sets new title to model
+        this.model.set('header', newPoem); // sets new title to model
         this.model.save()
     },
     deletePoem: function(){
@@ -94,73 +96,85 @@ var PoemsView = Backbone.View.extend({ // calling this PoemsView to distinguish 
     }
 });
 
-//The form
-var poemForm = Backbone.Form.extend({
-    template: _.template($('#formTemplate').html()),
-    schema: {
-        title:  'Text',
-        body:  'Text'
-    },
-    model: new Poem()
-});
+////The form
+//var poemForm = Backbone.Form.extend({
+//    template: _.template($('#formTemplate').html()),
+//    schema: {
+//        title:  'Text',
+//        body:  'Text'
+//    },
+//    model: new Poem()
+//});
+
+$.fn.serializeObject = function()
+{
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};
 
 //Puts the form for a poem into a modal view
 //Could pass in tagnames and different forms to make generic
 //Need to figure out how to do a submit button as well as a custom template
 var ModalView = Backbone.View.extend({
     tagName: 'span id="theForm"',
-    template: new poemForm(),
+    model: new Poem(),
+    //view: new PoemView({model: this.model}),
+    template: _.template($('#formTemplate').html()),
     events: {
         'submit form': 'submit'
     },
+
     render: function() {
-        this.$el.html(this.template.render().el);
-        return this;
+        this.$el.html(this.template);
     },
+
     submit: function(e) {
         e.preventDefault();
         var $form = $('#poem-form');
-        //var poem_text = $('#editable').html();
-        //$('#post').html(poem_text);
+        var data = JSON.stringify($form.serializeObject());
+        this.model.set(data);
+        var mypoemView = new PoemView({model: this.model});
+        mypoemView.savePoem($form);
+        //poemCollection.add(this.model);
 
-        $.post("/poem/", $form.serialize(),
-            function(data) {
-            var result = $.parseJSON(data);
-            var error_header = $("#error_header");
-            var error_post = $("#error_post");
-            var error_writing_type = $("#error_writing_type");
-            error_header.text("");
-            error_post.text("");
-            error_writing_type.text("");
-
-            if(result.iserror) {
-                if(result.header!=undefined) error_header.text(result.header[0]);
-                if(result.post!=undefined) error_post.text(result.post[0]);
-                if(result.writing_type!=undefined) error_writing_type.text(result.writing_type[0]);
-            }else if (result.savedsuccess) {
-                //$("#myModal").modal('hide');
-                //this.template.model.save({
-                //    'title': 'Foo!',
-                //    'body': 'Bar!'
-                //});
-                $("#main").append(result.new_post);
-            }
-        });
+        //var $form = $('#poem-form');
+        ////var poem_text = $('#editable').html();
+        ////$('#post').html(poem_text);
+        //
+        //$.post("/poem/", $form.serialize(),
+        //    function(data) {
+        //    var result = $.parseJSON(data);
+        //    var error_header = $("#error_header");
+        //    var error_post = $("#error_post");
+        //    var error_writing_type = $("#error_writing_type");
+        //    error_header.text("");
+        //    error_post.text("");
+        //    error_writing_type.text("");
+        //
+        //    if(result.iserror) {
+        //        if(result.header!=undefined) error_header.text(result.header[0]);
+        //        if(result.post!=undefined) error_post.text(result.post[0]);
+        //        if(result.writing_type!=undefined) error_writing_type.text(result.writing_type[0]);
+        //    }else if (result.savedsuccess) {
+        //        $("#main").append(result.new_post);
+        //        this.template.commit();
+        //        $("#myModal").modal('hide');
+        //
+        //    }
+        //});
     }
 });
-
-//var newform = new poemForm();
-//$("#theForm").append(newform.render().el)
-//$('#theForm').append("<input type='submit' value='submit' name='submit' class='submit' />");
-//
-//$('.submit').click(function() {
-//    newform.commit();
-//    var mypoemView = new PoemView({model: newform.model});
-//    mypoemView.savePoem();
-//    $(document.body).append(mypoemView.el);
-//    var newmodel = new Poem(); // creating new instance of model
-//    newform.model = newmodel;
-//});
 
 $(document).ready(function() {
     var poemCollection = new PoemCollection();
@@ -171,15 +185,3 @@ $(document).ready(function() {
         }
     })
 });
-
-
-
-// adding individual models to collection
-//var chihuahua = new Animal({name: 'Sugar', color: 'black', sound: 'woof'});
-//var chihuahuaView = new AnimalView({model: chihuahua});
-//var animalCollection = new AnimalCollection(); // only need to create the collection once
-//animalCollection.add(chihuahua);
-//
-//var pug = new Animal({name: 'Gizmo', color: 'tan', sound: 'woof'});
-//var pugView = new AnimalView({model: pug});
-//animalCollection.add(pug); // can now directly add to animalCollection

@@ -12,17 +12,78 @@ from config import DATABASE_QUERY_TIMEOUT
 from slugify import slugify
 
 from .forms import SignupForm, LoginForm, EditForm, PostForm, SearchForm, CommentForm
-from .models import User, Post, Comment
+from .models import User, Post, Comment, Poem
 from .emails import follower_notification
 from .utils import OAuthSignIn, pre_upload, GenericListView, ViewData, allowed_file
 from PIL import Image
 import json
 from flask.views import MethodView
 
-
+#
+# @app.route('/', methods=['GET'])
+# def index():
+#     return redirect(url_for('home'))
 @app.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('home'))
+    form = PostForm()
+    return render_template('index.html', form=form)
+
+@app.route('/poems', methods=['GET'])
+def get_all_posts():
+    poems = Poem.query.all()
+    return jsonify(myPoems=[i.json_view() for i in poems])
+
+
+@app.route('/poem/<int:post_id>', methods=['GET'])
+def get_post(post_id):
+    post = _post_get_or_404(post_id)
+    return _post_response(post)
+
+
+@app.route('/poem/<int:post_id>', methods=['PUT'])
+def update_post(post_id):
+    updates = request.get_json()
+    post = _post_get_or_404(post_id)
+    post.title = updates['title']
+    db.session.commit()
+    return _post_response(post)
+
+
+@app.route('/poem/', methods=['POST'])
+def create_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        result = {'iserror': False}
+        slug = slugify(form.header.data)
+        post = Post(body=form.post.data, timestamp=datetime.utcnow(),
+                    author=g.user, photo=None, thumbnail=None, header=form.header.data,
+                    writing_type=form.writing_type.data, slug=slug)
+        db.session.add(post)
+        db.session.commit()
+        result['savedsuccess'] = True
+        result['new_post'] = render_template('comps/post.html', page_mark='detail', post=post, g=g)
+        return json.dumps(result)
+    form.errors['iserror'] = True
+    return json.dumps(form.errors)
+
+
+@app.route('/poem/<int:post_id>', methods=['DELETE'])
+def delete(post_id=None):
+    poem = _post_get_or_404(post_id)
+    db.session.delete(poem)
+    db.session.commit()
+    return jsonify(success=True)
+
+def _post_get_or_404(post_id):
+    poem = Post.query.get(post_id)
+    if poem is None:
+        abort(404)
+    return poem
+
+
+def _post_response(post):
+    return jsonify(post.json_view())
+
 
 home_data = ViewData("home")
 app.add_url_rule('/home/', view_func=GenericListView.as_view('home', home_data), methods=["GET", ])

@@ -1,0 +1,52 @@
+{#<form id="poem-form" class="form-horizontal" action="{{ url_for("create_post") }}" method="post" enctype="multipart/form-data" name="post">#}
+{#    {{ form.hidden_tag() }}#}
+{#    <div class="control-group">#}
+{#        <label class="control-label">Author</label><br>#}
+{#        {{ form.author() }}#}
+{#        <span id="error_author" class="help-inline"></span>#}
+{#    </div>#}
+{#    <div class="control-group">#}
+{#        <label class="control-label">Title</label><br>#}
+{#        {{ form.title() }}#}
+{#        <span id="error_title" class="help-inline"></span>#}
+{#    </div>#}
+{#    <div class="control-group">#}
+{#        <label class="control-label" for="body">Poem</label><br>#}
+{#        {{ form.body() }}#}
+{#              <div id="editable">Here's some mock text..</div>#}
+{#        <span id="error_body" class="help-inline"></span>#}
+{#    </div>#}
+{#    <br>#}
+{#        {{ form.submit(id="poem-submit") }}#}
+{#</form>#}
+
+<form id="poem-form" class="form-horizontal" action="{{ url_for("create_post") }}" method="post" enctype="multipart/form-data" name="post">
+    {{ form.csrf_token }}
+
+    <div class="control-group{% if form.header.errors %} error{% endif %}">
+        <label class="control-label">Title</label><br>
+        {{ form.header(class="form-control") }}
+        <span id="error_header" class="help-inline"></span><br>
+    </div>
+
+    {% if g.user.type == 1 %}
+    <div class="control-group{% if form.writing_type.errors %} error{% endif %}">
+        <label class="control-label">Type</label><br>
+        {{ form.writing_type(class="form-control") }}
+        <span id=error_writing_type class="help-inline"></span><br>
+    </div>
+    {% endif %}
+
+    <div class="control-group{% if form.post.errors %} error{% endif %}">
+        <label class="control-label" for="post">Poem</label>
+        {{ form.post(class="form-control") }}
+{#        <div id="editable"></div>#}
+        <span id="error_post" class="help-inline"></span><br>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+{#            <input class="btn btn-primary" type="submit" value="Save Changes">#}
+            {{ form.submit(class="btn btn-primary", id="poem-submit") }}
+        </div>
+    </div>
+</form>

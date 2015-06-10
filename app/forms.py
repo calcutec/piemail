@@ -84,6 +84,13 @@ class PostForm(Form):
     submit = SubmitField("Send")
 
 
+class PoemForm(Form):
+    author = StringField('Author', validators=[DataRequired()])
+    title = StringField('Title', validators=[DataRequired()])
+    body = TextAreaField('Poem', validators=[DataRequired()])
+    submit = SubmitField("Post Poem")
+
+
 class CommentForm(Form):
     comment = StringField('comment', validators=[DataRequired()])
     submit = SubmitField("Send")
