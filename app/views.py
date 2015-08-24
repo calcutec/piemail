@@ -12,26 +12,41 @@ from config import DATABASE_QUERY_TIMEOUT
 from slugify import slugify
 
 from .forms import SignupForm, LoginForm, EditForm, PostForm, SearchForm, CommentForm
-from .models import User, Post, Comment, Poem
+from .models import User, Post, Comment
 from .emails import follower_notification
-from .utils import OAuthSignIn, pre_upload, GenericListView, ViewData, allowed_file
+from .utils import OAuthSignIn, pre_upload, GenericListView, LoginRequiredListView, ViewData, allowed_file
 from PIL import Image
 import json
 from flask.views import MethodView
 
-#
-# @app.route('/', methods=['GET'])
-# def index():
-#     return redirect(url_for('home'))
+
 @app.route('/', methods=['GET'])
 def index():
-    form = PostForm()
-    return render_template('index.html', form=form)
+    return redirect(url_for('home'))
 
-@app.route('/poems', methods=['GET'])
+
+# @app.route('/', methods=['GET'])
+# def index():
+#     form = PostForm()
+#     return render_template('index.html', form=form)
+
+@app.route('/poems', methods=['GET', 'POST'])
 def get_all_posts():
-    poems = Poem.query.all()
-    return jsonify(myPoems=[i.json_view() for i in poems])
+    posts = Post.query.all()
+    return jsonify(myPoems=[i.json_view() for i in posts])
+
+@app.route('/all_users', methods=['Post', 'Get'])
+def get_all_users():
+    users = User.query.all()
+    this_user = User.query.get(g.user.id)
+    return jsonify(myUsers=[this_user.json_view()])
+    # return jsonify(myUsers=[i.json_view() for i in users])
+
+@login_required
+@app.route('/present_user/', methods=['Post', 'Get'])
+def present_user():
+    this_user = User.query.get(g.user.id)
+    return jsonify(presentUser=[this_user.json_view()])
 
 
 @app.route('/poem/<int:post_id>', methods=['GET'])
@@ -69,16 +84,17 @@ def create_post():
 
 @app.route('/poem/<int:post_id>', methods=['DELETE'])
 def delete(post_id=None):
-    poem = _post_get_or_404(post_id)
-    db.session.delete(poem)
+    post = _post_get_or_404(post_id)
+    db.session.delete(post)
     db.session.commit()
     return jsonify(success=True)
 
+
 def _post_get_or_404(post_id):
-    poem = Post.query.get(post_id)
-    if poem is None:
+    post = Post.query.get(post_id)
+    if post is None:
         abort(404)
-    return poem
+    return post
 
 
 def _post_response(post):
@@ -369,7 +385,8 @@ app.add_url_rule('/vote/<int:post_id>', view_func=post_api_view, methods=["POST"
 # Read a single post
 app.add_url_rule('/detail/<slug>', view_func=post_api_view, methods=["GET", ])
 # Read all posts for a specific view
-app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["GET", ])
+# Todo: Must be fixed!! Starting with a variable, it will serve a page to anything!
+app.add_url_rule('/poetry/<page_mark>/', view_func=post_api_view, methods=["GET", ])
 # Update a single post
 app.add_url_rule('/detail/', view_func=post_api_view, methods=["PUT", ])
 # Delete a single post

@@ -82,7 +82,7 @@
 		</nav>
 
 		<div id="content">
-			<header>
+			<header id="magic-header">
                 <div class="icon">
                     <img src="{{ static_url }}{{ page_logo }}" alt="{{ page_logo }}"/>
                 </div>
@@ -138,8 +138,6 @@
 	</div><!-- /page -->
 		<b id="te"></b>
 	{% block scripts %}
-{#        <script src="{{ local_static_url }}js/editinplace.js"></script>#}
-		<script src="{{ local_static_url }}js/app.js"></script>
 	{% endblock %}
 	</body>
 </html>

@@ -7,10 +7,16 @@
     </ul>
     <div class="body frame">
         <h2><a href="/detail/{{ post.slug }}">{{ post.header }}</a></h2>
-        <div class="edit-me">
-            {{ post.body|safe }}
-        </div>
+        <div class="edit-me comment" data-header="{{ post.header }}" data-body="{{ post.body|safe }}">{{ post.body|safe }}</div>
     </div>
     {% if page_mark != "home" %}{% include 'comps/details.html' %}{% endif %}
     <span class="post-id hide">{{ post.id }}</span>
 </article>
+
+{#<article>#}
+{#    <div class="body frame">#}
+{#        <h2><a href="/detail/{{ post.slug }}"><%= header %></a></h2>#}
+{#        <div class="edit-me"><%= body %></div>#}
+{#    </div>#}
+{#</article>#}
+

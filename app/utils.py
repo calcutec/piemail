@@ -130,7 +130,7 @@ class ViewData(object):
             self.profile_user = User.query.filter_by(nickname=self.nickname).first()
 
         # Get post or posts as appropriate to the page
-        if self.page_mark is "signup" or page_mark is "login":  # No posts shown on signup or login pages
+        if self.page_mark is "signup" or page_mark is "login" or page_mark is "index":  # No posts shown on signup or login pages
             self.items = None
             self.post = None
         elif slug is not None:  # Get specific post for detail page
@@ -152,7 +152,7 @@ class ViewData(object):
         elif self.page_mark == 'poetry':
             self.items = Post.query.filter_by(writing_type="featured").paginate(self.page, POSTS_PER_PAGE, False)
             return self.items
-        elif self.page_mark == 'workshop':
+        elif self.page_mark == 'workshop' or self.page_mark == "index":
             self.items = Post.query.filter_by(writing_type="poem").paginate(self.page, POSTS_PER_PAGE, False)
             return self.items
         elif self.page_mark == 'portfolio':

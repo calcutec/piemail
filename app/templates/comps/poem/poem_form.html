@@ -1,26 +1,4 @@
-{#<form id="poem-form" class="form-horizontal" action="{{ url_for("create_post") }}" method="post" enctype="multipart/form-data" name="post">#}
-{#    {{ form.hidden_tag() }}#}
-{#    <div class="control-group">#}
-{#        <label class="control-label">Author</label><br>#}
-{#        {{ form.author() }}#}
-{#        <span id="error_author" class="help-inline"></span>#}
-{#    </div>#}
-{#    <div class="control-group">#}
-{#        <label class="control-label">Title</label><br>#}
-{#        {{ form.title() }}#}
-{#        <span id="error_title" class="help-inline"></span>#}
-{#    </div>#}
-{#    <div class="control-group">#}
-{#        <label class="control-label" for="body">Poem</label><br>#}
-{#        {{ form.body() }}#}
-{#              <div id="editable">Here's some mock text..</div>#}
-{#        <span id="error_body" class="help-inline"></span>#}
-{#    </div>#}
-{#    <br>#}
-{#        {{ form.submit(id="poem-submit") }}#}
-{#</form>#}
-
-<form id="poem-form" class="form-horizontal" action="{{ url_for("create_post") }}" method="post" enctype="multipart/form-data" name="post">
+<form id="poem-form" class="form-horizontal" action="{{ url_for("posts") }}" method="post" enctype="multipart/form-data" name="post">
     {{ form.csrf_token }}
 
     <div class="control-group{% if form.header.errors %} error{% endif %}">
@@ -39,14 +17,31 @@
 
     <div class="control-group{% if form.post.errors %} error{% endif %}">
         <label class="control-label" for="post">Poem</label>
-        {{ form.post(class="form-control") }}
-{#        <div id="editable"></div>#}
+        {{ form.post(class="form-control hide") }}
+        <div id="editable"></div>
         <span id="error_post" class="help-inline"></span><br>
     </div>
     <div class="control-group">
         <div class="controls">
-{#            <input class="btn btn-primary" type="submit" value="Save Changes">#}
-            {{ form.submit(class="btn btn-primary", id="poem-submit") }}
+            <input class="btn btn-primary" type="submit" value="Save Changes">
         </div>
     </div>
 </form>
+
+<script>
+    $('#editable').wysihtml5({
+    toolbar: {
+        "style": true,
+        "font-styles": true,
+        "emphasis": true,
+        "lists": true,
+        "html": false,
+        "link": false,
+        "image": false,
+        "color": false,
+        fa: true,
+        ellipsis: false,
+        strikethrough: true
+    }
+    });
+</script>

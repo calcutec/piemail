@@ -53,6 +53,10 @@ class User(UserMixin, db.Model):
         if lastname is not None:
             self.lastname = lastname.title()
 
+    def json_view(self):
+        return {'id': self.id, 'type': self.type, 'firstname': self.firstname, 'lastname': self.lastname,
+                'nickname': self.nickname, 'about_me': self.about_me, 'last_seen': self.last_seen}
+
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
 
@@ -222,6 +226,9 @@ class Post(db.Model):
         db.session.commit() # for the vote count
         return vote_status
 
+    def json_view(self):
+        return {'id': self.id, 'author': self.user_id, 'header': self.header, 'body': self.body}
+
     def get_absolute_url(self):
         return url_for('post', kwargs={"slug": self.slug})
 
@@ -242,30 +249,3 @@ class Comment(db.Model):
 
 if enable_search:
     whooshalchemy.whoosh_index(app, Post)
-
-class Poem(db.Model):
-    __searchable__ = ['body']
-    __tablename__ = 'poem'
-
-    id = db.Column(db.Integer, primary_key=True)
-    # user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    author = db.Column(db.String, unique=True)
-    title = db.Column(db.String, unique=True)
-    body = db.Column(db.Text())
-    slug = db.Column(db.String())
-    writing_type = db.Column(db.String(32))
-    votes = db.Column(db.Integer, default=1)
-
-    def __init__(self, **kwargs):
-        super(Poem, self).__init__(**kwargs)
-        if self.writing_type is None:
-            self.writing_type == "poem"
-
-    def get_absolute_url(self):
-        return url_for('poem', kwargs={"slug": self.slug})
-
-    def __repr__(self):  # pragma: no cover
-        return '<Poem %r>' % self.body
-
-    def json_view(self):
-        return {'id': self.id, 'author': self.author, 'title': self.title, 'body': self.body}
