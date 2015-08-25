@@ -137,33 +137,6 @@ $( document ).ready(function() {
         }
     }
 
-    $("#poem-form").submit(function(e) {
-        e.preventDefault();
-        var $form = $(this);
-        var poem_text = $('#editable').html();
-        $('#post').html(poem_text);
-
-        $.post("/detail/", $form.serialize(),
-            function(data) {
-            var result = $.parseJSON(data);
-            var error_header = $("#error_header");
-            var error_post = $("#error_post");
-            var error_writing_type = $("#error_writing_type");
-            error_header.text("");
-            error_post.text("");
-            error_writing_type.text("");
-
-            if(result.iserror) {
-                if(result.header!=undefined) error_header.text(result.header[0]);
-                if(result.post!=undefined) error_post.text(result.post[0]);
-                if(result.writing_type!=undefined) error_writing_type.text(result.writing_type[0]);
-            }else if (result.savedsuccess) {
-                $("#myModal").modal('hide');
-                $("#main").prepend(result.new_poem);
-            }
-        });
-    });
-
 
 //Update Post
     var showToolbar = function() {
@@ -226,9 +199,9 @@ $( document ).ready(function() {
             success: function(result) {
                 if(result.iserror) {
                     alert("An error occurred while deleting the last item..")
-                }else if (result.savedsuccess) {
+                }else {
                     // When backbone is complete, remove poem from the current DOM
-                    location.href = "/portfolio"
+                    location.href = "/poetry/portfolio"
                 }
             }
         });

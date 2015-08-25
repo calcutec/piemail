@@ -10,7 +10,7 @@ var CommentView = Backbone.View.extend({
 //    model: comment_model
 //});
 
-// Poem collection
+// Comment collection
 var CommentCollection = new Backbone.Collection
 
 $(function () {
@@ -31,12 +31,32 @@ var Poem = Backbone.Model.extend({
     if ( !attrs.header ){
         alert('Your poem must have a header!');
     }
-    //if ( attrs.post.length < 10 ){
-    //    alert('Your poem is too short!');
-    //}
+    if ( attrs.post.length < 10 ){
+        alert('Your poem is too short!');
+    }
   },
     urlRoot: '/poem/'
 });
+
+
+
+////Destroy Post
+//    $( "#delete-button" ).click(function() {
+//        var post_id = $('.post-id').html();
+//        $.ajax({
+//            url: '/detail/' + post_id,
+//            type: 'DELETE',
+//            success: function(result) {
+//                if(result.iserror) {
+//                    alert("An error occurred while deleting the last item..")
+//                }else {
+//                    // When backbone is complete, remove poem from the current DOM
+//                    location.href = "/poetry/portfolio"
+//                }
+//            }
+//        });
+//    });
+
 
 // Poem view
 var PoemView = Backbone.View.extend({
@@ -45,7 +65,7 @@ var PoemView = Backbone.View.extend({
     id: 'bard', // also optional
     events: {
         'click .edit':   'editPoem',
-        'click .delete': 'deletePoem'
+        'click #delete-button': 'deletePoem'
     },
     savePoem: function(){
         this.model.save(null, {
@@ -67,7 +87,7 @@ var PoemView = Backbone.View.extend({
     newTemplate: _.template('<%= header %>, written by <%= author %>, reads as follows: <%= body %>'), // inline template
     //newTemplate: _.template($('#poemTemplate').html()), // external template
     initialize: function() {
-        //this.render(); // render is an optional function that defines the logic for rendering a template
+        this.render(); // render is an optional function that defines the logic for rendering a template
         this.model.on('change', this.render, this); // calls render function once name changed
         this.model.on('destroy', this.remove, this); // calls remove function once model deleted
     },
@@ -75,7 +95,7 @@ var PoemView = Backbone.View.extend({
         this.$el.remove(); // removes the HTML element from view when delete button clicked/model deleted
     },
     render: function() {
-        //this.$el.html(this.newTemplate(this.model.toJSON())); // calls the template
+        this.$el.html(this.newTemplate(this.model.toJSON())); // calls the template
         alert("render function for PoemView has just been called")
     }
 });
@@ -151,9 +171,10 @@ var ModalView = Backbone.View.extend({
         e.preventDefault();
 
 
-        var $form = $('#poem-form');
+
         var poem_text = $('#editable').html();
         $('#post').html(poem_text);
+        var $form = $('#poem-form');
         //var data = JSON.stringify($form.serializeObject());
         //this.model.set(data);
         //var mypoemView = new PoemView({model: this.model});
@@ -177,15 +198,15 @@ var ModalView = Backbone.View.extend({
             }else if (result.savedsuccess) {
                 $("#main").append(result.new_post);
                 //this.template.commit();
-                $("#myModal").modal('hide');
-
+                $(".modal").modal('hide');
             }
         });
     }
 });
 
-//var poemCollection = new PoemCollection();
-//var poemsView = new PoemsView({collection: poemCollection});
+
+var poemCollection = new PoemCollection();
+var poemsView = new PoemsView({collection: poemCollection});
 //poemCollection.fetch({
 //    success: function() {
 //        poemsView.render();
