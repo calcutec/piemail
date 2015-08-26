@@ -66,7 +66,7 @@
                     <li class="n-logout"><a href="{{ url_for('helpers') }}">Logout</a></li>
                     <li class="n-profile"><a href="{{ url_for('members', nickname=g.user.nickname) }}">Profile</a></li>
                     <li id="user-type" class="hide">{{ g.user.type }}</li>
-                    <li class="n-home"><a href="{{ url_for('posts', page_mark = 'home') }}">Home</a></li>
+                    <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
 				{% endif %}
 			</ul>
 		</div>

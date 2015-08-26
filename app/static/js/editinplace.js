@@ -257,4 +257,9 @@ $( document ).ready(function() {
             }, 'json'
         );
     });
+
+    $(".prevent_default").click(function(e) {
+        e.preventDefault();
+    });
 });
+

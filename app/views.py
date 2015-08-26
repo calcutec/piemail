@@ -14,7 +14,7 @@ from slugify import slugify
 from .forms import SignupForm, LoginForm, EditForm, PostForm, SearchForm, CommentForm
 from .models import User, Post, Comment
 from .emails import follower_notification
-from .utils import OAuthSignIn, pre_upload, GenericListView, LoginRequiredListView, ViewData, allowed_file
+from .utils import OAuthSignIn, pre_upload, GenericListView, ViewData, allowed_file
 from PIL import Image
 import json
 from flask.views import MethodView
@@ -24,86 +24,8 @@ from flask.views import MethodView
 def index():
     return redirect(url_for('home'))
 
-
-# @app.route('/', methods=['GET'])
-# def index():
-#     form = PostForm()
-#     return render_template('index.html', form=form)
-
-@app.route('/poems', methods=['GET', 'POST'])
-def get_all_posts():
-    posts = Post.query.all()
-    return jsonify(myPoems=[i.json_view() for i in posts])
-
-@app.route('/all_users', methods=['Post', 'Get'])
-def get_all_users():
-    users = User.query.all()
-    this_user = User.query.get(g.user.id)
-    return jsonify(myUsers=[this_user.json_view()])
-    # return jsonify(myUsers=[i.json_view() for i in users])
-
-@login_required
-@app.route('/present_user/', methods=['Post', 'Get'])
-def present_user():
-    this_user = User.query.get(g.user.id)
-    return jsonify(presentUser=[this_user.json_view()])
-
-
-@app.route('/poem/<int:post_id>', methods=['GET'])
-def get_post(post_id):
-    post = _post_get_or_404(post_id)
-    return _post_response(post)
-
-
-@app.route('/poem/<int:post_id>', methods=['PUT'])
-def update_post(post_id):
-    updates = request.get_json()
-    post = _post_get_or_404(post_id)
-    post.title = updates['title']
-    db.session.commit()
-    return _post_response(post)
-
-
-@app.route('/poem/', methods=['POST'])
-def create_post():
-    form = PostForm()
-    if form.validate_on_submit():
-        result = {'iserror': False}
-        slug = slugify(form.header.data)
-        post = Post(body=form.post.data, timestamp=datetime.utcnow(),
-                    author=g.user, photo=None, thumbnail=None, header=form.header.data,
-                    writing_type=form.writing_type.data, slug=slug)
-        db.session.add(post)
-        db.session.commit()
-        result['savedsuccess'] = True
-        result['new_post'] = render_template('comps/post.html', page_mark='detail', post=post, g=g)
-        return json.dumps(result)
-    form.errors['iserror'] = True
-    return json.dumps(form.errors)
-
-
-@app.route('/poem/<int:post_id>', methods=['DELETE'])
-def delete(post_id=None):
-    post = _post_get_or_404(post_id)
-    db.session.delete(post)
-    db.session.commit()
-    return jsonify(success=True)
-
-
-def _post_get_or_404(post_id):
-    post = Post.query.get(post_id)
-    if post is None:
-        abort(404)
-    return post
-
-
-def _post_response(post):
-    return jsonify(post.json_view())
-
-
 home_data = ViewData("home")
 app.add_url_rule('/home/', view_func=GenericListView.as_view('home', home_data), methods=["GET", ])
-
 
 class LoginAPI(MethodView):
     def post(self):
@@ -324,9 +246,8 @@ def unfollow(nickname):
 class PostAPI(MethodView):
     decorators = [login_required]
 
-    # Create a new Post
-    def post(self, post_id=None):
-        if post_id is None:     # Create a new post
+    def post(self, post_id=None, page_mark=None): # Create a new post
+        if request.url_rule.rule == '/detail/<page_mark>/':
             form = PostForm()
             if form.validate_on_submit():
                 result = {'iserror': False}
@@ -336,11 +257,22 @@ class PostAPI(MethodView):
                             writing_type=form.writing_type.data, slug=slug)
                 db.session.add(post)
                 db.session.commit()
-                result['savedsuccess'] = True
-                result['new_poem'] = render_template('comps/post.html', page_mark='detail', post=post, g=g)
-                return json.dumps(result)
-            form.errors['iserror'] = True
-            return json.dumps(form.errors)
+                if request.is_xhr:
+                    result['savedsuccess'] = True
+                    result['new_poem'] = render_template('comps/post.html', page_mark=page_mark, post=post, g=g)
+                    return json.dumps(result)
+                else:
+                    return redirect('/poetry/'+page_mark+'/')
+            else:
+                if request.is_xhr:
+                    form.errors['iserror'] = True
+                    return json.dumps(form.errors)
+                else:
+                    return form.errors
+        elif request.url_rule == '/poetry/<page_mark>/': # Read all posts
+            view_data = ViewData(page_mark)
+            result = render_template(view_data.template_name, **view_data.context)
+            return json.dumps(result)
         else:   # Vote on post
             post_id = post_id
             user_id = g.user.id
@@ -353,6 +285,9 @@ class PostAPI(MethodView):
     #  Read Post or Posts
     def get(self, page_mark=None, slug=None):
         if slug is None:    # Read all posts
+            if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create']:
+                flash("That page does not exist.")
+                return redirect(url_for('home'))
             view_data = ViewData(page_mark)
             return render_template(view_data.template_name, **view_data.context)
         else:       # Read a single post
@@ -378,15 +313,14 @@ class PostAPI(MethodView):
 
 # urls for Post API
 post_api_view = PostAPI.as_view('posts')
-# Create a new post
-app.add_url_rule('/detail/', view_func=post_api_view, methods=["POST", ])
 # Vote on post
 app.add_url_rule('/vote/<int:post_id>', view_func=post_api_view, methods=["POST", ])
+# Read all posts
+app.add_url_rule('/poetry/<page_mark>/', view_func=post_api_view, methods=["GET","POST"])
 # Read a single post
-app.add_url_rule('/detail/<slug>', view_func=post_api_view, methods=["GET", ])
-# Read all posts for a specific view
-# Todo: Must be fixed!! Starting with a variable, it will serve a page to anything!
-app.add_url_rule('/poetry/<page_mark>/', view_func=post_api_view, methods=["GET", ])
+app.add_url_rule('/detail/<slug>/', view_func=post_api_view, methods=["GET", ])
+# create a new post
+app.add_url_rule('/detail/<page_mark>/', view_func=post_api_view, methods=["GET", "POST"])
 # Update a single post
 app.add_url_rule('/detail/', view_func=post_api_view, methods=["PUT", ])
 # Delete a single post

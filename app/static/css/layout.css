@@ -361,6 +361,10 @@ article,section,nav,header,footer,figure,figcaption {
   display: none;
 }
 
+#hide {
+  display: none;
+}
+
 body {
 	padding: 2rem 8%;
 }

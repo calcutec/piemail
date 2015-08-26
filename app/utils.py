@@ -7,10 +7,21 @@ from rauth import OAuth2Service
 import json
 import urllib2
 import cStringIO
-from flask import request, redirect, url_for, render_template, g
+from flask import request, redirect, url_for, render_template, g, flash
 from flask.views import View
 from flask.ext.login import login_required
 from models import User, Post
+from functools import wraps
+
+def check_expired(func):
+    @wraps(func)
+    def decorated_function(page_mark=None, slug=None, post_id=None):
+        if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create']:
+            flash("That page does not exist.")
+            return redirect(url_for('home'))
+        return func(page_mark, slug, post_id)
+
+    return decorated_function
 
 
 def allowed_file(filename):
@@ -130,7 +141,7 @@ class ViewData(object):
             self.profile_user = User.query.filter_by(nickname=self.nickname).first()
 
         # Get post or posts as appropriate to the page
-        if self.page_mark is "signup" or page_mark is "login" or page_mark is "index":  # No posts shown on signup or login pages
+        if self.page_mark is "signup" or page_mark is "login" or page_mark is "index" or page_mark is "create":  # No posts shown on signup or login pages
             self.items = None
             self.post = None
         elif slug is not None:  # Get specific post for detail page
@@ -144,21 +155,24 @@ class ViewData(object):
 
     def get_items(self):
         if self.page_mark == 'profile':
-            self.items = self.profile_user.posts.paginate(self.page, POSTS_PER_PAGE, False)
+            self.items = self.profile_user.posts.order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)
             return self.items
         elif self.page_mark == 'home':
-            self.items = Post.query.filter_by(writing_type="op-ed")
+            self.items = Post.query.filter_by(writing_type="op-ed").order_by(Post.timestamp.desc())
             return self.items
         elif self.page_mark == 'poetry':
-            self.items = Post.query.filter_by(writing_type="featured").paginate(self.page, POSTS_PER_PAGE, False)
+            self.items = Post.query.filter_by(writing_type="featured").order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)
             return self.items
         elif self.page_mark == 'workshop' or self.page_mark == "index":
-            self.items = Post.query.filter_by(writing_type="poem").paginate(self.page, POSTS_PER_PAGE, False)
+            self.items = Post.query.filter_by(writing_type="poem").order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)
             return self.items
         elif self.page_mark == 'portfolio':
-            self.items = g.user.posts.paginate(self.page, POSTS_PER_PAGE, False)
+            self.items = g.user.posts.order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)
             return self.items
         elif self.page_mark == 'detail':
+            self.post = Post.query.filter(Post.slug == self.slug).first()
+            return self.post
+        elif self.page_mark == 'create':
             self.post = Post.query.filter(Post.slug == self.slug).first()
             return self.post
 
@@ -169,7 +183,7 @@ class ViewData(object):
             form = LoginForm()
         elif self.page_mark == 'profile':
             form = EditForm()
-        elif self.page_mark == 'portfolio':
+        elif self.page_mark == 'portfolio' or self.page_mark == 'create':
             form = PostForm()
         elif self.page_mark == 'detail':
             form = CommentForm()

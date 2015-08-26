@@ -1,44 +1,20 @@
-var CommentModel = Backbone.Model.extend();
-
-var CommentView = Backbone.View.extend({
-    initialize: function() {},
-    edit: function() {},
-    delete: function() {}
-});
-
-//var comment_view = new CommentView({
-//    model: comment_model
-//});
-
-// Comment collection
-var CommentCollection = new Backbone.Collection
-
-$(function () {
-    $('.comment').each(function() {
-        CommentCollection.add(new CommentModel($(this).data()));
-    });
-});
-
-
 var Poem = Backbone.Model.extend({
   defaults: {
     author: 'TBD',
     header: 'any Text',
     writing_type: 'any Text',
-    body: 'any Text'
+    post: 'any Text'
   },
   validate: function(attrs, options){
     if ( !attrs.header ){
         alert('Your poem must have a header!');
     }
-    if ( attrs.post.length < 10 ){
+    if ( attrs.post.length < 2 ){
         alert('Your poem is too short!');
     }
   },
-    urlRoot: '/poem/'
+    urlRoot: '/detail/portfolio/'
 });
-
-
 
 ////Destroy Post
 //    $( "#delete-button" ).click(function() {
@@ -71,6 +47,11 @@ var PoemView = Backbone.View.extend({
         this.model.save(null, {
             success: function(model, response){
                 console.log('successful');
+                $("#main").prepend(response.new_poem);
+                $(".modal").modal('hide');
+            },
+            error: function(model, response){
+                console.log('unsuccessful');
             },
             wait: true // wait for the server response before saving
         });
@@ -84,7 +65,7 @@ var PoemView = Backbone.View.extend({
     deletePoem: function(){
         this.model.destroy(); // deletes the model when delete button clicked
     },
-    newTemplate: _.template('<%= header %>, written by <%= author %>, reads as follows: <%= body %>'), // inline template
+    newTemplate: _.template('<%= header %>, written by <%= author %>, reads as follows: <%= post %>'), // inline template
     //newTemplate: _.template($('#poemTemplate').html()), // external template
     initialize: function() {
         this.render(); // render is an optional function that defines the logic for rendering a template
@@ -103,7 +84,7 @@ var PoemView = Backbone.View.extend({
 // Poem collection
 var PoemCollection = Backbone.Collection.extend({
     model: Poem,
-    url: '/poems',
+    url: '/poetry/workshop/',
     parse: function(response){return response.myPoems;}
 });
 
@@ -169,44 +150,51 @@ var ModalView = Backbone.View.extend({
 
     submit: function(e) {
         e.preventDefault();
-
-
-
         var poem_text = $('#editable').html();
-        $('#post').html(poem_text);
+        $('#show-form').html(poem_text);
         var $form = $('#poem-form');
-        //var data = JSON.stringify($form.serializeObject());
-        //this.model.set(data);
-        //var mypoemView = new PoemView({model: this.model});
-        //mypoemView.savePoem($form);
-        //poemCollection.add(this.model);
+        var data = JSON.stringify($form.serializeObject());
+        this.model.set($form.serializeObject());
+        var mypoemView = new PoemView({model: this.model});
+        mypoemView.savePoem(data);
+        poemCollection.add(this.model);
 
-        $.post("/poem/", $form.serialize(),
-            function(data) {
-            var result = $.parseJSON(data);
-            var error_header = $("#error_header");
-            var error_post = $("#error_post");
-            var error_writing_type = $("#error_writing_type");
-            error_header.text("");
-            error_post.text("");
-            error_writing_type.text("");
-
-            if(result.iserror) {
-                if(result.header!=undefined) error_header.text(result.header[0]);
-                if(result.post!=undefined) error_post.text(result.post[0]);
-                if(result.writing_type!=undefined) error_writing_type.text(result.writing_type[0]);
-            }else if (result.savedsuccess) {
-                $("#main").append(result.new_post);
-                //this.template.commit();
-                $(".modal").modal('hide');
-            }
-        });
+        //$.post("/detail/", $form.serialize(),
+        //    function(data) {
+        //    var result = $.parseJSON(data);
+        //    var error_header = $("#error_header");
+        //    var error_post = $("#error_post");
+        //    var error_writing_type = $("#error_writing_type");
+        //    error_header.text("");
+        //    error_post.text("");
+        //    error_writing_type.text("");
+        //
+        //    if(result.iserror) {
+        //        if(result.header!=undefined) error_header.text(result.header[0]);
+        //        if(result.post!=undefined) error_post.text(result.post[0]);
+        //        if(result.writing_type!=undefined) error_writing_type.text(result.writing_type[0]);
+        //    }else if (result.savedsuccess) {
+        //        $("#main").prepend(result.new_poem);
+        //        $(".modal").modal('hide');
+        //        this.template.commit();
+        //    }
+        //});
     }
 });
 
+//var poemCollection = new PoemCollection();
+//
+//$(function () {
+//    $('.comment').each(function() {
+//        poemCollection.add(new Poem($(this).data()));
+//    });
+//});
+//
+//var poemsView = new PoemsView({collection: poemCollection});
 
-var poemCollection = new PoemCollection();
-var poemsView = new PoemsView({collection: poemCollection});
+
+
+
 //poemCollection.fetch({
 //    success: function() {
 //        poemsView.render();

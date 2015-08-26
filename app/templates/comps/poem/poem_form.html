@@ -16,9 +16,9 @@
     {% endif %}
 
     <div class="control-group{% if form.post.errors %} error{% endif %}">
-        <label class="control-label" for="post">Poem</label>
-        {{ form.post(class="form-control hide") }}
-        <div id="editable"></div>
+        <label class="control-label">Poem</label>
+        {{ form.post(class="form-control", id="show-form") }}
+        <div id="editable" class="hide"></div>
         <span id="error_post" class="help-inline"></span><br>
     </div>
     <div class="control-group">
@@ -29,6 +29,8 @@
 </form>
 
 <script>
+    document.getElementById("editable").className = "show";
+    document.getElementById("show-form").className = "hide";
     $('#editable').wysihtml5({
     toolbar: {
         "style": true,
