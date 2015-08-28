@@ -8,14 +8,9 @@
     {% if page_mark == "workshop" %}<h1>Workshop page text placeholder</h1>{% endif %}
     {% if page_mark == "create" %}<h1>Create page text placeholder</h1>{% endif %}
     {% if page_mark == "detail" %}<h1>Detail page text placeholder</h1>{% endif %}
-
     {% if page_mark == "portfolio" %}
-        <a class="prevent_default" href="/poetry/create"><button type="button" id="openPoemModal" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Create Poem</button></a>
-        <script id="formTemplate" type="text/template">
-            {% include 'comps/poem/poem_form.html' %}
-        </script>
+        <div id="myPortfolio"></div>
     {% endif %}
-
     {% if page_mark == "profile" %}
         {% if profile_user.id == g.user.id %}
                 {% include 'comps/profile/profile_modal.html' %}
@@ -28,21 +23,20 @@
     {% endif %}
 {% endblock %}
 
-
 {% block content %}
     {% include 'comps/flash.html' %}
     {% if page_mark == "login" %}{% include 'comps/forms/login_form.html' %}{% endif %}
     {% if page_mark == "signup" %}{% include 'comps/forms/signup_form.html' %}{% endif %}
-    {% if page_mark == "home" %}{% for post in posts %}{% include 'comps/post.html' %}{% endfor %}{% endif %}
-
     {% if page_mark == "portfolio" %}
-        <div id="theForm"></div>
-{#        <script id="poemTemplate" type="text/template">#}
-{#            {% include 'comps/post.html' %}#}
-{#        </script>#}
+        <!-- external templates -->
+        <script id="postTemplate" type="text/template">
+            {% include 'comps/simplepost.html' %}
+        </script>
+        <script id="formTemplate" type="text/template">
+            {% include 'comps/poem/poem_form.html' %}
+        </script>
     {% endif %}
-
-    {% if page_mark == "home" or page_mark == "poetry" or page_mark == "workshop" or page_mark == "portfolio" or page_mark == "profile" %}
+        {% if page_mark == "poetry" or page_mark == "workshop" or page_mark == "profile" %}
         {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
         {% include 'comps/postie.html' %}
     {% endif %}
@@ -58,6 +52,7 @@
 {% endblock %}
 
 {% block scripts %}
-    <script src="{{ local_static_url }}js/editinplace.js"></script>
-    <script src="{{ local_static_url }}js/app.js"></script>
+    {% if page_mark == "portfolio" %}
+        <script src="{{ local_static_url }}js/app.js"></script>
+    {% endif %}
 {% endblock %}

@@ -262,7 +262,7 @@ class PostAPI(MethodView):
                     result['new_poem'] = render_template('comps/post.html', page_mark=page_mark, post=post, g=g)
                     return json.dumps(result)
                 else:
-                    return redirect('/poetry/'+page_mark+'/')
+                    return redirect('/poetry/portfolio/')
             else:
                 if request.is_xhr:
                     form.errors['iserror'] = True

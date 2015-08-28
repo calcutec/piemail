@@ -7,7 +7,7 @@
           <h3 class="modal-title">Please title and write your poem below</h3>
         </div>
         <div class="modal-body">
-            <form id="poem-form" class="form-horizontal" action="{{ url_for("posts") }}" method="post" enctype="multipart/form-data" name="post">
+            <form id="poem-form" class="form-horizontal" action="/detail/{{ page_mark }}/" method="post" enctype="multipart/form-data" name="post">
                 {{ form.csrf_token }}
 
                 <div class="control-group{% if form.header.errors %} error{% endif %}">
