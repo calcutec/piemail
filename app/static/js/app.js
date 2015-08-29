@@ -8,7 +8,7 @@ window.App = {  // top level namespace is declared on the window
 
 // Post model
 App.Models.Post = Backbone.Model.extend({
-  urlRoot: '/detail/<page_mark>/',
+  urlRoot: '/detail/portfolio/',
   defaults: {
     header: '',
     post: '',
@@ -21,7 +21,7 @@ App.Models.Post = Backbone.Model.extend({
         alert('Your post must have more than one letter!');
     }
   },
-  sleep: function(){
+  addToCollection: function(){
     alert(this.get('header') + ' is the title of my post.');
   }
 });
@@ -34,20 +34,6 @@ App.Views.Post = Backbone.View.extend({
   events: {
     'click .edit':   'editPost',
     'click .delete': 'deletePost'
-  },
-  savePost: function(){
-    this.model.save(null, {
-        success: function(model, response){
-            console.log('successful');
-            this.render()
-            $("#main").prepend(this.el);
-
-        },
-        error: function(model, response){
-            console.log('unsuccessful');
-        },
-        wait: true // wait for the server response before saving
-    });
   },
   editPost: function(){
     var newPost = prompt("New post name:", this.model.get('header')); // prompts for new name
@@ -143,15 +129,27 @@ App.Views.ModalDisplay = Backbone.View.extend({
             okCloses: true,
             enterTriggersOk: true
         }).open(function(){
-                var poem_text = $('#editable').html();
-                $('#show-form').html(poem_text);
-                var $form = $('#poem-form');
-                var newPostModel = new App.Models.Post();
-                newPostModel.set($form.serializeObject());
-                var newPostView = new App.Views.Post({model: newPostModel})
-                //newPostView.render()
-                //$("#main").prepend(newPostView.el);
-            });
+            var poem_text = $('#editable').html();
+            $('#show-form').html(poem_text);
+            var $form = $('#poem-form');
+            var newPostModel = new App.Models.Post();
+            newPostModel.set($form.serializeObject());
+            newPostModel.save(
+                {'header': 'Alternate title2'},
+                {
+                    wait: true,
+                    success: function () {
+                      var newPostView = new App.Views.Post({model: newPostModel});
+                      $("#main").prepend(newPostView.el);
+                      sessionStorage.getItem('postCollection');
+                      postCollection.add(newPostModel)
+                      sessionStorage.setItem('postCollection', JSON.stringify(postCollection));
+                    },
+                    error: function () {
+                      alert('well shit!');
+                    }
+                });
+        });
     },
     render: function() {
         this.$el.html(this.template);
@@ -161,7 +159,6 @@ App.Views.ModalDisplay = Backbone.View.extend({
 });
 
 App.Views.ModalView = Backbone.View.extend({
-    tagName: 'p',
     template: _.template($('#formTemplate').html()),
     events: {
         'submit form': 'submit'
@@ -194,6 +191,7 @@ $(document).ready(function() {
         ]);
         var postsView = new App.Views.Posts({collection: postCollection});
         postsView.render();
+        sessionStorage.setItem('postCollection', JSON.stringify(postCollection));
 
     ////Retrieving models from flask database////
         //postCollection.fetch({
