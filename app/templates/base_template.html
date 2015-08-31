@@ -35,6 +35,9 @@
         <script id="formTemplate" type="text/template">
             {% include 'comps/poem/poem_form.html' %}
         </script>
+        <div id="poem-list">
+            {% for post in posts.items %}{% include 'comps/simpleFlaskPost.html' %}{% endfor %}
+        </div>
     {% endif %}
         {% if page_mark == "poetry" or page_mark == "workshop" or page_mark == "profile" %}
         {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
