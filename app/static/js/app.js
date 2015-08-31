@@ -248,20 +248,18 @@ $(document).ready(function() {
 
     //var newRouter = new App.Router;
     //Backbone.history.start(); // start Backbone history
-    //
-    //var modalDisplayView = new App.Views.ModalDisplay();
-    //modalDisplayView.render();
-    //  var poemData = [
-    //    {id: 1, title: "Bob"},
-    //    {id: 2, title: "Mary"},
-    //    {id: 3, title: "Frank"},
-    //    {id: 4, title: "Jane"},
-    //  ];
-      postCollection = new App.Collections.Post();
-        $("#poem-list article").each(function() {
-            postCollection.add(new App.Models.Post($(this).data()));
-        });
-      poemListView = new App.Views.Posts({collection: postCollection});
-      poemListView.attachToView();
-      //postCollection.get(112).set({title: "No Longer Bob"});
+
+    var newRouter = new App.Router;
+    Backbone.history.start(); // start Backbone history
+
+    var modalDisplayView = new App.Views.ModalDisplay();
+    modalDisplayView.render();
+
+    postCollection = new App.Collections.Post();
+    $("#poem-list article").each(function() {
+        postCollection.add(new App.Models.Post($(this).data()));
+    });
+    poemListView = new App.Views.Posts({collection: postCollection});
+    poemListView.attachToView();
+    //postCollection.get(112).set({title: "No Longer Bob"});
 });
