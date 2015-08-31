@@ -212,19 +212,19 @@ $(document).ready(function() {
     //    postCollection.add(chihuahua);
 
     ////adding multiple models to collection////
-        var postCollection = new App.Collections.Post([
-         {
-           header: 'Sugar',
-           post: 'That is the name of my chihuahua',
-         },
-         {
-           header: 'Gizmo',
-           post: 'That is the name of my beagle'
-         }
-        ]);
-        var postsView = new App.Views.Posts({collection: postCollection});
-        postsView.render();
-        sessionStorage.setItem('postCollection', JSON.stringify(postCollection));
+    //    var postCollection = new App.Collections.Post([
+    //     {
+    //       header: 'Sugar',
+    //       post: 'That is the name of my chihuahua',
+    //     },
+    //     {
+    //       header: 'Gizmo',
+    //       post: 'That is the name of my beagle'
+    //     }
+    //    ]);
+    //    var postsView = new App.Views.Posts({collection: postCollection});
+    //    postsView.render();
+    //    sessionStorage.setItem('postCollection', JSON.stringify(postCollection));
 
 
     ////Retrieving models from flask database////

@@ -1,9 +1,3 @@
-{#<ul id="poem-list">#}
-{#  <li data-id="1">My name is Bob</li>#}
-{#  <li data-id="2">My name is Mary</li>#}
-{#  <li data-id="3">My name is Frank</li>#}
-{#  <li data-id="4">My name is Jane</li>#}
-{#</ul>#}
 <article class="postArticle" data-id="{{ post.id }}" data-header="{{ post.header }}" data-body="{{ post.body|safe }}">
     <div class="body frame">
         <h2><a href="/detail/{{ post.slug }}">{{ post.header }}</a></h2>
