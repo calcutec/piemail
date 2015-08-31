@@ -77,18 +77,18 @@ class EditForm(Form):
 
 class PostForm(Form):
     my_choices = [('poem', 'Poem'), ('op-ed', 'Op-ed'), ('featured', 'Featured')]
-    post = TextAreaField('Post', validators=[DataRequired()])
+    body = TextAreaField('Post', validators=[DataRequired()])
     header = StringField('Header', validators=[DataRequired()])
     writing_type = SelectField('Post Type', choices=my_choices, default='poem')
     photo = FileField('Your photo', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
     submit = SubmitField("Send")
 
 
-class PoemForm(Form):
-    author = StringField('Author', validators=[DataRequired()])
-    title = StringField('Title', validators=[DataRequired()])
-    body = TextAreaField('Poem', validators=[DataRequired()])
-    submit = SubmitField("Post Poem")
+# class PoemForm(Form):
+#     author = StringField('Author', validators=[DataRequired()])
+#     title = StringField('Title', validators=[DataRequired()])
+#     body = TextAreaField('Poem', validators=[DataRequired()])
+#     submit = SubmitField("Post Poem")
 
 
 class CommentForm(Form):

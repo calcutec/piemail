@@ -11,14 +11,13 @@ App.Models.Post = Backbone.Model.extend({
   urlRoot: '/detail/portfolio/',
   defaults: {
     header: '',
-    body: '',
-    id: '',
+    body: ''
   },
   validate: function(attrs, options){
     if (!attrs.header){
         alert('Your post must have a header!');
     }
-    if (attrs.post.length < 2){
+    if (attrs.body.length < 2){
         alert('Your post must have more than one letter!');
     }
   },
@@ -58,9 +57,8 @@ App.Views.Post = Backbone.View.extend({
       this.el.getElementsByTagName('a')[0].innerHTML = val
   },
   render: function(){
-    // the below line represents the code prior to adding the template
-    // this.$el.html(this.model.get('name') + ' is ' + this.model.get('color') + ' and says ' + this.model.get('sound'));
     this.$el.html(this.newTemplate(this.model.toJSON())); // calls the template
+    $("#main").prepend(this.el);
   }
 });
 
@@ -165,23 +163,19 @@ App.Views.ModalDisplay = Backbone.View.extend({
             var poem_text = $('#editable').html();
             $('#show-form').html(poem_text);
             var $form = $('#poem-form');
-            var newPostModel = new App.Models.Post();
-            newPostModel.set($form.serializeObject());
-            newPostModel.save(
-                {'header': 'Alternate title2'},
-                {
-                    wait: true,
-                    success: function () {
-                      var newPostView = new App.Views.Post({model: newPostModel});
-                      $("#main").prepend(newPostView.el);
-                      sessionStorage.getItem('postCollection');
-                      postCollection.add(newPostModel)
-                      sessionStorage.setItem('postCollection', JSON.stringify(postCollection));
-                    },
-                    error: function () {
-                      alert('well shit!');
-                    }
-                });
+            data = $form.serializeObject()
+            newPostModel = new App.Models.Post(data);
+            //newPostModel.set($form.serializeObject());
+            newPostModel.save(null, {
+                success: function (model, response) {
+                    alert('great, it saved!')
+                    new App.Views.Post({model:model}).render();
+                },
+                error: function () {
+                    alert('crap, still broken!')
+                }
+            });
+
         });
     },
     render: function() {

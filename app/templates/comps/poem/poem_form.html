@@ -15,9 +15,9 @@
     </div>
     {% endif %}
 
-    <div class="control-group{% if form.post.errors %} error{% endif %}">
+    <div class="control-group{% if form.body.errors %} error{% endif %}">
         <label class="control-label">Poem</label>
-        {{ form.post(class="form-control", id="show-form") }}
+        {{ form.body(class="form-control", id="show-form") }}
         <div id="editable" class="hide"></div>
         <span id="error_post" class="help-inline"></span><br>
     </div>

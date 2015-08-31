@@ -246,13 +246,14 @@ def unfollow(nickname):
 class PostAPI(MethodView):
     decorators = [login_required]
 
+
     def post(self, post_id=None, page_mark=None): # Create a new post
         if request.url_rule.rule == '/detail/<page_mark>/':
             form = PostForm()
             if form.validate_on_submit():
                 result = {'iserror': False}
                 slug = slugify(form.header.data)
-                post = Post(body=form.post.data, timestamp=datetime.utcnow(),
+                post = Post(body=form.body.data, timestamp=datetime.utcnow(),
                             author=g.user, photo=None, thumbnail=None, header=form.header.data,
                             writing_type=form.writing_type.data, slug=slug)
                 db.session.add(post)
@@ -324,7 +325,7 @@ app.add_url_rule('/detail/<page_mark>/', view_func=post_api_view, methods=["GET"
 # Update a single post
 app.add_url_rule('/detail/', view_func=post_api_view, methods=["PUT", ])
 # Delete a single post
-app.add_url_rule('/detail/<int:post_id>', view_func=post_api_view, methods=["DELETE", ])
+app.add_url_rule('/detail/portfolio/<int:post_id>', view_func=post_api_view, methods=["DELETE", ])
 
 
 class HelpersAPI(MethodView):
