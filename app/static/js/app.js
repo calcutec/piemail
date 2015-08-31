@@ -11,7 +11,8 @@ App.Models.Post = Backbone.Model.extend({
   urlRoot: '/detail/<page_mark>/',
   defaults: {
     header: '',
-    post: '',
+    body: '',
+    id: '',
   },
   validate: function(attrs, options){
     if (!attrs.header){
@@ -59,12 +60,16 @@ App.Views.Post = Backbone.View.extend({
   },
   newTemplate: _.template($('#postTemplate').html()), // external template
   initialize: function(){
-    this.render(); // render is an optional function that defines the logic for rendering a template
-    this.model.on('change', this.render, this); // calls render function once name changed
+    //this.render(); // render is an optional function that defines the logic for rendering a template
+    //this.model.on('change', this.render, this); // calls render function once name changed
+    this.model.bind("change:header", this.updateTitle, this);
     this.model.on('destroy', this.remove, this); // calls remove function once model deleted
   },
   remove: function(){
     this.$el.remove(); // removes the HTML element from view when delete button clicked/model deleted
+  },
+  updateTitle: function(model, val) {
+      this.el.getElementsByTagName('a')[0].innerHTML = val
   },
   render: function(){
     // the below line represents the code prior to adding the template
@@ -73,19 +78,46 @@ App.Views.Post = Backbone.View.extend({
   }
 });
 
+App.Views.PoemView = Backbone.View.extend({
+  initialize: function(){
+    this.model.bind("change:name", this.updateName, this);
+  },
+
+  updateName: function(model, val){
+    this.el.text(val);
+  }
+});
+
 // Post collection
 App.Collections.Post = Backbone.Collection.extend({
   model: App.Models.Post,
   url: '/poetry/workshop/',
-  parse: function(response){return response.myPoems;}
+  parse: function(response){return response.myPoems;},
+  clear_all: function(response){
+    var model;
+    while (model = this.first()) {
+      model.destroy();
+    }
+  }
 });
 
 // View for all posts (collection)
 App.Views.Posts = Backbone.View.extend({ // plural to distinguish as the view for the collection
-  //el: '.page', // Confirm
-  tagName: 'ul', // Confirm
-  initialize: function(){
-    this.collection;
+  //initialize: function(){
+  //  this.collection;
+  //},
+  attachToView: function(){
+    this.el = $("#poem-list");
+    self = this;
+    $("#poem-list article").each(function(index){
+      var poemEl = $(this);
+      var id = poemEl.attr("data-id");
+      var poem = self.collection.get(id);
+      new App.Views.Post({
+        model: poem,
+        el: poemEl
+      });
+    });
   },
   render: function(){
     this.collection.each(function(Post){
@@ -94,6 +126,7 @@ App.Views.Posts = Backbone.View.extend({ // plural to distinguish as the view fo
     });
   }
 });
+
 
 // Backbone router
 App.Router = Backbone.Router.extend({
@@ -176,45 +209,59 @@ App.Views.ModalView = Backbone.View.extend({
 $(document).ready(function() {
 
     ////adding individual models to collection
-        //var chihuahua = new App.Models.Post({header: 'Sugar', post: 'This this the name of my chihuahua'});
-        //var chihuahuaView = new App.Views.Post({model: chihuahua});
-        //var postCollection = new App.Collections.Post(); // only need to create the collection once
-        //postCollection.add(chihuahua);
+    //    var chihuahua = new App.Models.Post({header: 'Sugar', post: 'This this the name of my chihuahua'});
+    //    var chihuahuaView = new App.Views.Post({model: chihuahua});
+    //    var postCollection = new App.Collections.Post(); // only need to create the collection once
+    //    postCollection.add(chihuahua);
 
     ////adding multiple models to collection////
-        var postCollection = new App.Collections.Post([
-         {
-           header: 'Sugar',
-           post: 'That is the name of my chihuahua',
-         },
-         {
-           header: 'Gizmo',
-           post: 'That is the name of my beagle'
-         }
-        ]);
-        var postsView = new App.Views.Posts({collection: postCollection});
-        postsView.render();
+    //    var postCollection = new App.Collections.Post([
+    //     {
+    //       header: 'Sugar',
+    //       post: 'That is the name of my chihuahua',
+    //     },
+    //     {
+    //       header: 'Gizmo',
+    //       post: 'That is the name of my beagle'
+    //     }
+    //    ]);
+    //    var postsView = new App.Views.Posts({collection: postCollection});
+    //    postsView.render();
 
     ////Retrieving models from flask database////
-        //postCollection.fetch({
-        //    success: function() {
-        //        postsView.render();
-        //    }
-        //})
+    //    postCollection.fetch({
+    //        success: function() {
+    //            postsView.render();
+    //        }
+    //    })
 
     ////Bootstrapping flask models on load////
-        //var postCollection = new App.Collections.Post();
-        //$(function () {
-        //    $('.comment').each(function() {
-        //        postCollection.add(new App.Models.Post($(this).data()));
-        //    });
-        //});
-        //var postsView = new App.Views.Posts({collection: postCollection});
-        //postsView.render()
+    //    postCollection = new App.Collections.Post();
+    //    $(function () {
+    //        $('Article').each(function() {
+    //            postCollection.add(new App.Models.Post($(this).data()));
+    //        });
+    //        postsView = new App.Views.Posts({collection: postCollection});
+    //        //postsView.render()
+    //    });
 
-    var newRouter = new App.Router;
-    Backbone.history.start(); // start Backbone history
 
-    var modalDisplayView = new App.Views.ModalDisplay();
-    modalDisplayView.render();
+    //var newRouter = new App.Router;
+    //Backbone.history.start(); // start Backbone history
+    //
+    //var modalDisplayView = new App.Views.ModalDisplay();
+    //modalDisplayView.render();
+    //  var poemData = [
+    //    {id: 1, title: "Bob"},
+    //    {id: 2, title: "Mary"},
+    //    {id: 3, title: "Frank"},
+    //    {id: 4, title: "Jane"},
+    //  ];
+      postCollection = new App.Collections.Post();
+        $("#poem-list article").each(function() {
+            postCollection.add(new App.Models.Post($(this).data()));
+        });
+      poemListView = new App.Views.Posts({collection: postCollection});
+      poemListView.attachToView();
+      //postCollection.get(112).set({title: "No Longer Bob"});
 });
