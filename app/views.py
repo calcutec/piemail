@@ -27,6 +27,25 @@ def index():
 home_data = ViewData("home")
 app.add_url_rule('/home/', view_func=GenericListView.as_view('home', home_data), methods=["GET", ])
 
+
+class SignupAPI(MethodView):
+    def get(self, nickname=None, form=None):
+        if g.user is not None and g.user.is_authenticated():
+            return redirect(url_for('home'))
+        signup_data = ViewData("signup", form=form)
+        return render_template(signup_data.template_name, **signup_data.context)
+
+    def post(self, user_name=None):
+        form = SignupForm()
+        response = self.process_signup(form)
+        return response
+
+
+signup_api_view = SignupAPI.as_view('signup')  # URLS for MEMBER API
+# Display and Validate Signup Form
+app.add_url_rule('/signup/', view_func=signup_api_view, methods=["GET", "POST" ])
+
+
 class LoginAPI(MethodView):
     def post(self):
         form = LoginForm()  # LOGIN VALIDATION
@@ -102,15 +121,9 @@ app.add_url_rule('/login/', view_func=login_api_view, methods=["GET", ])
 
 class MembersAPI(MethodView):
     def post(self, user_name=None):
-        if user_name is None:   # SIGNUP VALIDATION
-            form = SignupForm()
-            response = self.process_signup(form)
-            return response
-
-        else:   # PROFILE UPDATE
-            form = EditForm()
-            response = self.update_user(form)
-            return response
+        form = EditForm()
+        response = self.update_user(form)
+        return response
 
     def get(self, nickname=None, form=None):
         if nickname is None:    # SIGNUP PAGE
@@ -296,12 +309,14 @@ class PostAPI(MethodView):
             return render_template(detail_data.template_name, **detail_data.context)
 
     # Update Post
-    def put(self):
-        update_post = Post.query.get(request.form['post_id'])
-        update_post.body = request.form['content']
-        db.session.commit()
-        result = {'updatedsuccess': True}
-        return json.dumps(result)
+    def put(self, post_id):
+        form = PostForm()
+        if form.validate_on_submit():
+            update_post = Post.query.get(request.form['post_id'])
+            update_post.body = request.form['content']
+            db.session.commit()
+            result = {'updatedsuccess': True}
+            return json.dumps(result)
 
     # Delete Post
     def delete(self, post_id):
@@ -323,7 +338,7 @@ app.add_url_rule('/detail/<slug>/', view_func=post_api_view, methods=["GET", ])
 # create a new post
 app.add_url_rule('/detail/<page_mark>/', view_func=post_api_view, methods=["GET", "POST"])
 # Update a single post
-app.add_url_rule('/detail/', view_func=post_api_view, methods=["PUT", ])
+app.add_url_rule('/detail/portfolio/<int:post_id>', view_func=post_api_view, methods=["PUT", ])
 # Delete a single post
 app.add_url_rule('/detail/portfolio/<int:post_id>', view_func=post_api_view, methods=["DELETE", ])
 

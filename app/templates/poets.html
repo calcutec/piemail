@@ -1,0 +1,13 @@
+<div id="content">
+    <div class="work">
+        {% for member in members %}
+            <article>
+                <h2><a href=<a href="{{ url_for('members', nickname=member.nickname) }}">Profile</a>" rel="bookmark">Will, the Hipster Bard</a></h2>
+                <div class="body">
+                    <p><img src="{{ static_url }}img/poets/shakespeare.png" alt="" /></p>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</div>
+<!-- /content -->

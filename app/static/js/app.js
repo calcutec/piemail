@@ -54,7 +54,8 @@ App.Views.Post = Backbone.View.extend({
     this.$el.remove(); // removes the HTML element from view when delete button clicked/model deleted
   },
   updateTitle: function(model, val) {
-      this.el.getElementsByTagName('a')[0].innerHTML = val
+      this.el.getElementsByTagName('a')[0].innerHTML = val;
+      model.save();
   },
   render: function(){
     this.$el.html(this.newTemplate(this.model.toJSON())); // calls the template
@@ -165,14 +166,12 @@ App.Views.ModalDisplay = Backbone.View.extend({
             var $form = $('#poem-form');
             data = $form.serializeObject()
             newPostModel = new App.Models.Post(data);
-            //newPostModel.set($form.serializeObject());
             newPostModel.save(null, {
                 success: function (model, response) {
-                    alert('great, it saved!')
                     new App.Views.Post({model:model}).render();
                 },
                 error: function () {
-                    alert('crap, still broken!')
+                    alert('your poem did not save properly..')
                 }
             });
 

@@ -8,6 +8,7 @@
     {% if page_mark == "workshop" %}<h1>Workshop page text placeholder</h1>{% endif %}
     {% if page_mark == "create" %}<h1>Create page text placeholder</h1>{% endif %}
     {% if page_mark == "detail" %}<h1>Detail page text placeholder</h1>{% endif %}
+    {% if page_mark == "profiles" %}<h1>All poets on this site</h1>{% endif %}
     {% if page_mark == "portfolio" %}
         <div id="myPortfolio"></div>
     {% endif %}
@@ -39,9 +40,14 @@
             {% for post in posts.items %}{% include 'comps/simpleFlaskPost.html' %}{% endfor %}
         </div>
     {% endif %}
-        {% if page_mark == "poetry" or page_mark == "workshop" or page_mark == "profile" %}
+
+    {% if page_mark == "workshop" or page_mark == "profile" or page_mark == "poetry" %}
         {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
         {% include 'comps/postie.html' %}
+    {% endif %}
+
+    {% if page_mark == "profiles" %}
+        {% include 'poets.html' %}
     {% endif %}
 
     {% if page_mark == "detail" %}

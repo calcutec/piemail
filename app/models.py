@@ -167,16 +167,14 @@ class Post(db.Model):
         super(Post, self).__init__(**kwargs)
         if self.writing_type is None:
             self.writing_type == "poem"
-        if self.votes is None:
-            self.votes == "1"
 
     def get_voter_ids(self):
         """
         return ids of users who voted this post up
         """
-        select = post_upvotes.select(post_upvotes.c.post_id==self.id)
+        select = post_upvotes.select(post_upvotes.c.post_id == self.id)
         rs = db.engine.execute(select)
-        ids = rs.fetchall() # list of tuples
+        ids = rs.fetchall()  # list of tuples
         return ids
 
     def has_voted(self, user_id):

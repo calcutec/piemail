@@ -90,6 +90,10 @@ h2 {
 	text-align: center;
 }
 
+.work article h2 {
+	font-size: 1rem;
+}
+
 .archives h4+h2 {
 	border-top: 1px solid #ddd;
 	margin: 1rem 0 0.5em 0;
@@ -101,6 +105,14 @@ h3 {
 	line-height: 1.2;
 	margin: 0 0 1rem 0;
 }
+
+#work h3 {
+	margin: 0.5rem 0;
+	font-size: 0.875rem;
+	color: #aaa;
+	text-align: center;
+}
+
 
 section h3 {
 	margin: 0 0 0.5rem 0;
@@ -402,9 +414,76 @@ nav li {
 	display: inline-block;
 }
 
+/*Work*/
+
+.work article {
+	width: 48%;
+	float: left;
+	position: relative;
+	overflow: hidden;
+	margin: 1%;
+	padding: 0;
+	vertical-align: top;
+	transition: width,height 0.2s;
+	}
+
+.work article {
+	border: 0;
+}
+
+.work article h2 {
+	margin: 0;
+	padding-top:75%;
+}
+
+.work article h2 a{
+	text-indent: -999em;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 2;
+	padding: 1em;
+}
+
+.work article h2 a:hover{
+	text-indent: 0;
+	background: rgba(233,91,53,0.8);
+	color: #fff;
+}
+
+.work article .body {
+	overflow: hidden;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.work article .body {
+	padding: 0;
+	margin: 0;
+}
+
+.work article img {
+	margin: 0;
+}
+
+.work .centered img {
+	margin: 0 auto;
+}
+
+.work .body ul {
+	list-style-type: none;
+	max-width: 33em;
+}
+
 
 /*Float Clearance*/
 #home article:after,
+.work:after,
 #contact #content:after {
    content: "";
    clear: both;
@@ -801,6 +880,9 @@ input.submit {
 		float: right;
 		width: 30%;
 	}
+
+    /*Work Section*/
+    .work article {width: 31%;}
 }
 
 
