@@ -1,5 +1,5 @@
 <ul class="details" style="width:100%">
-    <li><a href="{{ url_for('posts',  slug=post.slug) }}">
+    <li><a href="{{ url_for('posts',  page_mark=portfolio, slug=post.slug) }}">
         {% with total=post.comments.all()|length %}
             {{ total }} comment{% if total != 1 %}s{% endif %}
         {% endwith %}</a>

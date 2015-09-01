@@ -22,16 +22,14 @@ from flask.views import MethodView
 
 @app.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('home'))
-
-home_data = ViewData("home")
-app.add_url_rule('/home/', view_func=GenericListView.as_view('home', home_data), methods=["GET", ])
+    return redirect(url_for('posts', page_mark='home'))
 
 
 class SignupAPI(MethodView):
     def get(self, nickname=None, form=None):
+        form = SignupForm()
         if g.user is not None and g.user.is_authenticated():
-            return redirect(url_for('home'))
+            return redirect(url_for('posts', page_mark = 'home'))
         signup_data = ViewData("signup", form=form)
         return render_template(signup_data.template_name, **signup_data.context)
 
@@ -40,10 +38,41 @@ class SignupAPI(MethodView):
         response = self.process_signup(form)
         return response
 
+    def process_signup(self, form):
+        if request.is_xhr:
+            if form.validate_on_submit():
+                result = {'iserror': False}
+                newuser = self.save_user(form)
+                result['savedsuccess'] = True
+                result['newuser_nickname'] = newuser.nickname
+                return json.dumps(result)
+            else:
+                form.errors['iserror'] = True
+                return json.dumps(form.errors)
+        else:
+            if form.validate_on_submit():
+                newuser = self.save_user(form)
+                return redirect("/profile/" + newuser.nickname)
+            else:
+                signup_data = ViewData("signup", form=form)
+                return render_template(signup_data.template_name, **signup_data.context)
+
+    def save_user(self, form):
+        newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data,
+                       lastname=form.lastname.data,
+                       password=form.password.data)
+        db.session.add(newuser)
+        db.session.add(newuser.follow(newuser))
+        db.session.commit()
+        remember_me = False
+        if 'remember_me' in session:
+            remember_me = session['remember_me']
+            session.pop('remember_me', None)
+        login_user(newuser, remember=remember_me)
+        return newuser
 
 signup_api_view = SignupAPI.as_view('signup')  # URLS for MEMBER API
-# Display and Validate Signup Form
-app.add_url_rule('/signup/', view_func=signup_api_view, methods=["GET", "POST" ])
+app.add_url_rule('/signup/', view_func=signup_api_view, methods=["GET", "POST"])  # Display and Validate Signup Form
 
 
 class LoginAPI(MethodView):
@@ -95,7 +124,7 @@ class LoginAPI(MethodView):
             return redirect(request.args.get('next') or url_for('posts', page_mark='portfolio'))
         else:   # LOGIN PAGE
             if g.user is not None and g.user.is_authenticated():
-                return redirect(url_for('home'))
+                return redirect(url_for('posts', page_mark = 'home'))
             login_data = ViewData("login")
             return render_template(login_data.template_name, **login_data.context)
 
@@ -110,70 +139,29 @@ class LoginAPI(MethodView):
 
 login_api_view = LoginAPI.as_view('login')  # Urls for Login API
 # Authenticate user
-app.add_url_rule('/login/', view_func=login_api_view, methods=["POST", ])
+app.add_url_rule('/login/', view_func=login_api_view, methods=["GET","POST"])
 # Oauth login
 app.add_url_rule('/login/<get_provider>', view_func=login_api_view, methods=["GET", ])
 # Oauth provider callback
 app.add_url_rule('/callback/<provider>', view_func=login_api_view, methods=["GET", ])
-# Login form for returning user
-app.add_url_rule('/login/', view_func=login_api_view, methods=["GET", ])
 
 
 class MembersAPI(MethodView):
-    def post(self, user_name=None):
+    def post(self, user_name=None):  # Edit Member Data
         form = EditForm()
         response = self.update_user(form)
         return response
 
     def get(self, nickname=None, form=None):
-        if nickname is None:    # SIGNUP PAGE
-            if g.user is not None and g.user.is_authenticated():
-                return redirect(url_for('home'))
-            signup_data = ViewData("signup", form=form)
-            return render_template(signup_data.template_name, **signup_data.context)
-        else:  # PROFILE PAGE
-            profile_data = ViewData("profile", nickname=nickname)
-            profile_data.form.nickname.data = g.user.nickname
-            profile_data.form.about_me.data = g.user.about_me
-            db.session.commit()
-            return render_template(profile_data.template_name, **profile_data.context)
+        profile_data = ViewData("profile", nickname=nickname)
+        profile_data.form.nickname.data = g.user.nickname
+        profile_data.form.about_me.data = g.user.about_me
+        db.session.commit()
+        return render_template(profile_data.template_name, **profile_data.context)
 
     @login_required
     def delete(self, post_id):
         pass
-
-    def save_user(self, form):
-        newuser = User(form.firstname.data, form.email.data, firstname=form.firstname.data,
-                       lastname=form.lastname.data,
-                       password=form.password.data)
-        db.session.add(newuser)
-        db.session.add(newuser.follow(newuser))
-        db.session.commit()
-        remember_me = False
-        if 'remember_me' in session:
-            remember_me = session['remember_me']
-            session.pop('remember_me', None)
-        login_user(newuser, remember=remember_me)
-        return newuser
-
-    def process_signup(self, form):
-        if request.is_xhr:
-            if form.validate_on_submit():
-                result = {'iserror': False}
-                newuser = self.save_user(form)
-                result['savedsuccess'] = True
-                result['newuser_nickname'] = newuser.nickname
-                return json.dumps(result)
-            else:
-                form.errors['iserror'] = True
-                return json.dumps(form.errors)
-        else:
-            if form.validate_on_submit():
-                newuser = self.save_user(form)
-                return redirect("/profile/" + newuser.nickname)
-            else:
-                signup_data = ViewData("signup", form=form)
-                return render_template(signup_data.template_name, **signup_data.context)
 
     @login_required
     def update_user(self, form):
@@ -188,7 +176,7 @@ class MembersAPI(MethodView):
                 profile_photo = request.files['profile_photo']
                 if profile_photo and allowed_file(profile_photo.filename):
                     filename = secure_filename(profile_photo.filename)
-                    img_obj = dict(filename=filename, img=Image.open(profile_photo.stream), box=(128, 128),
+                    img_obj = dict(filename=filename, img=Image.open(profile_photo.stream), box=(300, 400),
                                    photo_type="thumb", crop=True,
                                    extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
                     profile_photo_name = pre_upload(img_obj)
@@ -203,12 +191,8 @@ class MembersAPI(MethodView):
 
 
 member_api_view = MembersAPI.as_view('members')  # URLS for MEMBER API
-# Signup validation
-app.add_url_rule('/signup/', view_func=member_api_view, methods=["POST", ])
 # Update member
 app.add_url_rule('/profile/<int:user_name>', view_func=member_api_view, methods=["POST", ])
-# Display signup page
-app.add_url_rule('/signup/', view_func=member_api_view, methods=["GET", ])
 # Display profile page
 app.add_url_rule('/profile/<nickname>', view_func=member_api_view, methods=["GET", ])
 # Delete a single member
@@ -259,9 +243,8 @@ def unfollow(nickname):
 class PostAPI(MethodView):
     decorators = [login_required]
 
-
-    def post(self, post_id=None, page_mark=None): # Create a new post
-        if request.url_rule.rule == '/detail/<page_mark>/':
+    def post(self, post_id=None, page_mark=None):
+        if request.url_rule.rule == '/<page_mark>/create/':  # Create a new post
             form = PostForm()
             if form.validate_on_submit():
                 result = {'iserror': False}
@@ -283,11 +266,11 @@ class PostAPI(MethodView):
                     return json.dumps(form.errors)
                 else:
                     return form.errors
-        elif request.url_rule == '/poetry/<page_mark>/': # Read all posts
+        elif request.url_rule == '/<page_mark>/': # Read all posts
             view_data = ViewData(page_mark)
             result = render_template(view_data.template_name, **view_data.context)
             return json.dumps(result)
-        else:   # Vote on post
+        elif request.url_rule == '/vote/<int:post_id>':   # Vote on post
             post_id = post_id
             user_id = g.user.id
             if not post_id:
@@ -299,9 +282,9 @@ class PostAPI(MethodView):
     #  Read Post or Posts
     def get(self, page_mark=None, slug=None):
         if slug is None:    # Read all posts
-            if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create']:
+            if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'home']:
                 flash("That page does not exist.")
-                return redirect(url_for('home'))
+                return redirect(url_for('posts', page_mark = 'portfolio'))
             view_data = ViewData(page_mark)
             return render_template(view_data.template_name, **view_data.context)
         else:       # Read a single post
@@ -329,18 +312,16 @@ class PostAPI(MethodView):
 
 # urls for Post API
 post_api_view = PostAPI.as_view('posts')
+# Read all posts
+app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["GET","POST"])
+# create a new post
+app.add_url_rule('/<page_mark>/create', view_func=post_api_view, methods=["GET", "POST"])
+# Read a single post
+app.add_url_rule('/<page_mark>/<slug>/', view_func=post_api_view, methods=["GET", "POST"])
+# Update or delete a single post
+app.add_url_rule('/<page_mark>/<int:post_id>', view_func=post_api_view, methods=["PUT", "DELETE"])
 # Vote on post
 app.add_url_rule('/vote/<int:post_id>', view_func=post_api_view, methods=["POST", ])
-# Read all posts
-app.add_url_rule('/poetry/<page_mark>/', view_func=post_api_view, methods=["GET","POST"])
-# Read a single post
-app.add_url_rule('/detail/<slug>/', view_func=post_api_view, methods=["GET", ])
-# create a new post
-app.add_url_rule('/detail/<page_mark>/', view_func=post_api_view, methods=["GET", "POST"])
-# Update a single post
-app.add_url_rule('/detail/portfolio/<int:post_id>', view_func=post_api_view, methods=["PUT", ])
-# Delete a single post
-app.add_url_rule('/detail/portfolio/<int:post_id>', view_func=post_api_view, methods=["DELETE", ])
 
 
 class HelpersAPI(MethodView):

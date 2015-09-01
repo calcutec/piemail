@@ -28,6 +28,9 @@
     {% include 'comps/flash.html' %}
     {% if page_mark == "login" %}{% include 'comps/forms/login_form.html' %}{% endif %}
     {% if page_mark == "signup" %}{% include 'comps/forms/signup_form.html' %}{% endif %}
+    {% if page_mark == "home" %}
+        {% include 'poets.html' %}
+    {% endif %}
     {% if page_mark == "portfolio" %}
         <!-- external templates -->
         <script id="postTemplate" type="text/template">

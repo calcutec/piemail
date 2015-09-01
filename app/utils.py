@@ -158,10 +158,9 @@ class ViewData(object):
             self.items = self.profile_user.posts.order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)
             return self.items
         elif self.page_mark == 'home':
-            self.items = Post.query.filter_by(writing_type="op-ed").order_by(Post.timestamp.desc())
-            return self.items
-        if self.page_mark == 'members':
-            self.items = self.User.query.all()
+            # self.items = Post.query.filter_by(writing_type="op-ed").order_by(Post.timestamp.desc())
+            # return self.items
+            self.items = User.query.all()
             return self.items
         elif self.page_mark == 'poetry':
             self.items = Post.query.filter_by(writing_type="featured").order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)

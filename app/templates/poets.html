@@ -1,10 +1,14 @@
 <div id="content">
     <div class="work">
-        {% for member in members %}
+        {% for user in posts %}
             <article>
-                <h2><a href=<a href="{{ url_for('members', nickname=member.nickname) }}">Profile</a>" rel="bookmark">Will, the Hipster Bard</a></h2>
+                <h2><a href="{{ url_for('members', nickname=user.nickname) }}" rel="bookmark" >{{ user.nickname }}</a></h2>
                 <div class="body">
-                    <p><img src="{{ static_url }}img/poets/shakespeare.png" alt="" /></p>
+                    {% if user.profile_photo %}
+                        <p><img src="{{ static_url }}user_imgs/{{ user.profile_photo }}" alt="" /></p>
+                    {% else %}
+                        <p><img src="{{ user.avatar(128) }}" class="img-polaroid" alt="profile_pic"></p>
+                    {% endif %}
                 </div>
             </article>
         {% endfor %}
