@@ -1,23 +1,20 @@
-import os
-basedir = os.path.abspath(os.path.dirname(__file__))
 from flask import render_template, flash, redirect, session, url_for, request, g, abort, jsonify
 from werkzeug.utils import secure_filename
-
-from flask.ext.login import login_user, logout_user, current_user, \
-    login_required
+from flask.ext.login import login_user, logout_user, current_user, login_required
 from flask.ext.sqlalchemy import get_debug_queries
 from datetime import datetime
 from app import app, db, lm
 from config import DATABASE_QUERY_TIMEOUT
 from slugify import slugify
-
 from .forms import SignupForm, LoginForm, EditForm, PostForm, SearchForm, CommentForm
 from .models import User, Post, Comment
 from .emails import follower_notification
-from .utils import OAuthSignIn, pre_upload, GenericListView, ViewData, allowed_file
+from .utils import OAuthSignIn, pre_upload, ViewData, allowed_file
 from PIL import Image
 import json
 from flask.views import MethodView
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 @app.route('/', methods=['GET'])
@@ -25,15 +22,20 @@ def index():
     return redirect(url_for('posts', page_mark='home'))
 
 
+@app.route('/logout', methods=['GET'])
+def logout():
+        logout_user()
+        return redirect(url_for('login'))
+
+
 class SignupAPI(MethodView):
-    def get(self, nickname=None, form=None):
-        form = SignupForm()
+    def get(self, form=None):
         if g.user is not None and g.user.is_authenticated():
-            return redirect(url_for('posts', page_mark = 'home'))
+            return redirect(url_for('posts', page_mark='home'))
         signup_data = ViewData("signup", form=form)
         return render_template(signup_data.template_name, **signup_data.context)
 
-    def post(self, user_name=None):
+    def post(self):
         form = SignupForm()
         response = self.process_signup(form)
         return response
@@ -124,7 +126,7 @@ class LoginAPI(MethodView):
             return redirect(request.args.get('next') or url_for('posts', page_mark='portfolio'))
         else:   # LOGIN PAGE
             if g.user is not None and g.user.is_authenticated():
-                return redirect(url_for('posts', page_mark = 'home'))
+                return redirect(url_for('posts', page_mark='home'))
             login_data = ViewData("login")
             return render_template(login_data.template_name, **login_data.context)
 
@@ -139,7 +141,7 @@ class LoginAPI(MethodView):
 
 login_api_view = LoginAPI.as_view('login')  # Urls for Login API
 # Authenticate user
-app.add_url_rule('/login/', view_func=login_api_view, methods=["GET","POST"])
+app.add_url_rule('/login/', view_func=login_api_view, methods=["GET", "POST"])
 # Oauth login
 app.add_url_rule('/login/<get_provider>', view_func=login_api_view, methods=["GET", ])
 # Oauth provider callback
@@ -147,12 +149,12 @@ app.add_url_rule('/callback/<provider>', view_func=login_api_view, methods=["GET
 
 
 class MembersAPI(MethodView):
-    def post(self, user_name=None):  # Edit Member Data
+    def post(self):  # Edit Member Data
         form = EditForm()
         response = self.update_user(form)
         return response
 
-    def get(self, nickname=None, form=None):
+    def get(self, nickname=None):
         profile_data = ViewData("profile", nickname=nickname)
         profile_data.form.nickname.data = g.user.nickname
         profile_data.form.about_me.data = g.user.about_me
@@ -266,7 +268,7 @@ class PostAPI(MethodView):
                     return json.dumps(form.errors)
                 else:
                     return form.errors
-        elif request.url_rule == '/<page_mark>/': # Read all posts
+        elif request.url_rule == '/<page_mark>/':  # Read all posts
             view_data = ViewData(page_mark)
             result = render_template(view_data.template_name, **view_data.context)
             return json.dumps(result)
@@ -278,13 +280,28 @@ class PostAPI(MethodView):
             post = Post.query.get_or_404(int(post_id))
             vote_status = post.vote(user_id=user_id)
             return jsonify(new_votes=post.votes, vote_status=vote_status)
+        elif request.url_rule == '/comment/<int:post_id>':   # Comment on post
+            form = CommentForm()
+            if request.is_xhr:
+                if form.validate_on_submit():
+                    result = {'iserror': False}
+                    comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data,
+                                      post_id=post_id)
+                    db.session.add(comment)
+                    db.session.commit()
+                    result['savedsuccess'] = True
+                    result['new_comment'] = render_template('comps/detail/comment.html', comment=comment)
+                    return json.dumps(result)
+                form.errors['iserror'] = True
+                return json.dumps(form.errors)
+            else:
+                pass
 
-    #  Read Post or Posts
     def get(self, page_mark=None, slug=None):
         if slug is None:    # Read all posts
             if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'home']:
                 flash("That page does not exist.")
-                return redirect(url_for('posts', page_mark = 'portfolio'))
+                return redirect(url_for('posts', page_mark='portfolio'))
             view_data = ViewData(page_mark)
             return render_template(view_data.template_name, **view_data.context)
         else:       # Read a single post
@@ -292,7 +309,7 @@ class PostAPI(MethodView):
             return render_template(detail_data.template_name, **detail_data.context)
 
     # Update Post
-    def put(self, post_id):
+    def put(self):
         form = PostForm()
         if form.validate_on_submit():
             update_post = Post.query.get(request.form['post_id'])
@@ -313,7 +330,7 @@ class PostAPI(MethodView):
 # urls for Post API
 post_api_view = PostAPI.as_view('posts')
 # Read all posts
-app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["GET","POST"])
+app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["GET", "POST"])
 # create a new post
 app.add_url_rule('/<page_mark>/create', view_func=post_api_view, methods=["GET", "POST"])
 # Read a single post
@@ -321,42 +338,9 @@ app.add_url_rule('/<page_mark>/<slug>/', view_func=post_api_view, methods=["GET"
 # Update or delete a single post
 app.add_url_rule('/<page_mark>/<int:post_id>', view_func=post_api_view, methods=["PUT", "DELETE"])
 # Vote on post
-app.add_url_rule('/vote/<int:post_id>', view_func=post_api_view, methods=["POST", ])
-
-
-class HelpersAPI(MethodView):
-    decorators = [login_required]
-
-    def post(self, post_id=None):
-        if post_id is None:     # LOGOUT MEMBER
-            logout_user()
-            return redirect(url_for('login'))
-        else:   # Process Comment Form
-            form = CommentForm()
-            if request.is_xhr:
-                if form.validate_on_submit():
-                    result = {'iserror': False}
-                    comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data,
-                                      post_id=post_id)
-                    db.session.add(comment)
-                    db.session.commit()
-                    result['savedsuccess'] = True
-                    result['new_comment'] = render_template('comps/detail/comment.html', comment=comment)
-                    return json.dumps(result)
-                form.errors['iserror'] = True
-                return json.dumps(form.errors)
-            else:
-                pass
-
-    def get(self):
-        logout_user()
-        return redirect(url_for('login'))
-
-
-helpers_api_view = HelpersAPI.as_view('helpers')    # Urls for Helpers API
-app.add_url_rule('/comment/<int:post_id>', view_func=helpers_api_view, methods=["POST", ])
-app.add_url_rule('/logout', view_func=helpers_api_view, methods=["Get", ])
-app.add_url_rule('/logout', view_func=helpers_api_view, methods=["POST", ])
+app.add_url_rule('/vote/<int:post_id>', view_func=post_api_view, methods=["POST"])
+# Comment on post
+app.add_url_rule('/comment/<int:post_id>', view_func=post_api_view, methods=["POST"])
 
 
 # Helper functions

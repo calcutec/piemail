@@ -13,7 +13,7 @@ App.Models.Post = Backbone.Model.extend({
     header: '',
     body: ''
   },
-  validate: function(attrs, options){
+  validate: function(attrs){
     if (!attrs.header){
         alert('Your post must have a header!');
     }
@@ -78,7 +78,7 @@ App.Collections.Post = Backbone.Collection.extend({
   model: App.Models.Post,
   url: '/poetry/workshop/',
   parse: function(response){return response.myPoems;},
-  clear_all: function(response){
+  clear_all: function(){
     var model;
     while (model = this.first()) {
       model.destroy();
@@ -93,8 +93,8 @@ App.Views.Posts = Backbone.View.extend({ // plural to distinguish as the view fo
   //},
   attachToView: function(){
     this.el = $("#poem-list");
-    self = this;
-    $("#poem-list article").each(function(index){
+    var self = this;
+    $("article").each(function(){
       var poemEl = $(this);
       var id = poemEl.attr("data-id");
       var poem = self.collection.get(id);
@@ -164,11 +164,12 @@ App.Views.ModalDisplay = Backbone.View.extend({
             var poem_text = $('#editable').html();
             $('#show-form').html(poem_text);
             var $form = $('#poem-form');
-            data = $form.serializeObject()
-            newPostModel = new App.Models.Post(data);
+            var data = $form.serializeObject();
+            var newPostModel = new App.Models.Post(data);
             newPostModel.save(null, {
                 success: function (model, response) {
                     new App.Views.Post({model:model}).render();
+                    return response;
                 },
                 error: function () {
                     alert('your poem did not save properly..')
@@ -237,21 +238,18 @@ $(document).ready(function() {
     //        //postsView.render()
     //    });
 
-
-    //var newRouter = new App.Router;
-    //Backbone.history.start(); // start Backbone history
-
-    var newRouter = new App.Router;
+    new App.Router;
     Backbone.history.start(); // start Backbone history
 
     var modalDisplayView = new App.Views.ModalDisplay();
     modalDisplayView.render();
 
-    postCollection = new App.Collections.Post();
-    $("#poem-list article").each(function() {
+    var postCollection = new App.Collections.Post();
+    var articleSelector = $("article");
+    articleSelector.each(function() {
         postCollection.add(new App.Models.Post($(this).data()));
     });
-    poemListView = new App.Views.Posts({collection: postCollection});
+    var poemListView = new App.Views.Posts({collection: postCollection});
     poemListView.attachToView();
     //postCollection.get(112).set({title: "No Longer Bob"});
 });

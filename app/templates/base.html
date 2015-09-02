@@ -63,7 +63,7 @@
                 {% endif %}
                 {% if g.user.is_authenticated() %}
                     <li class="n-user-id">Hi&nbsp;{{ g.user.nickname }}!</li>
-                    <li class="n-logout"><a href="{{ url_for('helpers') }}">Logout</a></li>
+                    <li class="n-logout"><a href="{{ url_for('logout') }}">Logout</a></li>
                     <li class="n-profile"><a href="{{ url_for('members', nickname=g.user.nickname) }}">Profile</a></li>
                     <li id="user-type" class="hide">{{ g.user.type }}</li>
                     <li class="n-home"><a href="{{ url_for('posts', page_mark = 'home') }}">Home</a></li>
