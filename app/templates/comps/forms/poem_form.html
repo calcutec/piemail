@@ -1,4 +1,4 @@
-<form id="poem-form" class="form-horizontal" action="/detail/{{ page_mark }}/" method="post" enctype="multipart/form-data" name="post">
+<form id="poem-form" class="form-horizontal" action="{{ url_for('posts', page_mark='portfolio', action='create') }}" method="post" enctype="multipart/form-data" name="post">
     {{ form.csrf_token }}
 
     <div class="control-group{% if form.header.errors %} error{% endif %}">
@@ -21,11 +21,11 @@
         <div id="editable" class="hide"></div>
         <span id="error_post" class="help-inline"></span><br>
     </div>
-{#    <div class="control-group">#}
-{#        <div class="controls">#}
-{#            <input class="btn btn-primary" type="submit" value="Save Changes">#}
-{#        </div>#}
-{#    </div>#}
+    <div class="control-group">
+        <div class="controls">
+            <input class="btn btn-primary" type="submit" value="Save Changes">
+        </div>
+    </div>
 </form>
 
 <script>

@@ -1,5 +1,5 @@
 <ul class="details" style="width:100%">
-    <li><a href="{{ url_for('posts',  page_mark=portfolio, slug=post.slug) }}">
+    <li><a href="{{ url_for('posts',  page_mark='detail', slug=post.slug) }}">
         {% with total=post.comments.all()|length %}
             {{ total }} comment{% if total != 1 %}s{% endif %}
         {% endwith %}</a>
@@ -10,16 +10,16 @@
     {% endif %}
 
     {% if post.author.id == g.user.id and page_mark == "detail" %}
-{#        <li id="delete-button"><a href="{{ url_for('posts', '/detail/',post_id = post.id) }}">Delete</a></li>#}
-        <li id="delete-button">Delete</li>
+        <li id="delete-button"><a href="{{ url_for('posts', page_mark=page_mark, action='delete', post_id = post.id) }}">Delete</a></li>
+{#        <li id="delete-button">Delete</li>#}
     {% endif %}
 
     {% if g.user.is_authenticated() and page_mark == "detail" %}
         <li>
             {% if post.has_voted(g.user.id) %}
-              <a data-voted="true" style="color:#eb6864;" href="javascript:void(0)" class="{{ post.id }} likeme"><i class="fa fa-smile-o fa-lg"></i></a>
+              <a data-voted="true" style="color:#eb6864;" href="{{ url_for('posts', page_mark='detail', action='vote', post_id=post.id) }}" class="{{ post.id }} likeme"><i class="fa fa-smile-o fa-lg"></i></a>
             {% else %}
-              <a data-voted="false" style="color:#000;" href="javascript:void(0)" class="{{ post.id }} likeme"><i class="fa fa-meh-o fa-lg"></i></a>
+              <a data-voted="false" style="color:#000;" href="{{ url_for('posts', page_mark='detail', action='vote', post_id=post.id) }}" class="{{ post.id }} likeme"><i class="fa fa-meh-o fa-lg"></i></a>
             {% endif %}
         </li>
         <li class="listing-votes-number">{{ post.votes }} like{% if post.votes != 1 %}s{% endif %}</li>

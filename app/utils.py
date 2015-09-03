@@ -13,6 +13,7 @@ from flask.ext.login import login_required
 from models import User, Post
 from functools import wraps
 
+
 def check_expired(func):
     @wraps(func)
     def decorated_function(page_mark=None, slug=None, post_id=None):
@@ -141,7 +142,8 @@ class ViewData(object):
             self.profile_user = User.query.filter_by(nickname=self.nickname).first()
 
         # Get post or posts as appropriate to the page
-        if self.page_mark is "signup" or page_mark is "login" or page_mark is "index" or page_mark is "create":  # No posts shown on signup or login pages
+        if self.page_mark is "signup" or page_mark is "login" or page_mark is "index" or page_mark is "create" \
+                or page_mark is "profile" or page_mark is "update":  # No posts shown on signup or login pages
             self.items = None
             self.post = None
         elif slug is not None:  # Get specific post for detail page
@@ -155,7 +157,8 @@ class ViewData(object):
 
     def get_items(self):
         if self.page_mark == 'profile':
-            self.items = self.profile_user.posts.order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)
+            self.items = \
+                self.profile_user.posts.order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)
             return self.items
         elif self.page_mark == 'home':
             # self.items = Post.query.filter_by(writing_type="op-ed").order_by(Post.timestamp.desc())
@@ -163,10 +166,13 @@ class ViewData(object):
             self.items = User.query.all()
             return self.items
         elif self.page_mark == 'poetry':
-            self.items = Post.query.filter_by(writing_type="featured").order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)
+            self.items = \
+                Post.query.filter_by(writing_type="featured").order_by(Post.timestamp.desc()).paginate(self.page,
+                                                                                               POSTS_PER_PAGE, False)
             return self.items
         elif self.page_mark == 'workshop' or self.page_mark == "index":
-            self.items = Post.query.filter_by(writing_type="poem").order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)
+            self.items = Post.query.filter_by(writing_type="poem").order_by(Post.timestamp.desc()).paginate(self.page,
+                                                                                                POSTS_PER_PAGE, False)
             return self.items
         elif self.page_mark == 'portfolio':
             self.items = g.user.posts.order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)

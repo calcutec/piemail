@@ -19,7 +19,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 @app.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('posts', page_mark='home'))
+    return redirect(url_for('members'))
 
 
 @app.route('/logout', methods=['GET'])
@@ -31,7 +31,7 @@ def logout():
 class SignupAPI(MethodView):
     def get(self, form=None):
         if g.user is not None and g.user.is_authenticated():
-            return redirect(url_for('posts', page_mark='home'))
+            return redirect(url_for('members'))
         signup_data = ViewData("signup", form=form)
         return render_template(signup_data.template_name, **signup_data.context)
 
@@ -54,7 +54,7 @@ class SignupAPI(MethodView):
         else:
             if form.validate_on_submit():
                 newuser = self.save_user(form)
-                return redirect("/profile/" + newuser.nickname)
+                return redirect(url_for("members", nickname=newuser.nickname))
             else:
                 signup_data = ViewData("signup", form=form)
                 return render_template(signup_data.template_name, **signup_data.context)
@@ -126,7 +126,7 @@ class LoginAPI(MethodView):
             return redirect(request.args.get('next') or url_for('posts', page_mark='portfolio'))
         else:   # LOGIN PAGE
             if g.user is not None and g.user.is_authenticated():
-                return redirect(url_for('posts', page_mark='home'))
+                return redirect(url_for('members'))
             login_data = ViewData("login")
             return render_template(login_data.template_name, **login_data.context)
 
@@ -149,20 +149,35 @@ app.add_url_rule('/callback/<provider>', view_func=login_api_view, methods=["GET
 
 
 class MembersAPI(MethodView):
-    def post(self):  # Edit Member Data
-        form = EditForm()
-        response = self.update_user(form)
-        return response
+    def post(self, nickname=None):
+        if nickname is None:  # Read all members
+            view_data = ViewData('home')
+            return render_template(view_data.template_name, **view_data.context)
+        else:
+            form = EditForm()  # Update Member Data
+            response = self.update_user(form)
+            return response
 
-    def get(self, nickname=None):
-        profile_data = ViewData("profile", nickname=nickname)
-        profile_data.form.nickname.data = g.user.nickname
-        profile_data.form.about_me.data = g.user.about_me
-        db.session.commit()
-        return render_template(profile_data.template_name, **profile_data.context)
+    def get(self, nickname=None, action=None):
+        if action == 'update':
+            form = EditForm()
+            profile_data = ViewData("update", form=form)
+            # profile_data.form.nickname.data = g.user.nickname
+            # profile_data.form.about_me.data = g.user.about_me
+            # db.session.commit()
+            return render_template(profile_data.template_name, **profile_data.context)
+        if nickname is None:  # Display all members
+            view_data = ViewData('home')
+            return render_template(view_data.template_name, **view_data.context)
+        else:  # Display a single member
+            profile_data = ViewData("profile", nickname=nickname)
+            # profile_data.form.nickname.data = g.user.nickname
+            # profile_data.form.about_me.data = g.user.about_me
+            # db.session.commit()
+            return render_template(profile_data.template_name, **profile_data.context)
 
     @login_required
-    def delete(self, post_id):
+    def delete(self, nickname):
         pass
 
     @login_required
@@ -178,7 +193,7 @@ class MembersAPI(MethodView):
                 profile_photo = request.files['profile_photo']
                 if profile_photo and allowed_file(profile_photo.filename):
                     filename = secure_filename(profile_photo.filename)
-                    img_obj = dict(filename=filename, img=Image.open(profile_photo.stream), box=(300, 400),
+                    img_obj = dict(filename=filename, img=Image.open(profile_photo.stream), box=(400, 300),
                                    photo_type="thumb", crop=True,
                                    extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
                     profile_photo_name = pre_upload(img_obj)
@@ -193,12 +208,12 @@ class MembersAPI(MethodView):
 
 
 member_api_view = MembersAPI.as_view('members')  # URLS for MEMBER API
-# Update member
-app.add_url_rule('/profile/<int:user_name>', view_func=member_api_view, methods=["POST", ])
-# Display profile page
-app.add_url_rule('/profile/<nickname>', view_func=member_api_view, methods=["GET", ])
-# Delete a single member
-app.add_url_rule('/profile/', view_func=member_api_view, methods=["DELETE"])
+# Read, Update and Destroy a single member
+app.add_url_rule('/profile/<nickname>', view_func=member_api_view, methods=["GET", "POST", "PUT", "DELETE"])
+# Read all members
+app.add_url_rule('/profile/', view_func=member_api_view, methods=["GET", "POST"])
+# Update a member when JS is turned off)
+app.add_url_rule('/profile/<action>/<nickname>', view_func=member_api_view, methods=["GET"])
 
 
 @app.route('/follow/<nickname>')    # Follow a User
@@ -245,34 +260,12 @@ def unfollow(nickname):
 class PostAPI(MethodView):
     decorators = [login_required]
 
-    def post(self, post_id=None, page_mark=None):
-        if request.url_rule.rule == '/<page_mark>/create/':  # Create a new post
-            form = PostForm()
-            if form.validate_on_submit():
-                result = {'iserror': False}
-                slug = slugify(form.header.data)
-                post = Post(body=form.body.data, timestamp=datetime.utcnow(),
-                            author=g.user, photo=None, thumbnail=None, header=form.header.data,
-                            writing_type=form.writing_type.data, slug=slug)
-                db.session.add(post)
-                db.session.commit()
-                if request.is_xhr:
-                    result['savedsuccess'] = True
-                    result['new_poem'] = render_template('comps/post.html', page_mark=page_mark, post=post, g=g)
-                    return json.dumps(result)
-                else:
-                    return redirect('/poetry/portfolio/')
-            else:
-                if request.is_xhr:
-                    form.errors['iserror'] = True
-                    return json.dumps(form.errors)
-                else:
-                    return form.errors
-        elif request.url_rule == '/<page_mark>/':  # Read all posts
-            view_data = ViewData(page_mark)
-            result = render_template(view_data.template_name, **view_data.context)
-            return json.dumps(result)
-        elif request.url_rule == '/vote/<int:post_id>':   # Vote on post
+    def post(self, page_mark=None, action=None, post_id=None, slug=None):
+        if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'detail']:
+            flash("That page does not exist.")
+            return redirect(url_for('posts', page_mark='portfolio'))
+
+        if action == 'vote':   # Vote on post
             post_id = post_id
             user_id = g.user.id
             if not post_id:
@@ -280,7 +273,7 @@ class PostAPI(MethodView):
             post = Post.query.get_or_404(int(post_id))
             vote_status = post.vote(user_id=user_id)
             return jsonify(new_votes=post.votes, vote_status=vote_status)
-        elif request.url_rule == '/comment/<int:post_id>':   # Comment on post
+        elif action == 'comment':   # Comment on post
             form = CommentForm()
             if request.is_xhr:
                 if form.validate_on_submit():
@@ -295,16 +288,69 @@ class PostAPI(MethodView):
                 form.errors['iserror'] = True
                 return json.dumps(form.errors)
             else:
-                pass
+                if form.validate_on_submit():
+                    comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data,
+                                      post_id=post_id)
+                    db.session.add(comment)
+                    db.session.commit()
+                    post = Post.query.get(post_id)
+                    return redirect(url_for('posts', page_mark='detail', slug=post.slug))
+        elif slug is not None: # Read a single post
+            pass
+        elif post_id is None:  # Read all posts
+            view_data = ViewData(page_mark)
+            result = render_template(view_data.template_name, **view_data.context)
+            return json.dumps(result)
+        elif post_id is not None:  # Create a new post
+            form = PostForm()
+            if form.validate_on_submit():
+                result = {'iserror': False}
+                slug = slugify(form.header.data)
+                post = Post(body=form.body.data, timestamp=datetime.utcnow(),
+                            author=g.user, photo=None, thumbnail=None, header=form.header.data,
+                            writing_type=form.writing_type.data, slug=slug)
+                db.session.add(post)
+                db.session.commit()
+                if request.is_xhr:
+                    result['savedsuccess'] = True
+                    result['new_poem'] = render_template('comps/post.html', page_mark=page_mark, post=post, g=g)
+                    return json.dumps(result)
+                else:
+                    detail_data = ViewData("detail", slug=post.slug)
+                    return render_template(detail_data.template_name, **detail_data.context)
+            else:
+                if request.is_xhr:
+                    form.errors['iserror'] = True
+                    return json.dumps(form.errors)
+                else:
+                    return form.errors
 
-    def get(self, page_mark=None, slug=None):
-        if slug is None:    # Read all posts
-            if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'home']:
-                flash("That page does not exist.")
-                return redirect(url_for('posts', page_mark='portfolio'))
+    def get(self, page_mark=None, action=None, slug=None, post_id=None):
+        if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'detail']:
+            flash("That page does not exist.")
+            return redirect(url_for('posts', page_mark='portfolio'))
+        if action == 'create':  # Create a new post
+            form = PostForm()
+            page_mark = 'create'
+            view_data = ViewData(page_mark, form)
+            return render_template(view_data.template_name, **view_data.context)
+        elif action == 'delete':
+            post = Post.query.get(post_id)
+            db.session.delete(post)
+            db.session.commit()
+            return redirect(url_for('posts', page_mark='workshop'))
+        elif action == 'vote':   # Vote on post
+            post_id = post_id
+            user_id = g.user.id
+            if not post_id:
+                abort(404)
+            post = Post.query.get_or_404(int(post_id))
+            vote_status = post.vote(user_id=user_id)
+            return redirect(url_for('posts', page_mark='detail', slug=post.slug))
+        elif slug is None:    # Read all posts
             view_data = ViewData(page_mark)
             return render_template(view_data.template_name, **view_data.context)
-        else:       # Read a single post
+        elif slug is not None:       # Read a single post
             detail_data = ViewData("detail", slug=slug)
             return render_template(detail_data.template_name, **detail_data.context)
 
@@ -329,18 +375,14 @@ class PostAPI(MethodView):
 
 # urls for Post API
 post_api_view = PostAPI.as_view('posts')
-# Read all posts
-app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["GET", "POST"])
-# create a new post
-app.add_url_rule('/<page_mark>/create', view_func=post_api_view, methods=["GET", "POST"])
+# create, update or delete post
+app.add_url_rule('/<page_mark>/<int:post_id>', view_func=post_api_view, methods=["GET", "POST", "PUT", "DELETE"])
 # Read a single post
 app.add_url_rule('/<page_mark>/<slug>/', view_func=post_api_view, methods=["GET", "POST"])
-# Update or delete a single post
-app.add_url_rule('/<page_mark>/<int:post_id>', view_func=post_api_view, methods=["PUT", "DELETE"])
-# Vote on post
-app.add_url_rule('/vote/<int:post_id>', view_func=post_api_view, methods=["POST"])
-# Comment on post
-app.add_url_rule('/comment/<int:post_id>', view_func=post_api_view, methods=["POST"])
+# Read all posts
+app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["GET", "POST"])
+# Create, Delete, Vote, Comment on post
+app.add_url_rule('/<page_mark>/<action>/<int:post_id>', view_func=post_api_view, methods=["GET", "POST"])
 
 
 # Helper functions
