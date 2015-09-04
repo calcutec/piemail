@@ -8,7 +8,7 @@ window.App = {  // top level namespace is declared on the window
 
 // Post model
 App.Models.Post = Backbone.Model.extend({
-  urlRoot: '/detail/portfolio/',
+  urlRoot: '/detail/',
   defaults: {
     header: '',
     body: ''
@@ -76,7 +76,7 @@ App.Views.PoemView = Backbone.View.extend({
 // Post collection
 App.Collections.Post = Backbone.Collection.extend({
   model: App.Models.Post,
-  url: '/poetry/workshop/',
+  url: '/workshop/',
   parse: function(response){return response.myPoems;},
   clear_all: function(){
     var model;
@@ -155,7 +155,7 @@ App.Views.ModalDisplay = Backbone.View.extend({
         var view = new App.Views.ModalView();
         var modal = new Backbone.BootstrapModal({
             content: view,
-            title: 'modal header',
+            title: 'Create a poem',
             animate: true,
             okText: 'Submit New Post',
             okCloses: true,
@@ -173,7 +173,8 @@ App.Views.ModalDisplay = Backbone.View.extend({
                 },
                 error: function () {
                     alert('your poem did not save properly..')
-                }
+                },
+                wait: true
             });
 
         });

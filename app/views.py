@@ -21,6 +21,48 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 def index():
     return redirect(url_for('members'))
 
+tasks = [
+    {
+        'id': 1,
+        'title': u'Buy groceries',
+        'description': u'Milk, Cheese, Pizza, Fruit, Tylenol',
+        'done': False
+    },
+    {
+        'id': 2,
+        'title': u'Learn Python',
+        'description': u'Need to find a good Python tutorial on the web',
+        'done': False
+    }
+]
+
+
+@app.route('/todo/tasks', methods=['GET'])
+def get_tasks():
+    return jsonify({'tasks': tasks})
+
+
+@app.route('/todo/tasks/<int:task_id>', methods=['GET'])
+def get_task(task_id):
+    task = [task for task in tasks if task['id'] == task_id]
+    if len(task) == 0:
+        abort(404)
+    return jsonify({'task': task[0]})
+
+
+@app.route('/todo/tasks', methods=['POST'])
+def create_task():
+    if not request.json or not 'title' in request.json:
+        abort(400)
+    task = {
+        'id': tasks[-1]['id'] + 1,
+        'title': request.json['title'],
+        'description': request.json.get('description', ""),
+        'done': False
+    }
+    tasks.append(task)
+    return jsonify({'task': task}), 201
+
 
 @app.route('/logout', methods=['GET'])
 def logout():
@@ -248,7 +290,7 @@ app.add_url_rule('/profile/<action>/<nickname>', view_func=member_api_view, meth
 
 
 class PostAPI(MethodView):
-    decorators = [login_required]
+    # decorators = [login_required]
 
     def post(self, page_mark=None, action=None, post_id=None):
         if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'detail']:
@@ -298,6 +340,7 @@ class PostAPI(MethodView):
                 if request.is_xhr:
                     result['savedsuccess'] = True
                     result['new_poem'] = render_template('comps/post.html', page_mark=page_mark, post=post, g=g)
+                    result['id'] = post.id
                     return json.dumps(result)
                 else:
                     return redirect("/detail/" + post.slug)
@@ -338,7 +381,7 @@ class PostAPI(MethodView):
             return render_template(detail_data.template_name, **detail_data.context)
 
     # Update Post
-    def put(self):
+    def put(self, post_id, page_mark=None):
         form = PostForm()
         if form.validate_on_submit():
             update_post = Post.query.get(request.form['post_id'])
@@ -348,7 +391,7 @@ class PostAPI(MethodView):
             return json.dumps(result)
 
     # Delete Post
-    def delete(self, post_id):
+    def delete(self, post_id, page_mark=None):
         post = Post.query.get(post_id)
         db.session.delete(post)
         db.session.commit()

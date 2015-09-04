@@ -24,8 +24,8 @@
 			<meta property="og:locale" content="en_US" />
 
 		<!-- Favicon -->
-		<link rel="shortcut icon" href="{{ static_url }}img/icons/favicon.ico" type="image/x-icon">
-        <link rel="icon" href="{{ static_url }}img/icons/favicon.ico" type="image/x-icon">
+		<link rel="shortcut icon" href="{{ local_static_url }}img/icons/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="{{ local_static_url }}img/icons/favicon.ico" type="image/x-icon">
 		<!-- Windows 8 Pinned Site -->
 			<meta name="msapplication-TileImage" content="/images/pinsite.png">
 			<meta name="msapplication-TileColor" content="#ffffff">
@@ -84,7 +84,7 @@
 		<div id="content">
 			<header id="magic-header">
                 <div class="icon">
-                    <img src="{{ static_url }}{{ page_logo }}" alt="{{ page_logo }}"/>
+                    <img src="{{ local_static_url }}{{ page_logo }}" alt="{{ page_logo }}"/>
                 </div>
 				{% block header %}<h1>Create, discuss, and share poetry</h1>{% endblock %}
 			</header>
@@ -107,9 +107,9 @@
 
 				<section class="social">
 					<h3>Social clubs</h3>
-					<p><a href="/" title="Netbard on Twitter"><img src="{{ static_url }}img/icons/Twitter.svg" alt="Netbard on Twitter" /> Twitter</a></p>
-					<p><a href="/"><img src="{{ static_url }}img/icons/Facebook.svg" alt="Netbard on Facebook" /> Facebook</a></p>
-					<p><a href="/"><img src="{{ static_url }}img/icons/Instagram.svg" alt="Netbard on Instagram" /> Instagram</a></p>
+					<p><a href="/" title="Netbard on Twitter"><img src="{{ local_static_url }}img/icons/Twitter.svg" alt="Netbard on Twitter" /> Twitter</a></p>
+					<p><a href="/"><img src="{{ local_static_url }}img/icons/Facebook.svg" alt="Netbard on Facebook" /> Facebook</a></p>
+					<p><a href="/"><img src="{{ local_static_url }}img/icons/Instagram.svg" alt="Netbard on Instagram" /> Instagram</a></p>
 					<p><a href="/" title="Netbard on Flickr"><img src="{{ static_url }}img/icons/Flickr.svg" alt="Netbard on Flickr" /> Flickr</a></p>
 				</section>
 
