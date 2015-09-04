@@ -1020,4 +1020,5 @@ input.submit {
 
 .pull-right img {
 	margin-top: 1rem;
+	max-height: 130px;
 }

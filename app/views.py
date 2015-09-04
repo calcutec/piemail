@@ -123,7 +123,7 @@ class LoginAPI(MethodView):
                 remember_me = session['remember_me']
                 session.pop('remember_me', None)
             login_user(currentuser, remember=remember_me)
-            return redirect(request.args.get('next') or url_for('posts', page_mark='portfolio'))
+            return redirect(request.args.get('next') or url_for('members'))
         else:   # LOGIN PAGE
             if g.user is not None and g.user.is_authenticated():
                 return redirect(url_for('members'))
@@ -158,13 +158,13 @@ class MembersAPI(MethodView):
             response = self.update_user(form)
             return response
 
+    @login_required
     def get(self, nickname=None, action=None):
         if action == 'update':
             form = EditForm()
+            form.nickname.data = g.user.nickname
+            form.about_me.data = g.user.about_me
             profile_data = ViewData("update", form=form)
-            # profile_data.form.nickname.data = g.user.nickname
-            # profile_data.form.about_me.data = g.user.about_me
-            # db.session.commit()
             return render_template(profile_data.template_name, **profile_data.context)
         elif action == 'follow':
             user = User.query.filter_by(nickname=nickname).first()
@@ -300,8 +300,7 @@ class PostAPI(MethodView):
                     result['new_poem'] = render_template('comps/post.html', page_mark=page_mark, post=post, g=g)
                     return json.dumps(result)
                 else:
-                    detail_data = ViewData("detail", slug=post.slug)
-                    return render_template(detail_data.template_name, **detail_data.context)
+                    return redirect("/detail/" + post.slug)
             else:
                 if request.is_xhr:
                     form.errors['iserror'] = True
@@ -325,9 +324,11 @@ class PostAPI(MethodView):
             return redirect(url_for('posts', page_mark='workshop'))
         elif action == 'vote':   # Vote on post
             post_id = post_id
+            user_id = g.user.id
             if not post_id:
                 abort(404)
             post = Post.query.get_or_404(int(post_id))
+            post.vote(user_id=user_id)
             return redirect(url_for('posts', page_mark='detail', slug=post.slug))
         elif slug is None:    # Read all posts
             view_data = ViewData(page_mark)
