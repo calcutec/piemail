@@ -242,15 +242,15 @@ $(document).ready(function() {
     new App.Router;
     Backbone.history.start(); // start Backbone history
 
-    var modalDisplayView = new App.Views.ModalDisplay();
-    modalDisplayView.render();
+    App.Views.ModalDisplay.modalDisplayView = new App.Views.ModalDisplay();
+    App.Views.ModalDisplay.modalDisplayView.render();
 
-    var postCollection = new App.Collections.Post();
+    App.Collections.Post.postCollection = new App.Collections.Post();
     var articleSelector = $("article");
     articleSelector.each(function() {
-        postCollection.add(new App.Models.Post($(this).data()));
+        App.Collections.Post.postCollection.add(new App.Models.Post($(this).data()));
     });
-    var poemListView = new App.Views.Posts({collection: postCollection});
-    poemListView.attachToView();
+    App.Views.Posts.poemListView = new App.Views.Posts({collection: App.Collections.Post.postCollection});
+    App.Views.Posts.poemListView.attachToView();
     //postCollection.get(112).set({title: "No Longer Bob"});
 });
