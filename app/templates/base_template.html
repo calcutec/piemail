@@ -10,16 +10,16 @@
     {% if page_mark == "detail" %}<h1>Detail page text placeholder</h1>{% endif %}
     {% if page_mark == "profiles" %}<h1>All poets on this site</h1>{% endif %}
     {% if page_mark == "portfolio" %}
-        <h1><a href="{{ url_for('posts', page_mark=page_mark, action='create') }}"><button type="button" id="open" class="btn btn-info btn-lg">Create Poem</button></a></h1>
+        <h1><a href="{{ url_for('posts', page_mark=page_mark, action='create', post_id='0') }}"><button type="button" id="open" class="btn btn-info btn-lg">Create Poem</button></a></h1>
         <div id="myPortfolio"></div>
     {% endif %}
     {% if page_mark == "profile" %}
         {% if profile_user.id == g.user.id %}
             {% include 'comps/profile/profile_modal.html' %}
         {% elif g.user.is_following(profile_user) %}
-            <h1>Click <a href="{{ url_for('unfollow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to unfollow {{ profile_user.nickname }}</h1>
+            <h1>Click <a href="{{ url_for('members', action='unfollow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to unfollow {{ profile_user.nickname }}</h1>
         {% else %}
-             <h1>Click <a href="{{ url_for('follow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to follow {{ profile_user.nickname }}</h1>
+             <h1>Click <a href="{{ url_for('members', action='follow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to follow {{ profile_user.nickname }}</h1>
         {% endif %}
         {% include 'comps/profile/profile_user.html' %}
     {% endif %}

@@ -2,7 +2,7 @@ Dear {{ user.nickname }},
 
 {{ follower.nickname }} is now following your poetry on Netbard.com. Click on the following link to visit {{ follower.nickname }}'s profile page:
 
-{{ url_for('profile', nickname=follower.nickname, _external=True) }}
+{{ url_for('members', nickname=follower.nickname, _external=True) }}
 
 Regards,
 

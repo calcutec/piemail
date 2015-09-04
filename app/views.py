@@ -166,14 +166,45 @@ class MembersAPI(MethodView):
             # profile_data.form.about_me.data = g.user.about_me
             # db.session.commit()
             return render_template(profile_data.template_name, **profile_data.context)
-        if nickname is None:  # Display all members
+        elif action == 'follow':
+            user = User.query.filter_by(nickname=nickname).first()
+            if user is None:
+                flash('User %s not found.' % nickname)
+                return redirect(url_for('home'))
+            if user == g.user:
+                flash('You can\'t follow yourself!')
+                return redirect(url_for('members', nickname=nickname))
+            u = g.user.follow(user)
+            if u is None:
+                flash('Cannot follow %s.' % nickname)
+                return redirect(url_for('members', nickname=nickname))
+            db.session.add(u)
+            db.session.commit()
+            flash('You are now following %s.' % nickname)
+            follower_notification(user, g.user)
+            return redirect(url_for('members', nickname=nickname))
+        elif action == 'unfollow':
+            user = User.query.filter_by(nickname=nickname).first()
+            if user is None:
+                flash('User %s not found.' % nickname)
+                return redirect(url_for('home'))
+            if user == g.user:
+                flash('You can\'t unfollow yourself!')
+                return redirect(url_for('members', nickname=nickname))
+            u = g.user.unfollow(user)
+            if u is None:
+                flash('Cannot unfollow %s.' % nickname)
+                return redirect(url_for('members', nickname=nickname))
+            db.session.add(u)
+            db.session.commit()
+            flash('You have stopped following %s.' % nickname)
+            profile_data = ViewData("profile", nickname=nickname)
+            return render_template(profile_data.template_name, **profile_data.context)
+        elif nickname is None:  # Display all members
             view_data = ViewData('home')
             return render_template(view_data.template_name, **view_data.context)
         else:  # Display a single member
             profile_data = ViewData("profile", nickname=nickname)
-            # profile_data.form.nickname.data = g.user.nickname
-            # profile_data.form.about_me.data = g.user.about_me
-            # db.session.commit()
             return render_template(profile_data.template_name, **profile_data.context)
 
     @login_required
@@ -216,51 +247,10 @@ app.add_url_rule('/profile/', view_func=member_api_view, methods=["GET", "POST"]
 app.add_url_rule('/profile/<action>/<nickname>', view_func=member_api_view, methods=["GET"])
 
 
-@app.route('/follow/<nickname>')    # Follow a User
-@login_required
-def follow(nickname):
-    user = User.query.filter_by(nickname=nickname).first()
-    if user is None:
-        flash('User %s not found.' % nickname)
-        return redirect(url_for('home'))
-    if user == g.user:
-        flash('You can\'t follow yourself!')
-        return redirect(url_for('profile', nickname=nickname))
-    u = g.user.follow(user)
-    if u is None:
-        flash('Cannot follow %s.' % nickname)
-        return redirect(url_for('profile', nickname=nickname))
-    db.session.add(u)
-    db.session.commit()
-    flash('You are now following %s.' % nickname)
-    follower_notification(user, g.user)
-    return redirect(url_for('profile', nickname=nickname))
-
-
-@app.route('/unfollow/<nickname>')  # Unfollow a User
-@login_required
-def unfollow(nickname):
-    user = User.query.filter_by(nickname=nickname).first()
-    if user is None:
-        flash('User %s not found.' % nickname)
-        return redirect(url_for('home'))
-    if user == g.user:
-        flash('You can\'t unfollow yourself!')
-        return redirect(url_for('profile', nickname=nickname))
-    u = g.user.unfollow(user)
-    if u is None:
-        flash('Cannot unfollow %s.' % nickname)
-        return redirect(url_for('profile', nickname=nickname))
-    db.session.add(u)
-    db.session.commit()
-    flash('You have stopped following %s.' % nickname)
-    return redirect(url_for('profile', nickname=nickname))
-
-
 class PostAPI(MethodView):
     decorators = [login_required]
 
-    def post(self, page_mark=None, action=None, post_id=None, slug=None):
+    def post(self, page_mark=None, action=None, post_id=None):
         if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'detail']:
             flash("That page does not exist.")
             return redirect(url_for('posts', page_mark='portfolio'))
@@ -295,13 +285,7 @@ class PostAPI(MethodView):
                     db.session.commit()
                     post = Post.query.get(post_id)
                     return redirect(url_for('posts', page_mark='detail', slug=post.slug))
-        elif slug is not None: # Read a single post
-            pass
-        elif post_id is None:  # Read all posts
-            view_data = ViewData(page_mark)
-            result = render_template(view_data.template_name, **view_data.context)
-            return json.dumps(result)
-        elif post_id is not None:  # Create a new post
+        elif post_id is None:  # Create a new post
             form = PostForm()
             if form.validate_on_submit():
                 result = {'iserror': False}
@@ -341,11 +325,9 @@ class PostAPI(MethodView):
             return redirect(url_for('posts', page_mark='workshop'))
         elif action == 'vote':   # Vote on post
             post_id = post_id
-            user_id = g.user.id
             if not post_id:
                 abort(404)
             post = Post.query.get_or_404(int(post_id))
-            vote_status = post.vote(user_id=user_id)
             return redirect(url_for('posts', page_mark='detail', slug=post.slug))
         elif slug is None:    # Read all posts
             view_data = ViewData(page_mark)
@@ -375,13 +357,14 @@ class PostAPI(MethodView):
 
 # urls for Post API
 post_api_view = PostAPI.as_view('posts')
-# create, update or delete post
-app.add_url_rule('/<page_mark>/<int:post_id>', view_func=post_api_view, methods=["GET", "POST", "PUT", "DELETE"])
-# Read a single post
-app.add_url_rule('/<page_mark>/<slug>/', view_func=post_api_view, methods=["GET", "POST"])
-# Read all posts
-app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["GET", "POST"])
-# Create, Delete, Vote, Comment on post
+
+# Create a single post, Read all posts (Restful)
+app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["POST", "GET"])
+# Get, Update or Delete a single post (Restful)
+app.add_url_rule('/<page_mark>/<int:post_id>', view_func=post_api_view, methods=["GET", "PUT", "DELETE"])
+# Get a single post (NoJS)
+app.add_url_rule('/<page_mark>/<slug>/', view_func=post_api_view, methods=["GET"])
+# Create, Delete, Vote on, Comment on a single post post (NoJS)
 app.add_url_rule('/<page_mark>/<action>/<int:post_id>', view_func=post_api_view, methods=["GET", "POST"])
 
 

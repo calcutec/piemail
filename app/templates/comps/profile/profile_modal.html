@@ -9,7 +9,7 @@
 </script>
 
 <h1><a href="{{ url_for('members', action='update', nickname=profile_user.nickname) }}" ><button id={{ profile_user.id }} type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Edit Profile</button></a></h1>
-{#        <h1>Click<a id="edit-profile" class="{{ profile_user.id }} href="{{ url_for('profile') }}" > here</a> to edit your profile</h1>#}
+{#        <h1>Click<a id="edit-profile" class="{{ profile_user.id }} href="{{ url_for('members') }}" > here</a> to edit your profile</h1>#}
   <div class="modal fade" id="myModal" role="dialog">
     <div class="modal-dialog">
       <!-- Modal content-->
