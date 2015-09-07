@@ -29,18 +29,51 @@ App.Models.Post = Backbone.Model.extend({
 // Post view
 App.Views.Post = Backbone.View.extend({
   tagName: 'article', // defaults to div if not specified
+  editable: false,
   //className: 'exampleClass', // optional, can also set multiple like 'exampleClassII'
   //id: 'exampleID', // also optional
   events: {
     'click .edit':   'editPost',
-    'click .delete': 'deletePost'
+    'click .edit-button':   'editPost2',
+    'click .delete': 'deletePost',
+    'click .delete-button': 'deletePost2'
   },
   editPost: function(){
     var newPost = prompt("New post name:", this.model.get('header')); // prompts for new name
     if (!newPost)return;  // no change if user hits cancel
     this.model.set('header', newPost); // sets new name to model
   },
+  editPost2: function(e){
+    e.preventDefault();
+    var editme = $('.edit-me');
+    if (!this.editable){
+        this.showToolbar();
+        this.editable = true;
+        editme.css({"border":"2px #2237ff dotted"});
+        editme.attr('contenteditable', false);
+    } else {
+        var content = editme.html();
+        var post_id = $('.post-id').html();
+        this.hideToolbar();
+        this.editable = false;
+        editme.css({"border":"none"});
+        editme.attr('contenteditable', false);
+        $.ajax({
+            type: "PUT",
+            url:'/detail/',
+            data: {content: content, post_id: post_id}
+        });
+    }
+    var newPost = prompt("New post name:", this.model.get('header')); // prompts for new name
+    if (!newPost)return;  // no change if user hits cancel
+    this.model.set('header', newPost); // sets new name to model
+  },
   deletePost: function(){
+    this.model.destroy(); // deletes the model when delete button clicked
+  },
+  deletePost2: function(e){
+    e.preventDefault();
+    alert("Do you really want to destroy this post?");
     this.model.destroy(); // deletes the model when delete button clicked
   },
   newTemplate: _.template($('#postTemplate').html()), // external template
@@ -56,6 +89,30 @@ App.Views.Post = Backbone.View.extend({
   updateTitle: function(model, val) {
       this.el.getElementsByTagName('a')[0].innerHTML = val;
       model.save();
+  },
+  showToolbar: function(model, val) {
+        if($("body").attr("class") != "wysihtml5-supported") {
+            $('.edit-me').wysihtml5({
+                toolbar: {
+                    "style": true,
+                    "font-styles": true,
+                    "emphasis": true,
+                    "lists": true,
+                    "html": false,
+                    "link": false,
+                    "image": false,
+                    "color": false,
+                    fa: true
+                }
+            });
+        } else {
+            $('.wysihtml5-toolbar').show()
+        }
+        $('#edit-button').html("Submit Changes");
+  },
+  hide_toolbar: function(){
+      $('#edit-button').html("Edit Poem");
+      $('.wysihtml5-toolbar').hide()
   },
   render: function(){
     this.$el.html(this.newTemplate(this.model.toJSON())); // calls the template
