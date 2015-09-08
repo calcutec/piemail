@@ -100,7 +100,7 @@ App.Views.Post = Backbone.View.extend({
     render: function(){
         //this.$el.html(this.newTemplate(this.model.toJSON())); // calls the template
         //this.addToCollection(this.model);
-        this.$el.html(this.model.attributes.new_poem); // calls the template
+        this.$el.html(this.model.attributes.post_widget); // calls the template
         $("#main").prepend(this.el);
     }
 });
@@ -146,7 +146,8 @@ App.Views.Posts = Backbone.View.extend({ // plural to distinguish as the view fo
   render: function(){
     this.collection.each(function(Post){
       var postView = new App.Views.Post({model: Post});
-      $("#main").prepend(postView.el);
+      //$("#main").prepend(postView.el);
+        postView.render()
     });
   }
 });

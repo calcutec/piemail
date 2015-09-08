@@ -4,7 +4,7 @@ import re
 from app import db
 from app import app
 from config import WHOOSH_ENABLED
-from flask import url_for
+from flask import url_for, render_template, g
 from flask.ext.login import UserMixin
 
 import sys
@@ -168,6 +168,10 @@ class Post(db.Model):
         if self.writing_type is None:
             self.writing_type == "poem"
 
+    def get_post_widget(self):
+        post_widget = render_template('comps/simplepost.html', page_mark='portfolio', post=self, g=g)
+        return post_widget
+
     def get_voter_ids(self):
         """
         return ids of users who voted this post up
@@ -202,12 +206,12 @@ class Post(db.Model):
             # vote up the post
             db.engine.execute(
                 post_upvotes.insert(),
-                user_id   = user_id,
-                post_id = self.id
+                user_id=user_id,
+                post_id=self.id
             )
-            if self.votes == None:
+            if self.votes is None:
                 self.votes = 1
-            self.votes = self.votes + 1
+            self.votes += 1
             vote_status = True
         else:
             # unvote the post
@@ -219,13 +223,14 @@ class Post(db.Model):
                     )
                 )
             )
-            self.votes = self.votes - 1
+            self.votes -= 1
             vote_status = False
-        db.session.commit() # for the vote count
+        db.session.commit()  # for the vote count
         return vote_status
 
     def json_view(self):
-        return {'id': self.id, 'author': self.user_id, 'header': self.header, 'body': self.body}
+        return {'id': self.id, 'author': self.user_id, 'header': self.header, 'body': self.body,
+                'post_widget': self.get_post_widget()}
 
     def get_absolute_url(self):
         return url_for('post', kwargs={"slug": self.slug})

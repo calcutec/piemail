@@ -297,7 +297,7 @@ class PostAPI(MethodView):
                 db.session.commit()
                 if request.is_xhr:
                     result['savedsuccess'] = True
-                    result['new_poem'] = render_template('comps/post.html', page_mark=page_mark, post=post, g=g)
+                    result['post_widget'] = render_template('comps/post.html', page_mark=page_mark, post=post, g=g)
                     result['id'] = post.id
                     result['slug'] = post.slug
                     return json.dumps(result)
