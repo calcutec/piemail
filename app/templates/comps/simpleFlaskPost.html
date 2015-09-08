@@ -1,16 +1,5 @@
-{#<article class="postArticle" data-id="{{ post.id }}" data-header="{{ post.header }}" data-body="{{ post.body|safe }}">#}
-{#    <div class="body frame">#}
-{#        <h2><a href="/detail/{{ post.slug }}">{{ post.header }}</a></h2>#}
-{#        <div class="edit-me">{{ post.body|safe }}</div>#}
-{#    </div>#}
-{#    <button class="edit">Edit</button>#}
-{#    <button class="delete">Delete</button>#}
-{#</article>#}
 <article class="postArticle" data-id="{{ post.id }}" data-header="{{ post.header }}" data-body="{{ post.body|safe }}">
-    <ul class="details" style="width:100%">
-            <li class="Posted By"><a href="/profile/{{ post.author.nickname }}" rel="tag">{{ post.author.nickname }}</a></li>
-            <li class="posted"><b>{{ post.timestamp.strftime('%d %b %Y') }}</b></li>
-    </ul>
+    {% include 'comps/stats.html' %}
     <div class="body frame">
         <h2><a href="{{ url_for('posts', page_mark="detail", slug=post.slug) }}">{{ post.header }}</a></h2>
         <div class="edit-me comment" data-header="{{ post.header }}" data-body="{{ post.body|safe }}">{{ post.body|safe }}</div>

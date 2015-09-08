@@ -29,12 +29,12 @@ App.Models.Post = Backbone.Model.extend({
 // Post view
 App.Views.Post = Backbone.View.extend({
   tagName: 'article', // defaults to div if not specified
-  editable: false,
   //className: 'exampleClass', // optional, can also set multiple like 'exampleClassII'
   //id: 'exampleID', // also optional
   events: {
     'click .edit':   'editPost',
     'click .edit-button':   'editPost2',
+    'click .submit-button':   'updatePost',
     'click .delete': 'deletePost',
     'click .delete-button': 'deletePost2'
   },
@@ -45,28 +45,45 @@ App.Views.Post = Backbone.View.extend({
   },
   editPost2: function(e){
     e.preventDefault();
-    var editme = $('.edit-me');
-    if (!this.editable){
-        this.showToolbar();
-        this.editable = true;
-        editme.css({"border":"2px #2237ff dotted"});
-        editme.attr('contenteditable', false);
-    } else {
-        var content = editme.html();
-        var post_id = $('.post-id').html();
-        this.hideToolbar();
-        this.editable = false;
-        editme.css({"border":"none"});
-        editme.attr('contenteditable', false);
-        $.ajax({
-            type: "PUT",
-            url:'/detail/',
-            data: {content: content, post_id: post_id}
+    if (!App.Views.Post.editable) {
+        $target = $(e.target);
+        $target.closest("article").find(".edit-me").addClass('edit-selected')
+        App.Views.Post.currentwysihtml5 = $('.edit-selected').wysihtml5({
+            toolbar: {
+                "style": true,
+                "font-styles": true,
+                "emphasis": true,
+                "lists": true,
+                "html": false,
+                "link": false,
+                "image": false,
+                "color": false,
+                fa: true
+            }
         });
+        $target.closest("article").find('.edit-button').html("Submit Changes").attr('class', 'submit-button').css({'color':'red', 'style':'bold'});
+        $('.edit-selected').css({"border": "2px #2237ff dotted"});
+        $('.edit-selected').attr('contenteditable', false);
+        App.Views.Post.editable = true;
+        //function onFocus() { alert("When done editing, click 'Submit' below!"); };
+        //App.Views.Post.currentwysihtml5.on("focus", onFocus);
     }
-    var newPost = prompt("New post name:", this.model.get('header')); // prompts for new name
-    if (!newPost)return;  // no change if user hits cancel
-    this.model.set('header', newPost); // sets new name to model
+  },
+  updatePost: function(e){
+    var $submittarget = $(e.target).closest("article").find(".edit-me");
+    var content = $submittarget.html()
+    var post_id = $('.post-id').html();
+    $('.submit-button').html("Edit").attr('class', 'edit-button').css({'color':'#8787c1'});
+    $('.wysihtml5-toolbar').remove()
+    App.Views.Post.editable = false;
+    $submittarget.css({"border":"none"});
+    $submittarget.attr('contenteditable', false);
+    $submittarget.removeClass("edit-selected wysihtml5-editor wysihtml5-sandbox")
+    //$.ajax({
+    //    type: "PUT",
+    //    url:'/detail/',
+    //    data: {content: content, post_id: post_id}
+    //});
   },
   deletePost: function(){
     this.model.destroy(); // deletes the model when delete button clicked
@@ -89,30 +106,6 @@ App.Views.Post = Backbone.View.extend({
   updateTitle: function(model, val) {
       this.el.getElementsByTagName('a')[0].innerHTML = val;
       model.save();
-  },
-  showToolbar: function(model, val) {
-        if($("body").attr("class") != "wysihtml5-supported") {
-            $('.edit-me').wysihtml5({
-                toolbar: {
-                    "style": true,
-                    "font-styles": true,
-                    "emphasis": true,
-                    "lists": true,
-                    "html": false,
-                    "link": false,
-                    "image": false,
-                    "color": false,
-                    fa: true
-                }
-            });
-        } else {
-            $('.wysihtml5-toolbar').show()
-        }
-        $('#edit-button').html("Submit Changes");
-  },
-  hide_toolbar: function(){
-      $('#edit-button').html("Edit Poem");
-      $('.wysihtml5-toolbar').hide()
   },
   render: function(){
     this.$el.html(this.newTemplate(this.model.toJSON())); // calls the template
