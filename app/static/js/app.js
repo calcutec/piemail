@@ -20,120 +20,109 @@ App.Models.Post = Backbone.Model.extend({
     if (attrs.body.length < 2){
         alert('Your post must have more than one letter!');
     }
-  },
-  addToCollection: function(){
-    alert(this.get('header') + ' is the title of my post.');
   }
 });
 
 // Post view
 App.Views.Post = Backbone.View.extend({
-  tagName: 'article', // defaults to div if not specified
-  //className: 'exampleClass', // optional, can also set multiple like 'exampleClassII'
-  //id: 'exampleID', // also optional
-  events: {
-    'click .edit':   'editPost',
-    'click .edit-button':   'editPost2',
-    'click .submit-button':   'updatePost',
-    'click .delete': 'deletePost',
-    'click .delete-button': 'deletePost2'
-  },
-  editPost: function(){
-    var newPost = prompt("New post name:", this.model.get('header')); // prompts for new name
-    if (!newPost)return;  // no change if user hits cancel
-    this.model.set('header', newPost); // sets new name to model
-  },
-  editPost2: function(e){
-    e.preventDefault();
-    if (!App.Views.Post.editable) {
-        $target = $(e.target);
-        $target.closest("article").find(".edit-me").addClass('edit-selected')
-        App.Views.Post.currentwysihtml5 = $('.edit-selected').wysihtml5({
-            toolbar: {
-                "style": true,
-                "font-styles": true,
-                "emphasis": true,
-                "lists": true,
-                "html": false,
-                "link": false,
-                "image": false,
-                "color": false,
-                fa: true
-            }
-        });
-        $target.closest("article").find('.edit-button').html("Submit Changes").attr('class', 'submit-button').css({'color':'red', 'style':'bold'});
-        $('.edit-selected').css({"border": "2px #2237ff dotted"});
-        $('.edit-selected').attr('contenteditable', false);
-        App.Views.Post.editable = true;
-        //function onFocus() { alert("When done editing, click 'Submit' below!"); };
-        //App.Views.Post.currentwysihtml5.on("focus", onFocus);
+    tagName: 'article', // defaults to div if not specified
+    //className: 'exampleClass', // optional, can also set multiple like 'exampleClassII'
+    //id: 'exampleID', // also optional
+        //newTemplate: _.template($('#postTemplate').html()), // external template
+    events: {
+        'click .edit':   'editPost',
+        'click .edit-button':   'editPost',
+        'click .submit-button':   'updatePost',
+        'click .delete-button': 'deletePost'
+    },
+    initialize: function(){
+        //this.render(); // render is an optional function that defines the logic for rendering a template
+        //this.model.on('change', this.render, this); // calls render function once name changed
+        this.model.on('destroy', this.remove, this); // calls remove function once model deleted
+    },
+    editPost: function(e){
+        e.preventDefault();
+        if (!App.Views.Post.editable) {
+            $target = $(e.target);
+            $target.closest("article").find(".edit-me").addClass('edit-selected')
+            App.Views.Post.currentwysihtml5 = $('.edit-selected').wysihtml5({
+                toolbar: {
+                    "style": true,
+                    "font-styles": true,
+                    "emphasis": true,
+                    "lists": true,
+                    "html": false,
+                    "link": false,
+                    "image": false,
+                    "color": false,
+                    fa: true
+                }
+            });
+            $target.closest("article").find('.edit-button').html("Submit Changes").attr('class', 'submit-button').css({'color':'red', 'style':'bold'});
+            $('.edit-selected').css({"border": "2px #2237ff dotted"});
+            $('.edit-selected').attr('contenteditable', false);
+            App.Views.Post.editable = true;
+            //function onFocus() { alert("When done editing, click 'Submit' below!"); };
+            //App.Views.Post.currentwysihtml5.on("focus", onFocus);
+        }
+    },
+    updatePost: function(e){
+        var $submittarget = $(e.target).closest("article").find(".edit-me");
+        var content = $submittarget.html()
+        var post_id = $('.post-id').html();
+        $('.submit-button').html("Edit").attr('class', 'edit-button').css({'color':'#8787c1'});
+        $('.wysihtml5-toolbar').remove()
+        App.Views.Post.editable = false;
+        $submittarget.css({"border":"none"});
+        $submittarget.attr('contenteditable', false);
+        $submittarget.removeClass("edit-selected wysihtml5-editor wysihtml5-sandbox")
+        //$.ajax({
+        //    type: "PUT",
+        //    url:'/detail/',
+        //    data: {content: content, post_id: post_id}
+        //});
+    },
+    deletePost: function(e){
+        e.preventDefault();
+        alert("Do you really want to destroy this post?");
+        this.model.destroy(); // deletes the model when delete button clicked
+    },
+    remove: function(){
+        this.$el.remove(); // removes the HTML element from view when delete button clicked/model deleted
+    },
+    updateTitle: function(model, val) {
+        this.el.getElementsByTagName('a')[0].innerHTML = val;
+        model.save();
+    },
+    addToCollection: function(model){
+        App.Collections.Post.postCollection.add(model);
+    },
+    render: function(){
+        //this.$el.html(this.newTemplate(this.model.toJSON())); // calls the template
+        //this.addToCollection(this.model);
+        this.$el.html(this.model.attributes.new_poem); // calls the template
+        $("#main").prepend(this.el);
     }
-  },
-  updatePost: function(e){
-    var $submittarget = $(e.target).closest("article").find(".edit-me");
-    var content = $submittarget.html()
-    var post_id = $('.post-id').html();
-    $('.submit-button').html("Edit").attr('class', 'edit-button').css({'color':'#8787c1'});
-    $('.wysihtml5-toolbar').remove()
-    App.Views.Post.editable = false;
-    $submittarget.css({"border":"none"});
-    $submittarget.attr('contenteditable', false);
-    $submittarget.removeClass("edit-selected wysihtml5-editor wysihtml5-sandbox")
-    //$.ajax({
-    //    type: "PUT",
-    //    url:'/detail/',
-    //    data: {content: content, post_id: post_id}
-    //});
-  },
-  deletePost: function(){
-    this.model.destroy(); // deletes the model when delete button clicked
-  },
-  deletePost2: function(e){
-    e.preventDefault();
-    alert("Do you really want to destroy this post?");
-    this.model.destroy(); // deletes the model when delete button clicked
-  },
-  newTemplate: _.template($('#postTemplate').html()), // external template
-  initialize: function(){
-    //this.render(); // render is an optional function that defines the logic for rendering a template
-    //this.model.on('change', this.render, this); // calls render function once name changed
-    this.model.bind("change:header", this.updateTitle, this);
-    this.model.on('destroy', this.remove, this); // calls remove function once model deleted
-  },
-  remove: function(){
-    this.$el.remove(); // removes the HTML element from view when delete button clicked/model deleted
-  },
-  updateTitle: function(model, val) {
-      this.el.getElementsByTagName('a')[0].innerHTML = val;
-      model.save();
-  },
-  render: function(){
-    this.$el.html(this.newTemplate(this.model.toJSON())); // calls the template
-    $("#main").prepend(this.el);
-  }
 });
 
-App.Views.PoemView = Backbone.View.extend({
-  initialize: function(){
-    this.model.bind("change:name", this.updateName, this);
-  },
-
-  updateName: function(model, val){
-    this.el.text(val);
-  }
-});
 
 // Post collection
 App.Collections.Post = Backbone.Collection.extend({
-  model: App.Models.Post,
-  url: '/workshop/',
-  parse: function(response){return response.myPoems;},
-  clear_all: function(){
-    var model;
-    while (model = this.first()) {
-      model.destroy();
+    model: App.Models.Post,
+    url: '/portfolio/',
+    byAuthor: function (author_id) {
+        var filtered = this.filter(function (post) {
+            return post.get("author") === author_id;
+        });
+        return new App.Collections.Post(filtered);
+    },
+    parse: function(response){return response.myPoems;},
+        clear_all: function(){
+        var model;
+        while (model = this.first()) {
+          model.destroy();
     }
-  }
+    }
 });
 
 // View for all posts (collection)
@@ -296,11 +285,20 @@ $(document).ready(function() {
     App.Views.ModalDisplay.modalDisplayView.render();
 
     App.Collections.Post.postCollection = new App.Collections.Post();
-    var articleSelector = $("article");
-    articleSelector.each(function() {
-        App.Collections.Post.postCollection.add(new App.Models.Post($(this).data()));
-    });
-    App.Views.Posts.poemListView = new App.Views.Posts({collection: App.Collections.Post.postCollection});
-    App.Views.Posts.poemListView.attachToView();
+    //var articleSelector = $("article");
+    //articleSelector.each(function() {
+    //    App.Collections.Post.postCollection.add(new App.Models.Post($(this).data()));
+    //});
+
+    App.Collections.Post.postCollection.fetch({
+        success: function() {
+            App.Views.Posts.poemListView = new App.Views.Posts({collection: App.Collections.Post.postCollection});
+            App.Views.Posts.poemListView.attachToView();
+            alert('Your collection is now ready!');
+        }
+    })
+
+
+
     //postCollection.get(112).set({title: "No Longer Bob"});
 });

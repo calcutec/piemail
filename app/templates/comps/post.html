@@ -1,4 +1,4 @@
-<article>
+<article class="postArticle" data-id="{{ post.id }}" data-header="{{ post.header }}" data-body="{{ post.body|safe }}">
     {% include 'comps/stats.html' %}
     <div class="body frame">
         <h2><a href="{{ url_for('posts', page_mark="detail", slug=post.slug) }}">{{ post.header }}</a></h2>
@@ -7,4 +7,3 @@
     {% include 'comps/details.html' %}
     <span class="post-id hide">{{ post.id }}</span>
 </article>
-

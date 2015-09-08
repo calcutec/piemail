@@ -333,8 +333,12 @@ class PostAPI(MethodView):
             post.vote(user_id=user_id)
             return redirect(url_for('posts', page_mark='detail', slug=post.slug))
         elif slug is None:    # Read all posts
-            view_data = ViewData(page_mark)
-            return render_template(view_data.template_name, **view_data.context)
+            if request.is_xhr:
+                posts = Post.query.all()
+                return jsonify(myPoems=[i.json_view() for i in posts])
+            else:
+                view_data = ViewData(page_mark)
+                return render_template(view_data.template_name, **view_data.context)
         elif slug is not None:       # Read a single post
             detail_data = ViewData("detail", slug=slug)
             return render_template(detail_data.template_name, **detail_data.context)

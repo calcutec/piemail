@@ -30,7 +30,7 @@
     {% if page_mark == "login" %}{% include 'comps/forms/login_form.html' %}{% endif %}
     {% if page_mark == "signup" %}{% include 'comps/forms/signup_form.html' %}{% endif %}
     {% if page_mark == "home" %}
-        {% include 'poets.html' %}
+        {% include 'members.html' %}
     {% endif %}
     {% if page_mark == "portfolio" %}
         <!-- external templates -->
@@ -41,17 +41,13 @@
             {% include 'comps/forms/poem_form.html' %}
         </script>
         <div id="poem-list">
-            {% for post in posts.items %}{% include 'comps/simpleFlaskPost.html' %}{% endfor %}
+            {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
         </div>
     {% endif %}
 
     {% if page_mark == "workshop" or page_mark == "profile" or page_mark == "poetry" %}
         {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
         {% include 'comps/postie.html' %}
-    {% endif %}
-
-    {% if page_mark == "profiles" %}
-        {% include 'poets.html' %}
     {% endif %}
 
     {% if page_mark == "detail" %}
