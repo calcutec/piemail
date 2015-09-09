@@ -47,6 +47,7 @@ App.Views.Post = Backbone.View.extend({
     initialize: function(){
         this.listenTo(this.model, "change", this.savePost); // calls render function once name changed
         this.listenTo(this.model, "destroy", this.removejunk); // calls remove function once model deleted
+        this.listenTo(this.model, "removeMe", this.removejunk); // calls remove function once model deleted
     },
     savePost: function(){
         this.model.save(null, {
@@ -108,14 +109,17 @@ App.Views.Post = Backbone.View.extend({
         var that = this;
         this.model.destroy({
           success: function() {
-            console.log(that.parent.collection);
+            console.log('model completely destroyed..');
           }
         });
     },
     removejunk: function(){
-        this.off();
-        this.unbind();
+        // same as this.$el.remove();
         this.remove();
+        // unbind events that are set on this view
+        this.off();
+        // remove all models bindings made by this view
+        this.model.off( null, null, this );
     },
     render: function(){
         this.$el.html(this.model.attributes.post_widget); // calls the template
@@ -126,26 +130,22 @@ App.Views.Post = Backbone.View.extend({
 // Post collection
 App.Collections.Post = Backbone.Collection.extend({
     url: '/portfolio/',
-    parse: function(response){return response.myPoems;}
+    parse: function(response){return response.myPoems;},
     //byAuthor: function (author_id) {
     //    var filtered = this.filter(function (post) {
     //        return post.get("author") === author_id;
     //    });
     //    return new App.Collections.Post(filtered);
     //},
-    //clear_all: function(){
-    //    var model;
-    //    while (model = this.first()) {
-    //        model.destroy();
-    //}
-    //}
+    clear_all: function(){
+        this.each(function(model){
+            model.trigger('removeMe');
+        });
+    }
 });
 
 // View for all posts (collection)
 App.Views.Posts = Backbone.View.extend({ // plural to distinguish as the view for the collection
-    //initialize: function(){
-    //    this.collection;
-    //},
     attachToView: function(){
         this.el = $("#poem-list");
         var self = this;
@@ -171,15 +171,21 @@ App.Views.Posts = Backbone.View.extend({ // plural to distinguish as the view fo
 // Backbone router
 App.Router = Backbone.Router.extend({
   routes: { // sets the routes
-    '':         'index', // http://tutorial.com
-    'edit/:id': 'edit' // http://tutorial.com/#edit/7
+    '':         'start', // http://netbard.com/portfolio/
+    'create': 'create', // http://netbard.com/portfolio/#create
+    'edit/:id': 'edit' // http://netbard.com/portfolio/#edit/7
   },
   // the same as we did for click events, we now define function for each route
-  index: function(){
-    console.log('index route');
+  start: function(){
+      console.log('now in view for reading poetry');
   },
   edit: function(id){
     console.log('edit route with id: ' + id);
+  },
+  create: function(id){
+    console.log('View for creating poetry rendered');
+    App.Views.ModalDisplay.modalDisplayView = new App.Views.ModalDisplay();
+    App.Views.ModalDisplay.modalDisplayView.render();
   }
 });
 
@@ -264,13 +270,6 @@ App.Views.ModalView = Backbone.View.extend({
             }
         })
     });
-
-    new App.Router;
-    Backbone.history.start(); // start Backbone history
-
-    App.Views.ModalDisplay.modalDisplayView = new App.Views.ModalDisplay();
-    App.Views.ModalDisplay.modalDisplayView.render();
-
     App.Collections.Post.postCollection = new App.Collections.Post();
     App.Collections.Post.postCollection.fetch({
         success: function() {
@@ -279,6 +278,8 @@ App.Views.ModalView = Backbone.View.extend({
         }
     });
     App.Views.Global.globalView = new App.Views.Global({el: '.page'});
+    new App.Router();
+    Backbone.history.start(); // start Backbone history
 });
 
 
