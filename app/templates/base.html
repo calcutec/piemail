@@ -75,7 +75,7 @@
 			<ul>
                 {% if g.user.is_authenticated() %}
                     <li class="n-poetry"><a href="{{ url_for('posts', page_mark = 'poetry') }}">Poetry</a></li>
-                    <li class="n-workshop"><a href="{{ url_for('posts', page_mark = 'workshop') }}">Workshop</a></li>
+                    <li class="n-workshop"><a id="n-workshop" href="{{ url_for('posts', page_mark = 'workshop') }}">Workshop</a></li>
                     <li class="n-portfolio"><a href="{{ url_for('posts', page_mark = 'portfolio') }}">Portfolio</a></li>
 				{% endif %}
 			</ul>

@@ -1,24 +1,29 @@
-{% extends "base.html" %}
-{% block content %}
-    <!-- external template -->
-    <script id="postTemplate" type="text/template">
-        <a id="open" class="btn">open modal</a>
-    </script>
-    <script id="poemTemplate" type="text/template">
-        <%= header %> is by <%= author %> and goes as follows <%= body %>
-        <button class="edit">Edit</button>
-        <button class="delete">Delete</button>
-    </script>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stateful Backbone Views</title>
 
-    <script id="userTemplate" type="text/template">
-        <%= firstname %> <%= lastname %> is also known as <%= nickname %>
-        <button class="edit">Edit</button>
-    </script>
+    <script src="{{ local_static_url }}js/_libs/jquery/jquery.min.js"></script>
+    <script src="{{ local_static_url }}js/_libs/backbone/underscore.js"></script>
+    <script src="{{ local_static_url }}js/_libs/backbone/backbone.js"></script>
+    <script src="{{ local_static_url }}js/app2.js"></script>
 
-    <script id="formTemplate" type="text/template">
-        {% include 'comps/poem/comps/forms/poem_form.html' %}
+    <script id="expandable" type="text/x-underscore-template">
+      <div class="well">
+        <a href="" class="name"><%= get('name') %></a>
+        <div class="detail"></div>
+      </div>
     </script>
+  </head>
 
-    <div id="theForm"></div>
-    <div id="allUsers"></div>
-{% endblock %}
+  <body>
+    <div class="container">
+      <ul class="nav nav-tabs">
+        <li class="tab1"><a href="#tab1">Tab 1</a></li>
+        <li class="tab2"><a href="#tab2">Tab 2</a></li>
+      </ul>
+
+      <div class="content"></div>
+    </div>
+  </body>
+</html>

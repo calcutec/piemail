@@ -169,7 +169,7 @@ class Post(db.Model):
             self.writing_type == "poem"
 
     def get_post_widget(self):
-        post_widget = render_template('comps/simplepost.html', page_mark='portfolio', post=self, g=g)
+        post_widget = render_template('comps/post_content.html', page_mark='portfolio', post=self, g=g)
         return post_widget
 
     def get_voter_ids(self):

@@ -17,9 +17,14 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
+# @app.route('/', methods=['GET'])
+# def index():
+#     return redirect(url_for('members'))
+
 @app.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('members'))
+    index_data = ViewData("index")
+    return render_template('index.html', **index_data.context)
 
 
 @app.route('/logout', methods=['GET'])
@@ -297,7 +302,7 @@ class PostAPI(MethodView):
                 db.session.commit()
                 if request.is_xhr:
                     result['savedsuccess'] = True
-                    result['post_widget'] = render_template('comps/post.html', page_mark=page_mark, post=post, g=g)
+                    result['post_widget'] = render_template('comps/post_content.html', page_mark=page_mark, post=post, g=g)
                     result['id'] = post.id
                     result['slug'] = post.slug
                     return json.dumps(result)

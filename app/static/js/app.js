@@ -1,5 +1,4 @@
-// defines the namespace
-window.App = {  // top level namespace is declared on the window
+window.App = {
   Models: {},
   Collections: {},
   Views: {},
@@ -23,17 +22,33 @@ App.Models.Post = Backbone.Model.extend({
   }
 });
 
+App.Views.Global = Backbone.View.extend({
+    events: {
+        'click #n-workshop': 'loadWorkshopCollection'
+    },
+    loadWorkshopCollection: function(e){
+        e.preventDefault();
+        alert("Loading workshop...");
+        App.Views.Posts.poemListView.render()
+    }
+});
+
 // Post view
 App.Views.Post = Backbone.View.extend({
     tagName: 'article', // defaults to div if not specified
-    //className: 'exampleClass', // optional, can also set multiple like 'exampleClassII'
+    className: 'postArticle', // optional, can also set multiple like 'exampleClassI exampleClassII'
     //id: 'exampleID', // also optional
         //newTemplate: _.template($('#postTemplate').html()), // external template
     events: {
         'click .edit':   'editPost',
         'click .edit-button':   'editPost',
         'click .submit-button':   'updatePost',
-        'click .delete-button': 'deletePost'
+        'click .delete-button': 'deletePost',
+        'click #n-workshop': 'loadWorkshopCollection'
+    },
+    loadWorkshopCollection: function(e){
+        e.preventDefault();
+        alert("Loading workshop...");
     },
     initialize: function(){
         //this.render(); // render is an optional function that defines the logic for rendering a template
@@ -43,9 +58,10 @@ App.Views.Post = Backbone.View.extend({
     editPost: function(e){
         e.preventDefault();
         if (!App.Views.Post.editable) {
-            $target = $(e.target);
-            $target.closest("article").find(".edit-me").addClass('edit-selected')
-            App.Views.Post.currentwysihtml5 = $('.edit-selected').wysihtml5({
+            var $target = $(e.target);
+            $target.closest("article").find(".edit-me").addClass('edit-selected');
+            var editSelected = $('.edit-selected');
+            App.Views.Post.currentwysihtml5 = editSelected.wysihtml5({
                 toolbar: {
                     "style": true,
                     "font-styles": true,
@@ -59,8 +75,8 @@ App.Views.Post = Backbone.View.extend({
                 }
             });
             $target.closest("article").find('.edit-button').html("Submit Changes").attr('class', 'submit-button').css({'color':'red', 'style':'bold'});
-            $('.edit-selected').css({"border": "2px #2237ff dotted"});
-            $('.edit-selected').attr('contenteditable', false);
+            editSelected.css({"border": "2px #2237ff dotted"});
+            editSelected.attr('contenteditable', false);
             App.Views.Post.editable = true;
             //function onFocus() { alert("When done editing, click 'Submit' below!"); };
             //App.Views.Post.currentwysihtml5.on("focus", onFocus);
@@ -68,14 +84,14 @@ App.Views.Post = Backbone.View.extend({
     },
     updatePost: function(e){
         var $submittarget = $(e.target).closest("article").find(".edit-me");
-        var content = $submittarget.html()
-        var post_id = $('.post-id').html();
+        //var content = $submittarget.html();
+        //var post_id = $('.post-id').html();
         $('.submit-button').html("Edit").attr('class', 'edit-button').css({'color':'#8787c1'});
-        $('.wysihtml5-toolbar').remove()
+        $('.wysihtml5-toolbar').remove();
         App.Views.Post.editable = false;
         $submittarget.css({"border":"none"});
         $submittarget.attr('contenteditable', false);
-        $submittarget.removeClass("edit-selected wysihtml5-editor wysihtml5-sandbox")
+        $submittarget.removeClass("edit-selected wysihtml5-editor wysihtml5-sandbox");
         //$.ajax({
         //    type: "PUT",
         //    url:'/detail/',
@@ -90,13 +106,13 @@ App.Views.Post = Backbone.View.extend({
     remove: function(){
         this.$el.remove(); // removes the HTML element from view when delete button clicked/model deleted
     },
-    updateTitle: function(model, val) {
-        this.el.getElementsByTagName('a')[0].innerHTML = val;
-        model.save();
-    },
-    addToCollection: function(model){
-        App.Collections.Post.postCollection.add(model);
-    },
+    //updateTitle: function(model, val) {
+    //    this.el.getElementsByTagName('a')[0].innerHTML = val;
+    //    model.save();
+    //},
+    //addToCollection: function(model){
+    //    App.Collections.Post.postCollection.add(model);
+    //},
     render: function(){
         //this.$el.html(this.newTemplate(this.model.toJSON())); // calls the template
         //this.addToCollection(this.model);
@@ -105,44 +121,52 @@ App.Views.Post = Backbone.View.extend({
     }
 });
 
-
 // Post collection
 App.Collections.Post = Backbone.Collection.extend({
-    model: App.Models.Post,
     url: '/portfolio/',
-    byAuthor: function (author_id) {
-        var filtered = this.filter(function (post) {
-            return post.get("author") === author_id;
-        });
-        return new App.Collections.Post(filtered);
-    },
-    parse: function(response){return response.myPoems;},
-        clear_all: function(){
-        var model;
-        while (model = this.first()) {
-          model.destroy();
-    }
-    }
+    parse: function(response){return response.myPoems;}
+    //byAuthor: function (author_id) {
+    //    var filtered = this.filter(function (post) {
+    //        return post.get("author") === author_id;
+    //    });
+    //    return new App.Collections.Post(filtered);
+    //},
+    //clear_all: function(){
+    //    var model;
+    //    while (model = this.first()) {
+    //        model.destroy();
+    //}
+    //}
 });
 
 // View for all posts (collection)
 App.Views.Posts = Backbone.View.extend({ // plural to distinguish as the view for the collection
-  //initialize: function(){
-  //  this.collection;
-  //},
-  attachToView: function(){
-    this.el = $("#poem-list");
-    var self = this;
-    $("article").each(function(){
-      var poemEl = $(this);
-      var id = poemEl.attr("data-id");
-      var poem = self.collection.get(id);
-      new App.Views.Post({
-        model: poem,
-        el: poemEl
-      });
-    });
-  },
+    //initialize: function(){
+    //    this.collection;
+    //},
+    attachToView: function(){
+        this.el = $("#poem-list");
+        var self = this;
+        $("article").each(function(){
+            var poemEl = $(this);
+            var id = poemEl.find("span").text();
+            var poem = self.collection.get(id);
+            new App.Views.Post({
+                model: poem,
+                el: poemEl
+            });
+        });
+    },
+    dispose: function() {
+        // same as this.$el.remove();
+        this.remove();
+        // unbind events that are
+        // set on this view
+        this.off();
+        // remove all models bindings
+        // made by this view
+        //this.model.off( null, null, this );
+    },
   render: function(){
     this.collection.each(function(Post){
       var postView = new App.Views.Post({model: Post});
@@ -193,7 +217,7 @@ App.Views.ModalDisplay = Backbone.View.extend({
     template: '<h1><button type="button" id="open" class="btn btn-info btn-lg">Create Poem</button></h1>',
     openModal: function() {
         var view = new App.Views.ModalView();
-        var modal = new Backbone.BootstrapModal({
+        new Backbone.BootstrapModal({
             content: view,
             title: 'Create a poem',
             animate: true,
@@ -297,8 +321,9 @@ $(document).ready(function() {
             App.Views.Posts.poemListView.attachToView();
             alert('Your collection is now ready!');
         }
-    })
+    });
 
+    App.Views.Global.globalView = new App.Views.Global({el: '.page'});
 
 
     //postCollection.get(112).set({title: "No Longer Bob"});
