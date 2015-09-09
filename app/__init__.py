@@ -7,6 +7,7 @@ from config import ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
     MAIL_PASSWORD, SQLALCHEMY_DATABASE_URI
 from .momentjs import momentjs
 from flask.json import JSONEncoder
+from flask_wtf.csrf import CsrfProtect
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -17,6 +18,7 @@ lm.init_app(app)
 lm.login_view = 'login'
 lm.login_message = 'Please log in to access this page.'
 mail = Mail(app)
+CsrfProtect(app)
 
 
 app.config['OAUTH_CREDENTIALS'] = {

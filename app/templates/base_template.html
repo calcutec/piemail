@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block header %}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     {% if page_mark == "login" %}<h1>Please login or signup</h1>{% endif %}
     {% if page_mark == "signup" %}<h1>Signup page text placeholder</h1>{% endif %}
     {% if page_mark == "home" %}<h1>Home page text placeholder</h1>{% endif %}

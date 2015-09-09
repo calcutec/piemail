@@ -45,8 +45,20 @@ App.Views.Post = Backbone.View.extend({
         'click #n-workshop': 'loadWorkshopCollection'
     },
     initialize: function(){
-        this.listenTo(this.model, "change", this.render); // calls render function once name changed
-        this.listenTo(this.model, "destroy", this.destroy); // calls remove function once model deleted
+        this.listenTo(this.model, "change", this.savePost); // calls render function once name changed
+        this.listenTo(this.model, "destroy", this.remove); // calls remove function once model deleted
+    },
+    savePost: function(){
+        this.model.save(null, {
+            success: function (model, response) {
+                new App.Views.Post({model:model}).render();
+                return response;
+            },
+            error: function () {
+                alert('your poem did not save properly..')
+            },
+            wait: true
+        });
     },
     editPost: function(e){
         e.preventDefault();
@@ -83,12 +95,19 @@ App.Views.Post = Backbone.View.extend({
         $submittarget.attr('contenteditable', false);
         $submittarget.removeClass("edit-selected wysihtml5-editor wysihtml5-sandbox");
         this.model.set({"body":content});
-        this.model.save()
     },
     deletePost: function(e){
         e.preventDefault();
         alert("Do you really want to destroy this post?");
-        this.model.destroy(); // deletes the model when delete button clicked
+        this.model.destroy(null, {
+            success: function (model, response) {
+                return response;
+            },
+            error: function () {
+                return response;
+            },
+            wait: true
+        });
     },
     remove: function(){
         this.$el.remove(); // removes the HTML element from view when delete button clicked/model deleted
@@ -240,7 +259,19 @@ App.Views.ModalView = Backbone.View.extend({
     }
 });
 
-$(document).ready(function() {
+    $(document).ready(function() {
+
+    var csrftoken = $('meta[name=csrf-token]').attr('content')
+    $(function(){
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken)
+                }
+            }
+        })
+    });
+
     new App.Router;
     Backbone.history.start(); // start Backbone history
 

@@ -297,7 +297,8 @@ class PostAPI(MethodView):
                 db.session.commit()
                 if request.is_xhr:
                     result['savedsuccess'] = True
-                    result['post_widget'] = render_template('comps/post_content.html', page_mark=page_mark, post=post, g=g)
+                    result['post_widget'] = render_template('comps/post_content.html', page_mark=page_mark,
+                                                            post=post, g=g)
                     result['id'] = post.id
                     result['slug'] = post.slug
                     return json.dumps(result)
@@ -347,10 +348,13 @@ class PostAPI(MethodView):
     def put(self, post_id, page_mark=None):
         form = PostForm()
         if form.validate_on_submit():
-            update_post = Post.query.get(request.form['post_id'])
+            update_post = Post.query.get(post_id)
             update_post.body = request.form['content']
             db.session.commit()
             result = {'updatedsuccess': True}
+            return json.dumps(result)
+        else:
+            result = {'updatedsuccess': False}
             return json.dumps(result)
 
     # Delete Post
