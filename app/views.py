@@ -288,7 +288,6 @@ class PostAPI(MethodView):
         elif post_id is None:  # Create a new post
             form = PostForm()
             if form.validate_on_submit():
-                result = {'iserror': False}
                 slug = slugify(form.header.data)
                 post = Post(body=form.body.data, timestamp=datetime.utcnow(),
                             author=g.user, photo=None, thumbnail=None, header=form.header.data,
@@ -296,12 +295,9 @@ class PostAPI(MethodView):
                 db.session.add(post)
                 db.session.commit()
                 if request.is_xhr:
-                    result['savedsuccess'] = True
-                    result['post_widget'] = render_template('comps/post_content.html', page_mark=page_mark,
-                                                            post=post, g=g)
-                    result['id'] = post.id
-                    result['slug'] = post.slug
-                    return json.dumps(result)
+                    response = post.json_view()
+                    response['savedsuccess'] = True
+                    return json.dumps(response)
                 else:
                     return redirect("/detail/" + post.slug)
             else:
@@ -349,10 +345,11 @@ class PostAPI(MethodView):
         form = PostForm()
         if form.validate_on_submit():
             update_post = Post.query.get(post_id)
-            update_post.body = request.form['content']
+            update_post.body = form.data['body']
             db.session.commit()
-            result = {'updatedsuccess': True}
-            return json.dumps(result)
+            response = update_post.json_view()
+            response['updatedsuccess'] = True
+            return json.dumps(response)
         else:
             result = {'updatedsuccess': False}
             return json.dumps(result)

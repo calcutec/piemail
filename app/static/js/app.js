@@ -46,12 +46,18 @@ App.Views.Post = Backbone.View.extend({
     },
     initialize: function(){
         this.listenTo(this.model, "change", this.savePost); // calls render function once name changed
-        this.listenTo(this.model, "destroy", this.remove); // calls remove function once model deleted
+        this.listenTo(this.model, "destroy", this.removejunk); // calls remove function once model deleted
     },
     savePost: function(){
         this.model.save(null, {
             success: function (model, response) {
-                new App.Views.Post({model:model}).render();
+                if (response.updatedsuccess == true){
+                    return response;
+                }
+                if (response.savedsuccess == true){
+                    new App.Views.Post({model:model}).render();
+                    return response;
+                }
                 return response;
             },
             error: function () {
@@ -99,18 +105,17 @@ App.Views.Post = Backbone.View.extend({
     deletePost: function(e){
         e.preventDefault();
         alert("Do you really want to destroy this post?");
-        this.model.destroy(null, {
-            success: function (model, response) {
-                return response;
-            },
-            error: function () {
-                return response;
-            },
-            wait: true
+        var that = this;
+        this.model.destroy({
+          success: function() {
+            console.log(that.parent.collection);
+          }
         });
     },
-    remove: function(){
-        this.$el.remove(); // removes the HTML element from view when delete button clicked/model deleted
+    removejunk: function(){
+        this.off();
+        this.unbind();
+        this.remove();
     },
     render: function(){
         this.$el.html(this.model.attributes.post_widget); // calls the template
@@ -154,23 +159,12 @@ App.Views.Posts = Backbone.View.extend({ // plural to distinguish as the view fo
             });
         });
     },
-    dispose: function() {
-        // same as this.$el.remove();
-        this.remove();
-        // unbind events that are
-        // set on this view
-        this.off();
-        // remove all models bindings
-        // made by this view
-        //this.model.off( null, null, this );
-    },
-  render: function(){
-    this.collection.each(function(Post){
-      var postView = new App.Views.Post({model: Post});
-      //$("#main").prepend(postView.el);
-        postView.render()
-    });
-  }
+    render: function(){
+        this.collection.each(function(Post){
+            var postView = new App.Views.Post({model: Post});
+            postView.render()
+        });
+    }
 });
 
 
@@ -237,7 +231,6 @@ App.Views.ModalDisplay = Backbone.View.extend({
                 },
                 wait: true
             });
-
         });
     },
     render: function() {
@@ -261,7 +254,7 @@ App.Views.ModalView = Backbone.View.extend({
 
     $(document).ready(function() {
 
-    var csrftoken = $('meta[name=csrf-token]').attr('content')
+    var csrftoken = $('meta[name=csrf-token]').attr('content');
     $(function(){
         $.ajaxSetup({
             beforeSend: function(xhr, settings) {
