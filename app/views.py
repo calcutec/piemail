@@ -17,14 +17,9 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
-# @app.route('/', methods=['GET'])
-# def index():
-#     return redirect(url_for('members'))
-
 @app.route('/', methods=['GET'])
 def index():
-    index_data = ViewData("index")
-    return render_template('index.html', **index_data.context)
+    return redirect(url_for('login'))
 
 
 @app.route('/logout', methods=['GET'])

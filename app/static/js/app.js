@@ -35,10 +35,8 @@ App.Views.Global = Backbone.View.extend({
 
 // Post view
 App.Views.Post = Backbone.View.extend({
-    tagName: 'article', // defaults to div if not specified
-    className: 'postArticle', // optional, can also set multiple like 'exampleClassI exampleClassII'
-    //id: 'exampleID', // also optional
-        //newTemplate: _.template($('#postTemplate').html()), // external template
+    tagName: 'article',
+    className: 'postArticle',
     events: {
         'click .edit':   'editPost',
         'click .edit-button':   'editPost',
@@ -46,14 +44,9 @@ App.Views.Post = Backbone.View.extend({
         'click .delete-button': 'deletePost',
         'click #n-workshop': 'loadWorkshopCollection'
     },
-    loadWorkshopCollection: function(e){
-        e.preventDefault();
-        alert("Loading workshop...");
-    },
     initialize: function(){
-        //this.render(); // render is an optional function that defines the logic for rendering a template
-        //this.model.on('change', this.render, this); // calls render function once name changed
-        this.model.on('destroy', this.remove, this); // calls remove function once model deleted
+        this.listenTo(this.model, "change", this.render); // calls render function once name changed
+        this.listenTo(this.model, "destroy", this.destroy); // calls remove function once model deleted
     },
     editPost: function(e){
         e.preventDefault();
@@ -78,25 +71,19 @@ App.Views.Post = Backbone.View.extend({
             editSelected.css({"border": "2px #2237ff dotted"});
             editSelected.attr('contenteditable', false);
             App.Views.Post.editable = true;
-            //function onFocus() { alert("When done editing, click 'Submit' below!"); };
-            //App.Views.Post.currentwysihtml5.on("focus", onFocus);
         }
     },
     updatePost: function(e){
         var $submittarget = $(e.target).closest("article").find(".edit-me");
-        //var content = $submittarget.html();
-        //var post_id = $('.post-id').html();
+        var content = $submittarget.html();
         $('.submit-button').html("Edit").attr('class', 'edit-button').css({'color':'#8787c1'});
         $('.wysihtml5-toolbar').remove();
         App.Views.Post.editable = false;
         $submittarget.css({"border":"none"});
         $submittarget.attr('contenteditable', false);
         $submittarget.removeClass("edit-selected wysihtml5-editor wysihtml5-sandbox");
-        //$.ajax({
-        //    type: "PUT",
-        //    url:'/detail/',
-        //    data: {content: content, post_id: post_id}
-        //});
+        this.model.set({"body":content});
+        this.model.save()
     },
     deletePost: function(e){
         e.preventDefault();
@@ -106,16 +93,7 @@ App.Views.Post = Backbone.View.extend({
     remove: function(){
         this.$el.remove(); // removes the HTML element from view when delete button clicked/model deleted
     },
-    //updateTitle: function(model, val) {
-    //    this.el.getElementsByTagName('a')[0].innerHTML = val;
-    //    model.save();
-    //},
-    //addToCollection: function(model){
-    //    App.Collections.Post.postCollection.add(model);
-    //},
     render: function(){
-        //this.$el.html(this.newTemplate(this.model.toJSON())); // calls the template
-        //this.addToCollection(this.model);
         this.$el.html(this.model.attributes.post_widget); // calls the template
         $("#main").prepend(this.el);
     }
@@ -263,6 +241,22 @@ App.Views.ModalView = Backbone.View.extend({
 });
 
 $(document).ready(function() {
+    new App.Router;
+    Backbone.history.start(); // start Backbone history
+
+    App.Views.ModalDisplay.modalDisplayView = new App.Views.ModalDisplay();
+    App.Views.ModalDisplay.modalDisplayView.render();
+
+    App.Collections.Post.postCollection = new App.Collections.Post();
+    App.Collections.Post.postCollection.fetch({
+        success: function() {
+            App.Views.Posts.poemListView = new App.Views.Posts({collection: App.Collections.Post.postCollection});
+            App.Views.Posts.poemListView.attachToView();
+        }
+    });
+    App.Views.Global.globalView = new App.Views.Global({el: '.page'});
+});
+
 
     ////adding individual models to collection
     //    var chihuahua = new App.Models.Post({header: 'Sugar', post: 'This this the name of my chihuahua'});
@@ -285,6 +279,9 @@ $(document).ready(function() {
     //    postsView.render();
     //    sessionStorage.setItem('postCollection', JSON.stringify(postCollection));
 
+    ////updating a single model in a collection
+    //    postCollection.get(112).set({title: "No Longer Bob"});
+
 
     ////Retrieving models from flask database////
     //    postCollection.fetch({
@@ -302,29 +299,3 @@ $(document).ready(function() {
     //        postsView = new App.Views.Posts({collection: postCollection});
     //        //postsView.render()
     //    });
-
-    new App.Router;
-    Backbone.history.start(); // start Backbone history
-
-    App.Views.ModalDisplay.modalDisplayView = new App.Views.ModalDisplay();
-    App.Views.ModalDisplay.modalDisplayView.render();
-
-    App.Collections.Post.postCollection = new App.Collections.Post();
-    //var articleSelector = $("article");
-    //articleSelector.each(function() {
-    //    App.Collections.Post.postCollection.add(new App.Models.Post($(this).data()));
-    //});
-
-    App.Collections.Post.postCollection.fetch({
-        success: function() {
-            App.Views.Posts.poemListView = new App.Views.Posts({collection: App.Collections.Post.postCollection});
-            App.Views.Posts.poemListView.attachToView();
-            alert('Your collection is now ready!');
-        }
-    });
-
-    App.Views.Global.globalView = new App.Views.Global({el: '.page'});
-
-
-    //postCollection.get(112).set({title: "No Longer Bob"});
-});
