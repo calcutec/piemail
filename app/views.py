@@ -9,7 +9,7 @@ from slugify import slugify
 from .forms import SignupForm, LoginForm, EditForm, PostForm, SearchForm, CommentForm
 from .models import User, Post, Comment
 from .emails import follower_notification
-from .utils import OAuthSignIn, pre_upload, ViewData, allowed_file
+from .utils import OAuthSignIn, pre_upload, ViewData, allowed_file, GenericListView
 from PIL import Image
 import json
 from flask.views import MethodView
@@ -19,7 +19,10 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 @app.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('login'))
+    return redirect(url_for('home'))
+
+home_data = ViewData(page_mark="home")
+app.add_url_rule('/home/', view_func=GenericListView.as_view('home', home_data), methods=["GET", ])
 
 
 @app.route('/logout', methods=['GET'])
@@ -197,7 +200,7 @@ class MembersAPI(MethodView):
             profile_data = ViewData("profile", nickname=nickname)
             return render_template(profile_data.template_name, **profile_data.context)
         elif nickname is None:  # Display all members
-            view_data = ViewData('home')
+            view_data = ViewData(page_mark='members')
             return render_template(view_data.template_name, **view_data.context)
         else:  # Display a single member
             profile_data = ViewData(page_mark="profile", nickname=nickname)
@@ -229,25 +232,26 @@ class MembersAPI(MethodView):
                 g.user.about_me = form.about_me.data
                 db.session.add(g.user)
                 db.session.commit()
-                return redirect("/profile/" + g.user.nickname)
-            profile_data = ViewData("profile", nickname=g.user.nickname, form=form)
+                profile_data = ViewData(page_mark="profile", nickname=g.user.nickname, form=form)
+                return render_template(profile_data.template_name, **profile_data.context)
+            profile_data = ViewData(page_mark="profile", nickname=g.user.nickname, form=form)
             return render_template(profile_data.template_name, **profile_data.context)
 
 
 member_api_view = MembersAPI.as_view('members')  # URLS for MEMBER API
 # Read, Update and Destroy a single member
-app.add_url_rule('/profile/<nickname>', view_func=member_api_view, methods=["GET", "POST", "PUT", "DELETE"])
+app.add_url_rule('/members/<nickname>', view_func=member_api_view, methods=["GET", "POST", "PUT", "DELETE"])
 # Read all members
-app.add_url_rule('/profile/', view_func=member_api_view, methods=["GET"])
+app.add_url_rule('/members/', view_func=member_api_view, methods=["GET"])
 # Update a member when JS is turned off)
-app.add_url_rule('/profile/<action>/<nickname>', view_func=member_api_view, methods=["GET"])
+app.add_url_rule('/members/<action>/<nickname>', view_func=member_api_view, methods=["GET"])
 
 
 class PostAPI(MethodView):
     # decorators = [login_required]
 
     def post(self, page_mark=None, action=None, post_id=None):
-        if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'detail']:
+        if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'detail', 'members']:
             flash("That page does not exist.")
             return redirect(url_for('posts', page_mark='portfolio'))
 

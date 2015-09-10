@@ -24,6 +24,9 @@
     {% if page_mark == "login" %}{% include 'assets/forms/login_form.html' %}{% endif %}
     {% if page_mark == "signup" %}{% include 'assets/forms/signup_form.html' %}{% endif %}
     {% if page_mark == "home" %}
+        {% include 'static_text.html' %}
+    {% endif %}
+    {% if page_mark == "members" %}
         {% include 'members.html' %}
     {% endif %}
     {% if page_mark == "portfolio" %}

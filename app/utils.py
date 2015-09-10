@@ -43,6 +43,8 @@ class ViewData(object):
             self.profile_user = User.query.filter_by(nickname=self.nickname).first()
             self.posts = Post.query.filter_by(author=self.profile_user).order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
         elif self.page_mark == 'home':
+            self.assets['header_text'] = "Home Page"
+        elif self.page_mark == 'members':
             self.posts = User.query.all()
             self.assets['header_text'] = "Members on this site"
         elif self.page_mark == 'poetry':
