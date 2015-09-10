@@ -280,7 +280,8 @@ class PostAPI(MethodView):
                     db.session.add(comment)
                     db.session.commit()
                     post = Post.query.get(post_id)
-                    return redirect(url_for('posts', page_mark='detail', slug=post.slug))
+                    detail_data = ViewData(page_mark="detail", slug=post.slug)
+                    return render_template(detail_data.template_name, **detail_data.context)
         elif post_id is None:  # Create a new post
             form = PostForm()
             if form.validate_on_submit():
@@ -295,7 +296,8 @@ class PostAPI(MethodView):
                     response['savedsuccess'] = True
                     return json.dumps(response)
                 else:
-                    return redirect("/detail/" + post.slug)
+                    detail_data = ViewData(page_mark="detail", slug=post.slug)
+                    return render_template(detail_data.template_name, **detail_data.context)
             else:
                 if request.is_xhr:
                     form.errors['iserror'] = True
@@ -316,7 +318,8 @@ class PostAPI(MethodView):
             post = Post.query.get(post_id)
             db.session.delete(post)
             db.session.commit()
-            return redirect(url_for('posts', page_mark='workshop'))
+            detail_data = ViewData(page_mark="workshop")
+            return render_template(detail_data.template_name, **detail_data.context)
         elif action == 'vote':   # Vote on post
             post_id = post_id
             user_id = g.user.id
@@ -324,7 +327,8 @@ class PostAPI(MethodView):
                 abort(404)
             post = Post.query.get_or_404(int(post_id))
             post.vote(user_id=user_id)
-            return redirect(url_for('posts', page_mark='detail', slug=post.slug))
+            detail_data = ViewData(page_mark="detail", slug=post.slug)
+            return render_template(detail_data.template_name, **detail_data.context)
         elif slug is None:    # Read all posts
             if request.is_xhr:
                 posts = Post.query.all()

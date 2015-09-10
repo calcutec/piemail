@@ -24,13 +24,21 @@ App.Models.Post = Backbone.Model.extend({
 
 App.Views.Global = Backbone.View.extend({
     events: {
-        'click #n-workshop': 'loadWorkshopCollection'
+        'click #n-workshop': 'loadWorkshop',
+        'click #n-portfolio': 'loadPortfolio'
     },
-    loadWorkshopCollection: function(e){
+    loadWorkshop: function(e){
         e.preventDefault();
-        alert("Loading workshop...");
+        App.Collections.Post.postCollection.clear_all()
         App.Views.Posts.poemListView.render()
-    }
+    },
+    loadPortfolio: function(e){
+        e.preventDefault();
+        App.Collections.Post.postCollection.clear_all()
+        App.Collections.Post.myPostsCollection = App.Collections.Post.postCollection.byAuthor(14)
+        App.Views.Posts.myPoemListView = new App.Views.Posts({collection: App.Collections.Post.myPostsCollection});
+        App.Views.Posts.myPoemListView.render()
+    },
 });
 
 // Post view
@@ -131,12 +139,12 @@ App.Views.Post = Backbone.View.extend({
 App.Collections.Post = Backbone.Collection.extend({
     url: '/portfolio/',
     parse: function(response){return response.myPoems;},
-    //byAuthor: function (author_id) {
-    //    var filtered = this.filter(function (post) {
-    //        return post.get("author") === author_id;
-    //    });
-    //    return new App.Collections.Post(filtered);
-    //},
+    byAuthor: function (author_id) {
+       var filtered = this.filter(function (post) {
+           return post.get("author") === author_id;
+       });
+       return new App.Collections.Post(filtered);
+    },
     clear_all: function(){
         this.each(function(model){
             model.trigger('removeMe');
@@ -175,7 +183,6 @@ App.Router = Backbone.Router.extend({
         'create': 'create', // http://netbard.com/portfolio/#create
         'edit/:id': 'edit' // http://netbard.com/portfolio/#edit/7
     },
-    // the same as we did for click events, we now define function for each route
     start: function(){
         console.log('now in view for reading poetry');
         App.Views.ModalDisplay.modalDisplayView = new App.Views.ModalDisplay();
@@ -211,7 +218,6 @@ App.Views.ModalDisplay = Backbone.View.extend({
     events: {
         'click #poemModal': 'openModal'
     },
-    //template: '<h1><button type="button" id="open" class="btn btn-info btn-lg">Create Poem</button></h1>',
     openModal: function(e) {
         e.preventDefault();
         var view = new App.Views.ModalView();
@@ -239,11 +245,6 @@ App.Views.ModalDisplay = Backbone.View.extend({
                 wait: true
             });
         });
-    },
-    render: function() {
-        //this.$el.html(this.template);
-        console.log('main rendered');
-        //return this;
     }
 });
 
