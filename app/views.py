@@ -200,7 +200,7 @@ class MembersAPI(MethodView):
             view_data = ViewData('home')
             return render_template(view_data.template_name, **view_data.context)
         else:  # Display a single member
-            profile_data = ViewData("profile", nickname=nickname)
+            profile_data = ViewData(page_mark="profile", nickname=nickname)
             return render_template(profile_data.template_name, **profile_data.context)
 
     @login_required
@@ -269,7 +269,7 @@ class PostAPI(MethodView):
                     db.session.add(comment)
                     db.session.commit()
                     result['savedsuccess'] = True
-                    result['new_comment'] = render_template('comps/detail/comment.html', comment=comment)
+                    result['new_comment'] = render_template('assets/detail/templates/assets/posts/comment.html', comment=comment)
                     return json.dumps(result)
                 form.errors['iserror'] = True
                 return json.dumps(form.errors)
@@ -309,10 +309,8 @@ class PostAPI(MethodView):
         if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'detail']:
             flash("That page does not exist.")
             return redirect(url_for('posts', page_mark='portfolio'))
-        if action == 'create':  # Create a new post
-            form = PostForm()
-            page_mark = 'create'
-            view_data = ViewData(page_mark, form)
+        if request.path == '/detail/create/':  # Create a new post
+            view_data = ViewData(page_mark="create")
             return render_template(view_data.template_name, **view_data.context)
         elif action == 'delete':
             post = Post.query.get(post_id)
@@ -371,7 +369,7 @@ app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["POST", "GET
 app.add_url_rule('/<page_mark>/<int:post_id>', view_func=post_api_view, methods=["GET", "PUT", "DELETE"])
 # Get a single post (NoJS)
 app.add_url_rule('/<page_mark>/<slug>/', view_func=post_api_view, methods=["GET"])
-# Create, Delete, Vote on, Comment on a single post post (NoJS)
+# Delete, Vote on, Comment on a single post post (NoJS)
 app.add_url_rule('/<page_mark>/<action>/<int:post_id>', view_func=post_api_view, methods=["GET", "POST"])
 
 

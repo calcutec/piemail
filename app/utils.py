@@ -1,7 +1,7 @@
 import boto
 from PIL import Image
 from app import app
-from config import POSTS_PER_PAGE, ALLOWED_EXTENSIONS
+from config import ALLOWED_EXTENSIONS
 from forms import SignupForm, EditForm, PostForm, CommentForm, LoginForm
 from rauth import OAuth2Service
 import json
@@ -12,6 +12,72 @@ from flask.views import View
 from flask.ext.login import login_required
 from models import User, Post
 from functools import wraps
+
+
+class ViewData(object):
+    def __init__(self, page_mark, slug=None, nickname=None, page=1, form=None, posts_for_page=200):
+        self.posts_for_page = posts_for_page
+        self.slug = slug
+        self.nickname = nickname
+        self.page = page
+        self.page_mark = page_mark
+        self.template_name = "base_template.html"
+        self.title = page_mark.title()
+        self.page_logo = "img/icons/" + page_mark + ".svg"
+        self.form = form
+        self.profile_user = None
+        self.posts = None
+        self.post = None
+        self.assets = {}
+        self.context = None
+
+        if self.form is None:
+            self.get_form()
+
+        self.get_items()
+
+        self.get_context()
+
+    def get_items(self):
+        if self.page_mark == 'profile':
+            self.profile_user = User.query.filter_by(nickname=self.nickname).first()
+            self.posts = Post.query.filter_by(author=self.profile_user).order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
+        elif self.page_mark == 'home':
+            self.posts = User.query.all()
+            self.assets['header_text'] = "Members on this site"
+        elif self.page_mark == 'poetry':
+            self.posts = Post.query.filter_by(writing_type="featured").order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
+            self.assets['header_text'] = "Poetry Page"
+        elif self.page_mark == 'workshop':
+            self.posts = Post.query.filter_by(writing_type="poem").order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
+            self.assets['header_text'] = "Workshop Page"
+        elif self.page_mark == 'portfolio':
+            self.posts = g.user.posts.order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
+        elif self.page_mark == 'detail':
+            self.post = Post.query.filter(Post.slug == self.slug).first()
+            self.assets['header_text'] = "Poem Details"
+        elif self.page_mark == 'signup':
+            self.assets['header_text'] = "Signup Page"
+        elif self.page_mark == 'create':
+            self.post = Post.query.filter(Post.slug == self.slug).first()
+            self.assets['header_text'] = "Create Page"
+
+    def get_form(self):
+        if self.page_mark == 'signup':
+            self.form = SignupForm()
+        elif self.page_mark == 'login':
+            self.form = LoginForm()
+        elif self.page_mark == 'profile':
+            self.form = EditForm()
+        elif self.page_mark == 'portfolio' or self.page_mark == 'create':
+            self.form = PostForm()
+        elif self.page_mark == 'detail':
+            self.form = CommentForm()
+
+    def get_context(self):
+        self.context = {'post': self.post, 'posts': self.posts, 'title': self.title, 'profile_user': self.profile_user,
+                        'page_logo': self.page_logo, 'page_mark': self.page_mark, 'form': self.form,
+                        'assets': self.assets}
 
 
 def check_expired(func):
@@ -120,89 +186,6 @@ class GenericListView(View):
 
 class LoginRequiredListView(GenericListView):
     decorators = [login_required]
-
-
-class ViewData(object):
-    def __init__(self, page_mark, slug=None, nickname=None, page=1, form=None):
-        self.slug = slug
-        self.nickname = nickname
-        self.page = page
-        self.page_mark = page_mark
-        self.template_name = "base_template.html"
-        self.title = page_mark.title()
-        self.page_logo = "img/icons/" + page_mark + ".svg"
-        self.profile_user = None
-        if form is None:
-            self.form = self.get_form()
-        else:
-            self.form = form
-
-        # Get user for profile page
-        if self.nickname is not None:
-            self.profile_user = User.query.filter_by(nickname=self.nickname).first()
-
-        # Get post or posts as appropriate to the page
-        if self.page_mark is "signup" or page_mark is "login" or page_mark is "index" or page_mark is "create" \
-                or page_mark is "profile" or page_mark is "update":  # No posts shown on signup or login pages
-            self.items = None
-            self.post = None
-        elif slug is not None:  # Get specific post for detail page
-            self.post = self.get_items()
-            self.items = None
-        else:   # Get all posts for all other pages
-            self.items = self.get_items()
-            self.post = None
-
-        self.context = self.get_context()
-
-    def get_items(self):
-        if self.page_mark == 'profile':
-            self.items = \
-                self.profile_user.posts.order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)
-            return self.items
-        elif self.page_mark == 'home':
-            # self.items = Post.query.filter_by(writing_type="op-ed").order_by(Post.timestamp.desc())
-            # return self.items
-            self.items = User.query.all()
-            return self.items
-        elif self.page_mark == 'poetry':
-            self.items = \
-                Post.query.filter_by(writing_type="featured").order_by(Post.timestamp.desc()).paginate(self.page,
-                                                                                               POSTS_PER_PAGE, False)
-            return self.items
-        elif self.page_mark == 'workshop' or self.page_mark == "index":
-            self.items = Post.query.filter_by(writing_type="poem").order_by(Post.timestamp.desc()).paginate(self.page,
-                                                                                                POSTS_PER_PAGE, False)
-            return self.items
-        elif self.page_mark == 'portfolio':
-            self.items = g.user.posts.order_by(Post.timestamp.desc()).paginate(self.page, POSTS_PER_PAGE, False)
-            return self.items
-        elif self.page_mark == 'detail':
-            self.post = Post.query.filter(Post.slug == self.slug).first()
-            return self.post
-        elif self.page_mark == 'create':
-            self.post = Post.query.filter(Post.slug == self.slug).first()
-            return self.post
-
-    def get_form(self):
-        if self.page_mark == 'signup':
-            form = SignupForm()
-        elif self.page_mark == 'login':
-            form = LoginForm()
-        elif self.page_mark == 'profile':
-            form = EditForm()
-        elif self.page_mark == 'portfolio' or self.page_mark == 'create':
-            form = PostForm()
-        elif self.page_mark == 'detail':
-            form = CommentForm()
-        else:
-            form = None
-        return form
-
-    def get_context(self):
-        context = {'post': self.post, 'posts': self.items, 'title': self.title, 'profile_user': self.profile_user,
-                   'page_logo': self.page_logo, 'page_mark': self.page_mark, 'form': self.form}
-        return context
 
 
 class OAuthSignIn(object):

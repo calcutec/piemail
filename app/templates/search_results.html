@@ -3,9 +3,9 @@
 {% block content %}
 
 <h1>Search Results</h1>
-{% include 'comps/flash.html' %}
+{% include 'assets/flash.html' %}
 {% for post in results %}
-    {% include 'comps/post.html' %}
+    {% include 'assets/posts/post.html' %}
 {% endfor %}
 
 {% endblock %}

@@ -1,67 +1,60 @@
 {% extends "base.html" %}
 
 {% block header %}
-    {% if page_mark == "login" %}<h1>Please login or signup</h1>{% endif %}
-    {% if page_mark == "signup" %}<h1>Signup page text placeholder</h1>{% endif %}
-    {% if page_mark == "home" %}<h1>Home page text placeholder</h1>{% endif %}
-    {% if page_mark == "poetry" %}<h1>Poetry page text placeholder</h1>{% endif %}
-    {% if page_mark == "workshop" %}<h1>Workshop page text placeholder</h1>{% endif %}
-    {% if page_mark == "create" %}<h1>Create page text placeholder</h1>{% endif %}
-    {% if page_mark == "detail" %}<h1>Detail page text placeholder</h1>{% endif %}
-    {% if page_mark == "profiles" %}<h1>All poets on this site</h1>{% endif %}
+    <h1>{{ assets.header_text }}</h1>
     {% if page_mark == "portfolio" %}
-    <div id="myPortfolio">
-        <h1><button type="button" id="poemModal" class="btn btn-info btn-lg"><a href="{{ url_for('posts', page_mark=page_mark, action='create', post_id='0') }}">Create Poem</a></button></h1>
-    </div>
+        <div id="myPortfolio">
+            <h1><button type="button" id="poemModal" class="btn btn-info btn-lg"><a href="/detail/create/">Create Poem</a></button></h1>
+        </div>
     {% endif %}
     {% if page_mark == "profile" %}
         {% if profile_user.id == g.user.id %}
-            {% include 'comps/profile/profile_modal.html' %}
+            {% include 'assets/profile/profile_modal.html' %}
         {% elif g.user.is_following(profile_user) %}
             <h1>Click <a href="{{ url_for('members', action='unfollow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to unfollow {{ profile_user.nickname }}</h1>
         {% else %}
              <h1>Click <a href="{{ url_for('members', action='follow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to follow {{ profile_user.nickname }}</h1>
         {% endif %}
-        {% include 'comps/profile/profile_user.html' %}
+        {% include 'assets/profile/profile_user.html' %}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {% include 'comps/flash.html' %}
-    {% if page_mark == "login" %}{% include 'comps/forms/login_form.html' %}{% endif %}
-    {% if page_mark == "signup" %}{% include 'comps/forms/signup_form.html' %}{% endif %}
+    {% include 'flash.html' %}
+    {% if page_mark == "login" %}{% include 'assets/forms/login_form.html' %}{% endif %}
+    {% if page_mark == "signup" %}{% include 'assets/forms/signup_form.html' %}{% endif %}
     {% if page_mark == "home" %}
         {% include 'members.html' %}
     {% endif %}
     {% if page_mark == "portfolio" %}
         <!-- external templates -->
         <script id="postTemplate" type="text/template">
-            {% include 'comps/simplepost.html' %}
+            {% include 'assets/posts/simplepost.html' %}
         </script>
         <script id="formTemplate" type="text/template">
-            {% include 'comps/forms/poem_form.html' %}
+            {% include 'assets/forms/poem_form.html' %}
         </script>
         <div id="poem-list">
-            {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
+            {% for post in posts.items %}{% include 'assets/posts/post.html' %}{% endfor %}
         </div>
     {% endif %}
 
     {% if page_mark == "workshop" or page_mark == "profile" or page_mark == "poetry" %}
-        {% for post in posts.items %}{% include 'comps/post.html' %}{% endfor %}
-        {% include 'comps/postie.html' %}
+        {% for post in posts.items %}{% include 'assets/posts/post.html' %}{% endfor %}
+        {% include 'assets/posts/postie.html' %}
     {% endif %}
 
     {% if page_mark == "detail" %}
-        {% include 'comps/post.html' %}
-        {% include 'comps/forms/comment_form.html' %}
+        {% include 'assets/posts/post.html' %}
+        {% include 'assets/forms/comment_form.html' %}
     {% endif %}
 
     {% if page_mark == "create" %}
-        {% include 'comps/forms/poem_form.html' %}
+        {% include 'assets/forms/poem_form.html' %}
     {% endif %}
 
     {% if page_mark == "update" %}
-        {% include 'comps/forms/profile_form.html' %}
+        {% include 'assets/forms/profile_form.html' %}
     {% endif %}
 {% endblock %}
 
