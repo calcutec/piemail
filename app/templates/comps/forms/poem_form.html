@@ -1,31 +1,23 @@
-<form id="poem-form" class="form-horizontal" action="{{ url_for('posts', page_mark='portfolio') }}" method="post" enctype="multipart/form-data" name="post">
+<form id="poem-form" class="form-horizontal" action="{{ url_for('posts', page_mark='detail') }}" method="post" enctype="multipart/form-data" name="post">
     {{ form.csrf_token }}
-
     <div class="control-group{% if form.header.errors %} error{% endif %}">
         <label class="control-label">Title</label><br>
         {{ form.header(class="form-control") }}
         <span id="error_header" class="help-inline"></span><br>
     </div>
-
-{#    {% if g.user.type == 1 %}#}
-{#    <div class="control-group{% if form.writing_type.errors %} error{% endif %}">#}
-{#        <label class="control-label">Type</label><br>#}
-{#        {{ form.writing_type(class="form-control") }}#}
-{#        <span id=error_writing_type class="help-inline"></span><br>#}
-{#    </div>#}
-{#    {% endif %}#}
-
     <div class="control-group{% if form.body.errors %} error{% endif %}">
         <label class="control-label">Poem</label>
         {{ form.body(class="form-control", id="show-form") }}
         <div id="editable" class="hide"></div>
         <span id="error_post" class="help-inline"></span><br>
     </div>
-{#    <div class="control-group">#}
-{#        <div class="controls">#}
-{#            <input class="btn btn-primary" type="submit" value="Save Changes">#}
-{#        </div>#}
-{#    </div>#}
+    <noscript>
+        <div class="control-group">
+            <div class="controls">
+                <input class="btn btn-primary" type="submit" value="Save Changes">
+            </div>
+        </div>
+    </noscript>
 </form>
 
 <script>

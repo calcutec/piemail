@@ -170,23 +170,23 @@ App.Views.Posts = Backbone.View.extend({ // plural to distinguish as the view fo
 
 // Backbone router
 App.Router = Backbone.Router.extend({
-  routes: { // sets the routes
-    '':         'start', // http://netbard.com/portfolio/
-    'create': 'create', // http://netbard.com/portfolio/#create
-    'edit/:id': 'edit' // http://netbard.com/portfolio/#edit/7
-  },
-  // the same as we did for click events, we now define function for each route
-  start: function(){
-      console.log('now in view for reading poetry');
-  },
-  edit: function(id){
-    console.log('edit route with id: ' + id);
-  },
-  create: function(id){
-    console.log('View for creating poetry rendered');
-    App.Views.ModalDisplay.modalDisplayView = new App.Views.ModalDisplay();
-    App.Views.ModalDisplay.modalDisplayView.render();
-  }
+    routes: { // sets the routes
+        '':         'start', // http://netbard.com/portfolio/
+        'create': 'create', // http://netbard.com/portfolio/#create
+        'edit/:id': 'edit' // http://netbard.com/portfolio/#edit/7
+    },
+    // the same as we did for click events, we now define function for each route
+    start: function(){
+        console.log('now in view for reading poetry');
+        App.Views.ModalDisplay.modalDisplayView = new App.Views.ModalDisplay();
+        App.Views.ModalDisplay.modalDisplayView.render();
+    },
+    edit: function(id){
+        console.log('edit route with id: ' + id);
+    },
+    create: function(id){
+        console.log('View for creating poetry rendered');
+    }
 });
 
 $.fn.serializeObject = function()
@@ -209,10 +209,11 @@ $.fn.serializeObject = function()
 App.Views.ModalDisplay = Backbone.View.extend({
     el: '#myPortfolio',
     events: {
-        'click #open': 'openModal'
+        'click #poemModal': 'openModal'
     },
-    template: '<h1><button type="button" id="open" class="btn btn-info btn-lg">Create Poem</button></h1>',
-    openModal: function() {
+    //template: '<h1><button type="button" id="open" class="btn btn-info btn-lg">Create Poem</button></h1>',
+    openModal: function(e) {
+        e.preventDefault();
         var view = new App.Views.ModalView();
         new Backbone.BootstrapModal({
             content: view,
@@ -240,9 +241,9 @@ App.Views.ModalDisplay = Backbone.View.extend({
         });
     },
     render: function() {
-        this.$el.html(this.template);
+        //this.$el.html(this.template);
         console.log('main rendered');
-        return this;
+        //return this;
     }
 });
 
@@ -270,6 +271,7 @@ App.Views.ModalView = Backbone.View.extend({
             }
         })
     });
+
     App.Collections.Post.postCollection = new App.Collections.Post();
     App.Collections.Post.postCollection.fetch({
         success: function() {
