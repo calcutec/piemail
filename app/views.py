@@ -150,13 +150,9 @@ app.add_url_rule('/callback/<provider>', view_func=login_api_view, methods=["GET
 
 class MembersAPI(MethodView):
     def post(self, nickname=None):
-        if nickname is None:  # Read all members
-            view_data = ViewData('home')
-            return render_template(view_data.template_name, **view_data.context)
-        else:
-            form = EditForm()  # Update Member Data
-            response = self.update_user(form)
-            return response
+        form = EditForm()  # Update Member Data
+        response = self.update_user(form)
+        return response
 
     @login_required
     def get(self, nickname=None, action=None):
@@ -242,7 +238,7 @@ member_api_view = MembersAPI.as_view('members')  # URLS for MEMBER API
 # Read, Update and Destroy a single member
 app.add_url_rule('/profile/<nickname>', view_func=member_api_view, methods=["GET", "POST", "PUT", "DELETE"])
 # Read all members
-app.add_url_rule('/profile/', view_func=member_api_view, methods=["GET", "POST"])
+app.add_url_rule('/profile/', view_func=member_api_view, methods=["GET"])
 # Update a member when JS is turned off)
 app.add_url_rule('/profile/<action>/<nickname>', view_func=member_api_view, methods=["GET"])
 
