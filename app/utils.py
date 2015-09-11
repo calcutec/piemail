@@ -33,33 +33,43 @@ class ViewData(object):
 
         if self.form is None:
             self.get_form()
-
         self.get_items()
-
         self.get_context()
 
     def get_items(self):
         if self.page_mark == 'profile':
             self.profile_user = User.query.filter_by(nickname=self.nickname).first()
-            self.posts = Post.query.filter_by(author=self.profile_user).order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
+            self.posts = Post.query.filter_by(author=self.profile_user)\
+                .order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
+
         elif self.page_mark == 'home':
             self.assets['header_text'] = "Home Page"
+
         elif self.page_mark == 'members':
             self.posts = User.query.all()
             self.assets['header_text'] = "Members on this site"
+
         elif self.page_mark == 'poetry':
-            self.posts = Post.query.filter_by(writing_type="featured").order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
+            self.posts = Post.query.filter_by(writing_type="featured")\
+                .order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
             self.assets['header_text'] = "Poetry Page"
+
         elif self.page_mark == 'workshop':
-            self.posts = Post.query.filter_by(writing_type="poem").order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
+            self.posts = Post.query.filter_by(writing_type="poem")\
+                .order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
             self.assets['header_text'] = "Workshop Page"
+
         elif self.page_mark == 'portfolio':
-            self.posts = g.user.posts.order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
+            self.posts = g.user.posts\
+                .order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
+
         elif self.page_mark == 'detail':
             self.post = Post.query.filter(Post.slug == self.slug).first()
             self.assets['header_text'] = "Poem Details"
+
         elif self.page_mark == 'signup':
             self.assets['header_text'] = "Signup Page"
+
         elif self.page_mark == 'create':
             self.post = Post.query.filter(Post.slug == self.slug).first()
             self.assets['header_text'] = "Create Page"

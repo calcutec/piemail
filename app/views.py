@@ -273,7 +273,7 @@ class PostAPI(MethodView):
                     db.session.add(comment)
                     db.session.commit()
                     result['savedsuccess'] = True
-                    result['new_comment'] = render_template('assets/detail/templates/assets/posts/comment.html', comment=comment)
+                    result['new_comment'] = render_template('assets/posts/comment.html', comment=comment)
                     return json.dumps(result)
                 form.errors['iserror'] = True
                 return json.dumps(form.errors)

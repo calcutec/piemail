@@ -1,0 +1,8 @@
+{% if profile_user.id == g.user.id %}
+    {% include 'assets/profile/profile_modal.html' %}
+{% elif g.user.is_following(profile_user) %}
+    <h1>Click <a href="{{ url_for('members', action='unfollow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to unfollow {{ profile_user.nickname }}</h1>
+{% else %}
+     <h1>Click <a href="{{ url_for('members', action='follow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to follow {{ profile_user.nickname }}</h1>
+{% endif %}
+{% include 'assets/profile/profile_user.html' %}

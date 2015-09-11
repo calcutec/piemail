@@ -2,62 +2,27 @@
 
 {% block header %}
     <h1>{{ assets.header_text }}</h1>
-    {% if page_mark == "portfolio" %}
-        <div id="myPortfolio">
-            <h1><button type="button" id="poemModal" class="btn btn-info btn-lg"><a href="/detail/create/">Create Poem</a></button></h1>
-        </div>
-    {% endif %}
-    {% if page_mark == "profile" %}
-        {% if profile_user.id == g.user.id %}
-            {% include 'assets/profile/profile_modal.html' %}
-        {% elif g.user.is_following(profile_user) %}
-            <h1>Click <a href="{{ url_for('members', action='unfollow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to unfollow {{ profile_user.nickname }}</h1>
-        {% else %}
-             <h1>Click <a href="{{ url_for('members', action='follow', nickname=profile_user.nickname) }}"><strong>here</strong></a> to follow {{ profile_user.nickname }}</h1>
-        {% endif %}
-        {% include 'assets/profile/profile_user.html' %}
-    {% endif %}
+    {% if page_mark == "portfolio" %}{% include 'assets/profile/post_button.html' %}{% endif %}
+    {% if page_mark == "profile" %}{% include 'assets/profile/profile_header.html' %}{% endif %}
 {% endblock %}
 
 {% block content %}
     {% include 'flash.html' %}
-    {% if page_mark == "login" %}{% include 'assets/forms/login_form.html' %}{% endif %}
     {% if page_mark == "signup" %}{% include 'assets/forms/signup_form.html' %}{% endif %}
-    {% if page_mark == "home" %}
-        {% include 'static_text.html' %}
-    {% endif %}
-    {% if page_mark == "members" %}
-        {% include 'members.html' %}
-    {% endif %}
-    {% if page_mark == "portfolio" %}
-        <!-- external templates -->
-        <script id="postTemplate" type="text/template">
-            {% include 'assets/posts/simplepost.html' %}
-        </script>
-        <script id="formTemplate" type="text/template">
-            {% include 'assets/forms/poem_form.html' %}
-        </script>
-        <div id="poem-list">
-            {% for post in posts.items %}{% include 'assets/posts/post.html' %}{% endfor %}
-        </div>
-    {% endif %}
+    {% if page_mark == "login" %}{% include 'assets/forms/login_form.html' %}{% endif %}
+    {% if page_mark == "create" %}{% include 'assets/forms/poem_form.html' %}{% endif %}
+    {% if page_mark == "update" %}{% include 'assets/forms/profile_form.html' %}{% endif %}
 
-    {% if page_mark == "workshop" or page_mark == "profile" or page_mark == "poetry" %}
-        {% for post in posts.items %}{% include 'assets/posts/post.html' %}{% endfor %}
-        {% include 'assets/posts/postie.html' %}
+    {% if page_mark == "home" %}{% include 'static_text.html' %}{% endif %}
+    {% if page_mark == "members" %}{% include 'members.html' %}{% endif %}
+
+    {% if page_mark == "portfolio" or page_mark == "workshop" or page_mark == "profile" or page_mark == "poetry" %}
+        {% include 'post_list.html' %}
     {% endif %}
 
     {% if page_mark == "detail" %}
         {% include 'assets/posts/post.html' %}
         {% include 'assets/forms/comment_form.html' %}
-    {% endif %}
-
-    {% if page_mark == "create" %}
-        {% include 'assets/forms/poem_form.html' %}
-    {% endif %}
-
-    {% if page_mark == "update" %}
-        {% include 'assets/forms/profile_form.html' %}
     {% endif %}
 {% endblock %}
 
