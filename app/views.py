@@ -252,10 +252,8 @@ class PostAPI(MethodView):
 
     def post(self, page_mark=None, action=None, post_id=None):
         if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'detail', 'members']:
-            flash("That page does not exist.")
-            return redirect(url_for('posts', page_mark='portfolio'))
-
-        if action == 'vote':   # Vote on post
+            return not_found_error('Sorry, that page can\'t be found')
+        elif action == 'vote':   # Vote on post
             post_id = post_id
             user_id = g.user.id
             if not post_id:
@@ -308,12 +306,13 @@ class PostAPI(MethodView):
                     return json.dumps(form.errors)
                 else:
                     return form.errors
+        else:
+            return not_found_error('Sorry, that page can\'t be found')
 
     def get(self, page_mark=None, action=None, slug=None, post_id=None):
         if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'detail']:
-            flash("That page does not exist.")
-            return redirect(url_for('posts', page_mark='portfolio'))
-        if request.path == '/detail/create/':  # Create a new post
+            return not_found_error('Sorry, that page can\'t be found')
+        elif request.path == '/detail/create/':  # Create a new post
             view_data = ViewData(page_mark="create")
             return render_template(view_data.template_name, **view_data.context)
         elif action == 'delete':
@@ -331,7 +330,7 @@ class PostAPI(MethodView):
             post.vote(user_id=user_id)
             detail_data = ViewData(page_mark="detail", slug=post.slug)
             return render_template(detail_data.template_name, **detail_data.context)
-        elif slug is None:    # Read all posts
+        elif slug is None and page_mark != 'detail':    # Read all posts
             if request.is_xhr:
                 posts = Post.query.all()
                 return jsonify(myPoems=[i.json_view() for i in posts])
@@ -341,6 +340,8 @@ class PostAPI(MethodView):
         elif slug is not None:       # Read a single post
             detail_data = ViewData("detail", slug=slug)
             return render_template(detail_data.template_name, **detail_data.context)
+        else:
+            return not_found_error('Sorry, that page can\'t be found')
 
     # Update Post
     def put(self, post_id, page_mark=None):
