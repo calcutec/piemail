@@ -160,10 +160,7 @@ class MembersAPI(MethodView):
     @login_required
     def get(self, nickname=None, action=None):
         if action == 'update':
-            form = EditForm()
-            form.nickname.data = g.user.nickname
-            form.about_me.data = g.user.about_me
-            profile_data = ViewData(page_mark="profile", form=form, nickname=nickname)
+            profile_data = ViewData(page_mark="profile", render_form=True, nickname=nickname)
             return render_template(profile_data.template_name, **profile_data.context)
         elif action == 'follow':
             user = User.query.filter_by(nickname=nickname).first()
@@ -359,8 +356,7 @@ class FormsAPI(MethodView):
             post = Post.query.get(post_id)
             db.session.delete(post)
             db.session.commit()
-            detail_data = ViewData(page_mark="poetry")
-            return render_template(detail_data.template_name, **detail_data.context)
+            return redirect(url_for('posts', page_mark='portfolio'))
 
 # urls for Forms API
 forms_api_view = FormsAPI.as_view('forms')
@@ -412,7 +408,7 @@ def inject_static_url():
     if not local_static_url.endswith('/'):
         local_static_url += '/'
     return dict(
-        static_url=local_static_url,
+        static_url=static_url,
         local_static_url=local_static_url
     )
 

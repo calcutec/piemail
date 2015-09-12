@@ -81,6 +81,10 @@ class ViewData(object):
             self.form = LoginForm()
         elif self.page_mark == 'profile':
             self.form = EditForm()
+            self.form.nickname.data = g.user.nickname
+            self.form.about_me.data = g.user.about_me
+            if self.render_form:
+                self.render_form = render_template("assets/forms/profile_form.html", form=self.form)
         elif self.page_mark == 'portfolio' or self.page_mark == 'create':
             if self.render_form:
                 self.form = PostForm()
