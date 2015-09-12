@@ -15,7 +15,7 @@ from functools import wraps
 
 
 class ViewData(object):
-    def __init__(self, page_mark, slug=None, nickname=None, page=1, form=None, posts_for_page=200):
+    def __init__(self, page_mark, slug=None, nickname=None, page=1, form=None, render_form=None, posts_for_page=200):
         self.posts_for_page = posts_for_page
         self.slug = slug
         self.nickname = nickname
@@ -25,13 +25,13 @@ class ViewData(object):
         self.title = page_mark.title()
         self.page_logo = "img/icons/" + page_mark + ".svg"
         self.form = form
+        self.render_form = render_form
         self.profile_user = None
         self.posts = None
         self.post = None
         self.assets = {}
         self.context = None
-
-        if self.form is None:
+        if not self.form:
             self.get_form()
         self.get_items()
         self.get_context()
@@ -82,14 +82,16 @@ class ViewData(object):
         elif self.page_mark == 'profile':
             self.form = EditForm()
         elif self.page_mark == 'portfolio' or self.page_mark == 'create':
-            self.form = PostForm()
+            if self.render_form:
+                self.form = PostForm()
+                self.render_form = render_template("assets/forms/poem_form.html", form=self.form)
         elif self.page_mark == 'detail':
             self.form = CommentForm()
 
     def get_context(self):
         self.context = {'post': self.post, 'posts': self.posts, 'title': self.title, 'profile_user': self.profile_user,
                         'page_logo': self.page_logo, 'page_mark': self.page_mark, 'form': self.form,
-                        'assets': self.assets}
+                        'rendered_form': self.render_form, 'assets': self.assets}
 
 
 def check_expired(func):

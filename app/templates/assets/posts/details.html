@@ -1,7 +1,7 @@
 <ul class="details" style="width:100%">
     {% if g.user.is_authenticated() and post.author.id == g.user.id %}
         <li class="edit-button"><a href="#">Edit</a></li>
-        <li class="delete-button" id="post.id"><a href="{{ url_for('posts', page_mark=page_mark, action='delete', post_id = post.id) }}">Delete</a></li>
+        <li class="delete-button" id="post.id"><a href="{{ url_for('forms', page_mark=page_mark, post_id = post.id) }}">Delete</a></li>
     {% endif %}
 
     {% if g.user.is_authenticated() and post.author.id != g.user.id %}

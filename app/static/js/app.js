@@ -185,8 +185,6 @@ App.Router = Backbone.Router.extend({
     },
     start: function(){
         console.log('now in view for reading poetry');
-        App.Views.ModalDisplay.modalDisplayView = new App.Views.ModalDisplay();
-        App.Views.ModalDisplay.modalDisplayView.render();
     },
     edit: function(id){
         console.log('edit route with id: ' + id);
@@ -216,10 +214,10 @@ $.fn.serializeObject = function()
 App.Views.ModalDisplay = Backbone.View.extend({
     el: '#myPortfolio',
     events: {
-        'click #poemModal': 'openModal'
+        'click #open': 'openModal'
     },
-    openModal: function(e) {
-        e.preventDefault();
+    template: '<h1><button type="button" id="open" class="btn btn-info btn-lg">Create Poem</button></h1>',
+    openModal: function() {
         var view = new App.Views.ModalView();
         new Backbone.BootstrapModal({
             content: view,
@@ -245,7 +243,13 @@ App.Views.ModalDisplay = Backbone.View.extend({
                 wait: true
             });
         });
+    },
+    render: function() {
+        this.$el.html(this.template);
+        console.log('main rendered');
+        return this;
     }
+
 });
 
 App.Views.ModalView = Backbone.View.extend({
@@ -261,6 +265,8 @@ App.Views.ModalView = Backbone.View.extend({
 });
 
     $(document).ready(function() {
+    App.Views.ModalDisplay.modalDisplayView = new App.Views.ModalDisplay();
+    App.Views.ModalDisplay.modalDisplayView.render();
 
     var csrftoken = $('meta[name=csrf-token]').attr('content');
     $(function(){

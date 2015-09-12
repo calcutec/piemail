@@ -1,4 +1,4 @@
-<form id="poem-form" class="form-horizontal" action="{{ url_for('posts', page_mark='detail') }}" method="post" enctype="multipart/form-data" name="post">
+<form id="poem-form" class="form-horizontal" action="{{ url_for('posts', page_mark='portfolio') }}" method="post" enctype="multipart/form-data" name="post">
     {{ form.csrf_token }}
     <div class="control-group{% if form.header.errors %} error{% endif %}">
         <label class="control-label">Title</label><br>

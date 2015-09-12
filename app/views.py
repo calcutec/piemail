@@ -163,7 +163,7 @@ class MembersAPI(MethodView):
             form = EditForm()
             form.nickname.data = g.user.nickname
             form.about_me.data = g.user.about_me
-            profile_data = ViewData("update", form=form)
+            profile_data = ViewData(page_mark="profile", form=form, nickname=nickname)
             return render_template(profile_data.template_name, **profile_data.context)
         elif action == 'follow':
             user = User.query.filter_by(nickname=nickname).first()
@@ -250,101 +250,47 @@ app.add_url_rule('/members/<action>/<nickname>', view_func=member_api_view, meth
 class PostAPI(MethodView):
     # decorators = [login_required]
 
-    def post(self, page_mark=None, action=None, post_id=None):
-        if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'detail', 'members']:
-            return not_found_error('Sorry, that page can\'t be found')
-        elif action == 'vote':   # Vote on post
-            post_id = post_id
-            user_id = g.user.id
-            if not post_id:
-                abort(404)
-            post = Post.query.get_or_404(int(post_id))
-            vote_status = post.vote(user_id=user_id)
-            return jsonify(new_votes=post.votes, vote_status=vote_status)
-        elif action == 'comment':   # Comment on post
-            form = CommentForm()
+    def post(self, page_mark=None):
+        form = PostForm()
+        if form.validate_on_submit():
+            slug = slugify(form.header.data)
+            post = Post(body=form.body.data, timestamp=datetime.utcnow(),
+                        author=g.user, photo=None, thumbnail=None, header=form.header.data,
+                        writing_type=form.writing_type.data, slug=slug)
+            db.session.add(post)
+            db.session.commit()
             if request.is_xhr:
-                if form.validate_on_submit():
-                    result = {'iserror': False}
-                    comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data,
-                                      post_id=post_id)
-                    db.session.add(comment)
-                    db.session.commit()
-                    result['savedsuccess'] = True
-                    result['new_comment'] = render_template('assets/posts/comment.html', comment=comment)
-                    return json.dumps(result)
+                response = post.json_view()
+                response['savedsuccess'] = True
+                return json.dumps(response)
+            else:
+                return redirect(url_for('posts', slug=post.slug))
+        else:
+            if request.is_xhr:
                 form.errors['iserror'] = True
                 return json.dumps(form.errors)
             else:
-                if form.validate_on_submit():
-                    comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data,
-                                      post_id=post_id)
-                    db.session.add(comment)
-                    db.session.commit()
-                    post = Post.query.get(post_id)
-                    detail_data = ViewData(page_mark="detail", slug=post.slug)
-                    return render_template(detail_data.template_name, **detail_data.context)
-        elif post_id is None:  # Create a new post
-            form = PostForm()
-            if form.validate_on_submit():
-                slug = slugify(form.header.data)
-                post = Post(body=form.body.data, timestamp=datetime.utcnow(),
-                            author=g.user, photo=None, thumbnail=None, header=form.header.data,
-                            writing_type=form.writing_type.data, slug=slug)
-                db.session.add(post)
-                db.session.commit()
-                if request.is_xhr:
-                    response = post.json_view()
-                    response['savedsuccess'] = True
-                    return json.dumps(response)
-                else:
-                    detail_data = ViewData(page_mark="detail", slug=post.slug)
-                    return render_template(detail_data.template_name, **detail_data.context)
-            else:
-                if request.is_xhr:
-                    form.errors['iserror'] = True
-                    return json.dumps(form.errors)
-                else:
-                    return form.errors
-        else:
-            return not_found_error('Sorry, that page can\'t be found')
+                detail_data = ViewData(page_mark=page_mark, form=form)
+                return render_template(detail_data.template_name, **detail_data.context)
 
-    def get(self, page_mark=None, action=None, slug=None, post_id=None):
-        if page_mark and page_mark not in ['poetry', 'portfolio', 'workshop', 'create', 'detail']:
-            return not_found_error('Sorry, that page can\'t be found')
-        elif request.path == '/detail/create/':  # Create a new post
-            view_data = ViewData(page_mark="create")
-            return render_template(view_data.template_name, **view_data.context)
-        elif action == 'delete':
-            post = Post.query.get(post_id)
-            db.session.delete(post)
-            db.session.commit()
-            detail_data = ViewData(page_mark="workshop")
-            return render_template(detail_data.template_name, **detail_data.context)
-        elif action == 'vote':   # Vote on post
-            post_id = post_id
-            user_id = g.user.id
-            if not post_id:
-                abort(404)
-            post = Post.query.get_or_404(int(post_id))
-            post.vote(user_id=user_id)
-            detail_data = ViewData(page_mark="detail", slug=post.slug)
-            return render_template(detail_data.template_name, **detail_data.context)
-        elif slug is None and page_mark != 'detail':    # Read all posts
+    def get(self, page_mark=None, slug=None, post_id=None):
+        if slug is None and post_id is None:    # Read all posts
             if request.is_xhr:
                 posts = Post.query.all()
                 return jsonify(myPoems=[i.json_view() for i in posts])
             else:
-                view_data = ViewData(page_mark)
+                view_data = ViewData(page_mark=page_mark)
                 return render_template(view_data.template_name, **view_data.context)
+
         elif slug is not None:       # Read a single post
-            detail_data = ViewData("detail", slug=slug)
+            detail_data = ViewData(page_mark="detail", slug=slug)
             return render_template(detail_data.template_name, **detail_data.context)
-        else:
-            return not_found_error('Sorry, that page can\'t be found')
+
+        elif post_id is not None:
+            pass  # Todo create logic for xhr request for a single poem
 
     # Update Post
-    def put(self, post_id, page_mark=None):
+    def put(self, post_id, ):
         form = PostForm()
         if form.validate_on_submit():
             update_post = Post.query.get(post_id)
@@ -358,7 +304,7 @@ class PostAPI(MethodView):
             return json.dumps(result)
 
     # Delete Post
-    def delete(self, post_id, page_mark=None):
+    def delete(self, post_id):
         post = Post.query.get(post_id)
         db.session.delete(post)
         db.session.commit()
@@ -369,16 +315,92 @@ class PostAPI(MethodView):
 # urls for Post API
 post_api_view = PostAPI.as_view('posts')
 # Create a single post, Read all posts (Restful)
-app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["POST", "GET"])
+app.add_url_rule('/poetry/<page_mark>', view_func=post_api_view, methods=["POST", "GET"])
 # Get, Update or Delete a single post (Restful)
-app.add_url_rule('/<page_mark>/<int:post_id>', view_func=post_api_view, methods=["GET", "PUT", "DELETE"])
-# Get a single post (NoJS)
-app.add_url_rule('/<page_mark>/<slug>/', view_func=post_api_view, methods=["GET"])
-# Delete, Vote on, Comment on a single post post (NoJS)
-app.add_url_rule('/<page_mark>/<action>/<int:post_id>', view_func=post_api_view, methods=["GET", "POST"])
+app.add_url_rule('/poetry/<page_mark>/<int:post_id>', view_func=post_api_view, methods=["GET", "PUT", "DELETE"])
+# Read a single post (Non Restful)
+app.add_url_rule('/poetry/detail/<slug>', view_func=post_api_view, methods=["GET"])
 
 
-# Helper functions
+class FormsAPI(MethodView):
+    def post(self, page_mark=None, post_id=None):
+        form = CommentForm()
+        if request.is_xhr:
+            if form.validate_on_submit():
+                result = {'iserror': False}
+                comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data,
+                                  post_id=post_id)
+                db.session.add(comment)
+                db.session.commit()
+                result['savedsuccess'] = True
+                result['new_comment'] = render_template('assets/posts/comment.html', comment=comment)
+                return json.dumps(result)
+            form.errors['iserror'] = True
+            return json.dumps(form.errors)
+        else:
+            if form.validate_on_submit():
+                comment = Comment(created_at=datetime.utcnow(), user_id=g.user.id, body=form.comment.data,
+                                  post_id=post_id)
+                db.session.add(comment)
+                db.session.commit()
+                post = Post.query.get(post_id)
+                return redirect(url_for('posts', slug=post.slug))
+            else:
+                post = Post.query.get(post_id)
+                detail_data = ViewData(page_mark=page_mark, slug=post.slug, form=form)
+                return render_template(detail_data.template_name, **detail_data.context)
+
+    def get(self, page_mark=None, post_id=None):
+        if post_id is None:    # Add post form to page
+            view_data = ViewData(page_mark=page_mark, render_form=True)
+            return render_template(view_data.template_name, **view_data.context)
+
+        else:  # Delete post
+            post = Post.query.get(post_id)
+            db.session.delete(post)
+            db.session.commit()
+            detail_data = ViewData(page_mark="poetry")
+            return render_template(detail_data.template_name, **detail_data.context)
+
+# urls for Forms API
+forms_api_view = FormsAPI.as_view('forms')
+# Process form for a Comment
+app.add_url_rule('/forms/<page_mark>/<int:post_id>', view_func=forms_api_view, methods=["POST"])
+# Delete a single post (NoJS)
+app.add_url_rule('/forms/<page_mark>/<int:post_id>', view_func=forms_api_view, methods=["GET"])
+#  Show form to create a single post (NoJS)
+app.add_url_rule('/forms/<page_mark>/', view_func=forms_api_view, methods=["GET"])
+
+
+class ActionsAPI(MethodView):
+        def post(self, page_mark=None, action=None, post_id=None):
+            if action == 'vote':   # Vote on post
+                post_id = post_id
+                user_id = g.user.id
+                if not post_id:
+                    abort(404)
+                post = Post.query.get_or_404(int(post_id))
+                vote_status = post.vote(user_id=user_id)
+                return jsonify(new_votes=post.votes, vote_status=vote_status)
+
+        def get(self, page_mark=None, post_id=None):
+            post_id = post_id  # Vote on Post
+            user_id = g.user.id
+            if not post_id:
+                abort(404)
+            post = Post.query.get_or_404(int(post_id))
+            post.vote(user_id=user_id)
+            detail_data = ViewData(page_mark=page_mark, slug=post.slug)
+            return render_template(detail_data.template_name, **detail_data.context)
+
+forms_api_view = FormsAPI.as_view('forms')
+app.add_url_rule('/<page_mark>/<action>/<int:post_id>', view_func=post_api_view, methods=["POST"])
+app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["GET"])
+
+
+# Helper functions #
+
+
 @app.context_processor
 def inject_static_url():
     local_static_url = app.static_url_path
@@ -390,7 +412,7 @@ def inject_static_url():
     if not local_static_url.endswith('/'):
         local_static_url += '/'
     return dict(
-        static_url=static_url,
+        static_url=local_static_url,
         local_static_url=local_static_url
     )
 

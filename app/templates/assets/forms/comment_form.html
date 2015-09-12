@@ -1,6 +1,6 @@
 <div id="comments">
     <h2>Comments</h2>
-    <form id="comment-form" class="form-horizontal" action="{{ url_for('posts', page_mark='detail', action='comment', post_id=post.id) }}" method="post"
+    <form id="comment-form" class="form-horizontal" action="{{ url_for('forms', page_mark='detail', post_id=post.id) }}" method="post"
           enctype="multipart/form-data" name="comment">
         {{ form.hidden_tag() }}
         <div class="form-group">
