@@ -348,11 +348,11 @@ class FormsAPI(MethodView):
                 return render_template(detail_data.template_name, **detail_data.context)
 
     def get(self, page_mark=None, post_id=None):
-        if post_id is None:    # Add post form to page
+        if post_id is None:    # Add post form to a page (NoJS)
             view_data = ViewData(page_mark=page_mark, render_form=True)
             return render_template(view_data.template_name, **view_data.context)
 
-        else:  # Delete post
+        else:  # Delete post (NoJS)
             post = Post.query.get(post_id)
             db.session.delete(post)
             db.session.commit()
@@ -364,7 +364,7 @@ forms_api_view = FormsAPI.as_view('forms')
 app.add_url_rule('/forms/<page_mark>/<int:post_id>', view_func=forms_api_view, methods=["POST"])
 # Delete a single post (NoJS)
 app.add_url_rule('/forms/<page_mark>/<int:post_id>', view_func=forms_api_view, methods=["GET"])
-#  Show form to create a single post (NoJS)
+# Add post form to a page
 app.add_url_rule('/forms/<page_mark>/', view_func=forms_api_view, methods=["GET"])
 
 
@@ -379,19 +379,18 @@ class ActionsAPI(MethodView):
                 vote_status = post.vote(user_id=user_id)
                 return jsonify(new_votes=post.votes, vote_status=vote_status)
 
-        def get(self, page_mark=None, post_id=None):
-            post_id = post_id  # Vote on Post
-            user_id = g.user.id
-            if not post_id:
-                abort(404)
-            post = Post.query.get_or_404(int(post_id))
-            post.vote(user_id=user_id)
-            detail_data = ViewData(page_mark=page_mark, slug=post.slug)
-            return render_template(detail_data.template_name, **detail_data.context)
+        def get(self, page_mark=None, action=None, post_id=None):
+            if action == 'vote':   # Vote on post
+                post_id = post_id
+                user_id = g.user.id
+                if not post_id:
+                    abort(404)
+                post = Post.query.get_or_404(int(post_id))
+                post.vote(user_id=user_id)
+                return redirect(url_for('posts', page_mark=page_mark))
 
-forms_api_view = FormsAPI.as_view('forms')
-app.add_url_rule('/<page_mark>/<action>/<int:post_id>', view_func=post_api_view, methods=["POST"])
-app.add_url_rule('/<page_mark>/', view_func=post_api_view, methods=["GET"])
+actions_api_view = ActionsAPI.as_view('actions')
+app.add_url_rule('/actions/<page_mark>/<action>/<int:post_id>', view_func=actions_api_view, methods=["POST", "GET"])
 
 
 # Helper functions #
