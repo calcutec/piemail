@@ -96,7 +96,7 @@ class LoginAPI(MethodView):
         else:
             if form.validate_on_submit():
                 returninguser = self.login_returning_user(form)
-                return redirect('/profile/' + returninguser.nickname)
+                return redirect(url_for('members', nickname=returninguser.nickname))
             else:
                 login_data = ViewData("login", form=form)
                 return render_template(login_data.template_name, **login_data.context)
@@ -288,7 +288,7 @@ class PostAPI(MethodView):
             pass  # Todo create logic for xhr request for a single poem
 
     # Update Post
-    def put(self, post_id, ):
+    def put(self, post_id ):
         form = PostForm()
         if form.validate_on_submit():
             update_post = Post.query.get(post_id)
@@ -315,7 +315,7 @@ post_api_view = PostAPI.as_view('posts')
 # Create a single post, Read all posts (Restful)
 app.add_url_rule('/poetry/<page_mark>', view_func=post_api_view, methods=["POST", "GET"])
 # Get, Update or Delete a single post (Restful)
-app.add_url_rule('/poetry/<page_mark>/<int:post_id>', view_func=post_api_view, methods=["GET", "PUT", "DELETE"])
+app.add_url_rule('/poetry/portfolio/<int:post_id>', view_func=post_api_view, methods=["GET", "PUT", "DELETE"])
 # Read a single post (Non Restful)
 app.add_url_rule('/poetry/detail/<slug>', view_func=post_api_view, methods=["GET"])
 

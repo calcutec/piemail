@@ -96,8 +96,8 @@ class ViewData(object):
             if self.render_form:  # Only render profile form on request, using button to show on noJS profile page
                 rendered_form = render_template("assets/forms/profile_form.html", form=self.form)
         elif self.page_mark == 'portfolio':
+            self.form = PostForm()
             if self.render_form: # Only render post form on request, using button to show on noJS portfolio page
-                self.form = PostForm()
                 rendered_form = render_template("assets/forms/poem_form.html", form=self.form)
         elif self.page_mark == 'detail':
             self.form = CommentForm()

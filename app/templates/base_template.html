@@ -3,11 +3,14 @@
 {% block header %}
     <h1>{{ assets.header_text }}</h1>
     {% if page_mark == "portfolio" %}
-        {% if rendered_form %}
-            <h1>Write your poem below!</h1>
-        {% else %}
-            {% include 'assets/posts/post_button.html' %}
-        {% endif %}
+        <noscript>
+            {% if rendered_form %}
+                <h1>Write your poem below!</h1>
+            {% else %}
+                {% include 'assets/posts/post_button.html' %}
+            {% endif %}
+        </noscript>
+        <div id="myPortfolio"></div>
     {% endif %}
     {% if page_mark == "profile" %}
         {% if rendered_form %}
@@ -25,6 +28,10 @@
 
     {% if page_mark == "home" %}{% include 'static_text.html' %}{% endif %}
     {% if page_mark == "members" %}{% include 'members.html' %}{% endif %}
+
+    {% if page_mark == "portfolio" %}
+        <script id="formTemplate" type="text/template">{% include 'assets/forms/poem_form.html' %}</script>
+    {% endif %}
 
     {% if page_mark == "portfolio" or page_mark == "workshop" or page_mark == "profile" or page_mark == "poetry" %}
         {% include 'assets/posts/post_list.html' %}

@@ -7,7 +7,7 @@ window.App = {
 
 // Post model
 App.Models.Post = Backbone.Model.extend({
-  urlRoot: '/detail/',
+  urlRoot: '/poetry/portfolio',
   defaults: {
     header: '',
     body: ''
@@ -22,24 +22,24 @@ App.Models.Post = Backbone.Model.extend({
   }
 });
 
-App.Views.Global = Backbone.View.extend({
-    events: {
-        'click #n-workshop': 'loadWorkshop',
-        'click #n-portfolio': 'loadPortfolio'
-    },
-    loadWorkshop: function(e){
-        e.preventDefault();
-        App.Collections.Post.postCollection.clear_all()
-        App.Views.Posts.poemListView.render()
-    },
-    loadPortfolio: function(e){
-        e.preventDefault();
-        App.Collections.Post.postCollection.clear_all()
-        App.Collections.Post.myPostsCollection = App.Collections.Post.postCollection.byAuthor(14)
-        App.Views.Posts.myPoemListView = new App.Views.Posts({collection: App.Collections.Post.myPostsCollection});
-        App.Views.Posts.myPoemListView.render()
-    },
-});
+//App.Views.Global = Backbone.View.extend({
+//    events: {
+//        'click #n-workshop': 'loadWorkshop',
+//        'click #n-portfolio': 'loadPortfolio'
+//    },
+//    loadWorkshop: function(e){
+//        e.preventDefault();
+//        App.Collections.Post.postCollection.clear_all()
+//        App.Views.Posts.poemListView.render()
+//    },
+//    loadPortfolio: function(e){
+//        e.preventDefault();
+//        App.Collections.Post.postCollection.clear_all()
+//        App.Collections.Post.myPostsCollection = App.Collections.Post.postCollection.byAuthor(14)
+//        App.Views.Posts.myPoemListView = new App.Views.Posts({collection: App.Collections.Post.myPostsCollection});
+//        App.Views.Posts.myPoemListView.render()
+//    },
+//});
 
 // Post view
 App.Views.Post = Backbone.View.extend({
@@ -137,7 +137,7 @@ App.Views.Post = Backbone.View.extend({
 
 // Post collection
 App.Collections.Post = Backbone.Collection.extend({
-    url: '/portfolio/',
+    url: '/poetry/portfolio',
     parse: function(response){return response.myPoems;},
     byAuthor: function (author_id) {
        var filtered = this.filter(function (post) {
@@ -179,9 +179,9 @@ App.Views.Posts = Backbone.View.extend({ // plural to distinguish as the view fo
 // Backbone router
 App.Router = Backbone.Router.extend({
     routes: { // sets the routes
-        '':         'start', // http://netbard.com/portfolio/
-        'create': 'create', // http://netbard.com/portfolio/#create
-        'edit/:id': 'edit' // http://netbard.com/portfolio/#edit/7
+        '':         'start', // http://netbard.com/poetry/portfolio/
+        'create': 'create', // http://netbard.com/poetry/portfolio/#create
+        'edit/:id': 'edit' // http://netbard.com/poetry/portfolio/#edit/7
     },
     start: function(){
         console.log('now in view for reading poetry');
@@ -286,7 +286,7 @@ App.Views.ModalView = Backbone.View.extend({
             App.Views.Posts.poemListView.attachToView();
         }
     });
-    App.Views.Global.globalView = new App.Views.Global({el: '.page'});
+    //App.Views.Global.globalView = new App.Views.Global({el: '.page'});
     new App.Router();
     Backbone.history.start(); // start Backbone history
 });
