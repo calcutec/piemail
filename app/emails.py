@@ -23,7 +23,7 @@ def follower_notification(followed, follower):
     send_email("[burtonblog] %s is now following you!" % follower.nickname,
                ADMINS[0],
                [followed.email],
-               render_template("assets/follower/templates/assets/profile/follower_email.txt",
+               render_template("assets/profile/follower_email.txt",
                                user=followed, follower=follower),
-               render_template("assets/follower/templates/assets/profile/follower_email.html",
+               render_template("assets/profile/follower_email.html",
                                user=followed, follower=follower))

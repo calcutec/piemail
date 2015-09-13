@@ -169,28 +169,29 @@ class MembersAPI(MethodView):
                 return redirect(url_for('home'))
             if user == g.user:
                 flash('You can\'t follow yourself!')
-                return redirect(url_for('members', nickname=nickname))
+                return redirect(redirect_url())
             u = g.user.follow(user)
             if u is None:
                 flash('Cannot follow %s.' % nickname)
-                return redirect(url_for('members', nickname=nickname))
+                return redirect(redirect_url())
             db.session.add(u)
             db.session.commit()
             flash('You are now following %s.' % nickname)
             follower_notification(user, g.user)
-            return redirect(url_for('members', nickname=nickname))
+            profile_data = ViewData("profile", nickname=nickname)
+            return render_template(profile_data.template_name, **profile_data.context)
         elif action == 'unfollow':
             user = User.query.filter_by(nickname=nickname).first()
             if user is None:
                 flash('User %s not found.' % nickname)
-                return redirect(url_for('home'))
+                return redirect(redirect_url())
             if user == g.user:
                 flash('You can\'t unfollow yourself!')
-                return redirect(url_for('members', nickname=nickname))
+                return redirect(redirect_url())
             u = g.user.unfollow(user)
             if u is None:
                 flash('Cannot unfollow %s.' % nickname)
-                return redirect(url_for('members', nickname=nickname))
+                return redirect(redirect_url())
             db.session.add(u)
             db.session.commit()
             flash('You have stopped following %s.' % nickname)
@@ -261,7 +262,7 @@ class PostAPI(MethodView):
                 response['savedsuccess'] = True
                 return json.dumps(response)
             else:
-                return redirect(url_for('posts', slug=post.slug))
+                return redirect(url_for('posts', page_mark='portfolio'))
         else:
             if request.is_xhr:
                 form.errors['iserror'] = True
@@ -356,7 +357,10 @@ class FormsAPI(MethodView):
             post = Post.query.get(post_id)
             db.session.delete(post)
             db.session.commit()
-            return redirect(url_for('posts', page_mark='portfolio'))
+            if str(request.referrer).split('/')[-2] != 'detail':
+                return redirect(redirect_url())
+            else:
+                return redirect(url_for('posts', page_mark='portfolio'))
 
 # urls for Forms API
 forms_api_view = FormsAPI.as_view('forms')
@@ -387,13 +391,19 @@ class ActionsAPI(MethodView):
                     abort(404)
                 post = Post.query.get_or_404(int(post_id))
                 post.vote(user_id=user_id)
-                return redirect(url_for('posts', page_mark=page_mark))
+                return redirect(redirect_url())
 
 actions_api_view = ActionsAPI.as_view('actions')
 app.add_url_rule('/actions/<page_mark>/<action>/<int:post_id>', view_func=actions_api_view, methods=["POST", "GET"])
 
 
 # Helper functions #
+
+
+def redirect_url(default='home'):
+    return request.args.get('next') or \
+           request.referrer or \
+           url_for(default)
 
 
 @app.context_processor

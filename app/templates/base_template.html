@@ -2,9 +2,19 @@
 
 {% block header %}
     <h1>{{ assets.header_text }}</h1>
-    {% if page_mark == "portfolio" %}{% include 'assets/posts/post_button.html' %}{% endif %}
+    {% if page_mark == "portfolio" %}
+        {% if rendered_form %}
+            <h1>Write your poem below!</h1>
+        {% else %}
+            {% include 'assets/posts/post_button.html' %}
+        {% endif %}
+    {% endif %}
     {% if page_mark == "profile" %}
-        {% if not rendered_form %}{% include 'assets/profile/profile_header.html' %}{% endif %}
+        {% if rendered_form %}
+            <h1>Update your profile below!</h1>
+        {% else %}
+            {% include 'assets/profile/profile_header.html' %}
+        {% endif %}
     {% endif %}
     {{ rendered_form|safe if rendered_form != None }}
 {% endblock %}
