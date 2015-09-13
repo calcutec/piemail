@@ -16,16 +16,12 @@
             {% include 'assets/profile/profile_header.html' %}
         {% endif %}
     {% endif %}
-    {{ rendered_form|safe if rendered_form != None }}
+    {{ assets.header_form|safe if assets.header_form != None }}
 {% endblock %}
 
 {% block content %}
     {% include 'flash.html' %}
-    {{ body_form|safe }}
-    {% if page_mark == "signup" %}{% include 'assets/forms/signup_form.html' %}{% endif %}
-    {% if page_mark == "login" %}{% include 'assets/forms/login_form.html' %}{% endif %}
-    {% if page_mark == "create" %}{% include 'assets/forms/poem_form.html' %}{% endif %}
-    {% if page_mark == "update" %}{% include 'assets/forms/profile_form.html' %}{% endif %}
+    {{ assets.body_form|safe if assets.body_form != None }}
 
     {% if page_mark == "home" %}{% include 'static_text.html' %}{% endif %}
     {% if page_mark == "members" %}{% include 'members.html' %}{% endif %}
@@ -36,7 +32,6 @@
 
     {% if page_mark == "detail" %}
         {% include 'assets/posts/post.html' %}
-        {% include 'assets/forms/comment_form.html' %}
     {% endif %}
 {% endblock %}
 

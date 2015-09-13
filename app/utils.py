@@ -31,8 +31,7 @@ class ViewData(object):
         self.post = None
         self.assets = {}
         self.context = None
-        if not self.form:
-            self.get_form()
+
         self.get_items()
         self.get_context()
 
@@ -41,6 +40,8 @@ class ViewData(object):
             self.profile_user = User.query.filter_by(nickname=self.nickname).first()
             self.posts = Post.query.filter_by(author=self.profile_user)\
                 .order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
+            if not self.form:
+                self.assets['header_form'] = self.get_form()
 
         elif self.page_mark == 'home':
             self.assets['header_text'] = "Home Page"
@@ -62,40 +63,51 @@ class ViewData(object):
         elif self.page_mark == 'portfolio':
             self.posts = g.user.posts\
                 .order_by(Post.timestamp.desc()).paginate(self.page, self.posts_for_page, False)
+            if not self.form:
+                self.assets['header_form'] = self.get_form()
 
         elif self.page_mark == 'detail':
             self.post = Post.query.filter(Post.slug == self.slug).first()
             self.assets['header_text'] = "Poem Details"
+            if not self.form:
+                self.assets['body_form'] = self.get_form()
 
         elif self.page_mark == 'signup':
             self.assets['header_text'] = "Signup Page"
+            if not self.form:
+                self.assets['body_form'] = self.get_form()
 
-        elif self.page_mark == 'create':
-            self.post = Post.query.filter(Post.slug == self.slug).first()
-            self.assets['header_text'] = "Create Page"
+        elif self.page_mark == 'login':
+            if not self.form:
+                self.assets['body_form'] = self.get_form()
 
     def get_form(self):
+        rendered_form = None
         if self.page_mark == 'signup':
             self.form = SignupForm()
+            rendered_form = render_template("assets/forms/signup_form.html", form=self.form)
         elif self.page_mark == 'login':
             self.form = LoginForm()
+            rendered_form = render_template("assets/forms/login_form.html", form=self.form)
         elif self.page_mark == 'profile':
             self.form = EditForm()
             self.form.nickname.data = g.user.nickname
             self.form.about_me.data = g.user.about_me
-            if self.render_form:
-                self.render_form = render_template("assets/forms/profile_form.html", form=self.form)
-        elif self.page_mark == 'portfolio' or self.page_mark == 'create':
-            if self.render_form:
+            if self.render_form:  # Only render profile form on request, using button to show on noJS profile page
+                rendered_form = render_template("assets/forms/profile_form.html", form=self.form)
+        elif self.page_mark == 'portfolio':
+            if self.render_form: # Only render post form on request, using button to show on noJS portfolio page
                 self.form = PostForm()
-                self.render_form = render_template("assets/forms/poem_form.html", form=self.form)
+                rendered_form = render_template("assets/forms/poem_form.html", form=self.form)
         elif self.page_mark == 'detail':
             self.form = CommentForm()
+            rendered_form = render_template("assets/forms/comment_form.html", form=self.form)
+        return rendered_form
 
     def get_context(self):
         self.context = {'post': self.post, 'posts': self.posts, 'title': self.title, 'profile_user': self.profile_user,
                         'page_logo': self.page_logo, 'page_mark': self.page_mark, 'form': self.form,
-                        'rendered_form': self.render_form, 'assets': self.assets}
+                        'assets': self.assets}
 
 
 def check_expired(func):
