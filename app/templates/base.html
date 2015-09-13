@@ -13,34 +13,32 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
 		<!-- Favicon -->
-		<link rel="shortcut icon" href="{{ local_static_url }}img/icons/favicon.ico" type="image/x-icon">
-        <link rel="icon" href="{{ local_static_url }}img/icons/favicon.ico" type="image/x-icon">
+		<link rel="shortcut icon" href="{{ static_url }}img/icons/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="{{ static_url }}img/icons/favicon.ico" type="image/x-icon">
 
 
 		<!-- CSS -->
-            <link rel="stylesheet" href="{{ local_static_url }}css/bootstrap.min.css" />
+            <link rel="stylesheet" href="{{ static_url }}css/bootstrap.min.css" />
             <link rel="stylesheet" type="text/css" media="all" href="{{ local_static_url }}css/layout.css" />
             <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cabin:400,500,600,700,400italic,500italic,600italic,700italic' data-noprefix />
             <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-            <link rel="stylesheet" type="text/css" href="{{ local_static_url }}css/bootstrap3-wysihtml5.min.css" />
+            <link rel="stylesheet" type="text/css" href="{{ static_url }}css/bootstrap3-wysihtml5.min.css" />
 
 
 		<!-- JS -->
-            <script src="{{ local_static_url }}js/_libs/backbone/underscore.js"></script>
-            <script src="{{ local_static_url }}js/_libs/jquery/jquery.min.js"></script>
-            <script src="{{ local_static_url }}js/_libs/jquery/jquery-migrate-1.2.1.min.js"></script>
-            <script src="{{ local_static_url }}js/_libs/prefixfree.min.js"></script>
-            <script src="{{ local_static_url }}js/_libs/bootstrap/bootstrap.min.js"></script>
-            <script src="{{ local_static_url }}js/_libs/bootstrap/bootstrap3-wysihtml5.all.min.js"></script>
-            <script src="{{ local_static_url }}js/_libs/moment.min.js"></script>
-            <script src="{{ local_static_url }}js/_libs/backbone/backbone.js"></script>
-            <script src="{{ local_static_url }}js/_libs/backbone/backbone-forms.js"></script>
-            <script src="{{ local_static_url }}js/_libs/backbone/backbone.bootstrap-modal.js"></script>
+            <script src="{{ static_url }}js/_libs/backbone/underscore.js"></script>
+            <script src="{{ static_url }}js/_libs/jquery/jquery.min.js"></script>
+            <script src="{{ static_url }}js/_libs/jquery/jquery-migrate-1.2.1.min.js"></script>
+            <script src="{{ static_url }}js/_libs/prefixfree.min.js"></script>
+            <script src="{{ static_url }}js/_libs/bootstrap/bootstrap.min.js"></script>
+            <script src="{{ static_url }}js/_libs/bootstrap/bootstrap3-wysihtml5.all.min.js"></script>
+            <script src="{{ static_url }}js/_libs/moment.min.js"></script>
+            <script src="{{ static_url }}js/_libs/backbone/backbone.js"></script>
+            <script src="{{ static_url }}js/_libs/backbone/backbone-forms.js"></script>
+            <script src="{{ static_url }}js/_libs/backbone/backbone.bootstrap-modal.js"></script>
 	</head>
 	<body>
 	<div class="page">
-		<div class="logo"></div>
-
 		<div class="login">
 			<ul>
                 {% if not g.user.is_authenticated() %}
@@ -56,22 +54,40 @@
 				{% endif %}
 			</ul>
 		</div>
+        <div class="logo"></div>
 
 		<nav>
-			<ul>
-                {% if g.user.is_authenticated() %}
-                    <li class="n-members"><a href="{{ url_for('members') }}">Members</a></li>
-                    <li class="n-poetry"><a href="{{ url_for('posts', page_mark = 'poetry') }}">Featured</a></li>
-                    <li class="n-workshop"><a id="n-workshop" href="{{ url_for('posts', page_mark = 'workshop') }}">Workshop</a></li>
-                    <li class="n-portfolio"><a id="n-portfolio" href="{{ url_for('posts', page_mark = 'portfolio') }}">Portfolio</a></li>
-				{% endif %}
-			</ul>
+            <div class="navcontainer">
+                <ul>
+                    <li><a href="#">Poetry</a>
+                        <ul>
+                            {% if g.user.is_authenticated() %}
+                                <li class="n-members"><a href="{{ url_for('members') }}">Members</a></li>
+                                <li class="n-poetry"><a href="{{ url_for('posts', page_mark = 'poetry') }}">Featured</a></li>
+                                <li class="n-workshop"><a id="n-workshop" href="{{ url_for('posts', page_mark = 'workshop') }}">Workshop</a></li>
+                                <li class="n-portfolio"><a id="n-portfolio" href="{{ url_for('posts', page_mark = 'portfolio') }}">Portfolio</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="navcontainer">
+                <ul>
+                    <li><a href="#">Techie</a>
+                        <ul>
+                            <li><a href="#">TBD</a></li>
+                            <li><a href="#">TBD</a></li>
+                            <li><a href="#">TBD</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
 		</nav>
 
 		<div id="content">
 			<header id="magic-header">
                 <div class="icon">
-                    <img src="{{ local_static_url }}{{ page_logo }}" alt="{{ page_logo }}"/>
+                    <img src="{{ static_url }}{{ page_logo }}" alt="{{ page_logo }}"/>
                 </div>
 				{% block header %}<h1>Create, discuss, and share poetry</h1>{% endblock %}
 			</header>
@@ -94,10 +110,10 @@
 
 				<section class="social">
 					<h3>Social clubs</h3>
-					<p><a href="/" title="Netbard on Twitter"><img src="{{ local_static_url }}img/icons/Twitter.svg" alt="Netbard on Twitter" /> Twitter</a></p>
-					<p><a href="/"><img src="{{ local_static_url }}img/icons/Facebook.svg" alt="Netbard on Facebook" /> Facebook</a></p>
-					<p><a href="/"><img src="{{ local_static_url }}img/icons/Instagram.svg" alt="Netbard on Instagram" /> Instagram</a></p>
-					<p><a href="/" title="Netbard on Flickr"><img src="{{ local_static_url }}img/icons/Flickr.svg" alt="Netbard on Flickr" /> Flickr</a></p>
+					<p><a href="/" title="Netbard on Twitter"><img src="{{ static_url }}img/icons/Twitter.svg" alt="Netbard on Twitter" /> Twitter</a></p>
+					<p><a href="/"><img src="{{ static_url }}img/icons/Facebook.svg" alt="Netbard on Facebook" /> Facebook</a></p>
+					<p><a href="/"><img src="{{ static_url }}img/icons/Instagram.svg" alt="Netbard on Instagram" /> Instagram</a></p>
+					<p><a href="/" title="Netbard on Flickr"><img src="{{ static_url }}img/icons/Flickr.svg" alt="Netbard on Flickr" /> Flickr</a></p>
 				</section>
 
 				<section class="contact">

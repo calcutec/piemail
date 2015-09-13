@@ -10,6 +10,7 @@
                 {% include 'assets/posts/post_button.html' %}
             {% endif %}
         </noscript>
+        <script id="formTemplate" type="text/template">{% include 'assets/forms/poem_form.html' %}</script>
         <div id="myPortfolio"></div>
     {% endif %}
     {% if page_mark == "profile" %}
@@ -29,12 +30,11 @@
     {% if page_mark == "home" %}{% include 'static_text.html' %}{% endif %}
     {% if page_mark == "members" %}{% include 'members.html' %}{% endif %}
 
-    {% if page_mark == "portfolio" %}
-        <script id="formTemplate" type="text/template">{% include 'assets/forms/poem_form.html' %}</script>
-    {% endif %}
-
     {% if page_mark == "portfolio" or page_mark == "workshop" or page_mark == "profile" or page_mark == "poetry" %}
-        {% include 'assets/posts/post_list.html' %}
+        <div id="poem-list">
+            {% for post in posts.items %}{% include 'assets/posts/post.html' %}{% endfor %}
+        </div>
+        <noscript>{% include 'assets/posts/postie.html' %}</noscript>
     {% endif %}
 
     {% if page_mark == "detail" %}

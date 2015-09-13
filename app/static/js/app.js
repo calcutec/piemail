@@ -22,24 +22,24 @@ App.Models.Post = Backbone.Model.extend({
   }
 });
 
-//App.Views.Global = Backbone.View.extend({
-//    events: {
-//        'click #n-workshop': 'loadWorkshop',
-//        'click #n-portfolio': 'loadPortfolio'
-//    },
-//    loadWorkshop: function(e){
-//        e.preventDefault();
-//        App.Collections.Post.postCollection.clear_all()
-//        App.Views.Posts.poemListView.render()
-//    },
-//    loadPortfolio: function(e){
-//        e.preventDefault();
-//        App.Collections.Post.postCollection.clear_all()
-//        App.Collections.Post.myPostsCollection = App.Collections.Post.postCollection.byAuthor(14)
-//        App.Views.Posts.myPoemListView = new App.Views.Posts({collection: App.Collections.Post.myPostsCollection});
-//        App.Views.Posts.myPoemListView.render()
-//    },
-//});
+App.Views.Global = Backbone.View.extend({
+    events: {
+        'click #n-workshop': 'loadWorkshop',
+        'click #n-portfolio': 'loadPortfolio'
+    },
+    loadWorkshop: function(e){
+        e.preventDefault();
+        App.Collections.Post.postCollection.clear_all()
+        App.Views.Posts.poemListView.render()
+    },
+    loadPortfolio: function(e){
+        e.preventDefault();
+        App.Collections.Post.postCollection.clear_all()
+        App.Collections.Post.myPostsCollection = App.Collections.Post.postCollection.byAuthor(14)
+        App.Views.Posts.myPoemListView = new App.Views.Posts({collection: App.Collections.Post.myPostsCollection});
+        App.Views.Posts.myPoemListView.render()
+    },
+});
 
 // Post view
 App.Views.Post = Backbone.View.extend({
@@ -286,7 +286,7 @@ App.Views.ModalView = Backbone.View.extend({
             App.Views.Posts.poemListView.attachToView();
         }
     });
-    //App.Views.Global.globalView = new App.Views.Global({el: '.page'});
+    App.Views.Global.globalView = new App.Views.Global({el: '.page'});
     new App.Router();
     Backbone.history.start(); // start Backbone history
 });
