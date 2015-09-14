@@ -78,6 +78,7 @@ class ViewData(object):
                 self.assets['body_form'] = self.get_form()
 
         elif self.page_mark == 'login':
+            self.assets['header_text'] = "Login Page"
             if not self.form:
                 self.assets['body_form'] = self.get_form()
 
