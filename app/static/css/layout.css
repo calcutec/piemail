@@ -238,26 +238,55 @@ article li {
     border-right: none;
 }
 
+nav {
+	text-align: center;
+}
+
 nav ul {
 	list-style-type: none;
 	font-size: 0.875rem;
 	line-height: 1;
-	width: 100%;
 }
 
-nav a {
+.navcontainer ul {
+    display: inline-block;
+	margin: 0;
+	padding: 0;
+    width: 10rem;
+    vertical-align: top;
+}
+
+.navcontainer a {
 	display: block;
-	margin: 0 0.5rem;
+	font-weight: bold;
+    margin: 0 0.5rem;
 	padding: 0.5rem 0;
 	letter-spacing: 0.15rem;
 }
+
+.navcontainer a:hover {
+	background-color: #369;
+	color: #FFF;
+}
+
+.navcontainer li li a {
+	padding: 3px 3px 3px 0;
+	font-weight: normal;
+}
+
+
+.nav-header {
+    border-bottom: 2px solid cornflowerblue;
+    margin-bottom: 10px;
+}
+
 
 /*selected states*/
 #poetry .n-poetry a,
 #workshop .n-workshop a,
 #portfolio .n-portfolio a {
 	color: #000;
-	border-bottom: 2px solid #E1B200;
+	/*border-bottom: 2px solid #E1B200;*/
 }
 
 #home .n-home a,
@@ -266,19 +295,6 @@ nav a {
 	color: #000;
     border-bottom: 1px solid #E1B200;
 }
-
-/*posts*/
-/*.checkbox-details {*/
-	/*display: inline-block;*/
-	/*box-sizing: border-box;*/
-	/*vertical-align: top;*/
-	/*color: #aaa;*/
-	/*padding: 0 2rem 0 0;*/
-	/*margin: 0 2rem 0 0;*/
-    /*text-align:center;*/
-/*}*/
-
-
 
 .details {
 	list-style: none;
@@ -405,17 +421,9 @@ header {
 	height: 4rem;
     min-width: 190px;
     display: block;
+    width: 100%;
 	}
 
-nav {
-	text-align: left;
-}
-
-
-/*nav li {*/
-	/*display: inline-block;*/
-    /*max-width: 25%;*/
-/*}*/
 
 /*Work*/
 
@@ -713,27 +721,6 @@ input.submit {
 		text-align: left;
 	}
 
-	.logo {
-		float: left;
-		background-position: 0 0 ;
-		width: 30%;
-        min-width: 190px;
-	}
-
-	nav {
-		/*margin: 1 0 0 30%;*/
-		padding: 0.3rem 0 0 0;
-		text-align: right;
-	}
-
-    nav ul {
-  	    font-size: 1rem;
-  	}
-
-	nav a {
-  		letter-spacing: 0.2rem;
-	}
-
 	header {
 		min-height: 4rem;
 		}
@@ -808,22 +795,12 @@ input.submit {
 		text-align: left;
 	}
 
-	nav li {
-		display: block;
-		margin: 0.75rem 0;
-	}
-
-	nav a {
-		padding: 0;
-		margin: 0;
-	}
-
 	/*selected states*/
     #poetry .n-poetry a,
     #workshop .n-workshop a,
 	#portfolio .n-portfolio a {
 	    color: #000;
-        border-bottom: None;
+        /*border-bottom: None;*/
 	}
 
     #poetry .n-poetry a:before,
@@ -1024,41 +1001,4 @@ input.submit {
 .pull-right img {
 	margin-top: 1rem;
 	max-height: 130px;
-}
-
-.navcontainer {
-    display:inline-block;
-}
-
-.navcontainer ul {
-	margin: 0;
-	padding: 0;
-	list-style-type: none;
-}
-
-.navcontainer a {
-	display: block;
-	color: #FFF;
-	background-color: #036;
-	width: 9em;
-	padding: 3px 12px 3px 8px;
-	text-decoration: none;
-	border-bottom: 1px solid #fff;
-	font-weight: bold;
-}
-
-.navcontainer a:hover {
-	background-color: #369;
-	color: #FFF;
-}
-
-.navcontainer li li a {
-	display: block;
-	color: #FFF;
-	background-color: #69C;
-	width: 9em;
-	padding: 3px 3px 3px 17px;
-	text-decoration: none;
-	border-bottom: 1px solid #fff;
-	font-weight: normal;
 }

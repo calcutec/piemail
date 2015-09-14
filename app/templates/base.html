@@ -59,7 +59,7 @@
 		<nav>
             <div class="navcontainer">
                 <ul>
-                    <li><a href="#">Poetry</a>
+                    <li><a class="nav-header" href="#">Poetry</a>
                         <ul>
                             {% if g.user.is_authenticated() %}
                                 <li class="n-members"><a href="{{ url_for('members') }}">Members</a></li>
@@ -70,10 +70,8 @@
                         </ul>
                     </li>
                 </ul>
-            </div>
-            <div class="navcontainer">
                 <ul>
-                    <li><a href="#">Techie</a>
+                    <li class="nav-header">Tech Stuff</li>
                         <ul>
                             <li><a href="#">TBD</a></li>
                             <li><a href="#">TBD</a></li>
