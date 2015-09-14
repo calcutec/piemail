@@ -271,6 +271,7 @@ class PostAPI(MethodView):
                 detail_data = ViewData(page_mark=page_mark, form=form)
                 return render_template(detail_data.template_name, **detail_data.context)
 
+    @login_required
     def get(self, page_mark=None, slug=None, post_id=None):
         if slug is None and post_id is None:    # Read all posts
             if request.is_xhr:

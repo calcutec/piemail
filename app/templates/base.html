@@ -43,13 +43,10 @@
 			<ul>
                 {% if not g.user.is_authenticated() %}
                     <li class="n-login"><a href="{{ url_for('login') }}">Login</a></li>
-                    <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
                 {% endif %}
                 {% if g.user.is_authenticated() %}
                     <li class="n-user-id">Hi&nbsp;{{ g.user.nickname }}!</li>
-                    <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
                     <li class="n-logout"><a href="{{ url_for('logout') }}">Logout</a></li>
-                    <li class="n-profile"><a href="{{ url_for('members', nickname=g.user.nickname) }}">Profile</a></li>
                     <li id="user-type" class="hide">{{ g.user.type }}</li>
 				{% endif %}
 			</ul>
@@ -58,26 +55,15 @@
 
 		<nav>
             <div class="navcontainer">
-                <ul>
-                    <li><a class="nav-header" href="#">Poetry</a>
-                        <ul>
-                            {% if g.user.is_authenticated() %}
-                                <li class="n-members"><a href="{{ url_for('members') }}">Members</a></li>
-                                <li class="n-poetry"><a href="{{ url_for('posts', page_mark = 'poetry') }}">Featured</a></li>
-                                <li class="n-workshop"><a id="n-workshop" href="{{ url_for('posts', page_mark = 'workshop') }}">Workshop</a></li>
-                                <li class="n-portfolio"><a id="n-portfolio" href="{{ url_for('posts', page_mark = 'portfolio') }}">Portfolio</a></li>
-                            {% endif %}
-                        </ul>
-                    </li>
+                <ul><span>Pages</span>
+                    <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
+                    <li class="n-members"><a href="{{ url_for('members') }}">Members</a></li>
+                    <li class="n-profile"><a href="{{ url_for('members', nickname=g.user.nickname) }}">Profile</a></li>
                 </ul>
-                <ul>
-                    <li class="nav-header">Tech Stuff</li>
-                        <ul>
-                            <li><a href="#">TBD</a></li>
-                            <li><a href="#">TBD</a></li>
-                            <li><a href="#">TBD</a></li>
-                        </ul>
-                    </li>
+                <ul><span>Poetry</span>
+                    <li class="n-poetry"><a href="{{ url_for('posts', page_mark = 'poetry') }}">Featured</a></li>
+                    <li class="n-workshop"><a id="n-workshop" href="{{ url_for('posts', page_mark = 'workshop') }}">Workshop</a></li>
+                    <li class="n-portfolio"><a id="n-portfolio" href="{{ url_for('posts', page_mark = 'portfolio') }}">Portfolio</a></li>
                 </ul>
             </div>
 		</nav>

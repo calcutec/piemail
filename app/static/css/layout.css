@@ -243,57 +243,38 @@ nav {
 }
 
 nav ul {
-	list-style-type: none;
-	font-size: 0.875rem;
-	line-height: 1;
-}
-
-.navcontainer ul {
     display: inline-block;
-	margin: 0;
-	padding: 0;
-    width: 10rem;
+	margin: 0 1.5rem 1rem 0;
+    width: auto;
+	list-style-type: none;
     vertical-align: top;
 }
 
-.navcontainer a {
-	display: block;
-	font-weight: bold;
-    margin: 0 0.5rem;
-	padding: 0.5rem 0;
-	letter-spacing: 0.15rem;
+nav ul span{
+    text-transform: uppercase;
+	letter-spacing: 0.2rem;
+    font-size: 1rem;
+    text-decoration: underline;
 }
 
-.navcontainer a:hover {
-	background-color: #369;
-	color: #FFF;
+.navcontainer {
+	margin: 1rem 0 0 0;
 }
 
-.navcontainer li li a {
+.navcontainer li a {
 	padding: 3px 3px 3px 0;
-	font-weight: normal;
 }
-
-
-.nav-header {
-    border-bottom: 2px solid cornflowerblue;
-    margin-bottom: 10px;
-}
-
 
 /*selected states*/
 #poetry .n-poetry a,
 #workshop .n-workshop a,
-#portfolio .n-portfolio a {
-	color: #000;
-	/*border-bottom: 2px solid #E1B200;*/
-}
-
+#portfolio .n-portfolio a,
 #home .n-home a,
+#members .n-members a,
 #login .n-login a,
 #profile .n-profile a {
 	color: #000;
-    border-bottom: 1px solid #E1B200;
+	border-bottom: 2px solid #E1B200;
 }
 
 .details {
@@ -737,13 +718,13 @@ input.submit {
 		margin: 0 auto;
 	}
 
+    nav ul {
+	    margin: 0 3rem 1rem 0;
+    }
+
 	#side .social .contact {
 		margin: 0.25% 0;
 	}
-
-	/*#side .contact {*/
-		/*margin: 0 0 0 2.5%;*/
-	/*}*/
 
 	.hc:after {
 	   content: "";
@@ -795,26 +776,14 @@ input.submit {
 		text-align: left;
 	}
 
-	/*selected states*/
-    #poetry .n-poetry a,
-    #workshop .n-workshop a,
-	#portfolio .n-portfolio a {
-	    color: #000;
-        /*border-bottom: None;*/
-	}
+    nav ul {
+	    margin: 0 0 1rem 0;
+    }
 
-    #poetry .n-poetry a:before,
-    #workshop .n-workshop a:before,
-    #portfolio .n-portfolio a:before {
-		position: absolute;
-		left: -1.5rem;
-        margin-top: 5px;
-		content: "";
-		width: 10px;
-		height: 10px;
-		box-sizing: border-box;
-		border: 4px solid #E4BA1C;
-	}
+    nav ul li {
+	    margin-left: 1rem;
+    }
+
 
 	header {
 		padding: 1rem 0 2rem 0;
