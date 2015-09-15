@@ -82,6 +82,11 @@ class ViewData(object):
             if not self.form:
                 self.assets['body_form'] = self.get_form()
 
+        elif self.page_mark == 'phonegap':
+            self.assets['header_text'] = "PhoneGap Page"
+            self.template_name = "index.html"
+
+
     def get_form(self):
         rendered_form = None
         if self.page_mark == 'signup':

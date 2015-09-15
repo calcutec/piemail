@@ -21,6 +21,10 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 def index():
     return redirect(url_for('home'))
 
+phonegap_data = ViewData(page_mark="phonegap")
+app.add_url_rule('/phonegap/', view_func=GenericListView.as_view('phonegap', phonegap_data), methods=["GET", ])
+
+
 home_data = ViewData(page_mark="home")
 app.add_url_rule('/home/', view_func=GenericListView.as_view('home', home_data), methods=["GET", ])
 
