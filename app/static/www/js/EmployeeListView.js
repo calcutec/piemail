@@ -1,4 +1,8 @@
 var EmployeeShortView = Backbone.View.extend({
+    tagName:'li',
+
+    className:'table-view-cell media',
+
     initialize: function () {
 
     },
