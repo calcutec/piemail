@@ -1,25 +1,30 @@
-var HomeView = function (service) {
+var HomeView = Backbone.View.extend({
 
-    var employeeListView;
+    initialize: function () {
+        this.employees = new EmployeeCollection();
+        this.listView = new EmployeeListView({collection: this.employees});
+    },
 
-    this.initialize = function() {
-        this.$el = $('<div/>');
-        this.$el.on('keyup', '.search-key', this.findByName);
-        employeeListView = new EmployeeListView();
-        this.render();
-    };
-
-    this.render = function() {
+    render: function () {
         this.$el.html(this.template());
-        $('.content', this.$el).html(employeeListView.$el);
+        $('.content', this.el).append(this.listView.render().el);
         return this;
-    };
+    }
 
-    this.findByName = function() {
-        service.findByName($('.search-key').val()).done(function(employees) {
-            employeeListView.setEmployees(employees);
-        });
-    };
-
-    this.initialize();
-}
+    //events: {
+    //    "keyup .search-key":    "search",
+    //    "keypress .search-key": "onkeypress"
+    //},
+    //
+    //search: function (event) {
+    //    var key = $('.search-key').val();
+    //    console.log(key);
+    //    this.employees.fetch({reset: true, data: {name: key}});
+    //},
+    //
+    //onkeypress: function (event) {
+    //    if (event.keyCode === 13) { // enter key pressed
+    //        event.preventDefault();
+    //    }
+    //}
+});
