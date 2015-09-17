@@ -31,14 +31,25 @@
         },
 
         employeeDetails: function (id) {
-            var employee = new Employee({id: id});
-            employee.fetch({
-                success: function (data) {
-                    // Note that we could also 'recycle' the same instance of EmployeeFullView
-                    // instead of creating new instances
-                    slider.slidePage(new EmployeeView({model: data}).render().$el);
-                }
+            var service = new EmployeeService();
+            slider = new PageSlider($('body'));
+            service.findById(parseInt(id)).done(function(data) {
+                var employee = new Employee(data);
+                var newEmployeeView = new EmployeeView({model:employee})
+                var pageData = newEmployeeView.render()
+                slider.slidePage(pageData.$el);
             });
+
+            //var employee = new Employee({id: id});
+            //employee.fetch({
+            //    success: function (data) {
+            //        // Note that we could also 'recycle' the same instance of EmployeeFullView
+            //        // instead of creating new instances
+            //        slider.slidePage(new EmployeeView({model: data}).render().$el);
+            //    }
+            //});
+
+
         }
 
     });
