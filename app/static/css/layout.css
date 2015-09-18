@@ -239,15 +239,15 @@ article li {
 }
 
 nav {
-	text-align: center;
+    text-align: center;
+	margin: 1rem 0 0 0;
 }
 
 nav ul {
     display: inline-block;
-	margin: 0 1.5rem 1rem 0;
-    width: auto;
 	list-style-type: none;
-    vertical-align: top;
+    width: 30%;
+
 }
 
 nav ul span{
@@ -255,14 +255,6 @@ nav ul span{
 	letter-spacing: 0.2rem;
     font-size: 1rem;
     text-decoration: underline;
-}
-
-.navcontainer {
-	margin: 1rem 0 0 0;
-}
-
-.navcontainer li a {
-	padding: 3px 3px 3px 0;
 }
 
 /*selected states*/
@@ -376,10 +368,11 @@ article,section,nav,header,footer,figure,figcaption {
 
 body {
 	padding: 2rem 8%;
+	min-width: 320px;
 }
 
 .page {
-	max-width: 40rem;
+	max-width: 50rem;
 	margin: 0 auto;
 }
 
@@ -626,15 +619,6 @@ input.submit {
 	/*padding: 1.5rem 0 0 0;*/
     background: no-repeat 0 0.5em;
     font-size: 0.875rem;
-	border-top: 1px solid #ddd;
-}
-
-#side section:first-child {
-  border-top: none;
-}
-
-#side section:last-child {
-  border-bottom: none;
 }
 
 #side section.social {
@@ -754,7 +738,7 @@ input.submit {
 	}
 
 	#content {
-		margin: 0 22% 0 0;
+		margin: 0 17% 0 0;
 		padding: 0 0 0 2rem;
 	}
 
@@ -772,12 +756,13 @@ input.submit {
 	}
 
 	nav {
-		top: 15em;
+		top: 12em;
 		text-align: left;
 	}
 
     nav ul {
 	    margin: 0 0 1rem 0;
+        display: block;
     }
 
 
@@ -823,7 +808,7 @@ input.submit {
 
 	#contact #side {
 		float: right;
-		width: 30%;
+		width: 34%;
 	}
 
     /*Work Section*/
@@ -835,7 +820,7 @@ input.submit {
 
 	#main {
 		float: left;
-		width: 75%;
+		width: 80%;
 	}
 
 	.posted {
@@ -844,7 +829,8 @@ input.submit {
 
 	#side {
 		float: right;
-		width: 18%;
+		width: 17%;
+        margin-top: 4rem;
 		line-height: 1.6;
 	}
 

@@ -27,7 +27,7 @@
     {% include 'flash.html' %}
     {{ assets.body_form|safe if assets.body_form != None }}
 
-    {% if page_mark == "home" %}{% include 'static_text.html' %}{% endif %}
+    {% if page_mark == "home" %}{% include 'home.html' %}{% endif %}
     {% if page_mark == "members" %}{% include 'members.html' %}{% endif %}
 
     {% if page_mark == "portfolio" or page_mark == "workshop" or page_mark == "profile" or page_mark == "poetry" %}

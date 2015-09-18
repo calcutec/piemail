@@ -54,22 +54,20 @@
         <div class="logo"></div>
 
 		<nav>
-            <div class="navcontainer">
-                <ul><span>Pages</span>
-                    <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
-                    <li class="n-members"><a href="{{ url_for('members') }}">Members</a></li>
-                    <li class="n-profile"><a href="{{ url_for('members', nickname=g.user.nickname) }}">Profile</a></li>
-                </ul>
-                <ul><span>Poetry</span>
-                    <li class="n-poetry"><a href="{{ url_for('posts', page_mark = 'poetry') }}">Featured</a></li>
-                    <li class="n-workshop"><a id="n-workshop" href="{{ url_for('posts', page_mark = 'workshop') }}">Workshop</a></li>
-                    <li class="n-portfolio"><a id="n-portfolio" href="{{ url_for('posts', page_mark = 'portfolio') }}">Portfolio</a></li>
-                </ul>
-            </div>
+            <ul><span>Pages</span>
+                <li class="n-home"><a href="{{ url_for('home') }}">Home</a></li>
+                <li class="n-members"><a href="{{ url_for('members') }}">Members</a></li>
+                <li class="n-profile"><a href="{{ url_for('members', nickname=g.user.nickname) }}">Profile</a></li>
+            </ul>
+            <ul><span>Poetry</span>
+                <li class="n-poetry"><a href="{{ url_for('posts', page_mark = 'poetry') }}">Featured</a></li>
+                <li class="n-workshop"><a id="n-workshop" href="{{ url_for('posts', page_mark = 'workshop') }}">Workshop</a></li>
+                <li class="n-portfolio"><a id="n-portfolio" href="{{ url_for('posts', page_mark = 'portfolio') }}">Portfolio</a></li>
+            </ul>
 		</nav>
 
 		<div id="content">
-			<header id="magic-header">
+			<header>
                 <div class="icon">
                     <img src="{{ static_url }}{{ page_logo }}" alt="{{ page_logo }}"/>
                 </div>
@@ -81,16 +79,16 @@
 			</div> <!-- /main -->
 
     		<div id="side">
-				<section>
-                    <div class="archives">
-                        <h3>Recent Poems</h3>
-                            <h4><span> 4.06.15</span> <a href="/" title="Go and read Troika #6: My Turn to be Poorly">My Turn to be Poorly</a></h4>
-                            <h4><span> 4.03.15</span> <a href="/" title="Go and read A Taste of the Track">A Taste of the Track</a></h4>
-                            <h4><span> 4.02.15</span> <a href="/" title="Go and read Troika #5: New Gaze">New Gaze</a></h4>
-                            <h4><span>3.25.15</span> <a href="/" title="Go and read Sufjan Stevens – Carrie &amp; Lowell: album stream">My Test Poems</a></h4>
-                            <h4><span>2.19.15</span> <a href="/" title="Go and read Troika #4: Light Music">Light Music</a></h4>
-                    </div>
-				</section>
+{#				<section>#}
+{#                    <div class="archives">#}
+{#                        <h3>Recent Poems</h3>#}
+{#                            <h4><span> 4.06.15</span> <a href="/" title="Go and read Troika #6: My Turn to be Poorly">My Turn to be Poorly</a></h4>#}
+{#                            <h4><span> 4.03.15</span> <a href="/" title="Go and read A Taste of the Track">A Taste of the Track</a></h4>#}
+{#                            <h4><span> 4.02.15</span> <a href="/" title="Go and read Troika #5: New Gaze">New Gaze</a></h4>#}
+{#                            <h4><span>3.25.15</span> <a href="/" title="Go and read Sufjan Stevens – Carrie &amp; Lowell: album stream">My Test Poems</a></h4>#}
+{#                            <h4><span>2.19.15</span> <a href="/" title="Go and read Troika #4: Light Music">Light Music</a></h4>#}
+{#                    </div>#}
+{#				</section>#}
 
 				<section class="social">
 					<h3>Social clubs</h3>

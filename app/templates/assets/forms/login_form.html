@@ -15,10 +15,10 @@
                     <li><a href="{{ url_for('login', get_provider='twitter') }}" class="btn btn-primary"><i class="fa fa-twitter fa-lg"></i>&nbsp; Twitter Login</a></li>
                     <li><a href="{{ url_for('login', get_provider='google') }}" class="btn btn-info"><i class="fa fa-google-plus fa-lg"></i>&nbsp; Google Login</a></li>
                 </ul>
-                <div class="form-group">
-                    <label for="rememember-me-auto" style="font-weight: normal;">Keep me logged in</label>
-                    <input type="checkbox" class="" id="remember-me-auto" value="1" title="checkbox">
-                </div>
+{#                <div class="form-group">#}
+{#                    <label for="rememember-me-auto" style="font-weight: normal;">Keep me logged in</label>#}
+{#                    <input type="checkbox" class="" id="remember-me-auto" value="1" title="checkbox">#}
+{#                </div>#}
             </div>
             <div class="span5 login-btns">
                 <h3>Email Login</h3>
@@ -40,10 +40,10 @@
                         {% endfor %}
                         <span id="error_password" class="help-inline" style="color:red"></span>
                     </div>
-                    <div class="form-group">
-                        <label style="font-weight: normal;">Keep me logged in</label>
-                        <input type="checkbox" class="" id="remember-me-manual" value="1" title="checkbox">
-                    </div>
+{#                    <div class="form-group">#}
+{#                        <label style="font-weight: normal;">Keep me logged in</label>#}
+{#                        <input type="checkbox" class="" id="remember-me-manual" value="1" title="checkbox">#}
+{#                    </div>#}
                     <button class="btn btn-info" id="login-form-submit" type="submit">Login</button>
                 </form>
 {#                <a href="/password-recovery" id="forgot-your-password" style="font-weight: normal">Forgot your Password?</a>#}
