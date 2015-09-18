@@ -3,119 +3,117 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <link href="{{ local_static_url }}www/assets/css/ratchet.css" rel="stylesheet">
-    <link href="{{ local_static_url }}www/assets/css/styles.css" rel="stylesheet">
-    <link href="{{ local_static_url }}www/assets/css/pageslider.css" rel="stylesheet">
+    <link href="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/css/ratchet.css" rel="stylesheet">
+    <link href="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/css/styles.css" rel="stylesheet">
+    <link href="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/css/pageslider.css" rel="stylesheet">
 </head>
 <body>
-
-{% raw %}
-<script id="home-tpl" type="text/template">
-    <header class="bar bar-nav">
-        <h1 class="title">Directory</h1>
-    </header>
-    <div class="bar bar-standard bar-header-secondary">
-        <input class='search-key' type="search"/>
-    </div>
-    <div class="content"></div>
-</script>
-
-<script id="employee-short-tpl" type="text/template">
-        <a class="seeEmployee" href="#employees/{{ id }}">
-            <img class="media-object pull-left" src="/static/www/assets/pics/{{pic}}">
-            <div class="media-body">
-                {{firstName}} {{lastName}}
-                <p>{{title}}</p>
+        {% raw %}
+        <script id="home-tpl" type="text/template">
+            <header class="bar bar-nav">
+                <h1 class="title">Directory</h1>
+            </header>
+            <div class="bar bar-standard bar-header-secondary">
+                <input class='search-key' type="search"/>
             </div>
-        </a>
-</script>
+            <div class="content"></div>
+        </script>
 
-<script id="employee-list-tpl" type="text/template">
-    {{#each this}}
-    <li class="table-view-cell media">
-        <a href="#employees/{{ id }}">
-            <img class="media-object pull-left" src="/static/www/assets/pics/{{pic}}">
-            <div class="media-body">
-                {{firstName}} {{lastName}}
-                <p>{{title}}</p>
-            </div>
-        </a>
-    </li>
-    {{/each}}
-</script>
-
-<script id="employee-tpl" type="text/template">
-    <header class="bar bar-nav">
-        <a class="btn btn-link btn-nav pull-left" href="#">
-            <span class="icon icon-left-nav"></span>
-        </a>
-        <h1 class="title">Employee</h1>
-    </header>
-    <div class="content">
-        <div class="card">
-            <ul class="table-view">
-                <li class="table-view-cell media">
-                    <img class="media-object pull-left" src="/static/www/assets/pics/{{pic}}">
+        <script id="employee-short-tpl" type="text/template">
+                <a class="seeEmployee" href="#employees/{{ id }}">
+                    <img class="media-object pull-left" src="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/pics/{{pic}}">
                     <div class="media-body">
-                        {{ firstName }} {{ lastName }}
-                        <p>{{ title }}</p>
+                        {{firstName}} {{lastName}}
+                        <p>{{title}}</p>
                     </div>
-                </li>
-                <li class="table-view-cell media">
-                    <a href="tel:{{ officePhone }}" class="push-right">
-                        <span class="media-object pull-left icon icon-call"></span>
-                        <div class="media-body">
-                            Call Office
-                            <p>{{ officePhone }}</p>
-                        </div>
-                    </a>
-                </li>
-                <li class="table-view-cell media">
-                    <a href="tel:{{ cellPhone }}" class="push-right">
-                        <span class="media-object pull-left icon icon-call"></span>
-                        <div class="media-body">
-                            Call Cell
-                            <p>{{ cellPhone }}</p>
-                        </div>
-                    </a>
-                </li>
-                <li class="table-view-cell media">
-                    <a href="sms:{{ cellPhone }}" class="push-right">
-                        <span class="media-object pull-left icon icon-sms"></span>
-                        <div class="media-body">
-                            SMS
-                            <p>{{ cellPhone }}</p>
-                        </div>
-                    </a>
-                </li>
-                <li class="table-view-cell media">
-                    <a href="mailto:{{ email }}" class="push-right">
-                        <span class="media-object pull-left icon icon-mail"></span>
-                        <div class="media-body">
-                            Email
-                            <p>{{ email }}</p>
-                        </div>
-                    </a>
-                </li>
+                </a>
+        </script>
 
-            </ul>
-        </div>
-    </div>
-</script>
-{% endraw %}
-{#Missing from the project; Purpose?#}
-{#<script src="{{ local_static_url }}www/js/cordova.js"></script>#}
-<script src="{{ local_static_url }}www/lib/fastclick.js"></script>
-<script src="{{ local_static_url }}www/lib/handlebars.js"></script>
-<script src="{{ local_static_url }}www/lib/jquery.js"></script>
-<script src="{{ local_static_url }}www/lib/underscore.js"></script>
-<script src="{{ local_static_url }}www/lib/backbone.js"></script>
-<script src="{{ local_static_url }}www/lib/pageslider.js"></script>
-<script src="{{ local_static_url }}www/js/models.js"></script>
-<script src="{{ local_static_url }}www/js/HomeView.js"></script>
-<script src="{{ local_static_url }}www/js/EmployeeListView.js"></script>
-<script src="{{ local_static_url }}www/js/EmployeeView.js"></script>
-<script src="{{ local_static_url }}www/js/services/localstorage/EmployeeService.js"></script>
-<script src="{{ local_static_url }}www/js/app.js"></script>
-</body>
+        <script id="employee-list-tpl" type="text/template">
+            {{#each this}}
+            <li class="table-view-cell media">
+                <a href="#employees/{{ id }}">
+                    <img class="media-object pull-left" src="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/pics/{{pic}}">
+                    <div class="media-body">
+                        {{firstName}} {{lastName}}
+                        <p>{{title}}</p>
+                    </div>
+                </a>
+            </li>
+            {{/each}}
+        </script>
+
+        <script id="employee-tpl" type="text/template">
+            <header class="bar bar-nav">
+                <a class="btn btn-link btn-nav pull-left" href="#">
+                    <span class="icon icon-left-nav"></span>
+                </a>
+                <h1 class="title">Employee</h1>
+            </header>
+            <div class="content">
+                <div class="card">
+                    <ul class="table-view">
+                        <li class="table-view-cell media">
+                            <img class="media-object pull-left" src="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/pics/{{pic}}">
+                            <div class="media-body">
+                                {{ firstName }} {{ lastName }}
+                                <p>{{ title }}</p>
+                            </div>
+                        </li>
+                        <li class="table-view-cell media">
+                            <a href="tel:{{ officePhone }}" class="push-right">
+                                <span class="media-object pull-left icon icon-call"></span>
+                                <div class="media-body">
+                                    Call Office
+                                    <p>{{ officePhone }}</p>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="table-view-cell media">
+                            <a href="tel:{{ cellPhone }}" class="push-right">
+                                <span class="media-object pull-left icon icon-call"></span>
+                                <div class="media-body">
+                                    Call Cell
+                                    <p>{{ cellPhone }}</p>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="table-view-cell media">
+                            <a href="sms:{{ cellPhone }}" class="push-right">
+                                <span class="media-object pull-left icon icon-sms"></span>
+                                <div class="media-body">
+                                    SMS
+                                    <p>{{ cellPhone }}</p>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="table-view-cell media">
+                            <a href="mailto:{{ email }}" class="push-right">
+                                <span class="media-object pull-left icon icon-mail"></span>
+                                <div class="media-body">
+                                    Email
+                                    <p>{{ email }}</p>
+                                </div>
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </script>
+        {% endraw %}
+        <script type="text/javascript" src="cordova.js"></script>
+        <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/lib/fastclick.js"></script>
+        <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/lib/handlebars.js"></script>
+        <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/lib/jquery.js"></script>
+        <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/lib/underscore.js"></script>
+        <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/lib/backbone.js"></script>
+        <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/lib/pageslider.js"></script>
+        <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/js/models.js"></script>
+        <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/js/HomeView.js"></script>
+        <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/js/EmployeeListView.js"></script>
+        <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/js/EmployeeView.js"></script>
+        <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/js/services/localstorage/EmployeeService.js"></script>
+        <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/js/app.js"></script>
+    </body>
 </html>
