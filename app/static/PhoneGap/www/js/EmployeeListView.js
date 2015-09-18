@@ -44,12 +44,13 @@ var EmployeeListView = Backbone.View.extend({
         if (!this.employees) {
             this.collection.fetch({
                 success: function(collection) {
-                    window.localStorage.setItem("employeecollection", JSON.stringify(
-                        collection
-                    ));
                     collection.each(function(Employee){
                         $('.table-view', this.el).append(new EmployeeShortView({model: Employee}).render().el);
                     });
+                    window.localStorage.setItem("employees", JSON.stringify(
+                        collection
+                    ));
+                    //employees = JSON.parse(window.localStorage.getItem("employees"))
                 }
             });
         } else {

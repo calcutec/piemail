@@ -8,7 +8,6 @@
     <link href="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/css/pageslider.css" rel="stylesheet">
 </head>
 <body>
-        {% raw %}
         <script id="home-tpl" type="text/template">
             <header class="bar bar-nav">
                 <h1 class="title">Directory</h1>
@@ -20,27 +19,27 @@
         </script>
 
         <script id="employee-short-tpl" type="text/template">
-                <a class="seeEmployee" href="#employees/{{ id }}">
-                    <img class="media-object pull-left" src="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/pics/{{pic}}">
+                <a class="seeEmployee" href="#employees/{{ 'id'|curly }}">
+                    <img class="media-object pull-left" src="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/pics/{{ 'pic'|curly }}">
                     <div class="media-body">
-                        {{firstName}} {{lastName}}
-                        <p>{{title}}</p>
+                        {{ 'firstName'|curly }} {{ 'lastName'|curly }}
+                        <p>{{ title }}</p>
                     </div>
                 </a>
         </script>
 
         <script id="employee-list-tpl" type="text/template">
-            {{#each this}}
+            {{ '#each this'|curly }}
             <li class="table-view-cell media">
-                <a href="#employees/{{ id }}">
-                    <img class="media-object pull-left" src="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/pics/{{pic}}">
+                <a href="#employees/{{ 'id'|curly }}">
+                    <img class="media-object pull-left" src="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/pics/{{ 'pic'|curly }}">
                     <div class="media-body">
-                        {{firstName}} {{lastName}}
-                        <p>{{title}}</p>
+                        {{ 'firstName'|curly }} {{ 'lastName'|curly }}
+                        <p>{{ 'title'|curly }}</p>
                     </div>
                 </a>
             </li>
-            {{/each}}
+            {{ '/each'|curly }}
         </script>
 
         <script id="employee-tpl" type="text/template">
@@ -54,7 +53,7 @@
                 <div class="card">
                     <ul class="table-view">
                         <li class="table-view-cell media">
-                            <img class="media-object pull-left" src="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/pics/{{pic}}">
+                            <img class="media-object pull-left" src="https://s3.amazonaws.com/netbardus/PhoneGap/www/assets/pics/{{'pic'|curly}}">
                             <div class="media-body">
                                 {{ firstName }} {{ lastName }}
                                 <p>{{ title }}</p>
@@ -101,8 +100,7 @@
                 </div>
             </div>
         </script>
-        {% endraw %}
-        <script type="text/javascript" src="cordova.js"></script>
+{#        <script type="text/javascript" src="cordova.js"></script>#}
         <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/lib/fastclick.js"></script>
         <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/lib/handlebars.js"></script>
         <script src="https://s3.amazonaws.com/netbardus/PhoneGap/www/lib/jquery.js"></script>

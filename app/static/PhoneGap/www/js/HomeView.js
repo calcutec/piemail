@@ -16,7 +16,7 @@ var HomeView = Backbone.View.extend({
         "keypress .search-key": "onkeypress"
     },
 
-    search: function (event) {
+    search: function () {
         var key = $('.search-key').val();
         console.log(key);
         var service = new EmployeeService();

@@ -489,3 +489,14 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     return render_template('500.html', error=error), 500
+
+
+@app.template_filter('curly')  # Filter to create curly braces
+def curly(value):
+    # Handle value as string  {{'foo'|curly}}
+    if isinstance(value,str):
+        return_value = value
+    # Handle value directly. {{foo|curly}}
+    else:
+        return_value = value._undefined_name
+    return "{{" + return_value + "}}"
