@@ -5,8 +5,10 @@ app.db
 test.db
 search.db
 flask
-app/static/img_cache
-app/static/user_imgs
+app/static/PhoneGap/hooks
+app/static/PhoneGap/platforms
+app/static/PhoneGap/plugins
+app/static/PhoneGap/config.xml
 *.mo
 *.DS_Store
 

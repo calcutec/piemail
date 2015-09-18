@@ -32,6 +32,7 @@
 
         employeeDetails: function (id) {
             var service = new EmployeeService();
+            service.initialize();
             slider = new PageSlider($('body'));
             service.findById(parseInt(id)).done(function(data) {
                 var employee = new Employee(data);
