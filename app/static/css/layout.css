@@ -382,6 +382,19 @@ header {
     margin-bottom: 5px;
 }
 
+#main {
+	border-bottom: 1px solid #ddd;
+}
+
+.hc {
+	border-top: 1px solid #ddd;
+    padding-top: 1rem;
+}
+
+#side {
+    padding-top: 1rem;
+}
+
 .icon img {
 	margin: 0 auto;
 	display: block;
@@ -483,7 +496,7 @@ article {
 	border-bottom: 1px solid #ddd;
 }
 
-#tag article:last-child {
+article:last-child {
 	border-bottom: 0;
 }
 
@@ -532,7 +545,6 @@ li.tags {
 }*/
 
 .backanforth {
-	border-bottom: 1px solid #ddd;
 	margin: 0 0 1.5rem 0;
 	text-align: center;
 }
@@ -821,6 +833,7 @@ input.submit {
 	#main {
 		float: left;
 		width: 80%;
+        border-bottom: None;
 	}
 
 	.posted {
