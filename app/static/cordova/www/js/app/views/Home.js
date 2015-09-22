@@ -7,12 +7,9 @@ define(function (require) {
         Backbone            = require('backbone'),
         EmployeeListView    = require('app/views/EmployeeList'),
         models              = require('app/models/employee'),
-        tpl                 = require('text!templates/Home.html'),
-        Handlebars          = require("handlebars"),
+        tpl                 = require('text!tpl/Home.html'),
 
-        //template = _.template(tpl);
-        template = Handlebars.compile(tpl);
-
+        template = _.template(tpl);
 
     return Backbone.View.extend({
 
