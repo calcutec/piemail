@@ -4,7 +4,9 @@ require.config({
 
     paths: {
         app: '../app',
-        tpl: '../tpl'
+        tpl: '../tpl',
+        handlebars: '../lib/handlebars',
+        templates: '../templates',
     },
 
     map: {
@@ -20,7 +22,10 @@ require.config({
         },
         'underscore': {
             exports: '_'
-        }
+        },
+        'handlebars': {
+            exports: 'Handlebars'
+    },
     }
 });
 
