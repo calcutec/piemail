@@ -295,12 +295,6 @@ nav ul span{
 	border-right: none;
 }
 
-li.tags,
-li.service {
-	border-right: 0;
-	padding: 0 1rem 0 0;
-}
-
 .posted b {
 	letter-spacing: 0.1rem;
 	font-weight: normal;
@@ -532,18 +526,6 @@ article img.fr {
 	margin: 0 0 0.5rem 0.5rem;
 }
 
-li.tags {
-	border-right: 0;
-}
-
-/*li.tags a {
-	background: #ccc;
-	color: #fff;
-	padding: 0 0.3rem;
-	line-height: 2;
-	display: inline-block;
-}*/
-
 .backanforth {
 	margin: 0 0 1.5rem 0;
 	text-align: center;
@@ -596,22 +578,6 @@ li.tags {
 #archive .archives h4 {
 	padding: 0 0 0 1.5rem;
 	margin: 0 0 0.25rem 2rem;
-}
-
-.search {
-	border-top: 1px solid #ddd;
-	padding: 2em 0 0 0;
-}
-
-.search label {
-	margin: 0 1em 0 0;
-}
-
-.search #q {
-	padding: 0.5rem;
-	border: 1px solid #ddd;
-	width: 30%;
-	font-size: 0.875em;
 }
 
 input.submit {
@@ -667,6 +633,8 @@ input.submit {
 	text-align: center;
 }
 
+/*Screen Size Responsive*/
+
 @media screen and (min-width: 360px) {
 
 	.social, .contact {
@@ -685,7 +653,6 @@ input.submit {
 	}
 }
 
-/*Screen Size Responsive*/
 @media screen and (min-width: 620px) {
 
     .columns {
