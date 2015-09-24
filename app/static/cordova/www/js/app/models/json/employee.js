@@ -20,7 +20,7 @@ define(function (require) {
 
             model: Employee,
 
-            url: "http://localhost:8000/employees",
+            url: "http://www.netbard.com/employees",
             parse: function(response)
                 {
                     return response.employees;
