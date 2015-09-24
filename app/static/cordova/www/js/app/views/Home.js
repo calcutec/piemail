@@ -14,15 +14,15 @@ define(function (require) {
     return Backbone.View.extend({
         initialize: function () {
             this.employeeCollection = new models.EmployeeCollection();
+            var self = this;
             this.employeeCollection.fetch({
                 success: function(collection) {
                     window.localStorage.setItem("employees", JSON.stringify(
                         collection.toJSON()
                     ));
+                    self.render();
                 }
             });
-
-            this.render();
         },
 
         render: function () {
