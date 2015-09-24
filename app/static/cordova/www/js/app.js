@@ -1,6 +1,6 @@
 require.config({
 
-    baseUrl: 'https://s3.amazonaws.com/netbardus/cordova/www/js/lib',
+    baseUrl: '/static/cordova/www/js/lib',
 
     paths: {
         app: '../app',
