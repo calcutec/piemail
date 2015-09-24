@@ -235,7 +235,15 @@ class MembersAPI(MethodView):
                                    photo_type="thumb", crop=True,
                                    extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
                     profile_photo_name = pre_upload(img_obj)
+
+                    thumbnail_obj = dict(filename=filename, img=Image.open(profile_photo.stream), box=(160, 160),
+                                         photo_type="thumb_small", crop=True,
+                                         extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
+                    thumbnail_name = pre_upload(img_obj)
+
                     g.user.profile_photo = profile_photo_name
+                    g.user.thumbnail = thumbnail_name
+
                 g.user.nickname = form.nickname.data
                 g.user.about_me = form.about_me.data
                 db.session.add(g.user)

@@ -15,6 +15,20 @@ poem = Table('poem', pre_meta,
     Column('votes', INTEGER),
 )
 
+user = Table('user', post_meta,
+    Column('id', Integer, primary_key=True, nullable=False),
+    Column('type', Integer),
+    Column('firstname', String(length=100)),
+    Column('lastname', String(length=100)),
+    Column('nickname', String(length=64)),
+    Column('email', String(length=120)),
+    Column('pwdhash', String(length=100)),
+    Column('about_me', String(length=140)),
+    Column('profile_photo', String(length=240)),
+    Column('thumbnail', String(length=240)),
+    Column('last_seen', DateTime),
+)
+
 
 def upgrade(migrate_engine):
     # Upgrade operations go here. Don't create your own engine; bind
@@ -22,6 +36,7 @@ def upgrade(migrate_engine):
     pre_meta.bind = migrate_engine
     post_meta.bind = migrate_engine
     pre_meta.tables['poem'].drop()
+    post_meta.tables['user'].columns['thumbnail'].create()
 
 
 def downgrade(migrate_engine):
@@ -29,3 +44,4 @@ def downgrade(migrate_engine):
     pre_meta.bind = migrate_engine
     post_meta.bind = migrate_engine
     pre_meta.tables['poem'].create()
+    post_meta.tables['user'].columns['thumbnail'].drop()
