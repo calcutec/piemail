@@ -35,6 +35,7 @@ class User(UserMixin, db.Model):
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
     about_me = db.Column(db.String(140))
     profile_photo = db.Column(db.String(240))
+    thumbnail = db.Column(db.String(240))
     last_seen = db.Column(db.DateTime)
     followed = db.relationship('User',
                                secondary=followers,
@@ -142,8 +143,8 @@ class User(UserMixin, db.Model):
 
 
 post_upvotes = db.Table('post_upvotes',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('post_id', db.Integer, db.ForeignKey('post.id'))
+                        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+                        db.Column('post_id', db.Integer, db.ForeignKey('post.id'))
 )
 
 

@@ -7,7 +7,7 @@ define(function (require) {
 
         Employee = Backbone.Model.extend({
 
-            urlRoot: "http://www.netbard.com/employees",
+            urlRoot: "http://localhost:8000/employees",
 
             initialize: function () {
                 this.reports = new EmployeeCollection();
@@ -20,7 +20,7 @@ define(function (require) {
 
             model: Employee,
 
-            url: "http://www.netbard.com/employees",
+            url: "http://localhost:8000/employees",
             parse: function(response)
                 {
                     return response.employees;
