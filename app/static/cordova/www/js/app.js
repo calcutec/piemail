@@ -1,6 +1,6 @@
 require.config({
 
-    baseUrl: '/static/cordova/www/js/lib',
+    baseUrl: 'js/lib',
 
     paths: {
         app: '../app',

@@ -1,4 +1,3 @@
-// Paths to all the libraries and frameworks we will use
 require.config({
 
     baseUrl: 'js/lib',
@@ -21,14 +20,10 @@ require.config({
         },
         'underscore': {
             exports: '_'
-        },
-        'handlebars': {
-            exports: 'Handlebars'
         }
     }
 });
 
-// We launch the App
 require(['jquery', 'backbone', 'app/router'], function ($, Backbone, Router) {
 
     var router = new Router();

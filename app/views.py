@@ -16,17 +16,64 @@ from flask.views import MethodView
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+from datetime import timedelta
+from flask import make_response, request, current_app
+from functools import update_wrapper
+
 
 @app.route('/', methods=['GET'])
 def index():
     return redirect(url_for('home'))
 
-phonegap_data = ViewData(page_mark="phonegap")
-app.add_url_rule('/phonegap/', view_func=GenericListView.as_view('phonegap', phonegap_data), methods=["GET", ])
+# phonegap_data = ViewData(page_mark="phonegap")
+# app.add_url_rule('/phonegap/', view_func=GenericListView.as_view('phonegap', phonegap_data), methods=["GET", ])
+
+
+def crossdomain(origin=None, methods=None, headers=None,
+                max_age=21600, attach_to_all=True,
+                automatic_options=True):
+    if methods is not None:
+        methods = ', '.join(sorted(x.upper() for x in methods))
+    if headers is not None and not isinstance(headers, basestring):
+        headers = ', '.join(x.upper() for x in headers)
+    if not isinstance(origin, basestring):
+        origin = ', '.join(origin)
+    if isinstance(max_age, timedelta):
+        max_age = max_age.total_seconds()
+
+    def get_methods():
+        if methods is not None:
+            return methods
+
+        options_resp = current_app.make_default_options_response()
+        return options_resp.headers['allow']
+
+    def decorator(f):
+        def wrapped_function(*args, **kwargs):
+            if automatic_options and request.method == 'OPTIONS':
+                resp = current_app.make_default_options_response()
+            else:
+                resp = make_response(f(*args, **kwargs))
+            if not attach_to_all and request.method != 'OPTIONS':
+                return resp
+
+            h = resp.headers
+
+            h['Access-Control-Allow-Origin'] = origin
+            h['Access-Control-Allow-Methods'] = get_methods()
+            h['Access-Control-Max-Age'] = str(max_age)
+            if headers is not None:
+                h['Access-Control-Allow-Headers'] = headers
+            return resp
+
+        f.provide_automatic_options = False
+        return update_wrapper(wrapped_function, f)
+    return decorator
 
 
 @app.route('/employees', methods=['GET'])
-def employees(id=None):
+@crossdomain(origin='*')
+def employees():
         employee_dict = User.query.all()
         return jsonify(employees=[i.json_view() for i in employee_dict])
 
@@ -208,8 +255,16 @@ class MembersAPI(MethodView):
             profile_data = ViewData("profile", nickname=nickname)
             return render_template(profile_data.template_name, **profile_data.context)
         elif nickname is None:  # Display all members
-            view_data = ViewData(page_mark='members')
-            return render_template(view_data.template_name, **view_data.context)
+            if request.url_rule.rule == '/phonegap/':
+                view_data = ViewData(page_mark='phonegap')
+                return render_template(view_data.template_name, **view_data.context)
+            else:
+                if request.is_xhr:
+                    employee_dict = User.query.all()
+                    return jsonify(employees=[i.json_view() for i in employee_dict])
+                else:
+                    view_data = ViewData(page_mark='members')
+                    return render_template(view_data.template_name, **view_data.context)
         else:  # Display a single member
             profile_data = ViewData(page_mark="profile", nickname=nickname)
             return render_template(profile_data.template_name, **profile_data.context)
@@ -237,9 +292,9 @@ class MembersAPI(MethodView):
                     profile_photo_name = pre_upload(img_obj)
 
                     thumbnail_obj = dict(filename=filename, img=Image.open(profile_photo.stream), box=(160, 160),
-                                         photo_type="thumb_small", crop=True,
+                                         photo_type="thumbnail", crop=True,
                                          extension=form['profile_photo'].data.mimetype.split('/')[1].upper())
-                    thumbnail_name = pre_upload(img_obj)
+                    thumbnail_name = pre_upload(thumbnail_obj)
 
                     g.user.profile_photo = profile_photo_name
                     g.user.thumbnail = thumbnail_name
@@ -259,6 +314,7 @@ member_api_view = MembersAPI.as_view('members')  # URLS for MEMBER API
 app.add_url_rule('/members/<nickname>', view_func=member_api_view, methods=["GET", "POST", "PUT", "DELETE"])
 # Read all members
 app.add_url_rule('/members/', view_func=member_api_view, methods=["GET"])
+app.add_url_rule('/phonegap/', view_func=member_api_view, methods=["GET"])
 # Update a member when JS is turned off)
 app.add_url_rule('/members/<action>/<nickname>', view_func=member_api_view, methods=["GET"])
 

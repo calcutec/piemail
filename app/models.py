@@ -56,7 +56,7 @@ class User(UserMixin, db.Model):
 
     def json_view(self):
         return {'id': self.id, 'type': self.type, 'firstName': self.firstname, 'lastName': self.lastname,
-                'nickname': self.nickname, 'title': self.about_me, 'last_seen': self.last_seen, 'pic': self.profile_photo}
+                'nickname': self.nickname, 'title': self.about_me, 'last_seen': self.last_seen, 'pic': self.thumbnail}
 
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)

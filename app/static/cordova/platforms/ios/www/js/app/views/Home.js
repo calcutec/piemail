@@ -11,17 +11,23 @@ define(function (require) {
 
         template = _.template(tpl);
 
-
     return Backbone.View.extend({
-
         initialize: function () {
-            this.employeeList = new models.EmployeeCollection();
-            this.render();
+            this.employeeCollection = new models.EmployeeCollection();
+            var self = this;
+            this.employeeCollection.fetch({
+                success: function(collection) {
+                    window.localStorage.setItem("employees", JSON.stringify(
+                        collection.toJSON()
+                    ));
+                    self.render();
+                }
+            });
         },
 
         render: function () {
             this.$el.html(template());
-            this.listView = new EmployeeListView({collection: this.employeeList, el: $(".scroller", this.el)});
+            this.listView = new EmployeeListView({collection: this.employeeCollection, el: $(".scroller", this.el)});
             return this;
         },
 
@@ -32,7 +38,7 @@ define(function (require) {
 
         search: function (event) {
             var key = $('.search-key').val();
-            this.employeeList.fetch({reset: true, data: {name: key}});
+            this.employeeCollection.search(key, this.listView);
         },
 
         onkeypress: function (event) {

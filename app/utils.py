@@ -83,6 +83,7 @@ class ViewData(object):
                 self.assets['body_form'] = self.get_form()
 
         elif self.page_mark == 'phonegap':
+            self.posts = User.query.all()
             self.assets['header_text'] = "PhoneGap Page"
             self.template_name = "index.html"
 
@@ -132,12 +133,12 @@ def allowed_file(filename):
 
 
 def pre_upload(img_obj):
-    thumbnail_name, thumbnail_file = generate_thumbnail(**img_obj)
-    s3_file_name = s3_upload(thumbnail_name, thumbnail_file)
+    thumbnail_name, thumbnail_file, upload_directory = generate_thumbnail(**img_obj)
+    s3_file_name = s3_upload(thumbnail_name, thumbnail_file, upload_directory)
     return s3_file_name
 
 
-def s3_upload(filename, source_file, acl='public-read'):
+def s3_upload(filename, source_file, upload_directory, acl='public-read'):
     """ Uploads WTForm File Object to Amazon S3
 
         Expects following app.config attributes to be set:
@@ -156,7 +157,7 @@ def s3_upload(filename, source_file, acl='public-read'):
     conn = boto.connect_s3(app.config["AWS_ACCESS_KEY_ID"], app.config["AWS_SECRET_ACCESS_KEY"])
     b = conn.get_bucket(app.config["S3_BUCKET"])
 
-    sml = b.new_key("/".join([app.config["S3_UPLOAD_DIRECTORY"], filename]))
+    sml = b.new_key("/".join([upload_directory, filename]))
     sml.set_contents_from_file(source_file, rewind=True)
     sml.set_acl(acl)
 
@@ -193,11 +194,15 @@ def generate_thumbnail(filename, img, box, photo_type, crop, extension):
 
     # save it into a file-like object
     thumbnail_name = photo_type + "_" + filename
+    if photo_type == 'thumbnail':
+        upload_directory = "cordova/www/pics"
+    else:
+        upload_directory = "user_imgs"
     image_stream = cStringIO.StringIO()
     img.save(image_stream, extension, quality=75)
     image_stream.seek(0)
     thumbnail_file = image_stream
-    return thumbnail_name, thumbnail_file
+    return thumbnail_name, thumbnail_file, upload_directory
 
 
 class GenericListView(View):

@@ -26,7 +26,9 @@ define(function (require) {
 
         employeeDetails: function (id) {
             require(["app/models/employee", "app/views/Employee"], function (models, EmployeeView) {
-                var employee = new models.Employee({id: id});
+                var employees = JSON.parse(window.localStorage.getItem("employees"));
+                //var employee = new models.Employee({id: id});
+                var employee = employees.get(id)
                 employee.fetch({
                     success: function (data) {
                         slider.slidePage(new EmployeeView({model: data}).$el);
