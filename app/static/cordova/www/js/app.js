@@ -1,7 +1,9 @@
 require.config({
 
-    //baseUrl: 'js/lib',  For direct phonegap app
-    baseUrl: '/static/cordova/www/js/lib',
+    //baseUrl: 'js/lib', //Phonegap
+    //baseUrl: '/static/cordova/www/js/lib', //Flask Dev
+    baseUrl: 'https://s3.amazonaws.com/netbardus/cordova/www/js/lib', //Flask Prod
+
 
     paths: {
         app: '../app',
