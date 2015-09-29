@@ -1,9 +1,6 @@
 require.config({
 
-    //baseUrl: 'js/lib', //Phonegap
-    //baseUrl: '/static/cordova/www/js/lib', //Flask Dev
-    baseUrl: 'https://s3.amazonaws.com/netbardus/cordova/www/js/lib', //Flask Prod
-
+    baseUrl: 'js/lib',
 
     paths: {
         app: '../app',
@@ -23,15 +20,6 @@ require.config({
         },
         'underscore': {
             exports: '_'
-        }
-    },
-    config: {
-        text: {
-          useXhr: function (url, protocol, hostname, port) {
-            // allow cross-domain requests
-            // remote server allows CORS
-            return true;
-          }
         }
     }
 });
