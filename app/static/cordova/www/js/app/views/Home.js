@@ -8,14 +8,14 @@ define(function (require) {
         EmployeeListView    = require('app/views/EmployeeList'),
         models              = require('app/models/employee'),
         tpl                 = require('text!tpl/Home.html'),
+        employeeCollection = new models.EmployeeCollection(),
 
         template = _.template(tpl);
 
     return Backbone.View.extend({
         initialize: function () {
-            this.employeeCollection = new models.EmployeeCollection();
             var self = this;
-            this.employeeCollection.fetch({
+            employeeCollection.fetch({
                 success: function(collection) {
                     window.localStorage.setItem("employees", JSON.stringify(
                         collection.toJSON()
@@ -27,7 +27,7 @@ define(function (require) {
 
         render: function () {
             this.$el.html(template());
-            this.listView = new EmployeeListView({collection: this.employeeCollection, el: $(".scroller", this.el)});
+            this.listView = new EmployeeListView({collection: employeeCollection, el: $(".scroller", this.el)});
             return this;
         },
 
@@ -38,7 +38,7 @@ define(function (require) {
 
         search: function (event) {
             var key = $('.search-key').val();
-            this.employeeCollection.search(key, this.listView);
+            employeeCollection.search(key, this.listView);
         },
 
         onkeypress: function (event) {

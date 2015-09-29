@@ -1,6 +1,7 @@
 require.config({
 
-    baseUrl: 'js/lib',
+    //baseUrl: 'js/lib',  For direct phonegap app
+    baseUrl: '/static/cordova/www/js/lib',
 
     paths: {
         app: '../app',

@@ -8,7 +8,7 @@
         Apache Cordova Team
     </author>
     <content src="index.html" />
-<!--    <preference name="BackupWebStorage" value="local" />-->
+    <preference name="BackupWebStorage" value="local" />
     <plugin name="cordova-plugin-whitelist" version="1" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
