@@ -6,7 +6,8 @@ CSRF_ENABLED = True
 SECRET_KEY = os.environ['FLASK_SECRET_KEY']
 
 
-SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+# SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+SQLALCHEMY_DATABASE_URI = 'postgresql://bburton:Worbro999@localhost/piemail_local'
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 SQLALCHEMY_RECORD_QUERIES = True
 
