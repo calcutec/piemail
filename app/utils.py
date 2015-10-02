@@ -44,7 +44,7 @@ class ViewData(object):
                 self.assets['header_form'] = self.get_form()
 
         elif self.page_mark == 'home':
-            self.assets['header_text'] = "Home Page"
+            self.assets['header_text'] = "<strong>PieMail</strong>: Usuable Email"
 
         elif self.page_mark == 'members':
             self.posts = User.query.all()
