@@ -7,7 +7,7 @@ define(function (require) {
 
         Employee = Backbone.Model.extend({
 
-            urlRoot: "http://localhost:3000/employees",
+            urlRoot: "http://localhost:8000/mailapi",
 
             initialize: function () {
                 this.reports = new EmployeeCollection();
