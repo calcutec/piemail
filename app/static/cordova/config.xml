@@ -10,7 +10,7 @@
     <content src="index.html" />
     <preference name="BackupWebStorage" value="local" />
     <plugin name="cordova-plugin-whitelist" version="1" />
-    <access origin="*" />
+    <access origin="localhost:8000" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />

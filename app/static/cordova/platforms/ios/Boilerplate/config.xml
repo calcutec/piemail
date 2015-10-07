@@ -28,7 +28,7 @@
     </author>
     <content src="index.html" />
     <preference name="BackupWebStorage" value="local" />
-    <access origin="*" />
+    <access origin="localhost:8000" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
