@@ -1,0 +1,166 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body{
+  font-size: 16px;
+  font-family: source-sans-pro, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.topcoat-grid {
+    padding: 0 30px;
+}
+
+.topcoat-grid__row {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: nowrap;
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+
+.topcoat-grid__column--auto,
+.topcoat-grid__column--1,
+.topcoat-grid__column--2,
+.topcoat-grid__column--3,
+.topcoat-grid__column--4,
+.topcoat-grid__column--5,
+.topcoat-grid__column--6,
+.topcoat-grid__column--7,
+.topcoat-grid__column--8,
+.topcoat-grid__column--9,
+.topcoat-grid__column--10,
+.topcoat-grid__column--11,
+.topcoat-grid__column--12 {
+  border: 1px solid #a9a9a9;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  overflow: hidden;
+}
+
+.topcoat-grid__column--auto {
+  min-width: 75px;
+  max-width: 100px;
+}
+
+
+.hidden{
+  display:none;
+}
+
+#login a {
+    border-radius: 5px;
+    color: white;
+    background: blue;
+    font-size: larger;
+    padding: 10px 20px;
+}
+
+#login a:active {
+    background: darkblue;
+}
+
+#login p {
+    word-wrap: break-word;
+}
+
+.testing{
+    padding:20px;
+}
+
+.testing div{
+    padding:4px;
+    color:blue;
+    font-size:20px
+}
+
+.button {
+  text-align: center;
+  border-radius: 20px;
+  height:20px;
+  border: 1px 
+  solid #777;
+  background-color: #ddd;
+  width:98%;
+  float:left;
+  font-size:16px;
+  margin-top:7px;
+}
+
+#mail-list{
+  list-style:none;
+  padding:0px;
+}
+.sender{
+  width:150px;
+}
+.mail{
+  background-color:#fcfcfc;
+  border-top:1px solid #efefef;
+  border-left:1px solid #efefef;
+  border-right:1px solid #efefef;
+  padding:5px;
+}
+.mail span{
+  vertical-align:middle;
+}
+.mail:last-child{
+  border-bottom:1px solid #efefef;
+}
+a{
+  text-decoration:none;
+  color:#4183C4;
+}
+.icon{
+  background-repeat: no-repeat;
+  padding-left:4px;
+  padding-bottom:5px;
+}
+.bookmark{
+  background-image: url('../icons/star.png');
+}
+
+.nobookmark{
+  background-image: url('../icons/nostar.png');
+}
+
+.labels{
+  border:1px solid white;
+  padding:2px;
+  margin:0px 9px 0px 9px;
+  background-color:green;
+  color:white;
+  font-size:11px;
+  font-weight:normal;
+  text-align:center;
+}
+
+#summary{
+  margin-left:5px;
+}
+
+#summary ul
+{
+margin-bottom: 5px;
+padding: 0;
+list-style:none;
+}
+
+#summary ul li { 
+  display: inline;
+  padding-right:10px;
+}
+
+select, button{
+  border:1px solid #ddd;
+  background-color:#fafafa;
+  padding:3px;
+}
+input{
+  border:1px solid #ddd;
+  padding:3px;
+}
