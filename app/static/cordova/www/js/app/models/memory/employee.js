@@ -68,7 +68,7 @@ define(function (require) {
                 });
             },
 
-            url: "http://www.netbard.com/employees",
+            url: "http://localhost:8000/employees",
 
             parse: function(response) {
                 return response.employees;
