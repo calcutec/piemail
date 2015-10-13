@@ -48,10 +48,14 @@
             </span>
             <span> <button id="markallread">Mark all as Read</button></span>
             <span> <button id="archive">Archive</button></span>
+            <span> <button id="gridview">Compare in Grid View</button></span>
         </div>
         <div class="content">
             <span><input type="text" id="search" placeholder="Search" class="button"/></span>
-            <div id="mails" style="float:left;"><ul id="mail-list"></ul></div>
+            <div id="mails" style="float:left;">
+                <div class="topcoat-grid__row" id="mail-list">
+                </div>
+            </div>
         </div>
     </div>
     <!-- Templates -->
@@ -70,25 +74,26 @@
     </script>
 
     <script type="text/template" id="mail-item">
-      <div>
-        <div class="mail">
+        <div class="mail topcoat-grid__row">
           <a href="#">
             <% if (read == false) { %> <strong>  <% } %>
-            <span style="float:left;width:20px;"><input class="check" type="checkbox" <%= selected? "checked='checked'":"" %> / > </span>
-            <span style="float:left;width:20px;" <% if( star == true ) { %> class="star icon bookmark" <% } else { %> class="star icon nobookmark" <% } %> > &nbsp; </span>
-            <span style="float:left;width:50%;padding-top:2px;" class="sender"><%= "From: " + sender %></span>
-            <span style="float:right;width:30%;text-align:right;padding-top:3px;" class="timestamp"> <%= timestamp %></span>
-            <span style="float:left;width:100%;" class="mail-subject"><%= "Subject: " + subject %></span>
-            <span style="float:left;width:100%;" class="mail-snippet"><%= snippet %></span>
-            <span style="float:left;width:100%;" class="mail-body"><%= body %></span>
-            <% if (label != '') { %> 
-              <span style="float:left;width:80px;" class="labels"> <%= label %></span> 
-            <% } %>
-            <div style="clear:both;"></div>
+            <div class="mail topcoat-grid__column--12">
+                <div class="mail topcoat-grid__row">
+                    <div><input class="check topcoat-grid__column--1" type="checkbox" <%= selected? "checked='checked'":"" %> / > </div>
+                    <div <% if( star == true ) { %> class="star icon bookmark topcoat-grid__column--2" <% } else { %> class="star icon nobookmark topcoat-grid__column--1" <% } %> > &nbsp; </div>
+                    <div class="sender topcoat-grid__column--10"><%= sender %></div>
+                </div>
+                <div class="timestamp"> <%= formattedDate %></div>
+                <div class="mail-subject"><%= subject %></div>
+                <div class="mail-snippet"><%= snippet %></div>
+                <div class="mail-body"><%= body %></div>
+                <% if (label != '') { %> 
+                    <div class="labels"> <%= label %></div> 
+                <% } %>
+            </div>
             <% if (read == false) { %> </strong>  <% } %>
           </a>
         </div>
-      </div>
     </script>
     <script src="inbox.js"></script>
     </body>

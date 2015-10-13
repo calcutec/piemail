@@ -11,11 +11,6 @@ var Mail = Backbone.Model.extend( {
         label: ''
     },
 
-    getMail: function() {
-        this.save( {read: true } );
-        alert("You got mail!");
-    },
-
     markRead: function() {
         this.save( {read: true } );
     },
@@ -74,12 +69,13 @@ var MailList = Backbone.Collection.extend({
             return pat.test(mail.get('subject')) || pat.test(mail.get('sender')); }));
     },
     comparator: function(mail){
-        return -mail.get('timestamp');
+        return -mail.get('timestamp').getTime();
     }
 });
 
 var MailView = Backbone.View.extend({
-    tagName: "li",
+    tagName: "div",
+    className: "topcoat-grid__column--auto",
 
     template: _.template( $("#mail-item").html()),
 
@@ -109,7 +105,7 @@ var MailView = Backbone.View.extend({
 
     getMail: function() {
         this.model.markRead();
-        getMail(this.model.get('gmailId'));
+        getThread(this.model.get('gmailId'));
     },
 
     star: function() {
@@ -138,6 +134,7 @@ var InboxView = Backbone.View.extend({
         "change #labeler" : "applyLabel",
         "click #markallread" : "markallread",
         "click #archive" : "archive",
+        "click #gridview" : "gridview",
         "click #allmail" : "allmail",
         "click #inbox": "inbox",
         "click #starred": "starred",
@@ -184,8 +181,18 @@ var InboxView = Backbone.View.extend({
         this.render(this.collection.inbox());
     },
 
+    gridview: function(){
+        var gridviewlist = [];
+        this.collection.each(function(item){
+            if(item.get('selected') == true){
+              gridviewlist.push(item.get('gmailId'));
+            }
+        }, this);
+        getListOfThreads(gridviewlist);
+    },
+
     render: function(records){
-        $('ul#mail-list', this.el).html('');
+        $('div#mail-list', this.el).html('');
         var self = this;
         records.each(function(item){
             self.addOne(item);
@@ -201,7 +208,7 @@ var InboxView = Backbone.View.extend({
     addOne: function (mail) {
         var itemView = new MailView({ model: mail});
 
-        $('ul#mail-list', this.el).append(itemView.render().el);
+        $('div#mail-list', this.el).append(itemView.render().el);
     }
 });
 
@@ -216,24 +223,24 @@ function logJSON(mess, json) {
 }
  
 
-// // Show list of threads
+ // Show list of threads
  function displayInbox() {
-     var request = gapi.client.gmail.users.threads.list({
-         'userId': 'me',
-         'labelIds': 'INBOX',
-         'maxResults': 20
-     });
-     list = new MailList();
-     request.execute(function(response) {
-         count = response.threads.length;
-         $.each(response.threads, function() {
-              var threadRequest = gapi.client.gmail.users.threads.get({
-                   'userId': 'me',
-                   'id': this.id
-               });
-              threadRequest.execute(appendThreadRow);
-         });
-     });
+    var request = gapi.client.gmail.users.threads.list({
+        'userId': 'me',
+        'labelIds': 'INBOX',
+        'maxResults': 15
+    });
+    list = new MailList();
+    request.execute(function(response) {
+        count = response.threads.length;
+        $.each(response.threads, function() {
+             var threadRequest = gapi.client.gmail.users.threads.get({
+                  'userId': 'me',
+                  'id': this.id
+              });
+             threadRequest.execute(appendThreadRow);
+        });
+    });
  }
 
 // Show list of messages, not grouped by thread
@@ -256,25 +263,35 @@ function logJSON(mess, json) {
 //    });
 //}
 
-// Show list of messages in a specific thread
-// function displayInbox(userId, threadId, callback) {
-//     var request = gapi.client.gmail.users.threads.get({
-//         'userId': 'me',
-//         'id': '1502a4f200131f30'
-//     });
-//     list = new MailList();
-//     request.execute(function(response) {
-//         //logJSON('response: ', response)
-//         count = response.messages.length;
-//         $.each(response.messages, function() {
-//              var messageRequest = gapi.client.gmail.users.messages.get({
-//                   'userId': 'me',
-//                   'id': this.id
-//               });
-//              messageRequest.execute(appendMessageRow);
-//         });
-//     });
-// }
+// Show messages for selected threads
+function getListOfThreads(threadList) {
+    list = new MailList();
+    log(threadList);
+    var arrayLength = threadList.length;
+    for (var i = 0; i < arrayLength; i++) {
+        getThread(threadList[i]);
+    };
+}
+
+
+
+ function getThread(threadId) {
+     var request = gapi.client.gmail.users.threads.get({
+         'userId': 'me',
+         'id': threadId
+     });
+     request.execute(function(response) {
+         // logJSON('response: ', response)
+         count = response.messages.length;
+         $.each(response.messages, function() {
+              var messageRequest = gapi.client.gmail.users.messages.get({
+                   'userId': 'me',
+                   'id': this.id
+               });
+              messageRequest.execute(appendMessageRow);
+         });
+     });
+ }
 
 // Show message
 function getMail(messageId) {
@@ -295,7 +312,8 @@ function appendMessage(message) {
         sender:getHeader(message.payload.headers, 'From'),
         subject:getHeader(message.payload.headers, 'Subject'),
         body: getBody(message),
-        timestamp:formatDate(getHeader(message.payload.headers, 'Date'))
+        formattedDate:formatDate(getHeader(message.payload.headers, 'Date')),
+        timestamp: new Date(getHeader(message.payload.headers, 'Date'))
     });
 
     list.add(mailitem);
@@ -303,13 +321,14 @@ function appendMessage(message) {
 }
 
 function appendMessageRow(message) {
-    // logJSON('message: ', message)
+    //logJSON('message: ', message)
     var mailitem = new Mail({
         gmailId: message.id,
         sender:getHeader(message.payload.headers, 'From'),
         subject:getHeader(message.payload.headers, 'Subject'),
         snippet:message.snippet,
-        timestamp:formatDate(getHeader(message.payload.headers, 'Date'))
+        formattedDate:formatDate(getHeader(message.payload.headers, 'Date')),
+        timestamp:new Date(getHeader(message.payload.headers, 'Date'))
     });
     list.add(mailitem);
     if (count==list.length) NewApp = new InboxView({collection:list});
@@ -317,10 +336,12 @@ function appendMessageRow(message) {
 
 function appendThreadRow(thread) {
     var mailitem = new Mail({
-        sender:getHeader(thread.messages[0].payload.headers, 'From'),
-        subject:getHeader(thread.messages[0].payload.headers, 'Subject'),
-        snippet:thread.messages[0].snippet,
-        timestamp:formatDate(getHeader(thread.messages[0].payload.headers, 'Date'))
+        gmailId: thread.id,
+        sender:getHeader(thread.messages[thread.messages.length-1].payload.headers, 'From'),
+        subject:getHeader(thread.messages[thread.messages.length-1].payload.headers, 'Subject'),
+        snippet:thread.messages[thread.messages.length-1].snippet,
+        formattedDate:formatDate(getHeader(thread.messages[thread.messages.length-1].payload.headers, 'Date')),
+        timestamp:new Date(getHeader(thread.messages[thread.messages.length-1].payload.headers, 'Date'))
     });
     list.add(mailitem);
     if (count==list.length) NewApp = new InboxView({collection:list});
