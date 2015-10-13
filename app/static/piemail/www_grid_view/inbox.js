@@ -343,6 +343,7 @@ function appendThreadRow(thread) {
         formattedDate:formatDate(getHeader(thread.messages[thread.messages.length-1].payload.headers, 'Date')),
         timestamp:new Date(getHeader(thread.messages[thread.messages.length-1].payload.headers, 'Date'))
     });
+
     list.add(mailitem);
     if (count==list.length) NewApp = new InboxView({collection:list});
 }
