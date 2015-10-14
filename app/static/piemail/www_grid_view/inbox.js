@@ -202,7 +202,7 @@ var InboxView = Backbone.View.extend({
     renderSideMenu: function(){
         $("#sidemenu").html( this.template(
             {'inbox': this.collection.unread_count(), 
-             'starred':this.collection.starcount(),}));
+             'starred':this.collection.starcount()}));
     },
 
     addOne: function (mail) {

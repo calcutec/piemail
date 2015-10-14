@@ -266,13 +266,16 @@ function logJSON(mess, json) {
 // Show messages for selected threads
 function getListOfThreads(threadList) {
     list = new MailList();
+    log(threadList);
     var arrayLength = threadList.length;
     for (var i = 0; i < arrayLength; i++) {
         getThread(threadList[i]);
     };
 }
 
-function getThread(threadId) {
+
+
+ function getThread(threadId) {
      var request = gapi.client.gmail.users.threads.get({
          'userId': 'me',
          'id': threadId

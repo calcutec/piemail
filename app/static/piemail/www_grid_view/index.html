@@ -48,13 +48,12 @@
             </span>
             <span> <button id="markallread">Mark all as Read</button></span>
             <span> <button id="archive">Archive</button></span>
-            <span> <button id="gridview">Compare in Grid View</button></span>
+            <span> <button id="gridview">Timeline View</button></span>
         </div>
         <div class="content">
             <span><input type="text" id="search" placeholder="Search" class="button"/></span>
             <div id="mails" style="float:left;">
-                <div class="topcoat-grid__row" id="mail-list">
-                </div>
+                <div class="topcoat-grid__row" id="mail-list"></div>
             </div>
         </div>
     </div>
@@ -87,8 +86,8 @@
                 <div class="mail-subject"><%= subject %></div>
                 <div class="mail-snippet"><%= snippet %></div>
                 <div class="mail-body"><%= body %></div>
-                <% if (label != '') { %> 
-                    <div class="labels"> <%= label %></div> 
+                <% if (label != '') { %>
+                    <div class="labels"> <%= label %></div>
                 <% } %>
             </div>
             <% if (read == false) { %> </strong>  <% } %>
