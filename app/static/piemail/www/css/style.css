@@ -18,34 +18,18 @@ body{
 .topcoat-grid__row {
   box-sizing: border-box;
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   margin-left: -1rem;
   margin-right: -1rem;
 }
 
-.topcoat-grid__column--auto,
-.topcoat-grid__column--1,
-.topcoat-grid__column--2,
-.topcoat-grid__column--3,
-.topcoat-grid__column--4,
-.topcoat-grid__column--5,
-.topcoat-grid__column--6,
-.topcoat-grid__column--7,
-.topcoat-grid__column--8,
-.topcoat-grid__column--9,
-.topcoat-grid__column--10,
-.topcoat-grid__column--11,
-.topcoat-grid__column--12 {
+.topcoat-grid__column--auto {
   border: 1px solid #a9a9a9;
   padding-top: 3px;
   padding-bottom: 3px;
   overflow: hidden;
+  min-width: 100%;
 }
-
-.topcoat-grid__column--auto {
-  min-width: 100px;
-}
-
 
 .hidden{
   display:none;
@@ -91,34 +75,19 @@ body{
 }
 
 #mail-list{
-  list-style:none;
-  padding:0px;
+  margin-left:3px;
+
 }
-.sender{
-  width:150px;
-}
-.mail{
-  background-color:#fcfcfc;
-  border-top:1px solid #efefef;
-  border-left:1px solid #efefef;
-  border-right:1px solid #efefef;
-  padding:5px;
-}
-.mail span{
-  vertical-align:middle;
-}
-.mail:last-child{
-  border-bottom:1px solid #efefef;
-}
+
 a{
   text-decoration:none;
   color:#4183C4;
 }
+
 .icon{
   background-repeat: no-repeat;
-  padding-left:4px;
-  padding-bottom:5px;
 }
+
 .bookmark{
   background-image: url('../icons/star.png');
 }

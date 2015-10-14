@@ -74,7 +74,8 @@ var MailList = Backbone.Collection.extend({
 });
 
 var MailView = Backbone.View.extend({
-    tagName: "li",
+    tagName: "div",
+    className: "topcoat-grid__column--auto",
 
     template: _.template( $("#mail-item").html()),
 
@@ -191,7 +192,7 @@ var InboxView = Backbone.View.extend({
     },
 
     render: function(records){
-        $('ul#mail-list', this.el).html('');
+        $('div#mail-list', this.el).html('');
         var self = this;
         records.each(function(item){
             self.addOne(item);
@@ -207,7 +208,7 @@ var InboxView = Backbone.View.extend({
     addOne: function (mail) {
         var itemView = new MailView({ model: mail});
 
-        $('ul#mail-list', this.el).append(itemView.render().el);
+        $('div#mail-list', this.el).append(itemView.render().el);
     }
 });
 
@@ -265,15 +266,13 @@ function logJSON(mess, json) {
 // Show messages for selected threads
 function getListOfThreads(threadList) {
     list = new MailList();
-    log(threadList);
     var arrayLength = threadList.length;
     for (var i = 0; i < arrayLength; i++) {
         getThread(threadList[i]);
     };
 }
 
-
- function getThread(threadId) {
+function getThread(threadId) {
      var request = gapi.client.gmail.users.threads.get({
          'userId': 'me',
          'id': threadId
