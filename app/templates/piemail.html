@@ -10,18 +10,18 @@
         minimum-scale=1, width=device-width, height=device-height" /> -->
         <meta name="format-detection" content="telephone=no" />
 <!--         <link href="css/topcoat-mobile-light.min.css" rel="stylesheet" > -->
-        <link href="css/grid.min.css" rel="stylesheet" >
-        <link href="css/vis.min.css" rel="stylesheet" >
-        <link href="css/style.css" rel="stylesheet" >
+        <link href="{{ local_static_url }}piemail/www/css/grid.min.css" rel="stylesheet" >
+        <link href="{{ local_static_url }}piemail/www/css/vis.min.css" rel="stylesheet" >
+        <link href="{{ local_static_url }}piemail/www/css/style.css" rel="stylesheet" >
         <!-- <script type="text/javascript" src="cordova.js"></script>-->
-        <script type="text/javascript" src="libs/jquery-2.1.4.min.js"></script>
-        <script src="libs/phonegapi.js"></script>
-        <script src="libs/json2.min.js"></script>
-        <script src="libs/underscore-min.js"></script>
-        <script src="libs/backbone-min.js"></script>
-        <script src="libs/backbone.localStorage-min.js"></script>
-        <script src="libs/vis.min.js"></script>
-        <script src="auth.js"></script>
+        <script type="text/javascript" src="{{ local_static_url }}piemail/www/libs/jquery-2.1.4.min.js"></script>
+        <script src="{{ local_static_url }}piemail/www/libs/phonegapi.js"></script>
+        <script src="{{ local_static_url }}piemail/www/libs/json2.min.js"></script>
+        <script src="{{ local_static_url }}piemail/www/libs/underscore-min.js"></script>
+        <script src="{{ local_static_url }}piemail/www/libs/backbone-min.js"></script>
+        <script src="{{ local_static_url }}piemail/www/libs/backbone.localStorage-min.js"></script>
+        <script src="{{ local_static_url }}piemail/www/libs/vis.min.js"></script>
+        <script src="{{ local_static_url }}piemail/www/auth.js"></script>
         <script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
 
 <!--        <script src="inbox-data.js"></script>-->
@@ -113,12 +113,12 @@
                     <div class="sender"><strong><%= sender %></strong></div>
                     <div class="mail-snippet"><%= snippet %></div>
                     <div class="timestamp"><%= ordinal %> :: <%= formattedDate %></div>
-                    <div class="mail-body hidden"><%= body %></div>
+{#                    <div class="mail-body hidden"><%= body %></div>#}
                 </div>
                 </div>
         <!--</div>-->
         <!--</div>-->
     </script>
-    <script src="inbox.js"></script>
+    <script src="{{ local_static_url }}piemail/www/inbox.js"></script>
     </body>
 </html>

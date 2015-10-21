@@ -87,6 +87,10 @@ class ViewData(object):
             self.assets['header_text'] = "PhoneGap Page"
             self.template_name = "index.html"
 
+        elif self.page_mark == 'piemail':
+            self.assets['header_text'] = "PhoneGap Page"
+            self.template_name = "piemail.html"
+
     def get_form(self):
         rendered_form = None
         if self.page_mark == 'signup':

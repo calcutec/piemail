@@ -258,6 +258,9 @@ class MembersAPI(MethodView):
             if request.url_rule.rule == '/phonegap/':
                 view_data = ViewData(page_mark='phonegap')
                 return render_template(view_data.template_name, **view_data.context)
+            if request.url_rule.rule == '/piemail/':
+                view_data = ViewData(page_mark='piemail')
+                return render_template(view_data.template_name, **view_data.context)
             else:
                 if request.is_xhr:
                     employee_dict = User.query.all()
@@ -315,6 +318,7 @@ app.add_url_rule('/members/<nickname>', view_func=member_api_view, methods=["GET
 # Read all members
 app.add_url_rule('/members/', view_func=member_api_view, methods=["GET"])
 app.add_url_rule('/phonegap/', view_func=member_api_view, methods=["GET"])
+app.add_url_rule('/piemail/', view_func=member_api_view, methods=["GET"])
 # Update a member when JS is turned off)
 app.add_url_rule('/members/<action>/<nickname>', view_func=member_api_view, methods=["GET"])
 
