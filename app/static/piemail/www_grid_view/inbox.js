@@ -3,7 +3,7 @@ function displayInbox() {
     var request = gapi.client.gmail.users.threads.list({
         'userId': 'me',
         'labelIds': 'INBOX',
-        'maxResults': 30
+        'maxResults': 60
     });
     var threadsList = new MailList([], { request: request, initialrequest: true });
     threadsList.executerequest();
@@ -93,12 +93,13 @@ var MailList = Backbone.Collection.extend({
 
     timelineoptions: {
         // order: customOrder,
-        height: '750px',
+        height: '900px',
         showCurrentTime: true,
         zoomable: true,
         zoomMin: 1000 * 60 * 60 * 24,  // one day in milliseconds
         zoomMax: 1000 * 60 * 60 * 24 * 31 * 1,  // about one month in milliseconds
         max: globalDate.setDate(globalDate.getDate() + 7),  // upper limit of visible range
+        zoomKey: 'altKey',
         type: 'point',
         margin: {
             item: {
@@ -109,11 +110,20 @@ var MailList = Backbone.Collection.extend({
         },
         stack: true,
         template: _.template( $("#mail-plot").html()),
-        editable: true,
         orientation: {
         axis: "top",
-        item: "top"
+        item: "top",
         },
+        groupOrder: function (a, b) {
+          return a.value - b.value;
+        },
+        groupOrderSwap: function (a, b, groupDataSet) {
+            var v = a.value;
+            a.value = b.value;
+            b.value = v;
+        },
+        editable: true,
+        groupEditable: true
     },
 
     // timelineoptions: {
@@ -203,7 +213,7 @@ var MailList = Backbone.Collection.extend({
         messagesList.add(mailitem);
         if (messagesList.itemcount==messagesList.length){
             messagesList.addOrdinal();
-            self.groupDataSet.add({id: self.groupCounter, content: "<span class='myGroup' style='color:#97B0F8; max-width:200px; white-space:wrap'>"+self.truncateTitle(messagesList.models[0].get('subject'))+"</span>"});
+            self.groupDataSet.add({id: self.groupCounter, value: messagesList.models[0].get('timestamp'), content: "<span class='myGroup' style='color:#97B0F8; max-width:200px; white-space:wrap'>"+self.truncateTitle(messagesList.models[0].get('subject'))+"</span>"});
             self.itemDataSet.add(messagesList.toJSON());
             messagesList.reset();
             self.groupCounter+=1
@@ -425,8 +435,12 @@ var InboxView = Backbone.View.extend({
     },
 
     stats: function(event){
-        var props = this.collection.timeline.getEventProperties(event)
-        console.log(props);
+        if(typeof this.collection.timeline === 'undefined'){
+            console.log("Timeline not yet defined..");
+        } else {
+            var props = this.collection.timeline.getEventProperties(event);
+            console.log(props);
+        }
     }
 });
 

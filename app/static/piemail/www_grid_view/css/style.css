@@ -18,16 +18,17 @@ body{
   color: red;
 }
 
+/*.vis-labelset {*/
+  /*background: lavender;*/
+/*}*/
+
+
 .mailitem{
   background:oldlace;
 }
 
 .mailwrapper {
     padding: 5px 0 5px 5px;
-}
-
-.vis-labelset {
-  background: lavender;
 }
 
 .vis-item {
