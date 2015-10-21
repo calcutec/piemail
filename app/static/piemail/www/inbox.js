@@ -228,7 +228,7 @@ function logJSON(mess, json) {
     var request = gapi.client.gmail.users.threads.list({
         'userId': 'me',
         'labelIds': 'INBOX',
-        'maxResults': 15
+        'maxResults': 30
     });
     list = new MailList();
     request.execute(function(response) {
@@ -265,8 +265,6 @@ function logJSON(mess, json) {
 
 // Show messages for selected threads
 function getListOfThreads(threadList) {
-    list = new MailList();
-    log(threadList);
     var arrayLength = threadList.length;
     for (var i = 0; i < arrayLength; i++) {
         getThread(threadList[i]);
@@ -280,6 +278,7 @@ function getListOfThreads(threadList) {
          'userId': 'me',
          'id': threadId
      });
+     list = new MailList();
      request.execute(function(response) {
          // logJSON('response: ', response)
          count = response.messages.length;

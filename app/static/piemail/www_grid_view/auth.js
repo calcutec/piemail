@@ -42,6 +42,7 @@
             loadGmailApi();
             $('#authorize-button').remove();
             $('#mailapp').removeClass("hidden");
+            $('.inboxfunctions').removeClass("hidden")
         } else {
             $('#authorize-button').removeClass("hidden");
             $('#authorize-button').on('click', function(){

@@ -11,16 +11,19 @@
         <meta name="format-detection" content="telephone=no" />
 <!--         <link href="css/topcoat-mobile-light.min.css" rel="stylesheet" > -->
         <link href="css/grid.min.css" rel="stylesheet" >
-        <link href="css/style.css" rel="stylesheet" type="text/css"/>
+        <link href="css/vis.min.css" rel="stylesheet" >
+        <link href="css/style.css" rel="stylesheet" >
         <!-- <script type="text/javascript" src="cordova.js"></script>-->
-        <script type="text/javascript" src="libs/jquery-1.11.1.js"></script>
+        <script type="text/javascript" src="libs/jquery-2.1.4.min.js"></script>
         <script src="libs/phonegapi.js"></script>
-        <script src="libs/json2.js"></script>
-        <script src="libs/underscore-1.1.6.js"></script>
-        <script src="libs/backbone.js"></script>
-        <script src="libs/backbone.localStorage.js"></script>
+        <script src="libs/json2.min.js"></script>
+        <script src="libs/underscore-min.js"></script>
+        <script src="libs/backbone-min.js"></script>
+        <script src="libs/backbone.localStorage-min.js"></script>
+        <script src="libs/vis.min.js"></script>
         <script src="auth.js"></script>
         <script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+
 <!--        <script src="inbox-data.js"></script>-->
 <!--        <script src="inbox-test.js"></script>-->
     </head>
@@ -36,21 +39,29 @@
     </div>
     <div id="mailapp" class="hidden">
         <div id="summary">
-            <ul id="sidemenu"></ul>
-            <span>
-                <select id="labeler">
-                    <option value=""> Apply Label </option>
-                    <option value="Personal"> Personal </option>
-                    <option value="Work"> Work </option>
-                    <option value="High Priority"> High Priority </option>
-                    <option value="Low Priority"> Low Priority </option>
-                </select>
+            <span class="inboxfunctions hidden">
+                <ul id="sidemenu"></ul>
+                <span>
+                    <select id="labeler">
+                        <option value=""> Apply Label </option>
+                        <option value="Personal"> Personal </option>
+                        <option value="Work"> Work </option>
+                        <option value="High Priority"> High Priority </option>
+                        <option value="Low Priority"> Low Priority </option>
+                    </select>
+                </span>
+                <span><button id="markallread">Mark all as Read</button></span>
+                <span><button id="archive">Archive</button></span>
+                <span><button id="gridview">Timeline View</button></span>
             </span>
-            <span> <button id="markallread">Mark all as Read</button></span>
-            <span> <button id="archive">Archive</button></span>
-            <span> <button id="gridview">Timeline View</button></span>
+            <span class="gridfunctions hidden">
+                <span><button id="fit">Fit All</button></span>
+                <span><button id="window1">This Week</button></span>
+                <span><button id="previousweek">Previous Week</button></span>
+                <span><button id="moveTo">Move to 2015-10-14</button></span>
+            </span
         </div>
-        <div class="content">
+        <div class="content" id="visualization">
             <span><input type="text" id="search" placeholder="Search" class="button"/></span>
             <div id="mails" style="float:left;">
                 <div class="topcoat-grid__row" id="mail-list"></div>
@@ -80,11 +91,11 @@
                 <div class="mail topcoat-grid__row">
                     <div><input class="check topcoat-grid__column--1" type="checkbox" <%= selected? "checked='checked'":"" %> / > </div>
                     <div <% if( star == true ) { %> class="star icon bookmark topcoat-grid__column--2" <% } else { %> class="star icon nobookmark topcoat-grid__column--1" <% } %> > &nbsp; </div>
-                    <div class="sender topcoat-grid__column--10"><%= sender %></div>
+                    <div class="sender topcoat-grid__column--10"><strong><%= sender %></strong></div>
                 </div>
-                <div class="timestamp"> <%= formattedDate %></div>
                 <div class="mail-subject"><%= subject %></div>
                 <div class="mail-snippet"><%= snippet %></div>
+                <div class="timestamp"> <%= formattedDate %></div>
                 <div class="mail-body"><%= body %></div>
                 <% if (label != '') { %>
                     <div class="labels"> <%= label %></div>
@@ -93,6 +104,20 @@
             <% if (read == false) { %> </strong>  <% } %>
           </a>
         </div>
+    </script>
+    <script type="text/template" id="mail-plot">
+        <!--<div class="topcoat-grid__row">-->
+        <!--<div class="topcoat-grid__column--12">-->
+                <div class="mailitem">
+                <div class="mailwrapper">
+                    <div class="sender"><strong><%= sender %></strong></div>
+                    <div class="mail-snippet"><%= snippet %></div>
+                    <div class="timestamp"><%= ordinal %> :: <%= formattedDate %></div>
+                    <div class="mail-body"><%= body %></div>
+                </div>
+                </div>
+        <!--</div>-->
+        <!--</div>-->
     </script>
     <script src="inbox.js"></script>
     </body>
