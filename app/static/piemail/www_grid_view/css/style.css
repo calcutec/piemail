@@ -74,7 +74,7 @@ body{
   padding-top: 3px;
   padding-bottom: 3px;
   overflow: hidden;
-  min-width: 25%;
+  min-width: 100%;
 }
 
 .hidden {

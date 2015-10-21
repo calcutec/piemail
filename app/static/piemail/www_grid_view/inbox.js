@@ -93,8 +93,9 @@ var MailList = Backbone.Collection.extend({
 
     timelineoptions: {
         // order: customOrder,
-        height: '900px',
+        //height: '900px',
         showCurrentTime: true,
+        //clickToUse: true,
         zoomable: true,
         zoomMin: 1000 * 60 * 60 * 24,  // one day in milliseconds
         zoomMax: 1000 * 60 * 60 * 24 * 31 * 1,  // about one month in milliseconds
@@ -208,6 +209,7 @@ var MailList = Backbone.Collection.extend({
             snippet:message.snippet + "...",
             formattedDate:formatDate(getHeader(message.payload.headers, 'Date')),
             timestamp:new Date(getHeader(message.payload.headers, 'Date')).getTime(),
+            body:getBody(message),
             start:start
         });
         messagesList.add(mailitem);
@@ -315,7 +317,6 @@ var InboxView = Backbone.View.extend({
     el: $("#mailapp"),
 
     initialize: function(){
-
         this.collection.bind('change', this.renderSideMenu, this);
         this.render(this.collection);
         this.renderSideMenu();
@@ -439,7 +440,10 @@ var InboxView = Backbone.View.extend({
             console.log("Timeline not yet defined..");
         } else {
             var props = this.collection.timeline.getEventProperties(event);
+            var mailbodyid = "#mailbody_" + props.item
+            $(mailbodyid).removeClass("hidden");
             console.log(props);
+
         }
     }
 });
