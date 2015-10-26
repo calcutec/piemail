@@ -3,16 +3,11 @@ function displayInbox() {
     var request = gapi.client.gmail.users.threads.list({
         'userId': 'me',
         'labelIds': 'INBOX',
-        'maxResults': 60
+        'maxResults': 200
     });
     var threadsList = new MailList([], { request: request, initialrequest: true });
     threadsList.executerequest();
- }
-
-function customOrder(a,b) {
-    return a.timestamp - b.timestamp;
 }
-
 
 function log(mess) {
     $('#logs').prepend('<pre>' + mess + '</pre>');
@@ -32,14 +27,15 @@ var Mail = Backbone.Model.extend( {
         subject: '',
         content: '',
         snippet: '',
-        body: '',
+        mailbody: '',
         timestamp: '',
         start: '',
         read: false,
         star: false,
         selected:false,
         archived:false,
-        label: ''
+        label: '',
+        createdOn: "Note created on " + new Date().toISOString()
     },
 
     markRead: function() {
@@ -92,10 +88,7 @@ var MailList = Backbone.Collection.extend({
     },
 
     timelineoptions: {
-        // order: customOrder,
-        //height: '900px',
         showCurrentTime: true,
-        //clickToUse: true,
         zoomable: true,
         zoomMin: 1000 * 60 * 60 * 24,  // one day in milliseconds
         zoomMax: 1000 * 60 * 60 * 24 * 31 * 1,  // about one month in milliseconds
@@ -112,29 +105,25 @@ var MailList = Backbone.Collection.extend({
         stack: true,
         template: _.template( $("#mail-plot").html()),
         orientation: {
-        axis: "top",
+        axis: "both",
         item: "top",
         },
         groupOrder: function (a, b) {
           return a.value - b.value;
         },
-        groupOrderSwap: function (a, b, groupDataSet) {
-            var v = a.value;
-            a.value = b.value;
-            b.value = v;
-        },
-        editable: true,
-        groupEditable: true
+
+        order: function customOrder(a,b) {
+            return a.timestamp - b.timestamp;
+        }
+        //groupOrderSwap: function (a, b, groupDataSet) {
+        //    var v = a.value;
+        //    a.value = b.value;
+        //    b.value = v;
+        //},
+        //editable: true,
+        //groupEditable: true
     },
 
-    // timelineoptions: {
-    //     showCurrentTime: true,
-    //     type: 'point',
-    //     stack: false,
-    //     template: _.template( $("#mail-plot").html())
-    // },
-
-    // localStorage: new Store("mails"),
     localStorage: new Backbone.LocalStorage("messageList"),
 
     unread: function() {
@@ -161,16 +150,16 @@ var MailList = Backbone.Collection.extend({
         return (this.filter( function(mail) { return mail.get('star')})).length;
     },
 
-    addOrdinal: function(){
-        var counter = 1;
+    addOrdinal: function(numberofMessages){
+        var counter = numberofMessages;
         this.each(function(item){
-            item.setOrdinal(counter++);
+            item.setOrdinal(counter--);
         }, this);
     },
 
     // Show messages for selected threads
     getThreads: function (threadArray) {
-        document.getElementById('visualization').innerHTML = "";
+        visualization.innerHTML = "";
         $('.inboxfunctions').addClass("hidden")
         $('.gridfunctions').removeClass("hidden");
         this.sort_dir = "desc";
@@ -207,14 +196,19 @@ var MailList = Backbone.Collection.extend({
             subject:getHeader(message.payload.headers, 'Subject'),
             content:getHeader(message.payload.headers, 'Subject'),
             snippet:message.snippet + "...",
-            formattedDate:formatDate(getHeader(message.payload.headers, 'Date')),
+            mailbody:getBody(message),
+            formattedDate:new Date(getHeader(message.payload.headers, 'Date')).toLocaleString(), //Options do not work with Safari
+            //formattedDate:formatDate(getHeader(message.payload.headers, 'Date')),
             timestamp:new Date(getHeader(message.payload.headers, 'Date')).getTime(),
-            body:getBody(message),
             start:start
         });
         messagesList.add(mailitem);
+        mailitem.save();
+        //messagesList.models.forEach(function(model){
+        //    console.log("Model in collection: " + model.get("body"));
+        //});
         if (messagesList.itemcount==messagesList.length){
-            messagesList.addOrdinal();
+            messagesList.addOrdinal(messagesList.length);
             self.groupDataSet.add({id: self.groupCounter, value: messagesList.models[0].get('timestamp'), content: "<span class='myGroup' style='color:#97B0F8; max-width:200px; white-space:wrap'>"+self.truncateTitle(messagesList.models[0].get('subject'))+"</span>"});
             self.itemDataSet.add(messagesList.toJSON());
             messagesList.reset();
@@ -223,8 +217,20 @@ var MailList = Backbone.Collection.extend({
                 self.timeline.setOptions(self.timelineoptions);
                 self.timeline.setGroups(self.groupDataSet);
                 self.timeline.setItems(self.itemDataSet);
+                $('body').append('<div id="overlay"></div>');
+                self.itemDataSet.forEach(function (item){
+                    self.setTimeline(item);
+                });
             }
         }
+    },
+
+    setTimeline: function(item){
+        setTimeout( function() {
+            var doc = $('#preview_'+item.id)[0].contentWindow.document;
+            var $body = $('body',doc);
+            $body.html(item.mailbody);
+        }, 1 );
     },
 
     truncateTitle: function(title) {
@@ -243,10 +249,10 @@ var MailList = Backbone.Collection.extend({
             subject:getHeader(thread.messages[thread.messages.length-1].payload.headers, 'Subject'),
             snippet:thread.messages[thread.messages.length-1].snippet,
             formattedDate:formatDate(getHeader(thread.messages[thread.messages.length-1].payload.headers, 'Date')),
-            timestamp:new Date(getHeader(thread.messages[thread.messages.length-1].payload.headers, 'Date')).getTime()
+            timestamp:new Date(getHeader(thread.messages[thread.messages.length-1].payload.headers, 'Date')).getTime(),
         });
         self.add(mailitem);
-        mailitem.save()
+        //mailitem.save()
         if (self.itemcount==self.length) NewApp = new InboxView({collection:self});
     },
 
@@ -313,6 +319,7 @@ var MailView = Backbone.View.extend({
 
 var InboxView = Backbone.View.extend({
     template: _.template($("#summary-tmpl").html()),
+    iframetemplate: _.template($("#iframe-template").html()),
 
     el: $("#mailapp"),
 
@@ -325,7 +332,7 @@ var InboxView = Backbone.View.extend({
     events: {
         "click #fit": "fitall",
         "click #moveTo": "moveto",
-        "click #visualization": "stats",
+        "click #visualization": "handleTimelineEvents",
         "click #window1": "setwindow",
         "click #previousweek": "previousweek",
         "change #labeler": "applyLabel",
@@ -335,6 +342,7 @@ var InboxView = Backbone.View.extend({
         "click #allmail": "allmail",
         "click #inbox": "inbox",
         "click #starred": "starred",
+        "click #iframeclose": "iframeclose",
         "keyup #search" : "search"
     },
 
@@ -360,7 +368,6 @@ var InboxView = Backbone.View.extend({
     },
 
     applyLabel: function(){
-
         var label = $("#labeler").val();
         this.collection.each(function(item){
             if(item.get('selected') == true){
@@ -435,16 +442,45 @@ var InboxView = Backbone.View.extend({
         this.collection.timeline.setWindow(previous2, previous)
     },
 
-    stats: function(event){
-        if(typeof this.collection.timeline === 'undefined'){
+    handleTimelineEvents: function(event) {
+        if (typeof this.collection.timeline === 'undefined') {
             console.log("Timeline not yet defined..");
         } else {
             var props = this.collection.timeline.getEventProperties(event);
-            var mailbodyid = "#mailbody_" + props.item
-            $(mailbodyid).removeClass("hidden");
-            console.log(props);
-
+            if (typeof(props.item) === 'undefined' || props.item === null) {
+                console.log('no props item')
+            } else {
+                this.renderiframe(props, function(mailcontent){
+                    var currentid = mailcontent[0];
+                    var ifrm = $('#'+currentid)[0].contentWindow.document;
+                    $('body', ifrm).html(mailcontent[1]);
+                    $('body', ifrm).prepend("<button onclick=parent.window.postMessage(['canceliframe','emailiframe'],'*')>close</button>")
+                });
+            }
         }
+    },
+
+
+
+    renderiframe: function(props, callback){
+        var currentid = "iframenumber_" + props.item;
+        var mailbody = this.collection.itemDataSet.get(props.item).mailbody
+        var currentiframe =  this.iframetemplate({'iframeid': currentid});
+        var overlay = document.getElementById('overlay');
+        overlay.style.opacity = .0;
+        overlay.style.display = "block";
+        $('#overlay').fadeTo('slow', 0.8);
+        $('#visualization').append(currentiframe)
+        var mailcontent = [currentid, mailbody]
+        callback(mailcontent);
+    },
+
+    getMessage: function(messageId, callback) {
+        var request = gapi.client.gmail.users.messages.get({
+            'userId': 'me',
+            'id': messageId
+        });
+        request.execute(appendMessage);
     }
 });
 
@@ -454,7 +490,7 @@ function appendMessage(message) {
         id: message.id,
         sender:getHeader(message.payload.headers, 'From'),
         subject:getHeader(message.payload.headers, 'Subject'),
-        body: getBody(message),
+        mailbody: getBody(message),
         formattedDate:formatDate(getHeader(message.payload.headers, 'Date')),
         timestamp: new Date(getHeader(message.payload.headers, 'Date'))
     });
@@ -479,7 +515,7 @@ function getBody(message) {
     }else{
       encodedBody = getHTMLPart(message.payload.parts);
     }
-    encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
+    encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/'/g, '&quot;').replace(/\s/g, '').replace(/[“”‘’]/g,'&quot;').replace(/[\u2018\u2019]/g, '&quot;').replace(/[\u201C\u201D]/g, '&quot;');
     decodedBody = decodeURIComponent(escape(window.atob(encodedBody)));
     return decodedBody
 }
@@ -517,6 +553,31 @@ function getHTMLPart(arr) {
     return '';
 }
 
+function receiveMessage(event){
+   if (event.data[0]=="canceliframe"){
+		overlay.style.display = "none";
+        var element = document.getElementsByClassName(event.data[1]);
+        element[0].parentNode.removeChild(element[0]);
+   }
+}
+
+window.addEventListener("message", receiveMessage, false);
+
+hover = function() {
+    if (!document.body.currentStyle) return;
+    var DIVmailwrapper = document.getElementsByClassName('mailwrapper');
+    var DIVcomment_wrap = document.getElementById('comment-wrap');
+    DIVmailwrapper.onmouseover = function() {
+        DIVcomment_wrap.style.display = 'block';
+    }
+    DIVmailwrapper.onmouseout = function() {
+        DIVcomment_wrap.style.display = 'none';
+    }
+}
+window.onload = hover;
+
+
+
 // Show list of messages, not grouped by thread
 //function displayInbox() {
 //    var request = gapi.client.gmail.users.messages.list({
@@ -536,3 +597,27 @@ function getHTMLPart(arr) {
 //        });
 //    });
 //}
+
+
+// Show list of messages, not grouped by thread
+//function displayInbox() {
+//    var request = gapi.client.gmail.users.messages.list({
+//        'userId': 'me',
+//        'labelIds': 'INBOX',
+//        'maxResults': 30
+//    });
+//    list = new MailList();
+//    request.execute(function(response) {
+//        count = response.messages.length;
+//        $.each(response.messages, function() {
+//             var messageRequest = gapi.client.gmail.users.messages.get({
+//                  'userId': 'me',
+//                  'id': this.id
+//              });
+//             messageRequest.execute(appendMessageRow);
+//        });
+//    });
+//}
+
+
+

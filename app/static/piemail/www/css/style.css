@@ -10,9 +10,73 @@ body{
   -webkit-font-smoothing: antialiased;
 }
 
-.content{
-  margin-top: 5px;
+
+#visualization {
+    margin-top:5px;
 }
+
+.vis-item.vis-point.vis-selected, .vis-item.vis-selected {
+    background-color: transparent;
+}
+
+div#overlay {
+	display: none;
+	z-index: 98;
+	background: #000;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+	text-align: center;
+}
+
+.emailiframe{
+    position: absolute;
+    top:100px;
+    left:100px;
+    z-index:99;
+    background-color:#FFF;
+    width:80%;
+}
+
+#iframeclose{
+    padding:2px;
+    margin-bottom:5px;
+    background-color:#0044cc;
+    font-size:16px;
+    font-family: source-sans-pro, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.parentwrapper{
+
+}
+
+.mailitem{
+  background:oldlace;
+  padding: 5px;
+}
+
+#comment-wrap {
+    background: gainsboro;
+    position: relative;
+    top: -140px;
+    left: 160px;
+    width: 300px;
+    max-height: 200px;
+}
+
+mailwrapper{
+    max-height:100px;
+}
+
+.mailwrapper #comment-wrap{display:none;z-index:5;padding:5px}
+.mailwrapper:hover #comment-wrap {
+    display:block
+}
+/*End iframe hover*/
+
 
 .timestamp{
   color: red;
@@ -23,13 +87,6 @@ body{
 /*}*/
 
 
-.mailitem{
-  background:oldlace;
-}
-
-.mailwrapper {
-    padding: 5px 0 5px 5px;
-}
 
 .vis-item {
   max-width:220px;
@@ -174,6 +231,7 @@ select, button{
   background-color:#fafafa;
   padding:3px;
 }
+
 input{
   border:1px solid #ddd;
   padding:3px;
