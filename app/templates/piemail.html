@@ -13,6 +13,15 @@
         <link href="{{ local_static_url }}piemail/www/css/grid.min.css" rel="stylesheet" >
         <link href="{{ local_static_url }}piemail/www/css/vis.min.css" rel="stylesheet" >
         <link href="{{ local_static_url }}piemail/www/css/style.css" rel="stylesheet" >
+        <style>
+          iframe {
+            width: 100%;
+            border: 0;
+            min-height: 80%;
+            height: 600px;
+            display: flex;
+          }
+        </style>
         <!-- <script type="text/javascript" src="cordova.js"></script>-->
         <script type="text/javascript" src="{{ local_static_url }}piemail/www/libs/jquery-2.1.4.min.js"></script>
         <script src="{{ local_static_url }}piemail/www/libs/phonegapi.js"></script>
@@ -23,102 +32,103 @@
         <script src="{{ local_static_url }}piemail/www/libs/vis.min.js"></script>
         <script src="{{ local_static_url }}piemail/www/auth.js"></script>
         <script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
-
 <!--        <script src="inbox-data.js"></script>-->
 <!--        <script src="inbox-test.js"></script>-->
     </head>
     <body>
+        <div class="testing">
+                <button id="authorize-button" class="hidden">Authorize</button>
+                <span id="logs"></span>
+                <pre id="output"></pre>
+        </div>
 
-
-
-
-    <div class="testing">
-            <button id="authorize-button" class="hidden">Authorize</button>
-            <span id="logs"></span>
-            <pre id="output"></pre>
-    </div>
-    <div id="mailapp" class="hidden">
-        <div id="summary">
-            <span class="inboxfunctions hidden">
-                <ul id="sidemenu"></ul>
-                <span>
-                    <select id="labeler">
-                        <option value=""> Apply Label </option>
-                        <option value="Personal"> Personal </option>
-                        <option value="Work"> Work </option>
-                        <option value="High Priority"> High Priority </option>
-                        <option value="Low Priority"> Low Priority </option>
-                    </select>
+        <div id="mailapp" class="hidden">
+            <div id="summary">
+                <span class="inboxfunctions hidden">
+                    <ul id="sidemenu"></ul>
+                    <span>
+                        <select id="labeler">
+                            <option value=""> Apply Label </option>
+                            <option value="Personal"> Personal </option>
+                            <option value="Work"> Work </option>
+                            <option value="High Priority"> High Priority </option>
+                            <option value="Low Priority"> Low Priority </option>
+                        </select>
+                    </span>
+                    <span><button id="markallread">Mark all as Read</button></span>
+                    <span><button id="archive">Archive</button></span>
+                    <span><button id="gridview">Timeline View</button></span>
                 </span>
-                <span><button id="markallread">Mark all as Read</button></span>
-                <span><button id="archive">Archive</button></span>
-                <span><button id="gridview">Timeline View</button></span>
-            </span>
-            <span class="gridfunctions hidden">
-                <span><button id="fit">Fit All</button></span>
-                <span><button id="window1">This Week</button></span>
-                <span><button id="previousweek">Previous Week</button></span>
-                <span><button id="moveTo">Move to 2015-10-14</button></span>
-            </span
-        </div>
-        <div class="content" id="visualization">
-            <span><input type="text" id="search" placeholder="Search" class="button"/></span>
-            <div id="mails" style="float:left;">
-                <div class="topcoat-grid__row" id="mail-list"></div>
+                <span class="gridfunctions hidden">
+                    <span><button id="fit">Fit All</button></span>
+                    <span><button id="window1">This Week</button></span>
+                    <!-- <span><button id="previousweek">Previous Week</button></span> -->
+                    <!-- <span><button id="moveTo">Move to 2015-10-14</button></span> -->
+                </span>
+            </div>
+            <div class="content" id="visualization">
+                <span><input type="text" id="search" placeholder="Search" class="button"/></span>
+                <div id="mails" style="float:left;">
+                    <div class="topcoat-grid__row" id="mail-list"></div>
+                </div>
             </div>
         </div>
-    </div>
-    <!-- Templates -->
-    <script type="text/template" id="summary-tmpl">
-        <li>
-           <a href="#" id="inbox">
-             <% if (inbox > 0 ) { %> <strong> Inbox (<%= inbox %>) </strong> <% } else { %> Inbox <% } %>
-           </a>
-        </li>
-        <li>
-           <a href="#" id="starred">
-             <% if (starred > 0 ) { %> <strong> Starred (<%= starred %>) </strong> <% } else { %> Starred <% } %>
-           </a>
-        </li>
-        <li><a href="#" id="allmail">All Mail</a></li>
-    </script>
 
-    <script type="text/template" id="mail-item">
-        <div class="mail topcoat-grid__row">
-          <a href="#">
-            <% if (read == false) { %> <strong>  <% } %>
-            <div class="mail topcoat-grid__column--12">
-                <div class="mail topcoat-grid__row">
-                    <div><input class="check topcoat-grid__column--1" type="checkbox" <%= selected? "checked='checked'":"" %> / > </div>
-                    <div <% if( star == true ) { %> class="star icon bookmark topcoat-grid__column--2" <% } else { %> class="star icon nobookmark topcoat-grid__column--1" <% } %> > &nbsp; </div>
-                    <div class="sender topcoat-grid__column--10"><strong><%= sender %></strong></div>
-                </div>
-                <div class="mail-subject"><%= subject %></div>
-                <div class="mail-snippet"><%= snippet %></div>
-                <div class="timestamp"> <%= formattedDate %></div>
-                <div class="mail-body"><%= body %></div>
-                <% if (label != '') { %>
-                    <div class="labels"> <%= label %></div>
-                <% } %>
-            </div>
-            <% if (read == false) { %> </strong>  <% } %>
-          </a>
-        </div>
-    </script>
-    <script type="text/template" id="mail-plot">
-        <!--<div class="topcoat-grid__row">-->
-        <!--<div class="topcoat-grid__column--12">-->
-                <div class="mailitem">
-                <div class="mailwrapper">
-                    <div class="sender"><strong><%= sender %></strong></div>
+    <!-- Templates -->
+        <script type="text/template" id="summary-tmpl">
+            <li>
+               <a href="#" id="inbox">
+                 <% if (inbox > 0 ) { %> <strong> Inbox (<%= inbox %>) </strong> <% } else { %> Inbox <% } %>
+               </a>
+            </li>
+            <li>
+               <a href="#" id="starred">
+                 <% if (starred > 0 ) { %> <strong> Starred (<%= starred %>) </strong> <% } else { %> Starred <% } %>
+               </a>
+            </li>
+            <li><a href="#" id="allmail">All Mail</a></li>
+        </script>
+
+        <script type="text/template" id="mail-item">
+            <div class="mail topcoat-grid__row">
+              <a href="#">
+                <% if (read == false) { %> <strong>  <% } %>
+                <div class="mail topcoat-grid__column--12">
+                    <div class="mail topcoat-grid__row">
+                        <div><input class="check topcoat-grid__column--1" type="checkbox" <%= selected? "checked='checked'":"" %> / > </div>
+                        <div <% if( star == true ) { %> class="star icon bookmark topcoat-grid__column--2" <% } else { %> class="star icon nobookmark topcoat-grid__column--1" <% } %> > &nbsp; </div>
+                        <div class="sender topcoat-grid__column--10"><strong><%= sender %></strong></div>
+                    </div>
+                    <div class="mail-subject"><%= subject %></div>
                     <div class="mail-snippet"><%= snippet %></div>
-                    <div class="timestamp"><%= ordinal %> :: <%= formattedDate %></div>
-{#                    <div class="mail-body hidden"><%= body %></div>#}
+                    <div class="timestamp"> <%= formattedDate %></div>
+                    <% if (label != '') { %>
+                        <div class="labels"> <%= label %></div>
+                    <% } %>
                 </div>
+                <% if (read == false) { %> </strong>  <% } %>
+              </a>
+            </div>
+        </script>
+        <script type="text/template" id="mail-plot">
+            <div class="parentwrapper">
+                <div class="mailitem">
+                    <div class="sender"><strong><%= ordinal %> :: <%= sender %></strong></div>
+                    <div class="mail-snippet"><%= snippet %></div>
+                    <div class="timestamp"><%= formattedDate %></div>
                 </div>
-        <!--</div>-->
-        <!--</div>-->
-    </script>
-    <script src="{{ local_static_url }}piemail/www/inbox.js"></script>
+                <div class="mailwrapper">
+                    <a href="#" class="btn">Preview (click to reply)
+                        <div id="comment-wrap"><iframe id="preview_<%= id %>" class="multiframe" style="max-height:200px;overflow:hidden"></iframe></div>
+                    </a>
+                </div>
+            </div>
+        </script>
+        <script type="text/template" id="iframe-template">
+            <iframe id="<%= iframeid %>" class="emailiframe"></iframe>
+        </script>
+
+        <script src="{{ local_static_url }}piemail/www/inbox.js"></script>
     </body>
 </html>
+

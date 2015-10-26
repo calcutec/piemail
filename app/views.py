@@ -21,9 +21,14 @@ from flask import make_response, request, current_app
 from functools import update_wrapper
 
 
+# @app.route('/', methods=['GET'])
+# def index():
+#     return redirect(url_for('home'))
+
+
 @app.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('home'))
+    return redirect("/piemail")
 
 # phonegap_data = ViewData(page_mark="phonegap")
 # app.add_url_rule('/phonegap/', view_func=GenericListView.as_view('phonegap', phonegap_data), methods=["GET", ])
@@ -183,7 +188,8 @@ class LoginAPI(MethodView):
                 remember_me = session['remember_me']
                 session.pop('remember_me', None)
             login_user(currentuser, remember=remember_me)
-            return redirect(request.args.get('next') or url_for('members'))
+            return redirect(request.args.get('next') or '/piemail')
+            # return redirect(request.args.get('next') or url_for('members'))
         else:   # LOGIN PAGE
             if g.user is not None and g.user.is_authenticated():
                 return redirect(url_for('members'))
