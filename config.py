@@ -3,7 +3,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 CSRF_ENABLED = True
-SECRET_KEY = os.environ['FLASK_SECRET_KEY']
+SECRET_KEY = "For my eyes only"
 
 
 SQLALCHEMY_DATABASE_URI = os.environ['PIEMAIL_DATABASE_URL']
