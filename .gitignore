@@ -4,11 +4,7 @@
 app.db
 test.db
 search.db
-flask
-app/static/PhoneGap/hooks
-app/static/PhoneGap/platforms
-app/static/PhoneGap/plugins
-app/static/PhoneGap/config.xml
+FlaskPiemail
 *.mo
 *.DS_Store
 

@@ -82,11 +82,6 @@ class ViewData(object):
             if not self.form:
                 self.assets['body_form'] = self.get_form()
 
-        elif self.page_mark == 'phonegap':
-            self.posts = User.query.all()
-            self.assets['header_text'] = "PhoneGap Page"
-            self.template_name = "index.html"
-
         elif self.page_mark == 'piemail':
             self.assets['header_text'] = "PhoneGap Page"
             self.template_name = "piemail.html"
