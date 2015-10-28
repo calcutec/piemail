@@ -21,7 +21,7 @@ body{
 
 div#overlay {
 	display: none;
-	z-index: 98;
+	z-index: 201;
 	background: #000;
 	position: fixed;
 	width: 100%;
@@ -31,52 +31,50 @@ div#overlay {
 	text-align: center;
 }
 
-.emailiframe{
+#emailreply{
+    display: none;
     position: absolute;
-    top:100px;
-    left:100px;
-    z-index:99;
+    top:50px;
+    left:50px;
+    z-index:202;
     background-color:#FFF;
     width:80%;
+    height: 60%;
 }
 
-#iframeclose{
-    padding:2px;
-    margin-bottom:5px;
-    background-color:#0044cc;
-    font-size:16px;
-    font-family: source-sans-pro, sans-serif;
-    -webkit-font-smoothing: antialiased;
+#emailreplyclose{
+    position: absolute;
+    top:25px;
+    left:50px;
+    z-index:203;
 }
 
-.parentwrapper{
-
-}
-
-.mailitem{
+.headerwrapper {
   background:oldlace;
   padding: 5px;
+  display:block;
 }
 
-#comment-wrap {
-    background: gainsboro;
-    position: relative;
-    top: -140px;
-    left: 160px;
-    width: 300px;
-    max-height: 200px;
+.snippet {
+  background:oldlace;
+  padding: 5px;
+  display:block;
 }
 
-mailwrapper{
-    max-height:100px;
+
+.bodywrapper #fullbody-wrap{
+    display:none;
+    z-index:200;
 }
 
-.mailwrapper #comment-wrap{display:none;z-index:5;padding:5px}
-.mailwrapper:hover #comment-wrap {
-    display:block
+.bodywrapper:hover #fullbody-wrap {
+    display:block;
+    background:snow;
 }
-/*End iframe hover*/
 
+.bodywrapper:hover .snippet {
+    display:none;
+}
 
 .timestamp{
   color: red;
@@ -89,7 +87,7 @@ mailwrapper{
 
 
 .vis-item {
-  max-width:220px;
+  max-width:350px;
 }
 
 .vis-item .vis-item-content {

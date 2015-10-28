@@ -22,3 +22,10 @@ def inject_static_url():
         static_url=static_url,
         local_static_url=local_static_url
     )
+
+
+@app.route('/emaildata/<emailid>')
+def emaildata(emailid):
+    return render_template('emaildata.html', emailid=emailid)
+
+

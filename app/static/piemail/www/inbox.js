@@ -5,7 +5,7 @@ function displayInbox() {
         'labelIds': 'INBOX',
         'maxResults': 200
     });
-    var threadsList = new MailList([], { request: request, initialrequest: true });
+    threadsList = new MailList([], { request: request, initialrequest: true });
     threadsList.executerequest();
 }
 
@@ -154,6 +154,7 @@ var MailList = Backbone.Collection.extend({
         var counter = numberofMessages;
         this.each(function(item){
             item.setOrdinal(counter--);
+            item.save()
         }, this);
     },
 
@@ -218,9 +219,9 @@ var MailList = Backbone.Collection.extend({
                 self.timeline.setGroups(self.groupDataSet);
                 self.timeline.setItems(self.itemDataSet);
                 $('body').append('<div id="overlay"></div>');
-                self.itemDataSet.forEach(function (item){
-                    self.setTimeline(item);
-                });
+                //self.itemDataSet.forEach(function (item){
+                //    self.setTimeline(item);
+                //});
             }
         }
     },
@@ -319,7 +320,7 @@ var MailView = Backbone.View.extend({
 
 var InboxView = Backbone.View.extend({
     template: _.template($("#summary-tmpl").html()),
-    iframetemplate: _.template($("#iframe-template").html()),
+    emailreplytemplate: _.template($("#emailreply-template").html()),
 
     el: $("#mailapp"),
 
@@ -448,31 +449,26 @@ var InboxView = Backbone.View.extend({
         } else {
             var props = this.collection.timeline.getEventProperties(event);
             if (typeof(props.item) === 'undefined' || props.item === null) {
-                console.log('no props item')
+                if(props.event.target.id == "emailreplyclose"){
+                    $('#emailreply, #emailreplyclose, #overlay').fadeOut(300);
+                } else {
+                    console.log('no props item')
+                }
+
             } else {
-                this.renderiframe(props, function(mailcontent){
-                    var currentid = mailcontent[0];
-                    var ifrm = $('#'+currentid)[0].contentWindow.document;
-                    $('body', ifrm).html(mailcontent[1]);
-                    $('body', ifrm).prepend("<button onclick=parent.window.postMessage(['canceliframe','emailiframe'],'*')>close</button>")
-                });
+                this.renderiframe(props);
             }
         }
     },
 
 
-
     renderiframe: function(props, callback){
-        var currentid = "iframenumber_" + props.item;
-        var mailbody = this.collection.itemDataSet.get(props.item).mailbody
-        var currentiframe =  this.iframetemplate({'iframeid': currentid});
+        var currentid = props.item;
+        var emailbody =  this.emailreplytemplate({'id': currentid});
         var overlay = document.getElementById('overlay');
-        overlay.style.opacity = .0;
-        overlay.style.display = "block";
-        $('#overlay').fadeTo('slow', 0.8);
-        $('#visualization').append(currentiframe)
-        var mailcontent = [currentid, mailbody]
-        callback(mailcontent);
+        overlay.style.opacity = .7;
+        $('#visualization').append(emailbody)
+        $('#overlay, #emailreply').fadeIn(300);
     },
 
     getMessage: function(messageId, callback) {
@@ -553,16 +549,6 @@ function getHTMLPart(arr) {
     return '';
 }
 
-function receiveMessage(event){
-   if (event.data[0]=="canceliframe"){
-		overlay.style.display = "none";
-        var element = document.getElementsByClassName(event.data[1]);
-        element[0].parentNode.removeChild(element[0]);
-   }
-}
-
-window.addEventListener("message", receiveMessage, false);
-
 hover = function() {
     if (!document.body.currentStyle) return;
     var DIVmailwrapper = document.getElementsByClassName('mailwrapper');
@@ -574,6 +560,7 @@ hover = function() {
         DIVcomment_wrap.style.display = 'none';
     }
 }
+
 window.onload = hover;
 
 

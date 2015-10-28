@@ -111,21 +111,22 @@
             </div>
         </script>
         <script type="text/template" id="mail-plot">
-            <div class="parentwrapper">
-                <div class="mailitem">
-                    <div class="sender"><strong><%= ordinal %> :: <%= sender %></strong></div>
+            <div class="headerwrapper">
+                <div class="sender"><strong><%= ordinal %> :: <%= sender %></strong></div>
+                <div class="timestamp"><%= formattedDate %></div>
+            </div>
+            <div class="bodywrapper">
+                <div class="snippet">
                     <div class="mail-snippet"><%= snippet %></div>
-                    <div class="timestamp"><%= formattedDate %></div>
                 </div>
-                <div class="mailwrapper">
-                    <a href="#" class="btn">Preview (click to reply)
-                        <div id="comment-wrap"><iframe id="preview_<%= id %>" class="multiframe" style="max-height:200px;overflow:hidden"></iframe></div>
-                    </a>
+                <div id="fullbody-wrap">
+                    <object id="preview_<%= id %>" type="text/html" data="/emaildata/<%= id %>"></object>
                 </div>
             </div>
         </script>
-        <script type="text/template" id="iframe-template">
-            <iframe id="<%= iframeid %>" class="emailiframe"></iframe>
+        <script type="text/template" id="emailreply-template">
+            <button id="emailreplyclose" onclick="$('#emailreply-template').fadeOut(300)">close</button>
+            <object id="emailreply" type="text/html" data="/emaildata/<%= id %>"></object>
         </script>
 
         <script src="{{ local_static_url }}piemail/www/inbox.js"></script>

@@ -119,7 +119,10 @@
                 </div>
                 <div class="mailwrapper">
                     <a href="#" class="btn">Preview
-                        <div id="comment-wrap"><iframe id="preview_<%= id %>" class="multiframe" style="max-height:200px;overflow:hidden"></iframe></div>
+                        <div id="comment-wrap">
+                            <object id="preview_<%= id %>" class="multiframe" data="<h3>Hello?</h3>" type="text/html" width="300" height="200"></object>
+                        </div>
+{#                        <div id="comment-wrap"><iframe id="preview_<%= id %>" class="multiframe" style="max-height:200px;overflow:hidden"></iframe></div>#}
                     </a>
                 </div>
             </div>
