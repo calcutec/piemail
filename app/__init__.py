@@ -4,8 +4,16 @@ from .momentjs import momentjs
 from flask_wtf.csrf import CsrfProtect
 
 app = Flask(__name__)
-CsrfProtect(app)
 app.config.from_object('config')
+CsrfProtect(app)
+
+
+if os.environ.get('HEROKU') is not None:
+    import logging
+    stream_handler = logging.StreamHandler()
+    app.logger.addHandler(stream_handler)
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('burtonblog startup')
 
 
 # app.config["S3_LOCATION"] = 'https://s3.amazonaws.com/netbardus/'
