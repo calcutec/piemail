@@ -1,8 +1,10 @@
 import os
 from flask import Flask
 from .momentjs import momentjs
+from flask_wtf.csrf import CsrfProtect
 
 app = Flask(__name__)
+CsrfProtect(app)
 app.config.from_object('config')
 
 
