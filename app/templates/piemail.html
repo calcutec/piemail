@@ -126,7 +126,7 @@
         </script>
         <script type="text/template" id="emailreply-template">
             <button id="emailreplyclose" onclick="$('#emailreply-template').fadeOut(300)">close</button>
-            <object id="emailreply" type="text/html" data="/emaildata/<%= id %>"></object>
+            <object id="emailreply" type="text/html" data="{{ host_url }}/emaildata/<%= id %>"></object>
         </script>
 
         <script src="{{ local_static_url }}piemail/www/inbox.js"></script>

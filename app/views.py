@@ -1,5 +1,5 @@
 from app import app
-from flask import render_template
+from flask import render_template, request
 import os
 
 
@@ -20,7 +20,8 @@ def inject_static_url():
         local_static_url += '/'
     return dict(
         static_url=static_url,
-        local_static_url=local_static_url
+        local_static_url=local_static_url,
+        host_url=request.url_root
     )
 
 
