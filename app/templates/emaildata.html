@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script>
+    showdata = function() {
+        var mailbody = JSON.parse(window.localStorage.getItem('messageList-{{ emailid }}')).mailbody
+        var bodyObject = document.getElementsByTagName('body')[0];
+        bodyObject.innerHTML = mailbody;
+    }
+    window.onload = showdata();
+</script>
+</body>
+</html>
