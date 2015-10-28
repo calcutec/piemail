@@ -21,7 +21,7 @@ body{
 
 div#overlay {
 	display: none;
-	z-index: 201;
+	z-index: 51;
 	background: #000;
 	position: fixed;
 	width: 100%;
@@ -36,7 +36,7 @@ div#overlay {
     position: absolute;
     top:50px;
     left:50px;
-    z-index:202;
+    z-index:52;
     background-color:#FFF;
     width:80%;
     height: 60%;
@@ -46,30 +46,24 @@ div#overlay {
     position: absolute;
     top:25px;
     left:50px;
-    z-index:203;
+    z-index:53;
 }
 
-.headerwrapper {
+.headerwrapper, .snippet {
   background:oldlace;
   padding: 5px;
   display:block;
 }
-
-.snippet {
-  background:oldlace;
-  padding: 5px;
-  display:block;
-}
-
 
 .bodywrapper #fullbody-wrap{
     display:none;
-    z-index:200;
 }
 
 .bodywrapper:hover #fullbody-wrap {
     display:block;
     background:snow;
+    border:2px solid oldlace;
+    z-index:50;
 }
 
 .bodywrapper:hover .snippet {
@@ -87,7 +81,7 @@ div#overlay {
 
 
 .vis-item {
-  max-width:350px;
+  max-width:325px;
 }
 
 .vis-item .vis-item-content {
