@@ -26,7 +26,6 @@ def inject_static_url():
 
 
 @app.route('/emaildata/<emailid>')
-@crossdomain(origin='*')
 def emaildata(emailid):
     return render_template('emaildata.html', emailid=emailid)
 
