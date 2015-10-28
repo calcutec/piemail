@@ -1,8 +1,9 @@
 from app import app
-from flask import render_template, make_response, request, current_app
+from flask import render_template, make_response, request, current_app, g
 from functools import update_wrapper
 from datetime import timedelta
 import os
+from flask.ext.login import current_user
 
 
 def crossdomain(origin=None, methods=None, headers=None,
@@ -73,6 +74,16 @@ def inject_static_url():
 @crossdomain(origin='*')
 def emaildata(emailid):
     return render_template('emaildata.html', emailid=emailid)
+
+
+@app.before_request
+def before_request():
+    g.user = current_user
+
+
+@app.after_request
+def after_request(response):
+    return response
 
 
 @app.errorhandler(404)
