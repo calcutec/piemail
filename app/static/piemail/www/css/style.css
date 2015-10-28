@@ -64,6 +64,7 @@ div#overlay {
     background:snow;
     border:2px solid oldlace;
     z-index:50;
+    padding-right:5px;
 }
 
 .bodywrapper:hover .snippet {
@@ -81,7 +82,7 @@ div#overlay {
 
 
 .vis-item {
-  max-width:325px;
+  max-width:330px;
 }
 
 .vis-item .vis-item-content {
