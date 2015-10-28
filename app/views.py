@@ -75,22 +75,22 @@ def inject_static_url():
 def emaildata(emailid):
     return render_template('emaildata.html', emailid=emailid)
 
-
-@app.before_request
-def before_request():
-    g.user = current_user
-
-
-@app.after_request
-def after_request(response):
-    return response
-
-
-@app.errorhandler(404)
-def not_found_error(error):
-    return render_template('404.html', error=error), 404
+#
+# @app.before_request
+# def before_request():
+#     g.user = current_user
+#
+#
+# @app.after_request
+# def after_request(response):
+#     return response
 
 
-@app.errorhandler(500)
-def internal_error(error):
-    return render_template('500.html', error=error), 500
+# @app.errorhandler(404)
+# def not_found_error(error):
+#     return render_template('404.html', error=error), 404
+#
+#
+# @app.errorhandler(500)
+# def internal_error(error):
+#     return render_template('500.html', error=error), 500
