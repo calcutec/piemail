@@ -6,25 +6,10 @@
         <title>PieMail</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <!--         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1,
-        minimum-scale=1, width=device-width, height=device-height" /> -->
-        <meta name="format-detection" content="telephone=no" />
-<!--         <link href="css/topcoat-mobile-light.min.css" rel="stylesheet" > -->
         <link href="{{ local_static_url }}piemail/www/css/grid.min.css" rel="stylesheet" >
         <link href="{{ local_static_url }}piemail/www/css/vis.min.css" rel="stylesheet" >
         <link href="{{ local_static_url }}piemail/www/css/style.css" rel="stylesheet" >
-        <style>
-          iframe {
-            width: 100%;
-            border: 0;
-            min-height: 80%;
-            height: 600px;
-            display: flex;
-          }
-        </style>
-        <!-- <script type="text/javascript" src="cordova.js"></script>-->
         <script type="text/javascript" src="{{ local_static_url }}piemail/www/libs/jquery-2.1.4.min.js"></script>
-        <script src="{{ local_static_url }}piemail/www/libs/phonegapi.js"></script>
         <script src="{{ local_static_url }}piemail/www/libs/json2.min.js"></script>
         <script src="{{ local_static_url }}piemail/www/libs/underscore-min.js"></script>
         <script src="{{ local_static_url }}piemail/www/libs/backbone-min.js"></script>
@@ -88,27 +73,25 @@
             </li>
             <li><a href="#" id="allmail">All Mail</a></li>
         </script>
-
         <script type="text/template" id="mail-item">
-            <div class="mail topcoat-grid__row">
+          <div>
+            <div class="mail">
               <a href="#">
                 <% if (read == false) { %> <strong>  <% } %>
-                <div class="mail topcoat-grid__column--12">
-                    <div class="mail topcoat-grid__row">
-                        <div><input class="check topcoat-grid__column--1" type="checkbox" <%= selected? "checked='checked'":"" %> / > </div>
-                        <div <% if( star == true ) { %> class="star icon bookmark topcoat-grid__column--2" <% } else { %> class="star icon nobookmark topcoat-grid__column--1" <% } %> > &nbsp; </div>
-                        <div class="sender topcoat-grid__column--10"><strong><%= sender %></strong></div>
-                    </div>
-                    <div class="mail-subject"><%= subject %></div>
-                    <div class="mail-snippet"><%= snippet %></div>
-                    <div class="timestamp"> <%= formattedDate %></div>
-                    <% if (label != '') { %>
-                        <div class="labels"> <%= label %></div>
-                    <% } %>
-                </div>
+                <span style="float:left;width:20px;"><input class="check" type="checkbox" <%= selected? "checked='checked'":"" %> / > </span>
+                <span style="float:left;width:20px;" <% if( star == true ) { %> class="star icon bookmark" <% } else { %> class="star icon nobookmark" <% } %> > &nbsp; </span>
+                <span style="float:left;width:300px;" class="sender"><%= sender %></span>
+                <span style="float:right;width:150px;text-align:right;" class="timestamp"><%= formattedDate %></span>
+                <span style="float:left;width:100%;" class="mail-subject"><%= subject %></span>
+                <span style="color:#23707E;float:left;width:100%;" class="mail-snippet"><%= snippet %></span>
+                <% if (label != '') { %>
+                  <span style="float:left;width:80px;" class="labels"> <%= label %></span>
+                <% } %>
+                <div style="clear:both;"></div>
                 <% if (read == false) { %> </strong>  <% } %>
               </a>
             </div>
+          </div>
         </script>
         <script type="text/template" id="mail-plot">
             <div class="headerwrapper">
@@ -125,7 +108,7 @@
             </div>
         </script>
         <script type="text/template" id="emailreply-template">
-            <button id="emailreplyclose" onclick="$('#emailreply-template').fadeOut(300)">close</button>
+            <button id="emailreplyclose">close</button>
             <object id="emailreply" type="text/html" data="{{ host_url }}emaildata/<%= id %>"></object>
         </script>
 

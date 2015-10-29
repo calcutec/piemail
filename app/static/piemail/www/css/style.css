@@ -38,8 +38,8 @@ div#overlay {
     left:50px;
     z-index:52;
     background-color:#FFF;
-    width:80%;
-    height: 60%;
+    width:70%;
+    height: 70%;
 }
 
 #emailreplyclose{
@@ -57,13 +57,13 @@ div#overlay {
 
 .bodywrapper #fullbody-wrap{
     display:none;
+    z-index:75;
 }
 
 .bodywrapper:hover #fullbody-wrap {
     display:block;
     background:snow;
     border:2px solid oldlace;
-    z-index:50;
     padding-right:5px;
 }
 
@@ -72,7 +72,7 @@ div#overlay {
 }
 
 .timestamp{
-  color: red;
+  color: grey;
 }
 
 /*.vis-labelset {*/

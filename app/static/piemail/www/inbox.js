@@ -105,9 +105,10 @@ var MailList = Backbone.Collection.extend({
         stack: true,
         template: _.template( $("#mail-plot").html()),
         orientation: {
-        axis: "both",
+        axis: "top",
         item: "top",
         },
+        minHeight:'250px',
         groupOrder: function (a, b) {
           return a.value - b.value;
         },
@@ -189,7 +190,7 @@ var MailList = Backbone.Collection.extend({
 
     // Show messages for a single thread
     renderMessageRow: function (message, messagesList){
-        start = new Date(getHeader(message.payload.headers, 'Date'))
+        start = new Date(getHeader(message.payload.headers, 'Date'));
         var mailitem = new Mail({
             id: message.id,
             group: self.groupCounter,
@@ -219,19 +220,8 @@ var MailList = Backbone.Collection.extend({
                 self.timeline.setGroups(self.groupDataSet);
                 self.timeline.setItems(self.itemDataSet);
                 $('body').append('<div id="overlay"></div>');
-                //self.itemDataSet.forEach(function (item){
-                //    self.setTimeline(item);
-                //});
             }
         }
-    },
-
-    setTimeline: function(item){
-        setTimeout( function() {
-            var doc = $('#preview_'+item.id)[0].contentWindow.document;
-            var $body = $('body',doc);
-            $body.html(item.mailbody);
-        }, 1 );
     },
 
     truncateTitle: function(title) {
@@ -254,7 +244,7 @@ var MailList = Backbone.Collection.extend({
         });
         self.add(mailitem);
         //mailitem.save()
-        if (self.itemcount==self.length) NewApp = new InboxView({collection:self});
+        if (self.itemcount==self.length) new InboxView({collection:self});
     },
 
     search: function(word){
@@ -343,7 +333,6 @@ var InboxView = Backbone.View.extend({
         "click #allmail": "allmail",
         "click #inbox": "inbox",
         "click #starred": "starred",
-        "click #iframeclose": "iframeclose",
         "keyup #search" : "search"
     },
 
@@ -428,18 +417,18 @@ var InboxView = Backbone.View.extend({
         var today = new Date();
         var numberOfDaysToAdd = 2;
         var limitdate = today.setDate(today.getDate() + numberOfDaysToAdd); 
-        var lastWeek = new Date(today.getTime()-1000*60*60*24*7)
-        this.collection.timeline.setWindow(lastWeek, limitdate)
+        var lastWeek = new Date(today.getTime()-1000*60*60*24*7);
+        this.collection.timeline.setWindow(lastWeek, limitdate);
     },
 
     previousweek: function(){
         if(typeof begindate === 'undefined'){
-            begindate = new Date();
+            var begindate = new Date();
         } else {
-            begindate = previous;
+            var begindate = previous;
         }
-        previous = new Date(begindate.getTime()-1000*60*60*24*7);
-        previous2 = new Date(previous.getTime()-1000*60*60*24*7);
+        var previous = new Date(begindate.getTime()-1000*60*60*24*7);
+        var previous2 = new Date(previous.getTime()-1000*60*60*24*7);
         this.collection.timeline.setWindow(previous2, previous)
     },
 
@@ -456,43 +445,44 @@ var InboxView = Backbone.View.extend({
                 }
 
             } else {
-                this.renderiframe(props);
+                this.renderemailbody(props);
             }
         }
     },
 
 
-    renderiframe: function(props, callback){
+    renderemailbody: function(props){
         var currentid = props.item;
         var emailbody =  this.emailreplytemplate({'id': currentid});
         var overlay = document.getElementById('overlay');
         overlay.style.opacity = .7;
-        $('#visualization').append(emailbody)
+        $('#visualization').append(emailbody);
         $('#overlay, #emailreply').fadeIn(300);
-    },
-
-    getMessage: function(messageId, callback) {
-        var request = gapi.client.gmail.users.messages.get({
-            'userId': 'me',
-            'id': messageId
-        });
-        request.execute(appendMessage);
     }
+
+
+    //getMessage: function(messageId, callback) {
+    //    var request = gapi.client.gmail.users.messages.get({
+    //        'userId': 'me',
+    //        'id': messageId
+    //    });
+    //    request.execute(appendMessage);
+    //}
 });
 
-// Show a single and full message
-function appendMessage(message) {
-    var mailitem = new Mail({
-        id: message.id,
-        sender:getHeader(message.payload.headers, 'From'),
-        subject:getHeader(message.payload.headers, 'Subject'),
-        mailbody: getBody(message),
-        formattedDate:formatDate(getHeader(message.payload.headers, 'Date')),
-        timestamp: new Date(getHeader(message.payload.headers, 'Date'))
-    });
-    messageList.add(mailitem);
-    NewApp = new InboxView({collection:messageList});
-}
+// Show a single and full message :: Currently not used
+//function appendMessage(message) {
+//    var mailitem = new Mail({
+//        id: message.id,
+//        sender:getHeader(message.payload.headers, 'From'),
+//        subject:getHeader(message.payload.headers, 'Subject'),
+//        mailbody: getBody(message),
+//        formattedDate:formatDate(getHeader(message.payload.headers, 'Date')),
+//        timestamp: new Date(getHeader(message.payload.headers, 'Date'))
+//    });
+//    messageList.add(mailitem);
+//    NewApp = new InboxView({collection:messageList});
+//}
 
 function getHeader(headers, index) {
     var header = '';
@@ -511,7 +501,9 @@ function getBody(message) {
     }else{
       encodedBody = getHTMLPart(message.payload.parts);
     }
-    encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/'/g, '&quot;').replace(/\s/g, '').replace(/[“”‘’]/g,'&quot;').replace(/[\u2018\u2019]/g, '&quot;').replace(/[\u201C\u201D]/g, '&quot;');
+    //encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/'/g, '&quot;').replace(/\s/g, '')
+    // .replace(/[“”‘’]/g,'&quot;').replace(/[\u2018\u2019]/g, '&quot;').replace(/[\u201C\u201D]/g, '&quot;');
+    encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
     decodedBody = decodeURIComponent(escape(window.atob(encodedBody)));
     return decodedBody
 }
@@ -555,10 +547,10 @@ hover = function() {
     var DIVcomment_wrap = document.getElementById('comment-wrap');
     DIVmailwrapper.onmouseover = function() {
         DIVcomment_wrap.style.display = 'block';
-    }
+    };
     DIVmailwrapper.onmouseout = function() {
         DIVcomment_wrap.style.display = 'none';
-    }
+    };
 }
 
 window.onload = hover;
