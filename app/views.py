@@ -1,16 +1,17 @@
-from flask import url_for, session, redirect, request, json, render_template
 import httplib2
 import os
-
-from apiclient import discovery, errors
+import datetime
+from flask import url_for, session, redirect, request, json, render_template
+from apiclient import discovery, errors, http
 from oauth2client import client
-
-
 from app import app
+
+fullthreadset = []
 
 
 @app.route('/')
 def index():
+    newthreadlist = []
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
@@ -18,9 +19,41 @@ def index():
         return redirect(url_for('oauth2callback'))
     else:
         http_auth = credentials.authorize(httplib2.Http())
-        gmail_service = discovery.build('gmail', 'v1', http_auth)
-        threads = gmail_service.users().threads().list(userId='me').execute()
-        return json.dumps(threads)
+        service = discovery.build('gmail', 'v1', http_auth)
+        # labels = listlabels(service, 'me')
+        results = service.users().threads().list(userId='me',
+                                                 maxResults=20,fields="threads/id",
+                                                 q="in:inbox -category:(promotions OR social)").execute()
+        batch = service.new_batch_http_request(callback=processthreads)
+        for thread in results['threads']:
+            batch.add(service.users()
+                      .threads().get(userId='me', id=thread['id'],
+                                     fields="messages/snippet, messages/internalDate, "
+                                            "messages/threadId, messages/payload/headers"))
+        batch.execute()
+        for thread in fullthreadset:
+            threaditems = dict()
+            threaditems['id'] = thread['threadId']
+            threaditems['snippet'] = thread['snippet'] + "..."
+            threaditems['date'] = datetime.datetime.fromtimestamp(float(thread['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
+            threaditems['sender'] = getheaders(thread, "From")
+            threaditems['subject'] = getheaders(thread, "Subject")
+            newthreadlist.append(threaditems)
+        fullthreadset[:] = []
+        return render_template("piemail.html", threads=newthreadlist, inbox=len(newthreadlist))
+
+
+def processthreads(request_id, response, exception):
+    if exception is not None:
+        pass
+    else:
+        fullthreadset.append(response['messages'][0])
+
+
+def getheaders(thread, key):
+    for header in thread['payload']['headers']:
+        if header['name'] == key:
+            return header['value']
 
 
 @app.route('/oauth2callback')
@@ -38,6 +71,48 @@ def oauth2callback():
         credentials = flow.step2_exchange(auth_code)
         session['credentials'] = credentials.to_json()
         return redirect(url_for('index'))
+
+
+def listlabels(service, user_id):
+    try:
+        response = service.users().labels().list(userId=user_id).execute()
+        labels = response['labels']
+        for label in labels:
+            print 'Label id: %s - Label name: %s' % (label['id'], label['name'])
+            return labels
+    except errors.HttpError, error:
+        print 'An error occurred: %s' % error
+
+
+def listthreadswithlabels(service, user_id, label_ids=[]):
+    """List all Threads of the user's mailbox with label_ids applied.
+
+    Args:
+    service: Authorized Gmail API service instance.
+    user_id: User's email address. The special value "me"
+    can be used to indicate the authenticated user.
+    label_ids: Only return Threads with these labelIds applied.
+
+    Returns:
+    List of threads that match the criteria of the query. Note that the returned
+    list contains Thread IDs, you must use get with the appropriate
+    ID to get the details for a Thread.
+    """
+    try:
+        response = service.users().threads().list(userId=user_id, labelIds=label_ids, maxResults="100").execute()
+        threads = []
+        if 'threads' in response:
+            threads.extend(response['threads'])
+
+        while 'nextPageToken' in response:
+            page_token = response['nextPageToken']
+            response = service.users().threads().list(userId=user_id, labelIds=label_ids,
+                                                      pageToken=page_token).execute()
+            threads.extend(response['threads'])
+        return threads
+
+    except errors.HttpError, error:
+        print 'An error occurred: %s' % error
 
 
 @app.route('/getmail')
