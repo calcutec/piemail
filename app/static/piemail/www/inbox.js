@@ -1,5 +1,3 @@
-var globalDate = new Date();
-
 var Mail = Backbone.Model.extend( {
     defaults: {
         id: '',
@@ -58,7 +56,11 @@ var MailList = Backbone.Collection.extend({
         zoomable: true,
         zoomMin: 1000 * 60 * 60 * 24,  // one day in milliseconds
         zoomMax: 1000 * 60 * 60 * 24 * 31,  // about one month in milliseconds
-        max: globalDate.setDate(globalDate.getDate() + 7),  // upper limit of visible range
+        max: function () {
+            var maxDate = new Date();
+            maxDate.setDate(maxDate.getDate() + 7);
+            return maxDate;
+        },
         zoomKey: 'altKey',
         type: 'point',
         margin: {
@@ -219,8 +221,8 @@ var MailView = Backbone.View.extend({
     },
 
     initialize: function() {
-        this.listenTo(this.model, 'change', this.render);
-        this.listenTo(this.model, 'destroy', this.remove, this.unrender())
+        //this.listenTo(this.model, 'change', this.render);
+        //this.listenTo(this.model, 'destroy', this.remove, this.unrender())
     },
 
     render: function() {
@@ -258,7 +260,7 @@ var InboxView = Backbone.View.extend({
 
     initialize: function(){
         this.collection.bind('change', this.renderSideMenu, this);
-        this.render(this.collection);
+        //this.render(this.collection);
         this.renderSideMenu();
     },
 
@@ -333,7 +335,6 @@ var InboxView = Backbone.View.extend({
 
     addOne: function (mail) {
         var itemView = new MailView({ model: mail});
-
         $('div#mail-list', this.el).append(itemView.render().el);
     },
 
@@ -392,7 +393,6 @@ var InboxView = Backbone.View.extend({
         }
     },
 
-
     renderemailbody: function(props){
         var currentid = props.item;
         var emailbody =  this.emailreplytemplate({'id': currentid});
@@ -400,6 +400,20 @@ var InboxView = Backbone.View.extend({
         overlay.style.opacity = .7;
         $('#visualization').append(emailbody);
         $('#overlay, #emailreply').fadeIn(300);
+    },
+
+    attachToView: function(){
+        this.el = $("#mail-list");
+        var self = this;
+        $(".mail").each(function(){
+            var mailEl = $(this);
+            var id = mailEl.data('threadid');
+            var mailitem = self.collection.get(id);
+            new MailView({
+                model: mailitem,
+                el: mailEl
+            });
+        });
     }
 });
 
@@ -420,29 +434,8 @@ function getBody(message) {
     }else{
       encodedBody = getHTMLPart(message.payload.parts);
     }
-    //encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/'/g, '&quot;').replace(/\s/g, '')
-    // .replace(/[“”‘’]/g,'&quot;').replace(/[\u2018\u2019]/g, '&quot;').replace(/[\u201C\u201D]/g, '&quot;');
     encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
-    var decodedBody = decodeURIComponent(escape(window.atob(encodedBody)));
-    return decodedBody
-}
-
-function formatDate(dateToFormat) {
-    var date = new Date(dateToFormat);
-
-    var month = date.getMonth() + 1;
-    var day = date.getDate();
-    var hour = date.getHours();
-    var min = date.getMinutes();
-    var sec = date.getSeconds();
-
-    month = (month < 10 ? "0" : "") + month;
-    day = (day < 10 ? "0" : "") + day;
-    hour = (hour < 10 ? "0" : "") + hour;
-    min = (min < 10 ? "0" : "") + min;
-    sec = (sec < 10 ? "0" : "") + sec;
-
-    return date.getFullYear() + "-" + month + "-" + day + " at " +  hour + ":" + min;
+    return decodeURIComponent(escape(window.atob(encodedBody)));
 }
 
 function getHTMLPart(arr) {
@@ -468,100 +461,39 @@ hover = function() {
     DIVmailwrapper.onmouseout = function() {
         DIVcomment_wrap.style.display = 'none';
     };
-}
+};
 
 
 startapp = function () {
-    threadsList = new MailList()
-    $('.mail').each(function() {
-        threadsList.add(new Mail($(this).data()));
+    var threadslist = new MailList();
+    $('.mail').each(function(i) {
+        threadslist.add(new Mail({
+            id: $(this).data('threadid'),
+            ordinal: i,
+            sender: this.getElementsByClassName("sender")[0].innerHTML,
+            subject: this.getElementsByClassName("mail-subject")[0].innerHTML,
+            snippet: this.getElementsByClassName("mail-snippet")[0].innerHTML,
+            timestamp: this.getElementsByClassName("timestamp")[0].innerHTML,
+            mailbody: '',
+            start: '',
+            read: false,
+            star: false,
+            selected:false,
+            archived:false,
+            label: '',
+            createdOn: "Note created on " + new Date().toISOString()}
+        ));
+    }).promise().done( function(){
+        var currentInbox = new InboxView({collection: threadslist});
+        currentInbox.attachToView();
+        currentInbox.renderSideMenu()
     });
-    new InboxView({collection:threadsList})
-}
-
-window.onload = hover;
-
-// Show list of messages, not grouped by thread
-//function displayInbox() {
-//    var request = gapi.client.gmail.users.messages.list({
-//        'userId': 'me',
-//        'labelIds': 'INBOX',
-//        'maxResults': 30
-//    });
-//    list = new MailList();
-//    request.execute(function(response) {
-//        count = response.messages.length;
-//        $.each(response.messages, function() {
-//             var messageRequest = gapi.client.gmail.users.messages.get({
-//                  'userId': 'me',
-//                  'id': this.id
-//              });
-//             messageRequest.execute(appendMessageRow);
-//        });
-//    });
-//}
+};
 
 
-// Show list of messages, not grouped by thread
-//function displayInbox() {
-//    var request = gapi.client.gmail.users.messages.list({
-//        'userId': 'me',
-//        'labelIds': 'INBOX',
-//        'maxResults': 30
-//    });
-//    list = new MailList();
-//    request.execute(function(response) {
-//        count = response.messages.length;
-//        $.each(response.messages, function() {
-//             var messageRequest = gapi.client.gmail.users.messages.get({
-//                  'userId': 'me',
-//                  'id': this.id
-//              });
-//             messageRequest.execute(appendMessageRow);
-//        });
-//    });
-//}
+$( window ).load(function() {
+    startapp();
+    hover;
+});
 
-//getMessage: function(messageId, callback) {
-//    var request = gapi.client.gmail.users.messages.get({
-//        'userId': 'me',
-//        'id': messageId
-//    });
-//    request.execute(appendMessage);
-//}
-
-// Show a single and full message :: Currently not used
-//function appendMessage(message) {
-//    var mailitem = new Mail({
-//        id: message.id,
-//        sender:getHeader(message.payload.headers, 'From'),
-//        subject:getHeader(message.payload.headers, 'Subject'),
-//        mailbody: getBody(message),
-//        formattedDate:formatDate(getHeader(message.payload.headers, 'Date')),
-//        timestamp: new Date(getHeader(message.payload.headers, 'Date'))
-//    });
-//    messageList.add(mailitem);
-//    NewApp = new InboxView({collection:messageList});
-//}
-
-//groupOrderSwap: function (a, b, groupDataSet) {
-//    var v = a.value;
-//    a.value = b.value;
-//    b.value = v;
-//},
-//editable: true,
-//groupEditable: true
-
-//function log(mess) {
-//    $('#logs').prepend('<pre>' + mess + '</pre>');
-//    console.log(mess);
-//}
-//
-//function logJSON(mess, json) {
-//    log(mess + JSON.stringify(json, null, 2));
-//}
-
-//messagesList.models.forEach(function(model){
-//    console.log("Model in collection: " + model.get("body"));
-//});
 

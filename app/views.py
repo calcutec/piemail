@@ -33,7 +33,7 @@ def index():
         batch.execute()
         for thread in fullthreadset:
             threaditems = dict()
-            threaditems['id'] = thread['threadId']
+            threaditems['threadId'] = thread['threadId']
             threaditems['snippet'] = thread['snippet'] + "..."
             threaditems['date'] = datetime.datetime.fromtimestamp(float(thread['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
             threaditems['sender'] = getheaders(thread, "From")
