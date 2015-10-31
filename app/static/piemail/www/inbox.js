@@ -1,3 +1,9 @@
+window.gapi = gapi;
+window.gapi.client = gapi.client;
+window.gapi.client.gmail = gapi.client.gmail;
+window.gapi.client.gmail.users = gapi.client.gmail.users;
+window.gapi.client.gmail.users.threads = gapi.client.gmail.users.threads;
+
 var Mail = Backbone.Model.extend( {
     defaults: {
         id: '',
@@ -120,9 +126,6 @@ var MailList = Backbone.Collection.extend({
         }, this);
     },
 
-    /**
-     * @param {{messages:string}} response
-     */
     getThreads: function (threadArray) {
         $('#visualization').innerHTML = "";
         $('.inboxfunctions').addClass("hidden");
@@ -134,24 +137,22 @@ var MailList = Backbone.Collection.extend({
         this.groupCount = threadArray.length;
         this.groupCounter = 0;  
         self = this;
-        threadArray.forEach(function (threadIdentifier){
+        threadArray.forEach(
+            function (threadIdentifier){
             var token = getSessionToken();
             gapi.client.gmail.users.threads.get({'userId': 'me','id': threadIdentifier}).then(function(resp){
                 self.getMessages(resp.result);
-            });
+            }
+        );
         });
     },
 
     /**
      * @param {{messages:string}} response
-     * @param gapi
      */
     getMessages: function(response){
         var messagesList = new MailList;
         messagesList.itemcount = response.messages.length;
-        /**
-         * @param gapi
-         **/
         response.messages.forEach(function (message){
             gapi.client.gmail.users.messages.get({'userId': 'me', 'id': message.id}).then(function(resp){
                 self.renderMessageRow(resp.result, messagesList);
@@ -515,6 +516,7 @@ function getSessionToken() {
         url: 'http://localhost:8000/getkey',
         /**
          * @param {{iserror:string}} result
+         * @param data:string
         **/
         success: function(data) {
             var result = $.parseJSON(data);
