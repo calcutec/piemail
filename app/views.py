@@ -186,9 +186,10 @@ def getkey():
     if credentials.access_token_expired:
         return redirect(url_for('oauth2callback'))
     else:
-
-        token = credentials.access_token
-        return json.dumps({"token": token})
+        result = dict({'iserror': False})
+        result['savedsuccess'] = True
+        result['token'] = credentials.access_token
+        return json.dumps(result)
 
 
 # @app.errorhandler(404)

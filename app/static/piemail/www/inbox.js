@@ -120,7 +120,9 @@ var MailList = Backbone.Collection.extend({
         }, this);
     },
 
-    // Show messages for selected threads
+    /**
+     * @param {{messages:string}} response
+     */
     getThreads: function (threadArray) {
         $('#visualization').innerHTML = "";
         $('.inboxfunctions').addClass("hidden");
@@ -140,9 +142,16 @@ var MailList = Backbone.Collection.extend({
         });
     },
 
+    /**
+     * @param {{messages:string}} response
+     * @param gapi
+     */
     getMessages: function(response){
         var messagesList = new MailList;
         messagesList.itemcount = response.messages.length;
+        /**
+         * @param gapi
+         **/
         response.messages.forEach(function (message){
             gapi.client.gmail.users.messages.get({'userId': 'me', 'id': message.id}).then(function(resp){
                 self.renderMessageRow(resp.result, messagesList);
@@ -150,7 +159,13 @@ var MailList = Backbone.Collection.extend({
         });
     },
 
-    // Show messages for a single thread
+
+    /**
+     * @param {{payload:string}} message
+     * @param {{id:string}} message
+     * @param {{snippet:string}} message
+     * @param messagesList
+    **/
     renderMessageRow: function (message, messagesList){
         var start = new Date(getHeader(message.payload.headers, 'Date'));
         var mailitem = new Mail({
@@ -223,7 +238,7 @@ var MailView = Backbone.View.extend({
 
     initialize: function() {
         //this.listenTo(this.model, 'change', this.render);
-        //this.listenTo(this.model, 'destroy', this.remove, this.unrender())
+        this.listenTo(this.model, 'destroy', this.remove, this.unrender())
     },
 
     render: function() {
@@ -428,6 +443,9 @@ function getHeader(headers, index) {
     return header;
 }
 
+/**
+ * @param {{payload:string}} message
+**/
 function getBody(message) {
     var encodedBody = '';
     if(typeof message.payload.parts === 'undefined'){
@@ -495,12 +513,16 @@ function getSessionToken() {
     $.ajax({
         type: 'POST',
         url: 'http://localhost:8000/getkey',
+        /**
+         * @param {{iserror:string}} result
+        **/
         success: function(data) {
             var result = $.parseJSON(data);
             if(result.iserror) {
-                console.log('passed')
+                console.log('pass not found')
             }else if (result.savedsuccess) {
-                console.log('failed')
+                console.log('token received');
+                return result.token;
             }
         },
         error: function() {
@@ -512,19 +534,8 @@ function getSessionToken() {
 
 
 $( document ).ready(function() {
-
-    var csrftoken = $('meta[name=csrf-token]').attr('content');
-    $(function(){
-        $.ajaxSetup({
-            beforeSend: function(xhr, settings) {
-                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken)
-                }
-            }
-        })
-    });
     startapp();
-    hover;
+    hover();
 });
 
 
