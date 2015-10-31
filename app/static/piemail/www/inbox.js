@@ -3,6 +3,7 @@ window.gapi.client = gapi.client;
 window.gapi.client.gmail = gapi.client.gmail;
 window.gapi.client.gmail.users = gapi.client.gmail.users;
 window.gapi.client.gmail.users.threads = gapi.client.gmail.users.threads;
+window.gapi.client.gmail.users.messages = gapi.client.gmail.users.messages;
 
 var Mail = Backbone.Model.extend( {
     defaults: {
@@ -136,10 +137,11 @@ var MailList = Backbone.Collection.extend({
         this.itemDataSet = new vis.DataSet();
         this.groupCount = threadArray.length;
         this.groupCounter = 0;  
-        self = this;
+        window.self = this;
         threadArray.forEach(
             function (threadIdentifier){
             var token = getSessionToken();
+            console.log(token);
             gapi.client.gmail.users.threads.get({'userId': 'me','id': threadIdentifier}).then(function(resp){
                 self.getMessages(resp.result);
             }
@@ -147,9 +149,6 @@ var MailList = Backbone.Collection.extend({
         });
     },
 
-    /**
-     * @param {{messages:string}} response
-     */
     getMessages: function(response){
         var messagesList = new MailList;
         messagesList.itemcount = response.messages.length;
@@ -515,16 +514,16 @@ function getSessionToken() {
         type: 'POST',
         url: 'http://localhost:8000/getkey',
         /**
-         * @param {{iserror:string}} result
-         * @param data:string
+         * @param {{iserror:string}} response
+         * @param {{savedsuccess:string}} response
+         * @param {{token:string}} response
         **/
-        success: function(data) {
-            var result = $.parseJSON(data);
-            if(result.iserror) {
+        success: function(response) {
+            if(response.iserror) {
                 console.log('pass not found')
-            }else if (result.savedsuccess) {
+            }else if (response.savedsuccess) {
                 console.log('token received');
-                return result.token;
+                return response.token;
             }
         },
         error: function() {
