@@ -1,11 +1,11 @@
 import os
 from flask import Flask
 from .momentjs import momentjs
-from flask_wtf.csrf import CsrfProtect
+# from flask_wtf.csrf import CsrfProtect
 
 app = Flask(__name__)
 app.config.from_object('config')
-CsrfProtect(app)
+# CsrfProtect(app)
 
 
 if os.environ.get('HEROKU') is not None:

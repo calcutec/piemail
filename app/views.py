@@ -178,6 +178,19 @@ def emaildata(emailid):
     return render_template('emaildata.html', emailid=emailid)
 
 
+@app.route('/getkey', methods=['POST'])
+def getkey():
+    if 'credentials' not in session:
+        return redirect(url_for('oauth2callback'))
+    credentials = client.OAuth2Credentials.from_json(session['credentials'])
+    if credentials.access_token_expired:
+        return redirect(url_for('oauth2callback'))
+    else:
+
+        token = credentials.access_token
+        return json.dumps({"token": token})
+
+
 # @app.errorhandler(404)
 # def not_found_error(error):
 #     return render_template('404.html', error=error), 404

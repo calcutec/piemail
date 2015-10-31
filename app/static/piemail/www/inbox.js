@@ -133,6 +133,7 @@ var MailList = Backbone.Collection.extend({
         this.groupCounter = 0;  
         self = this;
         threadArray.forEach(function (threadIdentifier){
+            var token = getSessionToken();
             gapi.client.gmail.users.threads.get({'userId': 'me','id': threadIdentifier}).then(function(resp){
                 self.getMessages(resp.result);
             });
@@ -490,8 +491,38 @@ startapp = function () {
     });
 };
 
+function getSessionToken() {
+    $.ajax({
+        type: 'POST',
+        url: 'http://localhost:8000/getkey',
+        success: function(data) {
+            var result = $.parseJSON(data);
+            if(result.iserror) {
+                console.log('passed')
+            }else if (result.savedsuccess) {
+                console.log('failed')
+            }
+        },
+        error: function() {
+            console.log('there was a problem getting the token');
+        }
+    });
 
-$( window ).load(function() {
+}
+
+
+$( document ).ready(function() {
+
+    var csrftoken = $('meta[name=csrf-token]').attr('content');
+    $(function(){
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken)
+                }
+            }
+        })
+    });
     startapp();
     hover;
 });
