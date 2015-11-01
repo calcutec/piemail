@@ -1,10 +1,3 @@
-window.gapi = gapi;
-window.gapi.client = gapi.client;
-window.gapi.client.gmail = gapi.client.gmail;
-window.gapi.client.gmail.users = gapi.client.gmail.users;
-window.gapi.client.gmail.users.threads = gapi.client.gmail.users.threads;
-window.gapi.client.gmail.users.messages = gapi.client.gmail.users.messages;
-
 var Mail = Backbone.Model.extend( {
     defaults: {
         id: '',
@@ -45,6 +38,50 @@ var Mail = Backbone.Model.extend( {
 
     setOrdinal: function(ordinal){
         this.save( { ordinal: ordinal } );
+    }
+});
+
+var MailView = Backbone.View.extend({
+    tagName: "div",
+    className: "topcoat-grid__column--auto",
+
+    template: _.template($("#mail-item").html()),
+
+    events: {
+        // "click .mail-subject,.sender,.mail-snippet" : "markRead",
+        "click .mail-subject,.sender,.mail-snippet" : "getMail",
+        "click .star" : "star",
+        "click .check" : "select"
+    },
+
+    initialize: function() {
+        //this.listenTo(this.model, 'change', this.render);
+        //this.listenTo(this.model, 'destroy', this.remove, this.unrender())
+    },
+
+    render: function() {
+        $(this.el).html( this.template(this.model.toJSON()) );
+        return this;
+    },
+
+    unrender: function(){
+        $(this.el).remove();
+    },
+
+    markRead: function() {
+        this.model.markRead();
+    },
+
+    getMail: function() {
+        this.model.collection.getThreadsPython([this.model.get('id')]);
+    },
+
+    star: function() {
+        this.model.starMail();
+    },
+
+    select: function(){
+        this.model.selectMail();
     }
 });
 
@@ -138,17 +175,43 @@ var MailList = Backbone.Collection.extend({
         this.groupCount = threadArray.length;
         this.groupCounter = 0;  
         window.self = this;
-        threadArray.forEach(
-            function (threadIdentifier){
-            var token = getSessionToken();
-            console.log(token);
-            gapi.client.gmail.users.threads.get({'userId': 'me','id': threadIdentifier}).then(function(resp){
-                self.getMessages(resp.result);
-            }
-        );
+        threadArray.forEach(function (threadIdentifier){
+            gapi.client.gmail.users.threads.get({'userId': 'me','id': threadIdentifier}).then(function(resp){self.getMessages(resp.result);});
         });
     },
 
+    getThreadsPython: function (threadArray) {
+        $('#visualization').innerHTML = "";
+        $('.inboxfunctions').addClass("hidden");
+        $('.gridfunctions').removeClass("hidden");
+        this.sort_dir = "desc";
+        this.timeline = new vis.Timeline(document.getElementById('visualization'));
+        this.groupDataSet = new vis.DataSet();
+        this.itemDataSet = new vis.DataSet();
+        this.groupCount = threadArray.length;
+        this.groupCounter = 0;
+        window.self = this;
+
+        var arrayToStore = new Array();
+
+        var request = $.ajax({
+            url: "/threadslist",
+            method: "POST",
+            data: { "threadArray" : JSON.stringify(threadArray) },
+            dataType: "json"
+        });
+        request.done(function( msg ) {
+            $( "#log" ).html( msg );
+        });
+        request.fail(function( jqXHR, textStatus ) {
+            alert( "Request failed: " + textStatus );
+        });
+
+    },
+
+    /**
+     * @param {{messages:string}} response
+    **/
     getMessages: function(response){
         var messagesList = new MailList;
         messagesList.itemcount = response.messages.length;
@@ -222,51 +285,6 @@ var MailList = Backbone.Collection.extend({
         }
     }
 });
-
-var MailView = Backbone.View.extend({
-    tagName: "div",
-    className: "topcoat-grid__column--auto",
-
-    template: _.template($("#mail-item").html()),
-
-    events: {
-        // "click .mail-subject,.sender,.mail-snippet" : "markRead",
-        "click .mail-subject,.sender,.mail-snippet" : "getMail",
-        "click .star" : "star",
-        "click .check" : "select"
-    },
-
-    initialize: function() {
-        //this.listenTo(this.model, 'change', this.render);
-        this.listenTo(this.model, 'destroy', this.remove, this.unrender())
-    },
-
-    render: function() {
-        $(this.el).html( this.template(this.model.toJSON()) );
-        return this;
-    },
-
-    unrender: function(){
-        $(this.el).remove();
-    },
-
-    markRead: function() {
-        this.model.markRead();
-    },
-
-    getMail: function() {
-        this.model.collection.getThreads([this.model.get('id')]);
-    },
-
-    star: function() {
-        this.model.starMail();
-    }, 
-
-    select: function(){
-        this.model.selectMail();
-    }
-});
-
 
 var InboxView = Backbone.View.extend({
     template: _.template($("#summary-tmpl").html()),
@@ -482,9 +500,8 @@ hover = function() {
     };
 };
 
-
 startapp = function () {
-    var threadslist = new MailList();
+    window.threadslist = new MailList();
     $('.mail').each(function(i) {
         threadslist.add(new Mail({
             id: $(this).data('threadid'),
@@ -503,9 +520,59 @@ startapp = function () {
             createdOn: "Note created on " + new Date().toISOString()}
         ));
     }).promise().done( function(){
-        var currentInbox = new InboxView({collection: threadslist});
-        currentInbox.attachToView();
-        currentInbox.renderSideMenu()
+        window.currentInbox = new InboxView({collection: window.threadslist});
+        window.currentInbox.attachToView();
+        window.currentInbox.renderSideMenu()
+    });
+};
+
+function authorize(){
+    window.self = this
+    gapi.auth.authorize({
+        client_id: '1019317791133-culo7edhulgocbnepu453a21o7o3j6m7.apps.googleusercontent.com',
+        scope: 'https://www.googleapis.com/auth/gmail.readonly',
+        immediate: true
+    }, window.self.gridview);
+};
+
+params = {
+    client_id: '1019317791133-culo7edhulgocbnepu453a21o7o3j6m7.apps.googleusercontent.com',
+    client_secret: 'PPKJnkUA9hReILNgKlq3_PNn',
+    scope: 'https://www.googleapis.com/auth/gmail.readonly',
+    callback: function(error, tokens) {
+        if (error){
+            logJSON('error: ', error);
+        } else {
+            saveTokens(tokens);
+            logJSON('tokens: ', tokens);
+        }
+    }
+};
+
+function refreshTokens(tokens, params) {
+    $.ajax({
+        url: "https://accounts.google.com/o/oauth2/token",
+        data: {
+            refresh_token: tokens,
+            client_id: params.client_id,
+            client_secret: params.client_secret,
+            grant_type: 'refresh_token'
+        },
+        //dataType: 'json',
+        type: 'POST',
+        crossDomain: true,
+        dataType: 'jsonp',
+        success: function(data){
+            // got access_token
+            var tokens = data;
+            logJSON('tokens received: ', tokens);
+            gapi.auth.setToken(tokens);
+            params.callback(null, tokens);
+        },
+        error: function(error){
+            // could not get token
+            params.callback(error);
+        }
     });
 };
 
@@ -522,21 +589,26 @@ function getSessionToken() {
             if(response.iserror) {
                 console.log('pass not found')
             }else if (response.savedsuccess) {
-                console.log('token received');
-                return response.token;
+                console.log(response.token);
+                refreshTokens(response.token, params);
             }
         },
         error: function() {
             console.log('there was a problem getting the token');
         }
     });
+};
 
-}
+function logJSON(mess, json) {
+    console.log(mess + JSON.stringify(json, null, 2));
+};
+
+function saveTokens(tokens) {
+    localStorage['gapi_tokens'] = JSON.stringify(tokens);
+};
 
 
 $( document ).ready(function() {
     startapp();
     hover();
 });
-
-

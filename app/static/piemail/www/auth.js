@@ -11,8 +11,12 @@
         localStorage['gapi_tokens'] = JSON.stringify(tokens);
     }
 
-    var clientId = '1019317791133-t3jpuu40sn9t7s2ll7gde70phppoq7b1.apps.googleusercontent.com';
-    var apiKey = 'OMfRw_hfmWTUSLwXK-3aQSjg';
+    //var clientId = '1019317791133-t3jpuu40sn9t7s2ll7gde70phppoq7b1.apps.googleusercontent.com';
+    //var apiKey = 'OMfRw_hfmWTUSLwXK-3aQSjg';
+    //var scopes = 'https://www.googleapis.com/auth/gmail.readonly';
+
+    var clientId = '1019317791133-culo7edhulgocbnepu453a21o7o3j6m7.apps.googleusercontent.com';
+    var apiKey = 'PPKJnkUA9hReILNgKlq3_PNn';
     var scopes = 'https://www.googleapis.com/auth/gmail.readonly';
 
     function handleClientLoad() {

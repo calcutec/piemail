@@ -1,8 +1,8 @@
 import httplib2
 import os
 import datetime
-from flask import url_for, session, redirect, request, json, render_template
-from apiclient import discovery, errors, http
+from flask import url_for, session, redirect, request, render_template, jsonify, json
+from apiclient import discovery, errors
 from oauth2client import client
 from app import app
 
@@ -178,6 +178,14 @@ def emaildata(emailid):
     return render_template('emaildata.html', emailid=emailid)
 
 
+@app.route('/threadsdata', methods=['POST'])
+def threadsdata():
+    response = dict({'iserror': False})
+    response['savedsuccess'] = True
+    response['threadsData'] = {"thread1": "thread1","thread2": "thread2"}
+    return jsonify(response)
+
+
 @app.route('/getkey', methods=['POST'])
 def getkey():
     if 'credentials' not in session:
@@ -186,10 +194,10 @@ def getkey():
     if credentials.access_token_expired:
         return redirect(url_for('oauth2callback'))
     else:
-        result = dict({'iserror': False})
-        result['savedsuccess'] = True
-        result['token'] = credentials.access_token
-        return json.dumps(result)
+        response = dict({'iserror': False})
+        response['savedsuccess'] = True
+        response['token'] = credentials.access_token
+        return jsonify(response)
 
 
 # @app.errorhandler(404)
