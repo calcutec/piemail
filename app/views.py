@@ -7,6 +7,7 @@ from oauth2client import client
 from app import app
 
 fullthreadset = []
+fullmessageset = []
 
 
 @app.route('/')
@@ -19,41 +20,74 @@ def index():
         return redirect(url_for('oauth2callback'))
     else:
         http_auth = credentials.authorize(httplib2.Http())
-        service = discovery.build('gmail', 'v1', http_auth)
-        # labels = listlabels(service, 'me')
-        results = service.users().threads().list(userId='me',
-                                                 maxResults=20,fields="threads/id",
-                                                 q="in:inbox -category:(promotions OR social)").execute()
-        batch = service.new_batch_http_request(callback=processthreads)
-        for thread in results['threads']:
-            batch.add(service.users()
-                      .threads().get(userId='me', id=thread['id'],
-                                     fields="messages/snippet, messages/internalDate, "
-                                            "messages/threadId, messages/payload/headers"))
-        batch.execute()
-        for thread in fullthreadset:
-            threaditems = dict()
-            threaditems['threadId'] = thread['threadId']
-            threaditems['snippet'] = thread['snippet'] + "..."
-            threaditems['date'] = datetime.datetime.fromtimestamp(float(thread['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
-            threaditems['sender'] = getheaders(thread, "From")
-            threaditems['subject'] = getheaders(thread, "Subject")
-            newthreadlist.append(threaditems)
-        fullthreadset[:] = []
-        return render_template("piemail.html", threads=newthreadlist, inbox=len(newthreadlist))
+
+    service = discovery.build('gmail', 'v1', http=http_auth)
+    # labels = listlabels(service, 'me')
+    results = service.users().threads().list(userId='me',
+                                             maxResults=50,fields="threads/id",
+                                             q="in:inbox -category:(promotions OR social)").execute()
+    batch = service.new_batch_http_request(callback=processthreads)
+    for thread in results['threads']:
+        batch.add(service.users()
+            .threads().get(userId='me', id=thread['id'],
+            fields="messages/snippet, messages/internalDate, messages/threadId, messages/payload/headers"))
+    batch.execute()
+    for thread in fullthreadset:
+        threaditems = dict()
+        threaditems['threadId'] = thread['threadId']
+        threaditems['snippet'] = thread['snippet'] + "..."
+        threaditems['date'] = datetime.datetime.fromtimestamp(float(thread['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
+        threaditems['sender'] = getheaders(thread, "From")
+        threaditems['subject'] = getheaders(thread, "Subject")
+        newthreadlist.append(threaditems)
+    fullthreadset[:] = []
+    return render_template("piemail.html", threads=newthreadlist, inbox=len(newthreadlist))
 
 
-def processthreads(request_id, response, exception):
-    if exception is not None:
-        pass
+@app.route('/threadslist', methods=['POST'])
+def threadslist():
+    if 'credentials' not in session:
+        return redirect(url_for('oauth2callback'))
+    credentials = client.OAuth2Credentials.from_json(session['credentials'])
+    if credentials.access_token_expired:
+        return redirect(url_for('oauth2callback'))
     else:
-        fullthreadset.append(response['messages'][0])
+        http_auth = credentials.authorize(httplib2.Http())
+
+    service = discovery.build('gmail', 'v1', http=http_auth)
+
+    threadid = request.values['threadid']
+    try:
+        thread = service.users().threads().get(userId='me', id=threadid).execute()
+    except errors.HttpError, error:
+        print 'An error occurred: %s' % error
+
+    batch = service.new_batch_http_request(callback=processmessages)
+    for message in thread['messages']:
+        batch.add(service.users().messages().get(userId='me', id=message['id']))
+    batch.execute()
+    currentmessagelist = []
+    for message in fullmessageset:
+        messageitems = dict()
+        messageitems['id'] = message['id']
+        messageitems['threadId'] = message['threadId']
+        messageitems['snippet'] = message['snippet'] + "..."
+        messageitems['date'] = datetime.datetime.fromtimestamp(float(message['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
+        messageitems['sender'] = getheaders(message, "From")
+        messageitems['subject'] = getheaders(message, "Subject")
+        messageitems['body'] = getbody(message)
+        currentmessagelist.append(messageitems)
+
+    fullmessageset[:] = []
+    response = dict({'iserror': False})
+    response['savedsuccess'] = True
+    response['currentMessageList'] = currentmessagelist
+    return jsonify(response)
 
 
-def getheaders(thread, key):
-    for header in thread['payload']['headers']:
-        if header['name'] == key:
-            return header['value']
+@app.route('/emaildata/<emailid>')
+def emaildata(emailid):
+    return render_template('emaildata.html', emailid=emailid)
 
 
 @app.route('/oauth2callback')
@@ -73,89 +107,6 @@ def oauth2callback():
         return redirect(url_for('index'))
 
 
-def listlabels(service, user_id):
-    try:
-        response = service.users().labels().list(userId=user_id).execute()
-        labels = response['labels']
-        for label in labels:
-            print 'Label id: %s - Label name: %s' % (label['id'], label['name'])
-            return labels
-    except errors.HttpError, error:
-        print 'An error occurred: %s' % error
-
-
-def listthreadswithlabels(service, user_id, label_ids=[]):
-    """List all Threads of the user's mailbox with label_ids applied.
-
-    Args:
-    service: Authorized Gmail API service instance.
-    user_id: User's email address. The special value "me"
-    can be used to indicate the authenticated user.
-    label_ids: Only return Threads with these labelIds applied.
-
-    Returns:
-    List of threads that match the criteria of the query. Note that the returned
-    list contains Thread IDs, you must use get with the appropriate
-    ID to get the details for a Thread.
-    """
-    try:
-        response = service.users().threads().list(userId=user_id, labelIds=label_ids, maxResults="100").execute()
-        threads = []
-        if 'threads' in response:
-            threads.extend(response['threads'])
-
-        while 'nextPageToken' in response:
-            page_token = response['nextPageToken']
-            response = service.users().threads().list(userId=user_id, labelIds=label_ids,
-                                                      pageToken=page_token).execute()
-            threads.extend(response['threads'])
-        return threads
-
-    except errors.HttpError, error:
-        print 'An error occurred: %s' % error
-
-
-@app.route('/getmail')
-def getmail():
-    if 'credentials' not in session:
-        return redirect(url_for('oauth2callback'))
-    credentials = client.OAuth2Credentials.from_json(session['credentials'])
-    if credentials.access_token_expired:
-        return redirect(url_for('oauth2callback'))
-    else:
-        http_auth = credentials.authorize(httplib2.Http())
-        gmail_service = discovery.build('gmail', 'v1', http_auth)
-        query = 'is:inbox'
-        """List all Messages of the user's mailbox matching the query.
-
-        Args:
-        service: Authorized Gmail API service instance.
-        user_id: User's email address. The special value "me"
-        can be used to indicate the authenticated user.
-        query: String used to filter messages returned.
-        Eg.- 'from:user@some_domain.com' for Messages from a particular sender.
-
-        Returns:
-        List of Messages that match the criteria of the query. Note that the
-        returned list contains Message IDs, you must use get with the
-        appropriate ID to get the details of a Message.
-        """
-        try:
-            response = gmail_service.users().messages().list(userId='me', q=query).execute()
-            messages = []
-            if 'messages' in response:
-                print 'test %s' % response
-                messages.extend(response['messages'])
-            while 'nextPageToken' in response:
-                page_token = response['nextPageToken']
-                response = gmail_service.users().messages().list(userId='me', q=query, pageToken=page_token).execute()
-                messages.extend(response['messages'])
-
-            return json.jsonify({'data': messages})
-        except errors.HttpError, error:
-            print 'An error occurred: %s' % error
-
-
 @app.context_processor
 def inject_static_url():
     local_static_url = app.static_url_path
@@ -173,31 +124,30 @@ def inject_static_url():
     )
 
 
-@app.route('/emaildata/<emailid>')
-def emaildata(emailid):
-    return render_template('emaildata.html', emailid=emailid)
-
-
-@app.route('/threadsdata', methods=['POST'])
-def threadsdata():
-    response = dict({'iserror': False})
-    response['savedsuccess'] = True
-    response['threadsData'] = {"thread1": "thread1","thread2": "thread2"}
-    return jsonify(response)
-
-
-@app.route('/getkey', methods=['POST'])
-def getkey():
-    if 'credentials' not in session:
-        return redirect(url_for('oauth2callback'))
-    credentials = client.OAuth2Credentials.from_json(session['credentials'])
-    if credentials.access_token_expired:
-        return redirect(url_for('oauth2callback'))
+def processthreads(request_id, response, exception):
+    if exception is not None:
+        pass
     else:
-        response = dict({'iserror': False})
-        response['savedsuccess'] = True
-        response['token'] = credentials.access_token
-        return jsonify(response)
+        fullthreadset.append(response['messages'][0])
+
+def processmessages(request_id, response, exception):
+    if exception is not None:
+        pass
+    else:
+        fullmessageset.append(response)
+
+
+def getheaders(thread, key):
+    for header in thread['payload']['headers']:
+        if header['name'] == key:
+            return header['value']
+
+
+def getbody(message):
+    if message['payload']['parts']:
+        return dict({'parts': message['payload']['parts']})
+    else:
+        return dict({'body': message['payload']['body']['data']})
 
 
 # @app.errorhandler(404)
@@ -208,3 +158,14 @@ def getkey():
 # @app.errorhandler(500)
 # def internal_error(error):
 #     return render_template('500.html', error=error), 500
+
+
+# def listlabels(service, user_id):
+#     try:
+#         response = service.users().labels().list(userId=user_id).execute()
+#         labels = response['labels']
+#         for label in labels:
+#             print 'Label id: %s - Label name: %s' % (label['id'], label['name'])
+#             return labels
+#     except errors.HttpError, error:
+#         print 'An error occurred: %s' % error

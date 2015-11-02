@@ -4,7 +4,7 @@
 app.db
 test.db
 search.db
-FlaskPiemail
+PiemailVenv
 *.mo
 *.DS_Store
 

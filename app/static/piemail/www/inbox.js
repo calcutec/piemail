@@ -100,11 +100,11 @@ var MailList = Backbone.Collection.extend({
         zoomable: true,
         zoomMin: 1000 * 60 * 60 * 24,  // one day in milliseconds
         zoomMax: 1000 * 60 * 60 * 24 * 31,  // about one month in milliseconds
-        max: function () {
-            var maxDate = new Date();
-            maxDate.setDate(maxDate.getDate() + 7);
-            return maxDate;
-        },
+        //max: function () {
+        //    var maxDate = new Date();
+        //    maxDate.setDate(maxDate.getDate() + 7);
+        //    return maxDate;
+        //},
         zoomKey: 'altKey',
         type: 'point',
         margin: {
@@ -181,7 +181,7 @@ var MailList = Backbone.Collection.extend({
     },
 
     getThreadsPython: function (threadArray) {
-        $('#visualization').innerHTML = "";
+        $('#visualization').html("");
         $('.inboxfunctions').addClass("hidden");
         $('.gridfunctions').removeClass("hidden");
         this.sort_dir = "desc";
@@ -191,34 +191,30 @@ var MailList = Backbone.Collection.extend({
         this.groupCount = threadArray.length;
         this.groupCounter = 0;
         window.self = this;
-
-        var arrayToStore = new Array();
-
-        var request = $.ajax({
-            url: "/threadslist",
-            method: "POST",
-            data: { "threadArray" : JSON.stringify(threadArray) },
-            dataType: "json"
+        threadArray.forEach(function (threadid) {
+            var request = $.ajax({
+                url: "/threadslist",
+                method: "POST",
+                data: { "threadid" : threadid },
+                dataType: "json"
+            });
+            request.done(function( response ) {
+                self.renderMessages(response['currentMessageList']);
+            });
+            request.fail(function( jqXHR, textStatus ) {
+                alert( "Request failed: " + textStatus );
+            });
         });
-        request.done(function( msg ) {
-            $( "#log" ).html( msg );
-        });
-        request.fail(function( jqXHR, textStatus ) {
-            alert( "Request failed: " + textStatus );
-        });
-
     },
 
     /**
-     * @param {{messages:string}} response
+     * @param {{length:string}} thread
     **/
-    getMessages: function(response){
+    renderMessages: function(currentMessageList){
         var messagesList = new MailList;
-        messagesList.itemcount = response.messages.length;
-        response.messages.forEach(function (message){
-            gapi.client.gmail.users.messages.get({'userId': 'me', 'id': message.id}).then(function(resp){
-                self.renderMessageRow(resp.result, messagesList);
-            });
+        messagesList.itemcount = currentMessageList.length;
+        currentMessageList.forEach(function (message){
+            self.renderMessageRow(message, messagesList);
         });
     },
 
@@ -230,18 +226,17 @@ var MailList = Backbone.Collection.extend({
      * @param messagesList
     **/
     renderMessageRow: function (message, messagesList){
-        var start = new Date(getHeader(message.payload.headers, 'Date'));
+        var start = message.date;
         var mailitem = new Mail({
             id: message.id,
             group: self.groupCounter,
-            sender:getHeader(message.payload.headers, 'From'),
-            subject:getHeader(message.payload.headers, 'Subject'),
-            content:getHeader(message.payload.headers, 'Subject'),
+            sender: message.sender,
+            subject:message.subject,
+            content:message.subject,
             snippet:message.snippet + "...",
-            mailbody:getBody(message),
-            formattedDate:new Date(getHeader(message.payload.headers, 'Date')).toLocaleString(), //Options do not work with Safari
-            //formattedDate:formatDate(getHeader(message.payload.headers, 'Date')),
-            timestamp:new Date(getHeader(message.payload.headers, 'Date')).getTime(),
+            mailbody:getBody(message.body),
+            formattedDate:message.date,
+            timestamp:message.date,
             start:start
         });
         messagesList.add(mailitem);
@@ -466,10 +461,10 @@ function getHeader(headers, index) {
 **/
 function getBody(message) {
     var encodedBody = '';
-    if(typeof message.payload.parts === 'undefined'){
-      encodedBody = message.payload.body.data;
+    if(typeof message.parts === 'undefined'){
+      encodedBody = message.body;
     }else{
-      encodedBody = getHTMLPart(message.payload.parts);
+      encodedBody = getHTMLPart(message.parts);
     }
     encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
     return decodeURIComponent(escape(window.atob(encodedBody)));
@@ -607,8 +602,8 @@ function saveTokens(tokens) {
     localStorage['gapi_tokens'] = JSON.stringify(tokens);
 };
 
+window.load = hover;
 
 $( document ).ready(function() {
     startapp();
-    hover();
 });
