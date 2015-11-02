@@ -57,14 +57,14 @@ div#overlay {
 
 .bodywrapper #fullbody-wrap{
     display:none;
+    background:snow;
+    /*border:2px solid oldlace;*/
+    /*padding-right:5px;*/
     z-index:75;
 }
 
 .bodywrapper:hover #fullbody-wrap {
     display:block;
-    background:snow;
-    border:2px solid oldlace;
-    padding-right:5px;
 }
 
 .bodywrapper:hover .snippet {

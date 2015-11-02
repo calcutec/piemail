@@ -3,7 +3,6 @@ var Mail = Backbone.Model.extend( {
         id: '',
         ordinal: '',
         subject: '',
-        content: '',
         snippet: '',
         mailbody: '',
         timestamp: '',
@@ -34,10 +33,6 @@ var Mail = Backbone.Model.extend( {
 
     setLabel: function(label){
         this.save( { label: label } );
-    },
-
-    setOrdinal: function(ordinal){
-        this.save( { ordinal: ordinal } );
     }
 });
 
@@ -73,7 +68,7 @@ var MailView = Backbone.View.extend({
     },
 
     getMail: function() {
-        this.model.collection.getThreadsPython([this.model.get('id')]);
+        this.model.collection.getThreads([this.model.get('id')]);
     },
 
     star: function() {
@@ -121,12 +116,12 @@ var MailList = Backbone.Collection.extend({
         item: "top"
         },
         minHeight:'250px',
-        groupOrder: function (a, b) {
-          return a.value - b.value;
-        },
-
+        //groupOrder: function (a, b) {
+        //  return a.value - b.value;
+        //},
+        //
         order: function customOrder(a,b) {
-            return a.timestamp - b.timestamp;
+            return a.ordinal - b.ordinal;
         }
     },
 
@@ -159,12 +154,12 @@ var MailList = Backbone.Collection.extend({
     addOrdinal: function(numberofMessages){
         var counter = numberofMessages;
         this.each(function(item){
-            item.setOrdinal(counter--);
+            item.setOrdinal(counter++);
             item.save()
         }, this);
     },
 
-    getThreadsPython: function (threadArray) {
+    getThreads: function (threadArray) {
         $('#visualization').html("");
         $('.inboxfunctions').addClass("hidden");
         $('.gridfunctions').removeClass("hidden");
@@ -208,6 +203,7 @@ var MailList = Backbone.Collection.extend({
      * @param {{sender:string}} message
      * @param {{subject:string}} message
      * @param {{snippet:string}} message
+     * @param {{ordinal:string}} message
      * @param {{body:string}} message
      * @param {{date:string}} message
      * @param {{id:string}} message
@@ -220,9 +216,9 @@ var MailList = Backbone.Collection.extend({
             group: self.groupCounter,
             sender: message.sender,
             subject:message.subject,
-            content:message.subject,
+            ordinal:message.ordinal,
             snippet:message.snippet + "...",
-            mailbody:getBody(message.body),
+            mailbody:window.self.getBody(message.body),
             formattedDate:message.date,
             timestamp:message.date,
             start:start
@@ -230,7 +226,6 @@ var MailList = Backbone.Collection.extend({
         messagesList.add(mailitem);
         mailitem.save();
         if (messagesList.itemcount==messagesList.length){
-            messagesList.addOrdinal(messagesList.length);
             self.groupDataSet.add({id: self.groupCounter, value: messagesList.models[0].get('timestamp'), content: "<span class='myGroup' style='color:#97B0F8; max-width:200px; white-space:wrap'>"+self.truncateTitle(messagesList.models[0].get('subject'))+"</span>"});
             self.itemDataSet.add(messagesList.toJSON());
             messagesList.reset();
@@ -242,6 +237,37 @@ var MailList = Backbone.Collection.extend({
                 $('body').append('<div id="overlay"></div>');
             }
         }
+    },
+
+    /**
+     * @param {{parts:string}} message
+     * @param {{body:string}} message
+    **/
+    getBody: function (message) {
+        var encodedBody = '';
+        if(typeof message.parts === 'undefined'){
+          encodedBody = message.body;
+        }else{
+          encodedBody = window.self.getHTMLPart(message.parts);
+        }
+        encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
+        return decodeURIComponent(escape(window.atob(encodedBody)));
+    },
+
+    /**
+     * @param {{length:array}} arr
+    **/
+    getHTMLPart: function(arr) {
+        for(var x = 0; x <= arr.length; x++){
+            if(typeof arr[x].parts === 'undefined'){
+                if(arr[x].mimeType === 'text/html'){
+                    return arr[x].body.data;
+                }
+            }else{
+                return window.self.getHTMLPart(arr[x].parts);
+            }
+        }
+        return '';
     },
 
     truncateTitle: function(title) {
@@ -434,48 +460,6 @@ var InboxView = Backbone.View.extend({
     }
 });
 
-/**
- * @param {{payload:string}} message
-**/
-function getBody(message) {
-    var encodedBody = '';
-    if(typeof message.parts === 'undefined'){
-      encodedBody = message.body;
-    }else{
-      encodedBody = getHTMLPart(message.parts);
-    }
-    encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
-    return decodeURIComponent(escape(window.atob(encodedBody)));
-}
-
-/**
- * @param {{length:array}} arr
-**/
-function getHTMLPart(arr) {
-    for(var x = 0; x <= arr.length; x++){
-        if(typeof arr[x].parts === 'undefined'){
-            if(arr[x].mimeType === 'text/html'){
-                return arr[x].body.data;
-            }
-        }else{
-            return getHTMLPart(arr[x].parts);
-        }
-    }
-    return '';
-}
-
-hover = function() {
-    if (!document.body.currentStyle) return;
-    var DIVmailwrapper = document.getElementsByClassName('mailwrapper');
-    var DIVcomment_wrap = document.getElementById('comment-wrap');
-    DIVmailwrapper.onmouseover = function() {
-        DIVcomment_wrap.style.display = 'block';
-    };
-    DIVmailwrapper.onmouseout = function() {
-        DIVcomment_wrap.style.display = 'none';
-    };
-};
-
 startapp = function () {
     window.threadslist = new MailList();
     $('.mail').each(function(i) {
@@ -502,7 +486,20 @@ startapp = function () {
     });
 };
 
+hover = function() {
+    if (!document.body.currentStyle) return;
+    var DIVbodywrapper = document.getElementsByClassName('bodywrapper');
+    var DIVfullbody_wrap = document.getElementById('fullbody-wrap');
+    DIVbodywrapper.onmouseover = function() {
+        DIVfullbody_wrap.style.display = 'block';
+    };
+    DIVbodywrapper.onmouseout = function() {
+        DIVfullbody_wrap.style.display = 'none';
+    };
+};
+
 $( document ).ready(function() {
     startapp();
     hover();
+
 });

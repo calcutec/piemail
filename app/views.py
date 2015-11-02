@@ -67,6 +67,7 @@ def threadslist():
         batch.add(service.users().messages().get(userId='me', id=message['id']))
     batch.execute()
     currentmessagelist = []
+    ordinal = 1
     for message in fullmessageset:
         messageitems = dict()
         messageitems['id'] = message['id']
@@ -76,6 +77,8 @@ def threadslist():
         messageitems['sender'] = getheaders(message, "From")
         messageitems['subject'] = getheaders(message, "Subject")
         messageitems['body'] = getbody(message)
+        messageitems['ordinal'] = ordinal
+        ordinal += 1
         currentmessagelist.append(messageitems)
 
     fullmessageset[:] = []
