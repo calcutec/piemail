@@ -164,22 +164,6 @@ var MailList = Backbone.Collection.extend({
         }, this);
     },
 
-    getThreads: function (threadArray) {
-        $('#visualization').innerHTML = "";
-        $('.inboxfunctions').addClass("hidden");
-        $('.gridfunctions').removeClass("hidden");
-        this.sort_dir = "desc";
-        this.timeline = new vis.Timeline(document.getElementById('visualization'));
-        this.groupDataSet = new vis.DataSet();
-        this.itemDataSet = new vis.DataSet();
-        this.groupCount = threadArray.length;
-        this.groupCounter = 0;  
-        window.self = this;
-        threadArray.forEach(function (threadIdentifier){
-            gapi.client.gmail.users.threads.get({'userId': 'me','id': threadIdentifier}).then(function(resp){self.getMessages(resp.result);});
-        });
-    },
-
     getThreadsPython: function (threadArray) {
         $('#visualization').html("");
         $('.inboxfunctions').addClass("hidden");
@@ -208,7 +192,7 @@ var MailList = Backbone.Collection.extend({
     },
 
     /**
-     * @param {{length:string}} thread
+     * @param {{length:string}} currentMessageList
     **/
     renderMessages: function(currentMessageList){
         var messagesList = new MailList;
@@ -220,9 +204,11 @@ var MailList = Backbone.Collection.extend({
 
 
     /**
-     * @param {{payload:string}} message
-     * @param {{id:string}} message
+     * @param {{sender:string}} message
+     * @param {{subject:string}} message
      * @param {{snippet:string}} message
+     * @param {{body:string}} message
+     * @param {{date:string}} message
      * @param messagesList
     **/
     renderMessageRow: function (message, messagesList){
