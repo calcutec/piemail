@@ -193,6 +193,7 @@ var MailList = Backbone.Collection.extend({
 
     /**
      * @param {{length:string}} currentMessageList
+     * @param {{forEach:function}} currentMessageList
     **/
     renderMessages: function(currentMessageList){
         var messagesList = new MailList;
@@ -209,6 +210,7 @@ var MailList = Backbone.Collection.extend({
      * @param {{snippet:string}} message
      * @param {{body:string}} message
      * @param {{date:string}} message
+     * @param {{id:string}} message
      * @param messagesList
     **/
     renderMessageRow: function (message, messagesList){
@@ -432,16 +434,6 @@ var InboxView = Backbone.View.extend({
     }
 });
 
-function getHeader(headers, index) {
-    var header = '';
-    $.each(headers, function(){
-         if(this.name === index){
-             header = this.value;
-         }
-    });
-    return header;
-}
-
 /**
  * @param {{payload:string}} message
 **/
@@ -456,6 +448,9 @@ function getBody(message) {
     return decodeURIComponent(escape(window.atob(encodedBody)));
 }
 
+/**
+ * @param {{length:array}} arr
+**/
 function getHTMLPart(arr) {
     for(var x = 0; x <= arr.length; x++){
         if(typeof arr[x].parts === 'undefined'){
@@ -507,89 +502,7 @@ startapp = function () {
     });
 };
 
-function authorize(){
-    window.self = this
-    gapi.auth.authorize({
-        client_id: '1019317791133-culo7edhulgocbnepu453a21o7o3j6m7.apps.googleusercontent.com',
-        scope: 'https://www.googleapis.com/auth/gmail.readonly',
-        immediate: true
-    }, window.self.gridview);
-};
-
-params = {
-    client_id: '1019317791133-culo7edhulgocbnepu453a21o7o3j6m7.apps.googleusercontent.com',
-    client_secret: 'PPKJnkUA9hReILNgKlq3_PNn',
-    scope: 'https://www.googleapis.com/auth/gmail.readonly',
-    callback: function(error, tokens) {
-        if (error){
-            logJSON('error: ', error);
-        } else {
-            saveTokens(tokens);
-            logJSON('tokens: ', tokens);
-        }
-    }
-};
-
-function refreshTokens(tokens, params) {
-    $.ajax({
-        url: "https://accounts.google.com/o/oauth2/token",
-        data: {
-            refresh_token: tokens,
-            client_id: params.client_id,
-            client_secret: params.client_secret,
-            grant_type: 'refresh_token'
-        },
-        //dataType: 'json',
-        type: 'POST',
-        crossDomain: true,
-        dataType: 'jsonp',
-        success: function(data){
-            // got access_token
-            var tokens = data;
-            logJSON('tokens received: ', tokens);
-            gapi.auth.setToken(tokens);
-            params.callback(null, tokens);
-        },
-        error: function(error){
-            // could not get token
-            params.callback(error);
-        }
-    });
-};
-
-function getSessionToken() {
-    $.ajax({
-        type: 'POST',
-        url: 'http://localhost:8000/getkey',
-        /**
-         * @param {{iserror:string}} response
-         * @param {{savedsuccess:string}} response
-         * @param {{token:string}} response
-        **/
-        success: function(response) {
-            if(response.iserror) {
-                console.log('pass not found')
-            }else if (response.savedsuccess) {
-                console.log(response.token);
-                refreshTokens(response.token, params);
-            }
-        },
-        error: function() {
-            console.log('there was a problem getting the token');
-        }
-    });
-};
-
-function logJSON(mess, json) {
-    console.log(mess + JSON.stringify(json, null, 2));
-};
-
-function saveTokens(tokens) {
-    localStorage['gapi_tokens'] = JSON.stringify(tokens);
-};
-
-window.load = hover;
-
 $( document ).ready(function() {
     startapp();
+    hover();
 });
