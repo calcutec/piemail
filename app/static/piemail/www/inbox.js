@@ -1,3 +1,6 @@
+maxDate = new Date();
+maxDate.setDate(maxDate.getDate() + 7);
+
 var Mail = Backbone.Model.extend( {
     defaults: {
         id: '',
@@ -89,17 +92,13 @@ var MailList = Backbone.Collection.extend({
         }
     },
     model: Mail,
-    sort_dir: "asc",
+    //sort_dir: "asc",
     timelineoptions: {
         showCurrentTime: true,
         zoomable: true,
         zoomMin: 1000 * 60 * 60 * 24,  // one day in milliseconds
         zoomMax: 1000 * 60 * 60 * 24 * 31,  // about one month in milliseconds
-        //max: function () {
-        //    var maxDate = new Date();
-        //    maxDate.setDate(maxDate.getDate() + 7);
-        //    return maxDate;
-        //},
+        max: maxDate,
         zoomKey: 'altKey',
         type: 'point',
         margin: {
@@ -163,7 +162,7 @@ var MailList = Backbone.Collection.extend({
         $('#visualization').html("");
         $('.inboxfunctions').addClass("hidden");
         $('.gridfunctions').removeClass("hidden");
-        this.sort_dir = "desc";
+        //this.sort_dir = "desc";
         this.timeline = new vis.Timeline(document.getElementById('visualization'));
         this.groupDataSet = new vis.DataSet();
         this.itemDataSet = new vis.DataSet();
@@ -284,15 +283,15 @@ var MailList = Backbone.Collection.extend({
         var pat = new RegExp(word, 'gi');
         return _(this.filter(function(mail) { 
             return pat.test(mail.get('subject')) || pat.test(mail.get('sender')); }));
-    },
-
-    comparator: function(mail){
-        if (this.sort_dir === "desc"){
-            return mail.get('timestamp');
-        } else {
-            return -mail.get('timestamp');
-        }
     }
+
+    //comparator: function(mail){
+    //    if (this.sort_dir === "desc"){
+    //        return mail.get('timestamp');
+    //    } else {
+    //        return -mail.get('timestamp');
+    //    }
+    //}
 });
 
 var InboxView = Backbone.View.extend({
