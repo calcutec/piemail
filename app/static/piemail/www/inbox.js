@@ -486,20 +486,6 @@ startapp = function () {
     });
 };
 
-hover = function() {
-    if (!document.body.currentStyle) return;
-    var DIVbodywrapper = document.getElementsByClassName('bodywrapper');
-    var DIVfullbody_wrap = document.getElementById('fullbody-wrap');
-    DIVbodywrapper.onmouseover = function() {
-        DIVfullbody_wrap.style.display = 'block';
-    };
-    DIVbodywrapper.onmouseout = function() {
-        DIVfullbody_wrap.style.display = 'none';
-    };
-};
-
 $( document ).ready(function() {
     startapp();
-    hover();
-
 });
