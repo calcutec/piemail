@@ -1,10 +1,11 @@
 import httplib2
 import os
-import datetime
+import functions
 from flask import url_for, session, redirect, request, render_template, jsonify, json
 from apiclient import discovery, errors
 from oauth2client import client
 from app import app
+from copy import deepcopy
 
 fullthreadset = []
 fullmessageset = []
@@ -18,13 +19,11 @@ def index():
     if credentials.access_token_expired:
         return redirect(url_for('oauth2callback'))
     else:
-        http_auth = credentials.authorize(httplib2.Http())
-    return render_template("piemail.html")
+        return render_template("piemail.html")
 
 
 @app.route('/inbox', methods=['GET'])
 def inbox():
-    newthreadlist = []
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
@@ -34,7 +33,6 @@ def inbox():
         http_auth = credentials.authorize(httplib2.Http())
 
     service = discovery.build('gmail', 'v1', http=http_auth)
-    # labels = listlabels(service, 'me')
     results = service.users().threads().list(userId='me',
                                              maxResults=50,fields="threads/id",
                                              q="in:inbox -category:(promotions OR social)").execute()
@@ -44,23 +42,17 @@ def inbox():
             .threads().get(userId='me', id=thread['id'],
             fields="messages/snippet, messages/internalDate, messages/labelIds, messages/threadId, messages/payload/headers"))
     batch.execute()
-    for thread in fullthreadset:
-        threaditems = dict()
-        threaditems['labels'] = thread['labelIds']
-        if 'UNREAD' in thread['labelIds']:
-            threaditems['unread'] = True
-        else:
-            threaditems['unread'] = False
-        threaditems['threadId'] = thread['threadId']
-        threaditems['id'] = thread['threadId']
-        threaditems['snippet'] = thread['snippet'] + "..."
-        threaditems['timestamp'] = datetime.datetime.fromtimestamp(float(thread['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
-        threaditems['sender'] = getheaders(thread, "From")
-        threaditems['subject'] = getheaders(thread, "Subject")
-        newthreadlist.append(threaditems)
-    fullthreadset[:] = []
-    return json.dumps({'newcollection':newthreadlist})
-    # return render_template("piemail.html", threads=newthreadlist, inbox=len(newthreadlist))
+    newcollection = deepcopy(fullthreadset)
+    fullmessageset[:] = []
+    return json.dumps({'newcollection': newcollection})
+
+
+def processthreads(request_id, response, exception):
+    if exception is not None:
+        pass
+    else:
+        emailthread = response['messages'][0]
+        fullthreadset.append(functions.parse_thread(emailthread))
 
 
 @app.route('/threadslist', methods=['POST'])
@@ -74,7 +66,6 @@ def threadslist():
         http_auth = credentials.authorize(httplib2.Http())
 
     service = discovery.build('gmail', 'v1', http=http_auth)
-
     threadid = request.values['threadid']
     try:
         thread = service.users().threads().get(userId='me', id=threadid).execute()
@@ -85,27 +76,20 @@ def threadslist():
     for message in thread['messages']:
         batch.add(service.users().messages().get(userId='me', id=message['id']))
     batch.execute()
-    currentmessagelist = []
-    ordinal = 0
-    for message in fullmessageset:
-        messageitems = dict()
-        messageitems['id'] = message['id']
-        messageitems['threadId'] = message['threadId']
-        messageitems['snippet'] = message['snippet'] + "..."
-        messageitems['date'] = datetime.datetime.fromtimestamp(float(message['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
-        messageitems['sender'] = getheaders(message, "From")
-        messageitems['subject'] = getheaders(message, "Subject")
-        messageitems['body'] = getbody(message)
-        messageitems['attachment'] = getattach(message, service)
-        messageitems['ordinal'] = ordinal
-        ordinal += 1
-        currentmessagelist.append(messageitems)
-
-    fullmessageset[:] = []
-    response = dict({'iserror': False})
+    response = dict()
+    response['iserror']= False
     response['savedsuccess'] = True
-    response['currentMessageList'] = currentmessagelist
+    response['currentMessageList'] = deepcopy(fullmessageset)
+    fullmessageset[:] = []
     return jsonify(response)
+
+
+def processmessages(request_id, response, exception):
+    if exception is not None:
+        pass
+    else:
+        emailmessage = response
+        fullmessageset.append(functions.parse_message(emailmessage))
 
 
 @app.route('/emaildata/<emailid>')
@@ -147,90 +131,6 @@ def inject_static_url():
     )
 
 
-def processthreads(request_id, response, exception):
-    if exception is not None:
-        pass
-    else:
-        fullthreadset.append(response['messages'][0])
-
-
-def processmessages(request_id, response, exception):
-    if exception is not None:
-        pass
-    else:
-        fullmessageset.append(response)
-
-
-def getheaders(thread, key):
-    for header in thread['payload']['headers']:
-        if header['name'] == key:
-            return header['value']
-
-
-def getattach(message, service):
-    try:
-        for part in message['payload']['parts']:
-            if part['filename']:
-                if 'data' in part['body']:
-                    data=part['body']['data']
-                else:
-                    att_id=part['body']['attachmentId']
-                    att= service.users().messages().attachments().get(userId="me", messageId=message['id'],id=att_id).execute()
-                    data=att['data']
-                file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
-                return "file found"
-                # return file_data
-                # path = prefix+part['filename']
-                # with open(path, 'w') as f:
-                #     f.write(file_data)
-    except errors.HttpError, error:
-        print 'An error occurred: %s' % error
-
-
-def getbody(message):
-    if message['payload']['parts']:
-        return dict({'parts': message['payload']['parts']})
-    else:
-        return dict({'body': message['payload']['body']['data']})
-
-# based on Python example from
-# https://developers.google.com/gmail/api/v1/reference/users/messages/attachments/get
-# which is licensed under Apache 2.0 License
-
-import base64
-from apiclient import errors
-
-
-def GetAttachments(service, user_id, msg_id, prefix=""):
-    """Get and store attachment from Message with given id.
-
-    Args:
-    service: Authorized Gmail API service instance.
-    user_id: User's email address. The special value "me"
-    can be used to indicate the authenticated user.
-    msg_id: ID of Message containing attachment.
-    prefix: prefix which is added to the attachment filename on saving
-    """
-    try:
-        message = service.users().messages().get(userId=user_id, id=msg_id).execute()
-
-        for part in message['payload']['parts']:
-            if part['filename']:
-                if 'data' in part['body']:
-                    data=part['body']['data']
-                else:
-                    att_id=part['body']['attachmentId']
-                    att=service.users().messages().attachments().get(userId=user_id, messageId=msg_id,id=att_id).execute()
-                    data=att['data']
-                file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
-                path = prefix+part['filename']
-
-                with open(path, 'w') as f:
-                    f.write(file_data)
-    except errors.HttpError, error:
-        print 'An error occurred: %s' % error
-
-
 # @app.errorhandler(404)
 # def not_found_error(error):
 #     return render_template('404.html', error=error), 404
@@ -239,14 +139,3 @@ def GetAttachments(service, user_id, msg_id, prefix=""):
 # @app.errorhandler(500)
 # def internal_error(error):
 #     return render_template('500.html', error=error), 500
-
-
-# def listlabels(service, user_id):
-#     try:
-#         response = service.users().labels().list(userId=user_id).execute()
-#         labels = response['labels']
-#         for label in labels:
-#             print 'Label id: %s - Label name: %s' % (label['id'], label['name'])
-#             return labels
-#     except errors.HttpError, error:
-#         print 'An error occurred: %s' % error

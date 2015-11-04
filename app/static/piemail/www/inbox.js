@@ -37,6 +37,10 @@ var Mail = Backbone.Model.extend( {
 
     setLabel: function(label){
         this.save( { label: label } );
+    },
+
+    setOrdinal: function(ordinal){
+        this.save( { ordinal: ordinal } );
     }
 });
 
@@ -120,6 +124,14 @@ var MailList = Backbone.Collection.extend({
         return Backbone.ajaxSync('read', this, options);
     },
 
+    addOrdinal: function(numberofMessages){
+        var counter = numberofMessages;
+        this.each(function(item){
+            item.setOrdinal(counter--);
+            item.save()
+        }, this);
+    },
+
     unread: function() {
         return _(this.filter( function(mail) { return !mail.get('read');} ) );
     },
@@ -144,8 +156,9 @@ var MailList = Backbone.Collection.extend({
         return (this.filter( function(mail) { return mail.get('star')})).length;
     },
 
-    addOrdinal: function(numberofMessages){
-        var counter = numberofMessages;
+    addOrdinal: function(){
+        //var counter = numberofMessages;
+        var count = 0
         this.each(function(item){
             item.setOrdinal(counter++);
             item.save()
@@ -219,6 +232,7 @@ var MailList = Backbone.Collection.extend({
         mailitem.save();
         if (messagesList.itemcount==messagesList.length){
             self.groupDataSet.add({id: self.groupCounter, value: messagesList.models[0].get('timestamp'), content: "<span class='myGroup' style='color:#97B0F8; max-width:200px; white-space:wrap'>"+self.truncateTitle(messagesList.models[0].get('subject'))+"</span>"});
+            messagesList.addOrdinal();
             self.itemDataSet.add(messagesList.toJSON());
             messagesList.reset();
             self.groupCounter+=1;
