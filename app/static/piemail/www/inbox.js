@@ -6,6 +6,7 @@ var Mail = Backbone.Model.extend( {
         id: '',
         ordinal: '',
         subject: '',
+        content: '',
         snippet: '',
         mailbody: '',
         timestamp: '',
@@ -41,20 +42,19 @@ var Mail = Backbone.Model.extend( {
 
 var MailView = Backbone.View.extend({
     tagName: "div",
-    className: "topcoat-grid__column--auto",
+    className: "mail",
 
     template: _.template($("#mail-item").html()),
 
     events: {
-        // "click .mail-subject,.sender,.mail-snippet" : "markRead",
-        "click .mail-subject,.sender,.mail-snippet" : "getMail",
+        "click .mail-subject,.sender" : "markRead",
+        "click .mail-snippet" : "getMail",
         "click .star" : "star",
         "click .check" : "select"
     },
 
     initialize: function() {
-        //this.listenTo(this.model, 'change', this.render);
-        //this.listenTo(this.model, 'destroy', this.remove, this.unrender())
+        this.model.bind('change', this.render, this);
     },
 
     render: function() {
@@ -70,29 +70,23 @@ var MailView = Backbone.View.extend({
         this.model.markRead();
     },
 
-    getMail: function() {
-        this.model.collection.getThreads([this.model.get('id')]);
-    },
-
     star: function() {
         this.model.starMail();
     },
 
     select: function(){
         this.model.selectMail();
+    },
+
+    getMail: function() {
+        this.model.collection.getThreads([this.model.get('id')]);
     }
 });
 
 var MailList = Backbone.Collection.extend({
-    initialize: function(models, options) {
-        if(typeof options === 'undefined'){
-            this.request = null;
-        } else {
-            this.request = options.request;
-        }
-    },
     model: Mail,
-    //sort_dir: "asc",
+    url: '/inbox',
+
     timelineoptions: {
         showCurrentTime: true,
         zoomable: true,
@@ -115,16 +109,16 @@ var MailList = Backbone.Collection.extend({
         item: "top"
         },
         minHeight:'250px',
-        //groupOrder: function (a, b) {
-        //  return a.value - b.value;
-        //},
-        //
         order: function customOrder(a,b) {
             return a.ordinal - b.ordinal;
         }
     },
 
     localStorage: new Backbone.LocalStorage("messageList"),
+
+    refreshFromServer : function(options) {
+        return Backbone.ajaxSync('read', this, options);
+    },
 
     unread: function() {
         return _(this.filter( function(mail) { return !mail.get('read');} ) );
@@ -162,7 +156,6 @@ var MailList = Backbone.Collection.extend({
         $('#visualization').html("");
         $('.inboxfunctions').addClass("hidden");
         $('.gridfunctions').removeClass("hidden");
-        //this.sort_dir = "desc";
         this.timeline = new vis.Timeline(document.getElementById('visualization'));
         this.groupDataSet = new vis.DataSet();
         this.itemDataSet = new vis.DataSet();
@@ -284,14 +277,6 @@ var MailList = Backbone.Collection.extend({
         return _(this.filter(function(mail) { 
             return pat.test(mail.get('subject')) || pat.test(mail.get('sender')); }));
     }
-
-    //comparator: function(mail){
-    //    if (this.sort_dir === "desc"){
-    //        return mail.get('timestamp');
-    //    } else {
-    //        return -mail.get('timestamp');
-    //    }
-    //}
 });
 
 var InboxView = Backbone.View.extend({
@@ -302,14 +287,14 @@ var InboxView = Backbone.View.extend({
 
     initialize: function(){
         this.collection.bind('change', this.renderSideMenu, this);
-        //this.render(this.collection);
+        this.render(this.collection);
         this.renderSideMenu();
     },
 
     events: {
         "click #fit": "fitall",
         "click #moveTo": "moveto",
-        "click #visualization": "handleTimelineEvents",
+        //"click #visualization": "handleTimelineEvents",
         "click #window1": "setwindow",
         "click #previousweek": "previousweek",
         "change #labeler": "applyLabel",
@@ -362,7 +347,7 @@ var InboxView = Backbone.View.extend({
     },
 
     render: function(records){
-        $('div#mail-list', this.el).html('');
+        $('#mail-list', this.el).html('');
         var self = this;
         records.each(function(item){
             self.addOne(item);
@@ -377,7 +362,7 @@ var InboxView = Backbone.View.extend({
 
     addOne: function (mail) {
         var itemView = new MailView({ model: mail});
-        $('div#mail-list', this.el).append(itemView.render().el);
+        $('#mail-list', this.el).append(itemView.render().el);
     },
 
     gridview: function(){
@@ -442,47 +427,51 @@ var InboxView = Backbone.View.extend({
         overlay.style.opacity = .7;
         $('#visualization').append(emailbody);
         $('#overlay, #emailreply').fadeIn(300);
-    },
-
-    attachToView: function(){
-        this.el = $("#mail-list");
-        var self = this;
-        $(".mail").each(function(){
-            var mailEl = $(this);
-            var id = mailEl.data('threadid');
-            var mailitem = self.collection.get(id);
-            new MailView({
-                model: mailitem,
-                el: mailEl
-            });
-        });
     }
 });
 
 startapp = function () {
+    $('#mailapp').removeClass("hidden");
+    $('.inboxfunctions').removeClass("hidden")
     window.threadslist = new MailList();
-    $('.mail').each(function(i) {
-        threadslist.add(new Mail({
-            id: $(this).data('threadid'),
-            ordinal: i,
-            sender: this.getElementsByClassName("sender")[0].innerHTML,
-            subject: this.getElementsByClassName("mail-subject")[0].innerHTML,
-            snippet: this.getElementsByClassName("mail-snippet")[0].innerHTML,
-            timestamp: this.getElementsByClassName("timestamp")[0].innerHTML,
-            mailbody: '',
-            start: '',
-            read: false,
-            star: false,
-            selected:false,
-            archived:false,
-            label: '',
-            createdOn: "Note created on " + new Date().toISOString()}
-        ));
-    }).promise().done( function(){
+    window.threadslist.refreshFromServer({success: function(freshData) {
+        window.threadslist.set(freshData['newcollection']);
         window.currentInbox = new InboxView({collection: window.threadslist});
-        window.currentInbox.attachToView();
-        window.currentInbox.renderSideMenu()
-    });
+    }});
+    //window.threadslist.fetch(
+    //    {
+    //        success: function () {
+    //            window.currentInbox = new InboxView({collection: window.threadslist});
+    //        }
+    //    }
+    //);
+    //window.threadslist.fetch().done(function() {
+    //    alert('fetched from local storage')
+    //});
+
+
+    //$('.mail').each(function(i) {
+    //    threadslist.add(new Mail({
+    //        id: $(this).data('threadid'),
+    //        ordinal: i,
+    //        sender: this.getElementsByClassName("sender")[0].innerHTML,
+    //        subject: this.getElementsByClassName("mail-subject")[0].innerHTML,
+    //        snippet: this.getElementsByClassName("mail-snippet")[0].innerHTML,
+    //        timestamp: this.getElementsByClassName("timestamp")[0].innerHTML,
+    //        mailbody: this.getElementsByClassName("timestamp")[0].innerHTML,
+    //        start: '',
+    //        read: false,
+    //        star: false,
+    //        selected:false,
+    //        archived:false,
+    //        label: '',
+    //        createdOn: "Note created on " + new Date().toISOString()}
+    //    ));
+    //}).promise().done( function(){
+    //    window.currentInbox = new InboxView({collection: window.threadslist});
+    //    //window.currentInbox.attachToView();
+    //    //window.currentInbox.renderSideMenu()
+    //});
 };
 
 $( document ).ready(function() {

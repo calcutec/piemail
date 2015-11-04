@@ -6,7 +6,6 @@
         <title>PieMail</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="{{ local_static_url }}piemail/www/css/grid.min.css" rel="stylesheet" >
         <link href="{{ local_static_url }}piemail/www/css/vis.min.css" rel="stylesheet" >
         <link href="{{ local_static_url }}piemail/www/css/style.css" rel="stylesheet" >
         <script type="text/javascript" src="{{ local_static_url }}piemail/www/libs/jquery-2.1.4.min.js"></script>
@@ -23,18 +22,10 @@
 
     </head>
     <body>
-        <div id="mailapp">
+        <div id="mailapp" class="hidden">
             <div id="summary">
-                <span class="inboxfunctions">
-                    <ul id="sidemenu">
-                        <li>
-                           <a href="#" id="inbox"><strong> Inbox ({{ inbox }}) </strong></a>
-                        </li>
-                        <li>
-                           <a href="#" id="starred">Starred</a>
-                        </li>
-                        <li><a href="#" id="allmail">All Mail</a></li>
-                    </ul>
+                <span class="inboxfunctions hidden">
+                    <ul id="sidemenu"></ul>
                     <span>
                         <select id="labeler">
                             <option value=""> Apply Label </option>
@@ -58,22 +49,7 @@
             <div class="content" id="visualization">
                 <span><input type="text" id="search" placeholder="Search" class="button"/></span>
                 <div id="mails" style="float:left;">
-                    <div class="topcoat-grid__row" id="mail-list">
-                        {% for thread in threads %}
-                            <div class="topcoat-grid__column--auto" id="mail-item">
-                                <div class="mail" data-threadid="{{ thread.threadId }}">
-                                    <span id="gmailid" class="hidden">{{ thread.threadId }}</span>
-                                    <a href="#">
-                                        <span style="float:left;width:300px;" class="sender">{{ thread.sender | safe }}</span>
-                                        <span style="float:right;width:200px;text-align:right;" class="timestamp">{{ thread.date }}</span>
-                                        <span style="float:left;width:100%;" class="mail-subject">{{ thread.subject | safe }}</span>
-                                        <span style="color:#23707E;float:left;width:100%;" class="mail-snippet">{{ thread.snippet | safe }}</span>
-                                        <div style="clear:both;"></div>
-                                    </a>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
+                    <div id="mail-list"></div>
                 </div>
             </div>
         </div>
@@ -92,26 +68,22 @@
             </li>
             <li><a href="#" id="allmail">All Mail</a></li>
         </script>
-{#        <script type="text/template" id="mail-item">#}
-{#          <div>#}
-{#            <div class="mail">#}
-{#              <a href="#">#}
-{#                <% if (read == false) { %> <strong>  <% } %>#}
-{#                <span style="float:left;width:20px;"><input class="check" type="checkbox" <%= selected? "checked='checked'":"" %> / > </span>#}
-{#                <span style="float:left;width:20px;" <% if( star == true ) { %> class="star icon bookmark" <% } else { %> class="star icon nobookmark" <% } %> > &nbsp; </span>#}
-{#                <span style="float:left;width:300px;" class="sender"><%= sender %></span>#}
-{#                <span style="float:right;width:150px;text-align:right;" class="timestamp"><%= timestamp %></span>#}
-{#                <span style="float:left;width:100%;" class="mail-subject"><%= subject %></span>#}
-{#                <span style="color:#23707E;float:left;width:100%;" class="mail-snippet"><%= snippet %></span>#}
-{#                <% if (label != '') { %>#}
-{#                  <span style="float:left;width:80px;" class="labels"> <%= label %></span>#}
-{#                <% } %>#}
-{#                <div style="clear:both;"></div>#}
-{#                <% if (read == false) { %> </strong>  <% } %>#}
-{#              </a>#}
-{#            </div>#}
-{#          </div>#}
-{#        </script>#}
+        <script type="text/template" id="mail-item">
+              <a href="#">
+                <% if (read == false) { %> <strong>  <% } %>
+                <span style="float:left;width:20px;"><input class="check" type="checkbox" <%= selected? "checked='checked'":"" %> / > </span>
+                <span style="float:left;width:20px;" <% if( star == true ) { %> class="star icon bookmark" <% } else { %> class="star icon nobookmark" <% } %> > &nbsp; </span>
+                <span style="float:left;width:300px;" class="sender"><%= sender %></span>
+                <span style="float:right;width:250px;text-align:right;" class="timestamp"><%= timestamp %></span>
+                <span style="float:left;width:100%;" class="mail-subject"><%= subject %></span>
+                <span style="color:#23707E;float:left;width:100%;" class="mail-snippet"><%= snippet %></span>
+                <% if (label != '') { %>
+                  <span style="float:left;width:80px;" class="labels"> <%= label %></span>
+                <% } %>
+                <div style="clear:both;"></div>
+                <% if (read == false) { %> </strong>  <% } %>
+              </a>
+        </script>
         <script type="text/template" id="mail-plot">
             <div class="headerwrapper">
                 <div class="sender"><strong><%= ordinal %> :: <%= sender %></strong></div>
@@ -130,6 +102,7 @@
             <button id="emailreplyclose">close</button>
             <object id="emailreply" type="text/html" data="{{ host_url }}emaildata/<%= id %>"></object>
         </script>
+
         <script src="{{ local_static_url }}piemail/www/inbox.js"></script>
     </body>
 </html>

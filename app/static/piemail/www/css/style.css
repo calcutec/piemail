@@ -56,6 +56,7 @@ div#overlay {
 }
 
 .bodywrapper #fullbody-wrap{
+    position: relative;
     display:none;
     background:snow;
     border:2px solid oldlace;
@@ -91,6 +92,12 @@ div#overlay {
     padding: 5px;
     text-align: left;
     text-overflow: ellipsis;
+}
+
+.mail{
+    border: 2px solid #269abc;
+    padding: 4px;
+    margin-bottom: 3px;
 }
 
 .mail-snippet {

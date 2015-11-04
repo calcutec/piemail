@@ -12,6 +12,18 @@ fullmessageset = []
 
 @app.route('/')
 def index():
+    if 'credentials' not in session:
+        return redirect(url_for('oauth2callback'))
+    credentials = client.OAuth2Credentials.from_json(session['credentials'])
+    if credentials.access_token_expired:
+        return redirect(url_for('oauth2callback'))
+    else:
+        http_auth = credentials.authorize(httplib2.Http())
+    return render_template("piemail.html")
+
+
+@app.route('/inbox', methods=['GET'])
+def inbox():
     newthreadlist = []
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
@@ -30,18 +42,25 @@ def index():
     for thread in results['threads']:
         batch.add(service.users()
             .threads().get(userId='me', id=thread['id'],
-            fields="messages/snippet, messages/internalDate, messages/threadId, messages/payload/headers"))
+            fields="messages/snippet, messages/internalDate, messages/labelIds, messages/threadId, messages/payload/headers"))
     batch.execute()
     for thread in fullthreadset:
         threaditems = dict()
+        threaditems['labels'] = thread['labelIds']
+        if 'UNREAD' in thread['labelIds']:
+            threaditems['unread'] = True
+        else:
+            threaditems['unread'] = False
         threaditems['threadId'] = thread['threadId']
+        threaditems['id'] = thread['threadId']
         threaditems['snippet'] = thread['snippet'] + "..."
-        threaditems['date'] = datetime.datetime.fromtimestamp(float(thread['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
+        threaditems['timestamp'] = datetime.datetime.fromtimestamp(float(thread['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
         threaditems['sender'] = getheaders(thread, "From")
         threaditems['subject'] = getheaders(thread, "Subject")
         newthreadlist.append(threaditems)
     fullthreadset[:] = []
-    return render_template("piemail.html", threads=newthreadlist, inbox=len(newthreadlist))
+    return json.dumps({'newcollection':newthreadlist})
+    # return render_template("piemail.html", threads=newthreadlist, inbox=len(newthreadlist))
 
 
 @app.route('/threadslist', methods=['POST'])
@@ -77,6 +96,7 @@ def threadslist():
         messageitems['sender'] = getheaders(message, "From")
         messageitems['subject'] = getheaders(message, "Subject")
         messageitems['body'] = getbody(message)
+        messageitems['attachment'] = getattach(message, service)
         messageitems['ordinal'] = ordinal
         ordinal += 1
         currentmessagelist.append(messageitems)
@@ -133,6 +153,7 @@ def processthreads(request_id, response, exception):
     else:
         fullthreadset.append(response['messages'][0])
 
+
 def processmessages(request_id, response, exception):
     if exception is not None:
         pass
@@ -146,11 +167,68 @@ def getheaders(thread, key):
             return header['value']
 
 
+def getattach(message, service):
+    try:
+        for part in message['payload']['parts']:
+            if part['filename']:
+                if 'data' in part['body']:
+                    data=part['body']['data']
+                else:
+                    att_id=part['body']['attachmentId']
+                    att= service.users().messages().attachments().get(userId="me", messageId=message['id'],id=att_id).execute()
+                    data=att['data']
+                file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
+                return "file found"
+                # return file_data
+                # path = prefix+part['filename']
+                # with open(path, 'w') as f:
+                #     f.write(file_data)
+    except errors.HttpError, error:
+        print 'An error occurred: %s' % error
+
+
 def getbody(message):
     if message['payload']['parts']:
         return dict({'parts': message['payload']['parts']})
     else:
         return dict({'body': message['payload']['body']['data']})
+
+# based on Python example from
+# https://developers.google.com/gmail/api/v1/reference/users/messages/attachments/get
+# which is licensed under Apache 2.0 License
+
+import base64
+from apiclient import errors
+
+
+def GetAttachments(service, user_id, msg_id, prefix=""):
+    """Get and store attachment from Message with given id.
+
+    Args:
+    service: Authorized Gmail API service instance.
+    user_id: User's email address. The special value "me"
+    can be used to indicate the authenticated user.
+    msg_id: ID of Message containing attachment.
+    prefix: prefix which is added to the attachment filename on saving
+    """
+    try:
+        message = service.users().messages().get(userId=user_id, id=msg_id).execute()
+
+        for part in message['payload']['parts']:
+            if part['filename']:
+                if 'data' in part['body']:
+                    data=part['body']['data']
+                else:
+                    att_id=part['body']['attachmentId']
+                    att=service.users().messages().attachments().get(userId=user_id, messageId=msg_id,id=att_id).execute()
+                    data=att['data']
+                file_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
+                path = prefix+part['filename']
+
+                with open(path, 'w') as f:
+                    f.write(file_data)
+    except errors.HttpError, error:
+        print 'An error occurred: %s' % error
 
 
 # @app.errorhandler(404)
