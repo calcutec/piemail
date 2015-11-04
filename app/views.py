@@ -84,7 +84,6 @@ def threadslist():
     for emailmessage in fullmessageset:
         m = threading.Thread(target=parse_message, kwargs={"emailmessage": emailmessage})
         m.start()
-        print(m.getName() + ": " + str(m.isAlive()) + ": " + str(datetime.datetime.now()))
     response = dict()
     response['iserror']= False
     response['savedsuccess'] = True
