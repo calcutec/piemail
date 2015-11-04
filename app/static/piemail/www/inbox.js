@@ -232,7 +232,7 @@ var MailList = Backbone.Collection.extend({
         mailitem.save();
         if (messagesList.itemcount==messagesList.length){
             self.groupDataSet.add({id: self.groupCounter, value: messagesList.models[0].get('timestamp'), content: "<span class='myGroup' style='color:#97B0F8; max-width:200px; white-space:wrap'>"+self.truncateTitle(messagesList.models[0].get('subject'))+"</span>"});
-            messagesList.addOrdinal();
+            //messagesList.addOrdinal();
             self.itemDataSet.add(messagesList.toJSON());
             messagesList.reset();
             self.groupCounter+=1;

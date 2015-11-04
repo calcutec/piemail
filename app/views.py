@@ -1,14 +1,15 @@
 import httplib2
 import os
-import functions
 from flask import url_for, session, redirect, request, render_template, jsonify, json
 from apiclient import discovery, errors
 from oauth2client import client
 from app import app
 from copy import deepcopy
+import threading
+import datetime
 
-fullthreadset = []
 fullmessageset = []
+parsedmessageset = []
 
 
 @app.route('/')
@@ -34,7 +35,7 @@ def inbox():
 
     service = discovery.build('gmail', 'v1', http=http_auth)
     results = service.users().threads().list(userId='me',
-                                             maxResults=50,fields="threads/id",
+                                             maxResults=50, fields="threads/id",
                                              q="in:inbox -category:(promotions OR social)").execute()
     batch = service.new_batch_http_request(callback=processthreads)
     for thread in results['threads']:
@@ -42,8 +43,12 @@ def inbox():
             .threads().get(userId='me', id=thread['id'],
             fields="messages/snippet, messages/internalDate, messages/labelIds, messages/threadId, messages/payload/headers"))
     batch.execute()
-    newcollection = deepcopy(fullthreadset)
+    for emailthread in fullmessageset:
+        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
+        t.start()
+    newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
+    parsedmessageset[:] = []
     return json.dumps({'newcollection': newcollection})
 
 
@@ -51,8 +56,7 @@ def processthreads(request_id, response, exception):
     if exception is not None:
         pass
     else:
-        emailthread = response['messages'][0]
-        fullthreadset.append(functions.parse_thread(emailthread))
+        fullmessageset.append((request_id, response['messages'][0]))
 
 
 @app.route('/threadslist', methods=['POST'])
@@ -71,16 +75,22 @@ def threadslist():
         thread = service.users().threads().get(userId='me', id=threadid).execute()
     except errors.HttpError, error:
         print 'An error occurred: %s' % error
+        return jsonify(error)
 
     batch = service.new_batch_http_request(callback=processmessages)
     for message in thread['messages']:
         batch.add(service.users().messages().get(userId='me', id=message['id']))
     batch.execute()
+    for emailmessage in fullmessageset:
+        m = threading.Thread(target=parse_message, kwargs={"emailmessage": emailmessage})
+        m.start()
+        print(m.getName() + ": " + str(m.isAlive()) + ": " + str(datetime.datetime.now()))
     response = dict()
     response['iserror']= False
     response['savedsuccess'] = True
-    response['currentMessageList'] = deepcopy(fullmessageset)
+    response['currentMessageList'] = deepcopy(parsedmessageset)
     fullmessageset[:] = []
+    parsedmessageset[:] = []
     return jsonify(response)
 
 
@@ -88,8 +98,7 @@ def processmessages(request_id, response, exception):
     if exception is not None:
         pass
     else:
-        emailmessage = response
-        fullmessageset.append(functions.parse_message(emailmessage))
+        fullmessageset.append((request_id, response))
 
 
 @app.route('/emaildata/<emailid>')
@@ -139,3 +148,46 @@ def inject_static_url():
 # @app.errorhandler(500)
 # def internal_error(error):
 #     return render_template('500.html', error=error), 500
+
+
+def parse_thread(emailthread):
+    threaditems = dict()
+    threaditems['labels'] = emailthread[1]['labelIds']
+    if 'UNREAD' in emailthread[1]['labelIds']:
+        threaditems['unread'] = True
+    else:
+        threaditems['unread'] = False
+    threaditems['threadId'] = emailthread[1]['threadId']
+    threaditems['id'] = emailthread[1]['threadId']
+    threaditems['snippet'] = emailthread[1]['snippet'] + "..."
+    threaditems['timestamp'] = datetime.datetime.fromtimestamp(float(emailthread[1]['internalDate'])/1000.)\
+        .strftime("%Y-%m-%d %H:%M:%S")
+    threaditems['sender'] = getheaders(emailthread[1], "From")
+    threaditems['subject'] = getheaders(emailthread[1], "Subject")
+    parsedmessageset.append(threaditems)
+
+
+def parse_message(emailmessage):
+    messageitems = dict()
+    messageitems['id'] = emailmessage[1]['id']
+    messageitems['threadId'] = emailmessage[1]['threadId']
+    messageitems['snippet'] = emailmessage[1]['snippet'] + "..."
+    messageitems['date'] = datetime.datetime.fromtimestamp(float(emailmessage[1]['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
+    messageitems['sender'] = getheaders(emailmessage[1], "From")
+    messageitems['subject'] = getheaders(emailmessage[1], "Subject")
+    messageitems['body'] = getbody(emailmessage[1])
+    messageitems['ordinal'] = emailmessage[0]
+    parsedmessageset.append(messageitems)
+
+
+def getheaders(emailthread, key):
+    for header in emailthread['payload']['headers']:
+        if header['name'] == key:
+            return header['value']
+
+
+def getbody(message):
+    if message['payload']['parts']:
+        return dict({'parts': message['payload']['parts']})
+    else:
+        return dict({'body': message['payload']['body']['data']})
