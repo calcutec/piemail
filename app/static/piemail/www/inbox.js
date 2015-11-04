@@ -158,10 +158,10 @@ var MailList = Backbone.Collection.extend({
 
     addOrdinal: function(){
         //var counter = numberofMessages;
-        var count = 0
+        var counter = 1;
         this.each(function(item){
             item.setOrdinal(counter++);
-            item.save()
+            item.save();
         }, this);
     },
 
