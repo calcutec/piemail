@@ -443,10 +443,13 @@ startapp = function () {
     $('#mailapp').removeClass("hidden");
     $('.inboxfunctions').removeClass("hidden");
     window.threadslist = new MailList();
-    window.threadslist.refreshFromServer({success: function(freshData) {
-        window.threadslist.set(freshData['newcollection']);
-        window.currentInbox = new InboxView({collection: window.threadslist});
-    }});
+
+    window.threadslist.refreshFromServer({
+        success: function(freshData) {
+            window.threadslist.set(freshData['newcollection']);
+            window.currentInbox = new InboxView({collection: window.threadslist});
+        }
+    });
 };
 
 $( document ).ready(function() {
