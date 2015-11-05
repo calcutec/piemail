@@ -59,7 +59,7 @@ var MailView = Backbone.View.extend({
 
     initialize: function() {
         this.model.bind('change', this.render, this);
-        this.listenTo(this.model, 'destroy', this.remove);
+        this.listenTo(this.model, 'removeme', this.remove);
     },
 
     render: function() {
@@ -106,6 +106,7 @@ var MailList = Backbone.Collection.extend({
         return _(this.filter( function(mail) { return !mail.get('archived');}));
     },
 
+
     starred: function(){
         return _(this.filter( function(mail) { return mail.get('star');}));
     },
@@ -124,7 +125,7 @@ var MailList = Backbone.Collection.extend({
 
     getThreads: function(){
         var threadArray = [];
-        this.collection.each(function(item){
+        this.each(function(item){
             if(item.get('selected') == true){
               threadArray.push(item.get('id'));
             }
@@ -133,12 +134,14 @@ var MailList = Backbone.Collection.extend({
     },
 
     getThread: function(threadid){
-        this.reset(); //Do not reset? Do remove for all elements so we can get back to this page?
+        this.each(function(model){
+            model.trigger('removeme');
+        });
+        $('#visualization').html('')
         var gridlist = new GridList();
         gridlist.getThread(threadid, function(successmessage){
             $('.inboxfunctions').addClass("hidden");
             $('.gridfunctions').removeClass("hidden");
-            $('.mail-list').html("");
             window.newgridview = new GridView({collection: self})
         });
     },
@@ -160,6 +163,7 @@ var InboxView = Backbone.View.extend({
 
     initialize: function(){
         this.collection.bind('change', this.renderSideMenu, this);
+        this.listenTo(this.collection, 'reset', this.removeAll);
         this.render(this.collection);
         this.renderSideMenu();
     },
@@ -232,6 +236,10 @@ var InboxView = Backbone.View.extend({
     addOne: function (mail) {
         var itemView = new MailView({ model: mail});
         $('#mail-list', this.el).append(itemView.render().el);
+    },
+
+    removeAll: function(){
+        this.$el.empty()
     }
 });
 
@@ -329,7 +337,7 @@ var GridView = Backbone.View.extend({
     },
 
     render: function(){
-        this.timeline = new vis.Timeline(document.getElementById('mail-list'));
+        this.timeline = new vis.Timeline(document.getElementById('visualization'));
         this.timeline.setOptions(this.timelineoptions);
         //var groupDataSet = new vis.DataSet();
         var itemDataSet =  new vis.DataSet();

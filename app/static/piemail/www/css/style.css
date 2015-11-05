@@ -13,6 +13,7 @@ body{
 
 #visualization {
     margin-top:5px;
+    margin-left:5px;
 }
 
 .vis-item.vis-point.vis-selected, .vis-item.vis-selected {
