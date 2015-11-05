@@ -59,7 +59,7 @@ def processthreads(request_id, response, exception):
         fullmessageset.append((request_id, response['messages'][0]))
 
 
-@app.route('/threadslist', methods=['POST'])
+@app.route('/threadslist', methods=['POST', 'GET'])
 def threadslist():
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
@@ -171,7 +171,7 @@ def parse_message(emailmessage):
     messageitems['id'] = emailmessage[1]['id']
     messageitems['threadId'] = emailmessage[1]['threadId']
     messageitems['snippet'] = emailmessage[1]['snippet'] + "..."
-    messageitems['date'] = datetime.datetime.fromtimestamp(float(emailmessage[1]['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
+    messageitems['timestamp'] = datetime.datetime.fromtimestamp(float(emailmessage[1]['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
     messageitems['sender'] = getheaders(emailmessage[1], "From")
     messageitems['subject'] = getheaders(emailmessage[1], "Subject")
     messageitems['body'] = getbody(emailmessage[1])
