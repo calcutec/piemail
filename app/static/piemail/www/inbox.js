@@ -124,14 +124,6 @@ var MailList = Backbone.Collection.extend({
         return Backbone.ajaxSync('read', this, options);
     },
 
-    addOrdinal: function(numberofMessages){
-        var counter = numberofMessages;
-        this.each(function(item){
-            item.setOrdinal(counter--);
-            item.save()
-        }, this);
-    },
-
     unread: function() {
         return _(this.filter( function(mail) { return !mail.get('read');} ) );
     },
@@ -231,8 +223,11 @@ var MailList = Backbone.Collection.extend({
         messagesList.add(mailitem);
         mailitem.save();
         if (messagesList.itemcount==messagesList.length){
-            self.groupDataSet.add({id: self.groupCounter, value: messagesList.models[0].get('timestamp'), content: "<span class='myGroup' style='color:#97B0F8; max-width:200px; white-space:wrap'>"+self.truncateTitle(messagesList.models[0].get('subject'))+"</span>"});
-            //messagesList.addOrdinal();
+            self.groupDataSet.add({id: self.groupCounter,
+                value: messagesList.models[0].get('timestamp'),
+                content: "<span class='myGroup' style='color:#97B0F8; " +
+                "max-width:200px; white-space:wrap'>" +
+                self.truncateTitle(messagesList.models[0].get('subject'))+"</span>"});
             self.itemDataSet.add(messagesList.toJSON());
             messagesList.reset();
             self.groupCounter+=1;
@@ -308,7 +303,7 @@ var InboxView = Backbone.View.extend({
     events: {
         "click #fit": "fitall",
         "click #moveTo": "moveto",
-        //"click #visualization": "handleTimelineEvents",
+        "click #visualization": "handleTimelineEvents",
         "click #window1": "setwindow",
         "click #previousweek": "previousweek",
         "change #labeler": "applyLabel",
@@ -446,46 +441,12 @@ var InboxView = Backbone.View.extend({
 
 startapp = function () {
     $('#mailapp').removeClass("hidden");
-    $('.inboxfunctions').removeClass("hidden")
+    $('.inboxfunctions').removeClass("hidden");
     window.threadslist = new MailList();
     window.threadslist.refreshFromServer({success: function(freshData) {
         window.threadslist.set(freshData['newcollection']);
         window.currentInbox = new InboxView({collection: window.threadslist});
     }});
-    //window.threadslist.fetch(
-    //    {
-    //        success: function () {
-    //            window.currentInbox = new InboxView({collection: window.threadslist});
-    //        }
-    //    }
-    //);
-    //window.threadslist.fetch().done(function() {
-    //    alert('fetched from local storage')
-    //});
-
-
-    //$('.mail').each(function(i) {
-    //    threadslist.add(new Mail({
-    //        id: $(this).data('threadid'),
-    //        ordinal: i,
-    //        sender: this.getElementsByClassName("sender")[0].innerHTML,
-    //        subject: this.getElementsByClassName("mail-subject")[0].innerHTML,
-    //        snippet: this.getElementsByClassName("mail-snippet")[0].innerHTML,
-    //        timestamp: this.getElementsByClassName("timestamp")[0].innerHTML,
-    //        mailbody: this.getElementsByClassName("timestamp")[0].innerHTML,
-    //        start: '',
-    //        read: false,
-    //        star: false,
-    //        selected:false,
-    //        archived:false,
-    //        label: '',
-    //        createdOn: "Note created on " + new Date().toISOString()}
-    //    ));
-    //}).promise().done( function(){
-    //    window.currentInbox = new InboxView({collection: window.threadslist});
-    //    //window.currentInbox.attachToView();
-    //    //window.currentInbox.renderSideMenu()
-    //});
 };
 
 $( document ).ready(function() {
