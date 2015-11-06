@@ -7,6 +7,9 @@ from app import app
 from copy import deepcopy
 import threading
 import datetime
+import base64
+import re
+
 
 fullmessageset = []
 parsedmessageset = []
@@ -39,9 +42,9 @@ def inbox():
                                              q="in:inbox -category:(promotions OR social)").execute()
     batch = service.new_batch_http_request(callback=processthreads)
     for thread in results['threads']:
-        batch.add(service.users()
-            .threads().get(userId='me', id=thread['id'],
-            fields="messages/snippet, messages/internalDate, messages/labelIds, messages/threadId, messages/payload/headers"))
+        batch.add(service.users().threads().get(userId='me', id=thread['id'],
+                                                fields="messages/snippet, messages/internalDate, messages/labelIds, "
+                                                       "messages/threadId, messages/payload/headers"))
     batch.execute()
     for emailthread in fullmessageset:
         t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
@@ -85,7 +88,7 @@ def threadslist():
         m = threading.Thread(target=parse_message, kwargs={"emailmessage": emailmessage})
         m.start()
     response = dict()
-    response['iserror']= False
+    response['iserror'] = False
     response['savedsuccess'] = True
     response['currentMessageList'] = deepcopy(parsedmessageset)
     fullmessageset[:] = []
@@ -170,8 +173,9 @@ def parse_message(emailmessage):
     messageitems = dict()
     messageitems['id'] = emailmessage[1]['id']
     messageitems['threadId'] = emailmessage[1]['threadId']
-    messageitems['snippet'] = emailmessage[1]['snippet'] + "..."
-    messageitems['timestamp'] = datetime.datetime.fromtimestamp(float(emailmessage[1]['internalDate'])/1000.).strftime("%Y-%m-%d %H:%M:%S")
+    messageitems['snippet'] = emailmessage[1]['snippet']
+    messageitems['timestamp'] = datetime.datetime.fromtimestamp(float(emailmessage[1]['internalDate'])/1000.)\
+        .strftime("%Y-%m-%d %H:%M:%S")
     messageitems['sender'] = getheaders(emailmessage[1], "From")
     messageitems['subject'] = getheaders(emailmessage[1], "Subject")
     messageitems['body'] = getbody(emailmessage[1])
@@ -186,7 +190,20 @@ def getheaders(emailthread, key):
 
 
 def getbody(message):
-    if message['payload']['parts']:
-        return dict({'parts': message['payload']['parts']})
+    if 'parts' in message['payload']:
+        encodedbody = gethtmlpart(message['payload']['parts'])
     else:
-        return dict({'body': message['payload']['body']['data']})
+        encodedbody = message['payload']['body']['data']
+    decodedbody = base64.urlsafe_b64decode(str(encodedbody))
+    decodedbody = re.sub(r'src="cid:([^"]+)"', "src='/static/img/unknownimg.svg'", decodedbody)  # cid image hack
+    return decodedbody
+
+
+def gethtmlpart(parts):
+    for part in parts:
+        if 'parts' not in part:
+            if part['mimeType'] == 'text/html':
+                return part['body']['data']
+        else:
+            return gethtmlpart(part['parts'])
+    return ''

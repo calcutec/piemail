@@ -271,7 +271,7 @@ var GridList = Backbone.Collection.extend({
                     subject:message.subject,
                     ordinal:message.ordinal,
                     snippet:message.snippet + "...",
-                    mailbody:self.getBody(message.body),
+                    mailbody: message.body,
                     formattedDate:message.date,
                     timestamp:message.timestamp,
                     start:message.timestamp
@@ -286,37 +286,6 @@ var GridList = Backbone.Collection.extend({
         request.fail(function( jqXHR, textStatus ) {
             callback( "Request failed: " + textStatus );
         });
-    },
-
-        /**
-     * @param {{parts:string}} message
-     * @param {{body:string}} message
-    **/
-    getBody: function (message) {
-        var encodedBody = '';
-        if(typeof message.parts === 'undefined'){
-          encodedBody = message.body;
-        }else{
-          encodedBody = self.getHTMLPart(message.parts);
-        }
-        encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
-        return decodeURIComponent(escape(window.atob(encodedBody)));
-    },
-
-    /**
-     * @param {{length:array}} arr
-    **/
-    getHTMLPart: function(arr) {
-        for(var x = 0; x <= arr.length; x++){
-            if(typeof arr[x].parts === 'undefined'){
-                if(arr[x].mimeType === 'text/html'){
-                    return arr[x].body.data;
-                }
-            }else{
-                return self.getHTMLPart(arr[x].parts);
-            }
-        }
-        return '';
     }
 });
 
