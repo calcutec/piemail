@@ -1,3 +1,16 @@
+/*gmail sprites*/
+
+.ajY, .pH, .pH-A7, .aoj {
+    width: 19px;
+    height: 19px;
+    background: url(//ssl.gstatic.com/ui/v1/icons/mail/sprite_importance2.png) no-repeat;
+}
+
+.pH, .aoj {
+    background-position: -40px 0;
+}
+
+
 html,
 body {
   margin: 0;

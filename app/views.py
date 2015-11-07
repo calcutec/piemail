@@ -156,9 +156,13 @@ def parse_thread(emailthread):
     threaditems = dict()
     threaditems['labels'] = emailthread[1]['labelIds']
     if 'UNREAD' in emailthread[1]['labelIds']:
-        threaditems['unread'] = True
+        threaditems['read'] = False
     else:
-        threaditems['unread'] = False
+        threaditems['read'] = True
+    if 'PROMOTIONS' in emailthread[1]['labelIds']:
+        threaditems['promotions'] = True
+    else:
+        threaditems['promotions'] = False
     threaditems['threadId'] = emailthread[1]['threadId']
     threaditems['id'] = emailthread[1]['threadId']
     threaditems['snippet'] = emailthread[1]['snippet'] + "..."

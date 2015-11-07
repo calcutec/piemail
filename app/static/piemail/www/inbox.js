@@ -11,10 +11,11 @@ var Mail = Backbone.Model.extend( {
         mailbody: '',
         timestamp: '',
         start: '',
-        read: false,
+        read: '',
         star: false,
         selected:false,
         archived:false,
+        promotions:false,
         label: '',
         createdOn: "Note created on " + new Date().toISOString()
     },
@@ -29,6 +30,10 @@ var Mail = Backbone.Model.extend( {
 
     archive: function(){
         this.save( { archived: true, selected:false} );
+    },
+
+    moveToPromotions: function(){
+        this.save( { promotions: true, selected:false} );
     },
 
     selectMail: function() {
@@ -106,6 +111,9 @@ var MailList = Backbone.Collection.extend({
         return _(this.filter( function(mail) { return !mail.get('archived');}));
     },
 
+    promotionsbox: function(){
+        return _(this.filter( function(mail) { return mail.get('promotions');}));
+    },
 
     starred: function(){
         return _(this.filter( function(mail) { return mail.get('star');}));
@@ -121,6 +129,10 @@ var MailList = Backbone.Collection.extend({
 
     starcount: function(){
         return (this.filter( function(mail) { return mail.get('star')})).length;
+    },
+
+    promotionscount: function(){
+        return (this.filter( function(mail) { return mail.get('promotions')})).length;
     },
 
     getThreads: function(){
@@ -156,7 +168,7 @@ var MailList = Backbone.Collection.extend({
 });
 
 var InboxView = Backbone.View.extend({
-    template: _.template($("#summary-tmpl").html()),
+    summarytemplate: _.template($("#summary-tmpl").html()),
     emailreplytemplate: _.template($("#emailreply-template").html()),
 
     el: $("#mailapp"),
@@ -175,6 +187,8 @@ var InboxView = Backbone.View.extend({
         "click #gridview": "gridview",
         "click #allmail": "allmail",
         "click #inbox": "inbox",
+        "click #promotionsbox": "promotionsbox",
+        "click #movetopromotions": "movetopromotions",
         "click #starred": "starred",
         "keyup #search" : "search"
     },
@@ -189,6 +203,10 @@ var InboxView = Backbone.View.extend({
 
     inbox: function(){
         this.render(this.collection.inbox());
+    },
+
+    promotionsbox: function(){
+        this.render(this.collection.promotionsbox());
     },
 
     allmail: function(){
@@ -219,6 +237,15 @@ var InboxView = Backbone.View.extend({
         this.render(this.collection.inbox());
     },
 
+    movetopromotions: function(){
+        this.collection.each(function(item){
+            if(item.get('selected') == true){
+              item.moveToPromotions();
+            }
+        }, this);
+        this.render(this.collection.promotionsbox());
+    },
+
     render: function(records){
         $('#mail-list', this.el).html('');
         var self = this;
@@ -228,9 +255,11 @@ var InboxView = Backbone.View.extend({
     },
 
     renderSideMenu: function(){
-        $("#sidemenu").html( this.template(
-            {'inbox': this.collection.unread_count(), 
-             'starred':this.collection.starcount()}));
+        $("#sidemenu").html( this.summarytemplate({
+            'inbox': this.collection.unread_count(),
+            'starred':this.collection.starcount(),
+            'promotions':this.collection.promotionscount()
+        }));
     },
 
     addOne: function (mail) {
@@ -262,7 +291,7 @@ var GridList = Backbone.Collection.extend({
             data: { "threadid" : threadid },
         });
         request.done(function( response ) {
-            var itemcount = response['currentMessageList'].length
+            var itemcount = response['currentMessageList'].length;
             response['currentMessageList'].forEach(function (message, i){
                 var mailitem = new Mail({
                     id: message.id,
@@ -270,11 +299,14 @@ var GridList = Backbone.Collection.extend({
                     sender: message.sender,
                     subject:message.subject,
                     ordinal:message.ordinal,
-                    snippet:message.snippet + "...",
+                    snippet: message.snippet + "...",
                     mailbody: message.body,
                     formattedDate:message.date,
                     timestamp:message.timestamp,
-                    start:message.timestamp
+                    start:message.timestamp,
+                    read: message.read,
+                    promotions: message.promotions,
+                    social: message.social
                 });
                 self.add(mailitem);
                 mailitem.save();
@@ -308,17 +340,17 @@ var GridView = Backbone.View.extend({
     render: function(){
         this.timeline = new vis.Timeline(document.getElementById('visualization'));
         this.timeline.setOptions(this.timelineoptions);
-        //var groupDataSet = new vis.DataSet();
+        var groupDataSet = new vis.DataSet();
         var itemDataSet =  new vis.DataSet();
         itemDataSet.add(this.collection.toJSON());
-        //this.groupDataSet.add({
-        //    id: 0,
-        //    value: this.collection.models[0].get('timestamp'),
-        //    content: "<span class='myGroup' style='color:#97B0F8; " +
-        //        "max-width:200px; white-space:wrap'>" +
-        //        this.truncateTitle(this.collection.models[0].get('subject'))+"</span>"
-        //});
-        //this.timeline.setGroups(this.groupDataSet);
+        groupDataSet.add({
+            id: 0,
+            value: this.collection.models[0].get('timestamp'),
+            content: "<span class='myGroup' style='color:#97B0F8; " +
+                "max-width:200px; white-space:wrap'>" +
+                this.truncateTitle(this.collection.models[0].get('subject'))+"</span>"
+        });
+        this.timeline.setGroups(groupDataSet);
         this.timeline.setItems(itemDataSet);
         $('body').append('<div id="overlay"></div>');
     },
@@ -421,6 +453,7 @@ startapp = function () {
     window.threadslist.refreshFromServer({
         success: function(freshData) {
             window.threadslist.set(freshData['newcollection']);
+            window.threadslist.forEach(function(model){model.save()});
             window.currentInbox = new InboxView({collection: window.threadslist});
         }
     });
