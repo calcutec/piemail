@@ -1,6 +1,0 @@
-1. Buy site -- confirm price for email and whether it can be added later
-2. Add test users in Facebook and confirm following function is working
-3. Add home page
-4. Remove line on hover for navbar items
-5. Add contributor info for main article
-6. Center align photos in main page and make image expand or decrease dynamically
