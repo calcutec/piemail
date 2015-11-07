@@ -29,40 +29,6 @@ body{
     margin-left:5px;
 }
 
-.vis-item.vis-point.vis-selected, .vis-item.vis-selected {
-    background-color: transparent;
-}
-
-div#overlay {
-	display: none;
-	z-index: 51;
-	background: #000;
-	position: fixed;
-	width: 100%;
-	height: 100%;
-	top: 0;
-	left: 0;
-	text-align: center;
-}
-
-#emailreply{
-    display: none;
-    position: absolute;
-    top:50px;
-    left:50px;
-    z-index:52;
-    background-color:#FFF;
-    width:70%;
-    height: 70%;
-}
-
-#emailreplyclose{
-    position: absolute;
-    top:25px;
-    left:50px;
-    z-index:53;
-}
-
 .headerwrapper, .snippet {
   background:oldlace;
   padding: 5px;
@@ -90,6 +56,16 @@ div#overlay {
   color: grey;
 }
 
+.mail{
+    border: 2px solid #269abc;
+    padding: 4px;
+    margin-bottom: 3px;
+}
+
+.mail-snippet {
+    text-overflow: ellipsis;
+}
+
 /*.vis-labelset {*/
   /*background: lavender;*/
 /*}*/
@@ -108,14 +84,9 @@ div#overlay {
     text-overflow: ellipsis;
 }
 
-.mail{
-    border: 2px solid #269abc;
-    padding: 4px;
-    margin-bottom: 3px;
-}
 
-.mail-snippet {
-    text-overflow: ellipsis;
+.vis-item.vis-point.vis-selected, .vis-item.vis-selected {
+    background-color: transparent;
 }
 
 /* gray background in weekends, white text color */
@@ -126,26 +97,6 @@ div#overlay {
 .vis-time-axis .vis-text.vis-saturday,
 .vis-time-axis .vis-text.vis-sunday {
   color: white;
-}
-
-.topcoat-grid {
-    padding: 0 30px;
-}
-
-.topcoat-grid__row {
-  box-sizing: border-box;
-  display: flex;
-  flex-wrap: wrap;
-  margin-left: -1rem;
-  margin-right: -1rem;
-}
-
-.topcoat-grid__column--auto {
-  border: 1px solid #a9a9a9;
-  padding-top: 3px;
-  padding-bottom: 3px;
-  overflow: hidden;
-  min-width: 100%;
 }
 
 .hidden {
@@ -249,4 +200,34 @@ select, button{
 input{
   border:1px solid #ddd;
   padding:3px;
+}
+
+div#overlay {
+	display: none;
+	z-index: 51;
+	background: #000;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	text-align: center;
+}
+
+#emailreply{
+    display: none;
+    position: absolute;
+    top:50px;
+    left:50px;
+    z-index:52;
+    background-color:#FFF;
+    width:70%;
+    height: 70%;
+}
+
+#emailreplyclose{
+    position: absolute;
+    top:25px;
+    left:50px;
+    z-index:53;
 }

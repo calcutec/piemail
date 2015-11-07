@@ -200,7 +200,7 @@ def getbody(message):
         encodedbody = message['payload']['body']['data']
     decodedbody = base64.urlsafe_b64decode(str(encodedbody))
     decodedbody = \
-        re.sub(r'src="cid:([^"]+)"', "src='/static/piemail/www/img/no_image_available.svg'", decodedbody)  # cid hack
+        re.sub(r'src="cid:([^"]+)"', "src='/static/piemail/www/icons/no_image_available.svg'", decodedbody)  # cid hack
     return decodedbody
 
 

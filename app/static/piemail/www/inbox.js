@@ -319,8 +319,7 @@ var GridList = Backbone.Collection.extend({
     }
 });
 
-var GridView;
-GridView = Backbone.View.extend({
+var GridView = Backbone.View.extend({
     el: window.mailapp,
     emailreplytemplate: _.template($("#emailreply-template").html()),
 
@@ -363,10 +362,10 @@ GridView = Backbone.View.extend({
     },
 
     handleTimelineEvents: function (event) {
-        if (typeof this.collection.timeline === 'undefined') {
+        if (typeof this.timeline === 'undefined') {
             console.log("Timeline not yet defined..");
         } else {
-            var props = this.collection.timeline.getEventProperties(event);
+            var props = this.timeline.getEventProperties(event);
             if (typeof(props.item) === 'undefined' || props.item === null) {
                 if (props.event.target.id == "emailreplyclose") {
                     $('#emailreply, #emailreplyclose, #overlay').fadeOut(300);
