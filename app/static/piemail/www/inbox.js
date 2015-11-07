@@ -1,5 +1,5 @@
-maxDate = new Date();
-maxDate.setDate(maxDate.getDate() + 7);
+window.mailapp = $("#mailapp");
+window.globalDate = new Date();
 
 var Mail = Backbone.Model.extend( {
     defaults: {
@@ -42,11 +42,11 @@ var Mail = Backbone.Model.extend( {
 
     setLabel: function(label){
         this.save( { label: label } );
-    },
-
-    setOrdinal: function(ordinal){
-        this.save( { ordinal: ordinal } );
     }
+
+    //setOrdinal: function(ordinal){
+    //    this.save( { ordinal: ordinal } );
+    //}
 });
 
 var MailView = Backbone.View.extend({
@@ -72,9 +72,9 @@ var MailView = Backbone.View.extend({
         return this;
     },
 
-    unrender: function(){
-        $(this.el).remove();
-    },
+    //unrender: function(){
+    //    $(this.el).remove();
+    //},
 
     markRead: function() {
         this.model.markRead();
@@ -103,9 +103,9 @@ var MailList = Backbone.Collection.extend({
         return Backbone.ajaxSync('read', this, options);
     },
 
-    unread: function() {
-        return _(this.filter( function(mail) { return !mail.get('read');} ) );
-    },
+    //unread: function() {
+    //    return _(this.filter( function(mail) { return !mail.get('read');} ) );
+    //},
 
     inbox: function(){
         return _(this.filter( function(mail) { return !mail.get('archived');}));
@@ -123,9 +123,9 @@ var MailList = Backbone.Collection.extend({
         return (this.filter ( function(mail) { return !mail.get('read');})).length;
     },
 
-    labelled:function(label){
-        return _(this.filter( function(mail) { return label in mail.get('label') } ));
-    },
+    //labelled:function(label){
+    //    return _(this.filter( function(mail) { return label in mail.get('label') } ));
+    //},
 
     starcount: function(){
         return (this.filter( function(mail) { return mail.get('star')})).length;
@@ -135,23 +135,23 @@ var MailList = Backbone.Collection.extend({
         return (this.filter( function(mail) { return mail.get('promotions')})).length;
     },
 
-    getThreads: function(){
-        var threadArray = [];
-        this.each(function(item){
-            if(item.get('selected') == true){
-              threadArray.push(item.get('id'));
-            }
-        }, this);
-
-    },
+    //getThreads: function(){
+    //    var threadArray = [];
+    //    this.each(function(item){
+    //        if(item.get('selected') == true){
+    //          threadArray.push(item.get('id'));
+    //        }
+    //    }, this);
+    //
+    //},
 
     getThread: function(threadid){
         this.each(function(model){
             model.trigger('removeme');
         });
-        $('#visualization').html('')
+        $('#visualization').html('');
         var gridlist = new GridList();
-        gridlist.getThread(threadid, function(successmessage){
+        gridlist.getThread(threadid, function(){
             $('.inboxfunctions').addClass("hidden");
             $('.gridfunctions').removeClass("hidden");
             window.newgridview = new GridView({collection: self})
@@ -169,9 +169,7 @@ var MailList = Backbone.Collection.extend({
 
 var InboxView = Backbone.View.extend({
     summarytemplate: _.template($("#summary-tmpl").html()),
-    emailreplytemplate: _.template($("#emailreply-template").html()),
-
-    el: $("#mailapp"),
+    el: window.mailapp,
 
     initialize: function(){
         this.collection.bind('change', this.renderSideMenu, this);
@@ -285,17 +283,17 @@ var GridList = Backbone.Collection.extend({
     },
 
     getThread: function (threadid, callback) {
-        self = this;
+        window.self = this;
         var request = $.ajax({
             url: "/threadslist",
-            data: { "threadid" : threadid },
+            data: { "threadid" : threadid }
         });
         request.done(function( response ) {
             var itemcount = response['currentMessageList'].length;
             response['currentMessageList'].forEach(function (message, i){
                 var mailitem = new Mail({
                     id: message.id,
-                    group: self.groupCounter,
+                    group: window.self.groupCounter,
                     sender: message.sender,
                     subject:message.subject,
                     ordinal:message.ordinal,
@@ -308,7 +306,7 @@ var GridList = Backbone.Collection.extend({
                     promotions: message.promotions,
                     social: message.social
                 });
-                self.add(mailitem);
+                window.self.add(mailitem);
                 mailitem.save();
                 if (i == itemcount - 1){
                     callback();
@@ -322,7 +320,7 @@ var GridList = Backbone.Collection.extend({
 });
 
 var GridView = Backbone.View.extend({
-    el: $("#mailapp"),
+    el: window.mailapp,
     emailreplytemplate: _.template($("#emailreply-template").html()),
 
     initialize: function(){
@@ -398,12 +396,14 @@ var GridView = Backbone.View.extend({
     },
 
     previousweek: function(){
-        if(typeof begindate === 'undefined'){
-            var begindate = new Date();
+        var begindate = null;
+        var previous = null;
+        if(begindate){
+            begindate = previous;
         } else {
-            var begindate = previous;
+            begindate = new Date();
         }
-        var previous = new Date(begindate.getTime()-1000*60*60*24*7);
+        previous = new Date(begindate.getTime()-1000*60*60*24*7);
         var previous2 = new Date(previous.getTime()-1000*60*60*24*7);
         this.timeline.setWindow(previous2, previous)
     },
@@ -422,7 +422,7 @@ var GridView = Backbone.View.extend({
         zoomable: true,
         zoomMin: 1000 * 60 * 60 * 24,  // one day in milliseconds
         zoomMax: 1000 * 60 * 60 * 24 * 31,  // about one month in milliseconds
-        max: maxDate,
+        max: window.globalDate.setDate(window.globalDate.getDate() + 7),
         zoomKey: 'altKey',
         type: 'point',
         margin: {
