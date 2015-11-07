@@ -319,11 +319,12 @@ var GridList = Backbone.Collection.extend({
     }
 });
 
-var GridView = Backbone.View.extend({
+var GridView;
+GridView = Backbone.View.extend({
     el: window.mailapp,
     emailreplytemplate: _.template($("#emailreply-template").html()),
 
-    initialize: function(){
+    initialize: function () {
         this.render();
     },
 
@@ -335,39 +336,39 @@ var GridView = Backbone.View.extend({
         "click #previousweek": "previousweek"
     },
 
-    render: function(){
+    render: function () {
         this.timeline = new vis.Timeline(document.getElementById('visualization'));
         this.timeline.setOptions(this.timelineoptions);
         var groupDataSet = new vis.DataSet();
-        var itemDataSet =  new vis.DataSet();
+        var itemDataSet = new vis.DataSet();
         itemDataSet.add(this.collection.toJSON());
         groupDataSet.add({
             id: 0,
             value: this.collection.models[0].get('timestamp'),
             content: "<span class='myGroup' style='color:#97B0F8; " +
-                "max-width:200px; white-space:wrap'>" +
-                this.truncateTitle(this.collection.models[0].get('subject'))+"</span>"
+            "max-width:200px; white-space:wrap'>" +
+            this.truncateTitle(this.collection.models[0].get('subject')) + "</span>"
         });
         this.timeline.setGroups(groupDataSet);
         this.timeline.setItems(itemDataSet);
         $('body').append('<div id="overlay"></div>');
     },
 
-    truncateTitle: function(title) {
+    truncateTitle: function (title) {
         var length = 25;
         if (title.length > length) {
-           title = title.substring(0, length)+'...';
+            title = title.substring(0, length) + '...';
         }
         return title;
     },
 
-    handleTimelineEvents: function(event) {
+    handleTimelineEvents: function (event) {
         if (typeof this.collection.timeline === 'undefined') {
             console.log("Timeline not yet defined..");
         } else {
             var props = this.collection.timeline.getEventProperties(event);
             if (typeof(props.item) === 'undefined' || props.item === null) {
-                if(props.event.target.id == "emailreplyclose"){
+                if (props.event.target.id == "emailreplyclose") {
                     $('#emailreply, #emailreplyclose, #overlay').fadeOut(300);
                 } else {
                     console.log('no props item')
@@ -379,38 +380,38 @@ var GridView = Backbone.View.extend({
         }
     },
 
-    fitall: function(){
+    fitall: function () {
         this.timeline.fit();
     },
 
-    moveto: function(){
+    moveto: function () {
         this.timeline.moveTo('2015-10-14');
     },
 
-    setwindow: function(){
+    setwindow: function () {
         var today = new Date();
         var numberOfDaysToAdd = 2;
         var limitdate = today.setDate(today.getDate() + numberOfDaysToAdd);
-        var lastWeek = new Date(today.getTime()-1000*60*60*24*7);
+        var lastWeek = new Date(today.getTime() - 1000 * 60 * 60 * 24 * 7);
         this.timeline.setWindow(lastWeek, limitdate);
     },
 
-    previousweek: function(){
+    previousweek: function () {
         var begindate = null;
         var previous = null;
-        if(begindate){
+        if (begindate) {
             begindate = previous;
         } else {
             begindate = new Date();
         }
-        previous = new Date(begindate.getTime()-1000*60*60*24*7);
-        var previous2 = new Date(previous.getTime()-1000*60*60*24*7);
+        previous = new Date(begindate.getTime() - 1000 * 60 * 60 * 24 * 7);
+        var previous2 = new Date(previous.getTime() - 1000 * 60 * 60 * 24 * 7);
         this.timeline.setWindow(previous2, previous)
     },
 
-    renderemailbody: function(props){
+    renderemailbody: function (props) {
         var currentid = props.item;
-        var emailbody =  this.emailreplytemplate({'id': currentid});
+        var emailbody = this.emailreplytemplate({'id': currentid});
         var overlay = document.getElementById('overlay');
         overlay.style.opacity = .7;
         $('#visualization').append(emailbody);
@@ -433,13 +434,13 @@ var GridView = Backbone.View.extend({
             axis: 5
         },
         stack: true,
-        template: _.template( $("#mail-plot").html()),
+        template: _.template($("#mail-plot").html()),
         orientation: {
-        axis: "top",
-        item: "top"
+            axis: "top",
+            item: "top"
         },
-        minHeight:'250px',
-        order: function customOrder(a,b) {
+        minHeight: '250px',
+        order: function customOrder(a, b) {
             return a.ordinal - b.ordinal;
         }
     }
