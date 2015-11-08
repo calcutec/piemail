@@ -26,7 +26,7 @@ def index():
         return render_template("piemail.html")
 
 
-@app.route('/inbox', methods=['GET'])
+@app.route('/inbox', methods=['GET', 'POST'])
 def inbox():
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
@@ -156,9 +156,9 @@ def parse_thread(emailthread):
     threaditems = dict()
     threaditems['labels'] = emailthread[1]['labelIds']
     if 'UNREAD' in emailthread[1]['labelIds']:
-        threaditems['read'] = False
+        threaditems['unread'] = True
     else:
-        threaditems['read'] = True
+        threaditems['unread'] = False
     if 'PROMOTIONS' in emailthread[1]['labelIds']:
         threaditems['promotions'] = True
     else:

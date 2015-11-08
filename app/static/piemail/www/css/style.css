@@ -13,14 +13,14 @@
 
 html,
 body {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
 body{
-  font-size: 16px;
-  font-family: source-sans-pro, sans-serif;
-  -webkit-font-smoothing: antialiased;
+    font-size: 16px;
+    font-family: source-sans-pro, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
 
@@ -30,9 +30,9 @@ body{
 }
 
 .headerwrapper, .snippet {
-  background:oldlace;
-  padding: 5px;
-  display:block;
+    background:oldlace;
+    padding: 5px;
+    display:block;
 }
 
 .bodywrapper #fullbody-wrap{
@@ -53,7 +53,7 @@ body{
 }
 
 .timestamp{
-  color: grey;
+    color: grey;
 }
 
 .mail{
@@ -73,7 +73,7 @@ body{
 
 
 .vis-item {
-  max-width:330px;
+    max-width:330px;
 }
 
 .vis-item .vis-item-content {
@@ -92,15 +92,15 @@ body{
 /* gray background in weekends, white text color */
 .vis-time-axis .vis-grid.vis-saturday,
 .vis-time-axis .vis-grid.vis-sunday {
-  background: #B0E0E6;
+    background: #B0E0E6;
 }
 .vis-time-axis .vis-text.vis-saturday,
 .vis-time-axis .vis-text.vis-sunday {
-  color: white;
+    color: white;
 }
 
 .hidden {
-  display:none;
+    display:none;
 }
 
 #login a {
@@ -129,21 +129,22 @@ body{
     font-size:20px
 }
 
-.button {
-  text-align: center;
-  border-radius: 20px;
-  height:20px;
-  border: 1px 
-  solid #777;
-  background-color: #ddd;
-  width:98%;
-  float:left;
-  font-size:16px;
-  margin-top:7px;
+#searchbar {
+    text-align: center;
+    border-radius: 20px;
+    height:20px;
+    border: 1px
+    solid #777;
+    background-color: #ddd;
+    width:98%;
+    float:left;
+    font-size:16px;
+    margin-top:7px;
+    max-width: 440px;
 }
 
 #mail-list{
-  margin:5px 0 0 3px;
+    margin:5px 0 0 3px;
 
 }
 
