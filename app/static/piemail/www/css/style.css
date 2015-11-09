@@ -23,14 +23,46 @@ body{
     -webkit-font-smoothing: antialiased;
 }
 
+#pagelogo{
+    background:url(../icons/Pimail.svg) no-repeat;
+    background-size: 100% 100%;
+    width:110px;
+    height:110px;
+}
+
+#mailapp{
+    width:100%;
+}
+
+#content{
+    float:left;
+    width:90%;
+}
+
+.button{
+    text-align: center;
+    border-radius: 20px;
+    height:20px;
+    border: 1px
+    solid #777;
+    background-color: #ddd;
+    display: block;
+    width: 50%;
+    margin:30px 0 5px 5px;
+    font-size:16px;
+}
+
+#sidebar{
+    float: left;
+    width:10%;
+    minimum-width:120px;
+    height: 100%;
+}
 
 #sidemenu{
-    margin:0px;
+    margin:0 0 0 10px;
     list-style:none;
     padding:0px;
-    float:left;
-    width:120px;
-    height: 100%;
 }
 #sidemenu li{
   padding:3px;
@@ -39,6 +71,12 @@ body{
 #visualization {
     margin-top:5px;
     margin-left:5px;
+}
+
+.mail{
+    border-bottom: 1px solid #aaaaaa;
+    padding: 4px;
+    min-width: 860px;
 }
 
 .headerwrapper, .snippet {
@@ -66,12 +104,6 @@ body{
 
 .timestamp{
     color: grey;
-}
-
-.mail{
-    border: 2px solid #269abc;
-    padding: 4px;
-    margin-bottom: 3px;
 }
 
 .mail-snippet {
@@ -141,20 +173,9 @@ body{
     font-size:20px
 }
 
-.button{
-    text-align: center;
-    border-radius: 20px;
-    height:20px;
-    border: 1px
-    solid #777;
-    background-color: #ddd;
-    width:32%;
-    font-size:16px;
-    margin-top:3px;
-}
-
 #mail-list{
-    margin:5px 8px 0 5px;
+    float:left;
+    margin:5px 5px 0 0;
 
 }
 

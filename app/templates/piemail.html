@@ -22,11 +22,14 @@
 
     </head>
     <body>
-        <div id="mailapp">
-            <ul id="sidemenu"></ul>
+        <div id="mailapp" class="hidden">
+            <div id="sidebar">
+                <div id="pagelogo"></div>
+                <ul id="sidemenu">&nbsp;</ul>
+            </div>
             <div id="content">
+                <span><input type="text" id="search" placeholder="Search" class="button"/></span>
                 <div class="inboxfunctions hidden">
-                    <span><input type="text" id="search" placeholder="Search" class="button"/></span>
                     <span>
                         <select title="labeler" id="labeler">
                             <option value=""> Apply Label </option>
@@ -45,7 +48,7 @@
                     <span><button id="fit">Fit All</button></span>
                     <span><button id="window1">This Week</button></span>
                 </span>
-                <div id="mails" style="float:left;width:85%">
+                <div id="mails">
                     <div id="mail-list"></div>
                 </div>
             </div>
