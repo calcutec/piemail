@@ -22,10 +22,11 @@
 
     </head>
     <body>
-        <div id="mailapp" class="hidden">
-            <div id="summary">
+        <div id="mailapp">
+            <ul id="sidemenu"></ul>
+            <div id="content">
                 <div class="inboxfunctions hidden">
-                    <ul id="sidemenu"></ul>
+                    <span><input type="text" id="search" placeholder="Search" class="button"/></span>
                     <span>
                         <select title="labeler" id="labeler">
                             <option value=""> Apply Label </option>
@@ -43,13 +44,8 @@
                 <span class="gridfunctions hidden">
                     <span><button id="fit">Fit All</button></span>
                     <span><button id="window1">This Week</button></span>
-                    <!-- <span><button id="previousweek">Previous Week</button></span> -->
-                    <!-- <span><button id="moveTo">Move to 2015-10-14</button></span> -->
                 </span>
-            </div>
-            <div class="content" id="visualization">
-                <span><input type="text" id="search" placeholder="Search" class="button"/></span>
-                <div id="mails" style="float:left;">
+                <div id="mails" style="float:left;width:85%">
                     <div id="mail-list"></div>
                 </div>
             </div>

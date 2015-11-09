@@ -24,6 +24,18 @@ body{
 }
 
 
+#sidemenu{
+    margin:0px;
+    list-style:none;
+    padding:0px;
+    float:left;
+    width:120px;
+    height: 100%;
+}
+#sidemenu li{
+  padding:3px;
+}
+
 #visualization {
     margin-top:5px;
     margin-left:5px;
@@ -136,14 +148,13 @@ body{
     border: 1px
     solid #777;
     background-color: #ddd;
-    width:98%;
-    float:left;
+    width:32%;
     font-size:16px;
-    margin-top:7px;
+    margin-top:3px;
 }
 
 #mail-list{
-    margin:5px 0 0 3px;
+    margin:5px 8px 0 5px;
 
 }
 
@@ -175,21 +186,17 @@ a{
   text-align:center;
 }
 
-#summary{
-  margin-left: 5px;
-}
+/*#summary ul*/
+/*{*/
+/*margin-bottom: 5px;*/
+/*padding: 0;*/
+/*list-style:none;*/
+/*}*/
 
-#summary ul
-{
-margin-bottom: 5px;
-padding: 0;
-list-style:none;
-}
-
-#summary ul li { 
-  display: inline;
-  padding-right:10px;
-}
+/*#summary ul li { */
+  /*display: inline;*/
+  /*padding-right:10px;*/
+/*}*/
 
 select, button{
   border:1px solid #ddd;

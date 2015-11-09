@@ -167,7 +167,7 @@ def parse_thread(emailthread):
     threaditems['id'] = emailthread[1]['threadId']
     threaditems['snippet'] = emailthread[1]['snippet'] + "..."
     threaditems['timestamp'] = datetime.datetime.fromtimestamp(float(emailthread[1]['internalDate'])/1000.)\
-        .strftime("%Y-%m-%d %H:%M:%S")
+        .strftime("%I:%M %p %b %d")
     threaditems['sender'] = getheaders(emailthread[1], "From")
     threaditems['subject'] = getheaders(emailthread[1], "Subject")
     parsedmessageset.append(threaditems)
@@ -179,7 +179,7 @@ def parse_message(emailmessage):
     messageitems['threadId'] = emailmessage[1]['threadId']
     messageitems['snippet'] = emailmessage[1]['snippet']
     messageitems['timestamp'] = datetime.datetime.fromtimestamp(float(emailmessage[1]['internalDate'])/1000.)\
-        .strftime("%Y-%m-%d %H:%M:%S")
+        .strftime("%H:%M:%S %Y-%m-%d ")
     messageitems['sender'] = getheaders(emailmessage[1], "From")
     messageitems['subject'] = getheaders(emailmessage[1], "Subject")
     messageitems['body'] = getbody(emailmessage[1])

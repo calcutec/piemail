@@ -298,7 +298,6 @@ var GridList = Backbone.Collection.extend({
                     ordinal:message.ordinal,
                     snippet: message.snippet + "...",
                     mailbody: message.body,
-                    formattedDate:message.date,
                     timestamp:message.timestamp,
                     start:message.timestamp,
                     read: message.read,

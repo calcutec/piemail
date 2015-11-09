@@ -1,8 +1,8 @@
 // precompiles handlebars templates
 Handlebars.getTemplate = function(name) {
-	console.log("templates function working");
+	//console.log("templates function working");
 	if (Handlebars.templates === undefined || Handlebars.templates[name] === undefined) {
-		console.log("template undefined");
+		//console.log("template undefined");
 		$.ajax({
 			url : '/static/piemail/www/libs/templates/' + name + '.handlebars',
 			success : function(data) {
