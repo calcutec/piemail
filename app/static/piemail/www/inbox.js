@@ -11,7 +11,7 @@ var Mail = Backbone.Model.extend( {
         mailbody: '',
         timestamp: '',
         start: '',
-        read: '',
+        unread: false,
         star: false,
         selected:false,
         archived:false,
@@ -21,7 +21,7 @@ var Mail = Backbone.Model.extend( {
     },
 
     markRead: function() {
-        this.save( {read: true } );
+        this.save( {unread: false } );
     },
 
     starMail: function() {
@@ -104,9 +104,9 @@ var MailList = Backbone.Collection.extend({
         return Backbone.ajaxSync('read', this, options);
     },
 
-    //unread: function() {
-    //    return _(this.filter( function(mail) { return !mail.get('read');} ) );
-    //},
+    unread: function() {
+        return _(this.filter( function(mail) { return mail.get('unread');} ) );
+    },
 
     inbox: function(){
         return _(this.filter( function(mail) { return !mail.get('archived');}));
@@ -121,7 +121,7 @@ var MailList = Backbone.Collection.extend({
     },
 
     unread_count: function() {
-        return (this.filter ( function(mail) { return !mail.get('read');})).length;
+        return (this.filter ( function(mail) { return mail.get('unread');})).length;
     },
 
     //labelled:function(label){
@@ -170,14 +170,14 @@ var MailList = Backbone.Collection.extend({
 
 var InboxView = Backbone.View.extend({
     //summarytemplate: _.template($("#summary-tmpl").html()),
-    //summarytemplate: Handlebars.getTemplate("summary-tmpl"),
+    summarytemplate: Handlebars.getTemplate("summary-tmpl"),
     el: window.mailapp,
 
     initialize: function(){
-        //this.collection.bind('change', this.renderSideMenu, this);
+        this.collection.bind('change', this.renderSideMenu, this);
         this.listenTo(this.collection, 'reset', this.removeAll);
         this.render(this.collection);
-        //this.renderSideMenu();
+        this.renderSideMenu();
     },
 
     events: {
@@ -254,13 +254,13 @@ var InboxView = Backbone.View.extend({
         }, this);
     },
 
-    //renderSideMenu: function(){
-    //    $("#sidemenu").html( this.summarytemplate({
-    //        'inbox': this.collection.unread_count(),
-    //        'starred':this.collection.starcount(),
-    //        'promotions':this.collection.promotionscount()
-    //    }));
-    //},
+    renderSideMenu: function(){
+        $("#sidemenu").html( this.summarytemplate({
+            'inbox': this.collection.unread_count(),
+            'starred':this.collection.starcount(),
+            'promotions':this.collection.promotionscount()
+        }));
+    },
 
     addOne: function (mail) {
         var itemView = new MailView({ model: mail});

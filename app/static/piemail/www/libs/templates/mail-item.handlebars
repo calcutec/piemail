@@ -1,0 +1,22 @@
+<a href="#">
+    {{#if unread }}<strong>{{/if}}
+        {{#if selected}}
+            <span style="float:left;width:20px;"><input title="check" class="check" type="checkbox" checked="checked" /></span>
+        {{ else }}
+            <span style="float:left;width:20px;"><input title="check" class="check" type="checkbox" /></span>
+        {{/if}}
+        {{#if star}}
+            <span style="float:left;width:20px;" class="star icon bookmark"> &nbsp; </span>
+        {{ else }}
+            <span style="float:left;width:20px;" class="star icon nobookmark"> &nbsp; </span>
+        {{/if}}
+        <span style="float:left;width:300px;" class="sender">{{sender}}</span>
+        <span style="float:right;width:250px;text-align:right;" class="timestamp">{{timestamp}}</span>
+        <span style="float:left;width:100%;" class="mail-subject">{{subject}}</span>
+        <span style="color:#23707E;float:left;width:100%;" class="mail-snippet">{{snippet}}</span>
+        {{#if label}}
+            <span style="float:left;width:80px;" class="labels">{{label}}</span>
+        {{/if}}
+    {{#if unread}}</strong>{{/if}}
+</a>
+<div style="clear:both;"></div>

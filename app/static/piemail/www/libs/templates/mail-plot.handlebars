@@ -1,0 +1,13 @@
+<div class="headerwrapper">
+    <div class="sender"><strong>{{ordinal}} :: {{sender}}</strong></div>
+    <!--<div class="timestamp">{{formattedDate}}</div>-->
+    <div class="timestamp">{{timestamp}}</div>
+</div>
+<div class="bodywrapper">
+    <div class="snippet">
+        <div class="mail-snippet">{{snippet}}</div>
+    </div>
+    <div id="fullbody-wrap">
+        <object id="preview_{{id}}" type="text/html" data="{{host_url}}emaildata/{{id}}"></object>
+    </div>
+</div>
