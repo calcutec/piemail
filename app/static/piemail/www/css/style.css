@@ -129,7 +129,7 @@ body{
     font-size:20px
 }
 
-#searchbar {
+.button{
     text-align: center;
     border-radius: 20px;
     height:20px;
@@ -140,7 +140,6 @@ body{
     float:left;
     font-size:16px;
     margin-top:7px;
-    max-width: 440px;
 }
 
 #mail-list{
