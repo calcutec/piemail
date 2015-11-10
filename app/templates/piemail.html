@@ -19,40 +19,41 @@
         		<!-- Favicon -->
 		<link rel="shortcut icon" href="{{ static_url }}img/icons/favicon.ico" type="image/x-icon">
         <link rel="icon" href="{{ static_url }}img/icons/favicon.ico" type="image/x-icon">
-
     </head>
-    <body>
-        <div id="mailapp" class="hidden">
-            <div id="sidebar">
-                <div id="pagelogo"></div>
-                <ul id="sidemenu">&nbsp;</ul>
-            </div>
+    <body id="mailapp">
+            <header>
+                    <div id="logowrapper">
+                        <span id="pagelogo"></span>
+                    </div>
+                    <div id="headerwrapper">
+                        <span><input type="text" id="search" placeholder="Search" class="button"/></span>
+                        <div class="inboxfunctions hidden">
+                            <span>
+                                <select title="labeler" id="labeler">
+                                    <option value=""> Apply Label </option>
+                                    <option value="Personal"> Personal </option>
+                                    <option value="Work"> Work </option>
+                                    <option value="High Priority"> High Priority </option>
+                                    <option value="Low Priority"> Low Priority </option>
+                                </select>
+                            </span>
+                            <span><button id="markallread">Mark all as Read</button></span>
+                            <span><button id="archive">Archive</button></span>
+                            <span><button id="movetopromotions">Move to Promotions</button></span>
+                            <span><button id="gridview">Timeline View</button></span>
+                        </div>
+                        <span class="gridfunctions hidden">
+                            <span><button id="fit">Fit All</button></span>
+                            <span><button id="window1">This Week</button></span>
+                        </span>
+                        <div id="summary">
+                            <ul id="sidemenu">&nbsp;</ul>
+                        </div>
+                    </div>
+            </header>
             <div id="content">
-                <span><input type="text" id="search" placeholder="Search" class="button"/></span>
-                <div class="inboxfunctions hidden">
-                    <span>
-                        <select title="labeler" id="labeler">
-                            <option value=""> Apply Label </option>
-                            <option value="Personal"> Personal </option>
-                            <option value="Work"> Work </option>
-                            <option value="High Priority"> High Priority </option>
-                            <option value="Low Priority"> Low Priority </option>
-                        </select>
-                    </span>
-                    <span><button id="markallread">Mark all as Read</button></span>
-                    <span><button id="archive">Archive</button></span>
-                    <span><button id="movetopromotions">Move to Promotions</button></span>
-                    <span><button id="gridview">Timeline View</button></span>
-                </div>
-                <span class="gridfunctions hidden">
-                    <span><button id="fit">Fit All</button></span>
-                    <span><button id="window1">This Week</button></span>
-                </span>
-                <div id="mails">
-                    <div id="mail-list"></div>
-                </div>
+                <section id="mail-list"></section>
             </div>
-        </div>
         <script src="{{ local_static_url }}piemail/www/inbox.js"></script>
     </body>
 </html>

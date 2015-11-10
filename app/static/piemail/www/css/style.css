@@ -1,16 +1,3 @@
-/*gmail sprites*/
-
-.ajY, .pH, .pH-A7, .aoj {
-    width: 19px;
-    height: 19px;
-    background: url(//ssl.gstatic.com/ui/v1/icons/mail/sprite_importance2.png) no-repeat;
-}
-
-.pH, .aoj {
-    background-position: -40px 0;
-}
-
-
 html,
 body {
     margin: 0;
@@ -21,163 +8,93 @@ body{
     font-size: 16px;
     font-family: source-sans-pro, sans-serif;
     -webkit-font-smoothing: antialiased;
-}
-
-#pagelogo{
-    background:url(../icons/Pimail.svg) no-repeat;
-    background-size: 100% 100%;
-    width:110px;
-    height:110px;
-}
-
-#mailapp{
     width:100%;
 }
 
-#content{
+#logowrapper{
     float:left;
-    width:90%;
+    width:120px;
+}
+
+#pagelogo{
+    float:left;
+    background:url(../icons/pimail.png) no-repeat;
+    background-size: 100% 100%;
+    width:150px;
+    height:150px;
+}
+
+#headerwrapper {
+    float: left;
+    margin: 35px 0 0 20px;
 }
 
 .button{
-    text-align: center;
-    border-radius: 20px;
+    text-align:center;
+    border-radius:20px;
     height:20px;
-    border: 1px
-    solid #777;
-    background-color: #ddd;
-    display: block;
-    width: 50%;
-    margin:30px 0 5px 5px;
+    border:1px solid #777;
+    background-color:#ddd;
+    width:98%;
+    margin-bottom:8px;
+    display:block;
     font-size:16px;
 }
 
-#sidebar{
-    float: left;
-    width:10%;
-    minimum-width:120px;
-    height: 100%;
-}
-
-#sidemenu{
-    margin:0 0 0 10px;
-    list-style:none;
-    padding:0px;
-}
-#sidemenu li{
+select, button{
+  border:1px solid #ddd;
+  background-color:#fafafa;
   padding:3px;
 }
 
-#visualization {
-    margin-top:5px;
-    margin-left:5px;
+input{
+  border:1px solid #ddd;
+  padding:3px;
+}
+
+#summary ul {
+    padding: 0;
+    margin: 5px 0 0 0;
+    list-style:none;
+    font-size: 20px;
+}
+
+#summary ul li {
+  display: inline;
+  padding-right:15px;
+}
+
+/*#sidebar{*/
+    /*float: left;*/
+    /*width:15%;*/
+    /*min-width:120px;*/
+    /*height: 100%;*/
+/*}*/
+
+/*#sidemenu{*/
+    /*margin:0 0 0 12px;*/
+    /*list-style:none;*/
+    /*padding:0px;*/
+/*}*/
+
+/*#sidemenu li{*/
+  /*padding:3px;*/
+/*}*/
+
+#mail-list{
+    float:left;
+    margin:0 5px 0 5px;
+
 }
 
 .mail{
     border-bottom: 1px solid #aaaaaa;
     padding: 4px;
-    min-width: 860px;
 }
 
-.headerwrapper, .snippet {
-    background:oldlace;
-    padding: 5px;
-    display:block;
-}
-
-.bodywrapper #fullbody-wrap{
-    position: relative;
-    display:none;
-    background:snow;
-    border:2px solid oldlace;
-    padding-right:5px;
-    z-index:9000;
-}
-
-.bodywrapper:hover #fullbody-wrap {
-    display:block;
-}
-
-.bodywrapper:hover .snippet {
-    display:none;
-}
-
-.timestamp{
-    color: grey;
-}
-
-.mail-snippet {
-    text-overflow: ellipsis;
-}
-
-/*.vis-labelset {*/
-  /*background: lavender;*/
-/*}*/
-
-
-
-.vis-item {
-    max-width:330px;
-}
-
-.vis-item .vis-item-content {
-    white-space: normal;
-    box-sizing: border-box;
-    padding: 5px;
-    text-align: left;
-    text-overflow: ellipsis;
-}
-
-
-.vis-item.vis-point.vis-selected, .vis-item.vis-selected {
-    background-color: transparent;
-}
-
-/* gray background in weekends, white text color */
-.vis-time-axis .vis-grid.vis-saturday,
-.vis-time-axis .vis-grid.vis-sunday {
-    background: #B0E0E6;
-}
-.vis-time-axis .vis-text.vis-saturday,
-.vis-time-axis .vis-text.vis-sunday {
-    color: white;
-}
-
-.hidden {
-    display:none;
-}
-
-#login a {
-    border-radius: 5px;
-    color: white;
-    background: blue;
-    font-size: larger;
-    padding: 10px 20px;
-}
-
-#login a:active {
-    background: darkblue;
-}
-
-#login p {
-    word-wrap: break-word;
-}
-
-.testing{
-    padding:20px;
-}
-
-.testing div{
-    padding:4px;
-    color:blue;
-    font-size:20px
-}
-
-#mail-list{
-    float:left;
-    margin:5px 5px 0 0;
-
-}
+/**
+* Mail Item
+**/
 
 a{
   text-decoration:none;
@@ -207,28 +124,103 @@ a{
   text-align:center;
 }
 
-/*#summary ul*/
-/*{*/
-/*margin-bottom: 5px;*/
-/*padding: 0;*/
-/*list-style:none;*/
-/*}*/
-
-/*#summary ul li { */
-  /*display: inline;*/
-  /*padding-right:10px;*/
-/*}*/
-
-select, button{
-  border:1px solid #ddd;
-  background-color:#fafafa;
-  padding:3px;
+.timestamp{
+    float:right;
+    width:15%;
+    overflow:hidden;
+    white-space:nowrap;
+    color: grey;
 }
 
-input{
-  border:1px solid #ddd;
-  padding:3px;
+.sender{
+    float:left;
+    width:130px;
+    overflow:hidden;
+    margin-right:8px;
+    white-space:nowrap;
+    text-align:left;
 }
+
+.mail-subject{
+    float:left;
+    width:150px;
+    overflow:hidden;
+    margin-right:8px;
+    white-space:nowrap;
+    text-align:left;
+}
+
+.mail-snippet {
+    float:left;
+    width:44%;
+    overflow:hidden;
+    white-space:nowrap;
+    text-align:left;
+    color:#23707E;
+    text-overflow: ellipsis;
+}
+
+/**
+* Grid
+**/
+
+/*.vis-labelset {*/
+  /*background: lavender;*/
+/*}*/
+
+.vis-item {
+    max-width:330px;
+}
+
+.vis-item .vis-item-content {
+    white-space: normal;
+    box-sizing: border-box;
+    padding: 5px;
+    text-align: left;
+    text-overflow: ellipsis;
+}
+
+.vis-item.vis-point.vis-selected, .vis-item.vis-selected {
+    background-color: transparent;
+}
+
+/* gray background in weekends, white text color */
+.vis-time-axis .vis-grid.vis-saturday,
+.vis-time-axis .vis-grid.vis-sunday {
+    background: #B0E0E6;
+}
+.vis-time-axis .vis-text.vis-saturday,
+.vis-time-axis .vis-text.vis-sunday {
+    color: white;
+}
+
+.headerwrapper, .snippet {
+    background:oldlace;
+    padding: 5px;
+    display:block;
+}
+
+.bodywrapper #fullbody-wrap{
+    position: relative;
+    display:none;
+    background:snow;
+    border:2px solid oldlace;
+    padding-right:5px;
+    z-index:9000;
+}
+
+.bodywrapper:hover #fullbody-wrap {
+    display:block;
+}
+
+.bodywrapper:hover .snippet {
+    display:none;
+}
+
+.hidden {
+    display:none;
+}
+
 
 div#overlay {
 	display: none;

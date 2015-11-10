@@ -10,10 +10,10 @@
         {{ else }}
             <span style="float:left;width:20px;" class="star icon nobookmark"> &nbsp; </span>
         {{/if}}
-        <span style="float:left;width:130px;overflow:hidden;margin-right:8px;white-space:nowrap;text-align:left;" class="sender">{{{sender}}}</span>
-        <span style="float:left;width:150px;overflow:hidden;margin-right:8px;white-space:nowrap;text-align:left;" class="mail-subject">{{{subject}}}</span>
-        <span style="float:left;width:40%;overflow:hidden;white-space:nowrap;text-align:left;color:#23707E;" class="mail-snippet">{{{snippet}}}</span>
-        <span style="float:right;width:15%;overflow:hidden;white-space:nowrap;" class="timestamp">{{timestamp}}</span>
+        <span class="sender">{{{sender}}}</span>
+        <span class="mail-subject">{{{subject}}}</span>
+        <span class="mail-snippet">{{{snippet}}}</span>
+        <span class="timestamp">{{timestamp}}</span>
     {{#if unread}}</strong>{{/if}}
 </a>
 <div style="clear:both;"></div>
