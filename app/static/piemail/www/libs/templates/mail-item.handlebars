@@ -6,14 +6,14 @@
             <span style="float:left;width:20px;"><input title="check" class="check" type="checkbox" /></span>
         {{/if}}
         {{#if star}}
-            <span style="float:left;width:20px;" class="star icon bookmark"> &nbsp; </span>
+            <span style="float:left;width:20px;" class="star staricon bookmark"> &nbsp; </span>
         {{ else }}
-            <span style="float:left;width:20px;" class="star icon nobookmark"> &nbsp; </span>
+            <span style="float:left;width:20px;" class="star staricon nobookmark"> &nbsp; </span>
         {{/if}}
         <span class="sender">{{{sender}}}</span>
         <span class="mail-subject">{{{subject}}}</span>
-        <span class="mail-snippet">{{{snippet}}}</span>
         <span class="timestamp">{{timestamp}}</span>
+        <span class="mail-snippet">{{{snippet}}}</span>
     {{#if unread}}</strong>{{/if}}
 </a>
 <div style="clear:both;"></div>

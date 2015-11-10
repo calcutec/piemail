@@ -6,9 +6,53 @@
         <title>PieMail</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="{{ local_static_url }}piemail/www/css/vis.min.css" rel="stylesheet" >
         <link href="{{ local_static_url }}piemail/www/css/style.css" rel="stylesheet" >
+        <!-- Favicon -->
+		<link rel="shortcut icon" href="{{ static_url }}img/icons/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="{{ static_url }}img/icons/favicon.ico" type="image/x-icon">
+    </head>
+    <body id="mailapp">
+        <header>
+                <div id="pagelogo"></div>
+                <div id="headerwrapper">
+                    <span><input type="text" id="search" placeholder="Search" class="button"/></span>
+    {#                        <div class="inboxfunctions hidden">#}
+    {#                            <span>#}
+    {#                                <select title="labeler" id="labeler">#}
+    {#                                    <option value=""> Apply Label </option>#}
+    {#                                    <option value="Personal"> Personal </option>#}
+    {#                                    <option value="Work"> Work </option>#}
+    {#                                    <option value="High Priority"> High Priority </option>#}
+    {#                                    <option value="Low Priority"> Low Priority </option>#}
+    {#                                </select>#}
+    {#                            </span>#}
+    {#                            <span><button id="markallread">Mark all as Read</button></span>#}
+    {#                            <span><button id="archive">Archive</button></span>#}
+    {#                            <span><button id="movetopromotions">Move to Promotions</button></span>#}
+    {#                            <span><button id="gridview">Timeline View</button></span>#}
+    {#                        </div>#}
+                    <ul class="grouped">
+                        <li style="margin-right:20px;"><a href="#" class="bttn red">COMPOSE</a></li>
+                        <li><a href="#" class="bttn icon refresh">Refresh</a></li>
+                        <li><a href="#" class="bttn mark_read">Mark as Read</a></li>
+                        <li><a href="#" class="bttn mark_unread">Mark as Unread</a></li>
+                        <li><a href="#" class="bttn icon delete">Delete</a></li>
+                        <li><a href="#" class="bttn icon folder">Folder</a></li>
+                    </ul>
+                    <span class="gridfunctions hidden">
+                        <span><button id="fit">Fit All</button></span>
+                        <span><button id="window1">This Week</button></span>
+                    </span>
+                    <div id="summary">
+                        <ul id="sidemenu">&nbsp;</ul>
+                    </div>
+                </div>
+        </header>
+        <div id="content">
+            <section id="mail-list"></section>
+        </div>
         <script type="text/javascript" src="{{ local_static_url }}piemail/www/libs/jquery-2.1.4.min.js"></script>
+        <link href="{{ local_static_url }}piemail/www/css/vis.min.css" rel="stylesheet" >
         <script src="{{ local_static_url }}piemail/www/libs/json2.min.js"></script>
         <script src="{{ local_static_url }}piemail/www/libs/underscore-min.js"></script>
         <script src="{{ local_static_url }}piemail/www/libs/backbone-min.js"></script>
@@ -16,44 +60,6 @@
         <script src="{{ local_static_url }}piemail/www/libs/vis.min.js"></script>
         <script src="{{ local_static_url }}piemail/www/libs/handlebars-v4.0.4.js"></script>
         <script src="{{ local_static_url }}piemail/www/libs/templates.js"></script>
-        		<!-- Favicon -->
-		<link rel="shortcut icon" href="{{ static_url }}img/icons/favicon.ico" type="image/x-icon">
-        <link rel="icon" href="{{ static_url }}img/icons/favicon.ico" type="image/x-icon">
-    </head>
-    <body id="mailapp">
-            <header>
-                    <div id="logowrapper">
-                        <span id="pagelogo"></span>
-                    </div>
-                    <div id="headerwrapper">
-                        <span><input type="text" id="search" placeholder="Search" class="button"/></span>
-                        <div class="inboxfunctions hidden">
-                            <span>
-                                <select title="labeler" id="labeler">
-                                    <option value=""> Apply Label </option>
-                                    <option value="Personal"> Personal </option>
-                                    <option value="Work"> Work </option>
-                                    <option value="High Priority"> High Priority </option>
-                                    <option value="Low Priority"> Low Priority </option>
-                                </select>
-                            </span>
-                            <span><button id="markallread">Mark all as Read</button></span>
-                            <span><button id="archive">Archive</button></span>
-                            <span><button id="movetopromotions">Move to Promotions</button></span>
-                            <span><button id="gridview">Timeline View</button></span>
-                        </div>
-                        <span class="gridfunctions hidden">
-                            <span><button id="fit">Fit All</button></span>
-                            <span><button id="window1">This Week</button></span>
-                        </span>
-                        <div id="summary">
-                            <ul id="sidemenu">&nbsp;</ul>
-                        </div>
-                    </div>
-            </header>
-            <div id="content">
-                <section id="mail-list"></section>
-            </div>
         <script src="{{ local_static_url }}piemail/www/inbox.js"></script>
     </body>
 </html>
