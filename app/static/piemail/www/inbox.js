@@ -179,6 +179,7 @@ var InboxView = Backbone.View.extend({
 
     events: {
         "change #labeler": "applyLabel",
+        "change #actions": "applyAction",
         "click #markallread": "markallread",
         "click #archive": "archive",
         "click #gridview": "gridview",
@@ -216,14 +217,14 @@ var InboxView = Backbone.View.extend({
         }, this);
     },
 
-    applyLabel: function(){
-        var label = $("#labeler").val();
-        this.collection.each(function(item){
-            if(item.get('selected') == true){
-              item.setLabel(label);
-            }
-        }, this);
-    },
+    //applyLabel: function(){
+    //    var label = $("#labeler").val();
+    //    this.collection.each(function(item){
+    //        if(item.get('selected') == true){
+    //          item.setLabel(label);
+    //        }
+    //    }, this);
+    //},
 
     archive: function(){
         this.collection.each(function(item){
@@ -238,6 +239,37 @@ var InboxView = Backbone.View.extend({
         this.collection.each(function(item){
             if(item.get('selected') == true){
               item.moveToPromotions();
+            }
+        }, this);
+        this.render(this.collection.promotionsbox());
+    },
+
+    applyLabel: function(value){
+        this.collection.each(function(item){
+            if(item.get('selected') == true){
+              item.setLabel(value);
+            }
+        }, this);
+    },
+
+    applyAction: function(){
+        var action = $(':selected', $('#actions')).parent().attr('label');
+        var value =  $("#actions").val();
+        if(action == "Move"){
+            if(value == "Promotions"){
+                this.movetopromotions();
+            } else if(value == "Archive"){
+                this.archive();
+            }
+        } else if (action == "Label"){
+            this.applyLabel(value);
+        }
+    },
+
+    move: function(value){
+        this.collection.each(function(item){
+            if(item.get('selected') == true){
+              item.move();
             }
         }, this);
         this.render(this.collection.promotionsbox());
