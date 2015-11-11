@@ -15,48 +15,48 @@
     </head>
     <body id="mailapp">
         <header>
-                <span id="logout">
-                    <i class="fa fa-sign-out fa-3x"></i>
-                    <div id="pagelogo"></div>
-                </span>
-                <div id="headerwrapper">
-                    <div id="summary">
-                        <ul class="grouped" id="sidemenu">&nbsp;</ul>
-                    </div>
-                    <ul class="grouped">
-                        <li style="margin-right:5px;"><a href="#" class="bttn red">COMPOSE</a></li>
-                        <li>
-                            <select title="actions" id="actions" class="bttn">
-                                <option value=""> Actions </option>
-                                <optgroup label="Mark">
-                                    <option>Mark as Read</option>
-                                    <option>Mark as Unread</option>
-                                </optgroup>
-                                <optgroup label="Move">
-                                    <option>Archive</option>
-                                    <option>Promotions</option>
-                                    <option>Social</option>
-                                    <option>Junk</option>
-                                </optgroup>
-                                <optgroup label="Label">
-                                    <option value="Personal"> Personal </option>
-                                    <option value="Work"> Work </option>
-                                    <option value="High Priority"> High Priority </option>
-                                    <option value="Low Priority"> Low Priority </option>
-                                </optgroup>
-                            </select>
-                        </li>
-                        <li><a href="#" class="bttn icon refresh">Refresh</a></li>
-                        <li><a href="#" id="gridview"class="bttn">Grid View</a></li>
-                        <li><a href="#" class="bttn icon delete">Delete</a></li>
-                        <li><a href="#" class="bttn icon folder">New Folder</a></li>
-                    </ul>
-                    <span class="gridfunctions hidden">
-                        <span><button id="fit">Fit All</button></span>
-                        <span><button id="window1">This Week</button></span>
-                    </span>
-                    <span><input type="text" id="search" placeholder="Search" class="button"/></span>
+            <input type="text" id="search" placeholder="Search" class="button"/>
+            <span id="logout">
+                <i class="fa fa-sign-out fa-2x"></i>
+                <div id="pagelogo"></div>
+            </span>
+            <div id="headerwrapper">
+                <ul class="grouped">
+                    <li style="margin-right:5px;"><a href="#" class="bttn red">COMPOSE</a></li>
+                    <li>
+                        <select title="actions" id="actions" class="bttn">
+                            <option value=""> Actions </option>
+                            <optgroup label="Mark">
+                                <option>Mark as Read</option>
+                                <option>Mark as Unread</option>
+                            </optgroup>
+                            <optgroup label="Move">
+                                <option>Archive</option>
+                                <option>Promotions</option>
+                                <option>Social</option>
+                                <option>Junk</option>
+                            </optgroup>
+                            <optgroup label="Label">
+                                <option value="Personal"> Personal </option>
+                                <option value="Work"> Work </option>
+                                <option value="High Priority"> High Priority </option>
+                                <option value="Low Priority"> Low Priority </option>
+                            </optgroup>
+                        </select>
+                    </li>
+                    <li><a href="#" class="bttn icon refresh">Refresh</a></li>
+                    <li><a href="#" id="gridview"class="bttn">Grid View</a></li>
+                    <li><a href="#" class="bttn icon delete">Delete</a></li>
+                    <li><a href="#" class="bttn icon folder">New Folder</a></li>
+                </ul>
+                <div id="summary">
+                    <ul class="grouped" id="sidemenu">&nbsp;</ul>
                 </div>
+                <span class="gridfunctions hidden">
+                    <span><button id="fit">Fit All</button></span>
+                    <span><button id="window1">This Week</button></span>
+                </span>
+            </div>
         </header>
         <div id="content">
             <section id="mail-list"></section>
