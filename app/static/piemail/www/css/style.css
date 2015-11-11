@@ -156,7 +156,7 @@ text-align:center;
 
 .sender{
 float:left;
-width:20%;
+width:45%;
 overflow:hidden;
 margin-right:10px;
 white-space:nowrap;
@@ -164,9 +164,20 @@ color:black;
 text-align:left;
 }
 
+.timestamp{
+float:right;
+width:15%;
+overflow:hidden;
+white-space:nowrap;
+padding-right: 10px;
+text-align:left;
+color: grey;
+}
+
+
 .mail-subject{
 float:left;
-width:45%;
+width:100%;
 overflow:hidden;
 white-space:nowrap;
 text-align:left;
@@ -184,15 +195,6 @@ text-overflow: ellipsis;
 margin-bottom: 3px;
 }
 
-.timestamp{
-float:right;
-width:15%;
-overflow:hidden;
-white-space:nowrap;
-padding-right: 10px;
-text-align:left;
-color: grey;
-}
 
 /**
 * Grid
