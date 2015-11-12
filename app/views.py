@@ -26,6 +26,18 @@ def index():
         return render_template("piemail.html")
 
 
+@app.route('/logout', methods=['POST', 'GET'])
+def logout():
+    response = dict()
+    response['redirect'] = '/login'
+    return jsonify(response)
+
+
+@app.route('/login')
+def login():
+    return render_template("piemail.html")
+
+
 @app.route('/inbox', methods=['GET', 'POST'])
 def inbox():
     if 'credentials' not in session:

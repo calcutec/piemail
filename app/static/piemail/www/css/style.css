@@ -5,7 +5,6 @@ padding: 0;
 }
 
 body{
-font-size: 16px;
 font-family: source-sans-pro, sans-serif;
 -webkit-font-smoothing: antialiased;
 width:100%;
@@ -20,27 +19,27 @@ width:100%;
     border: 1px solid #777;
     background-color: #ddd;
     width: 50%;
-    font-size: 16px;
-    margin: 10px 0 10px 0;
+    font-size: .8rem;
+    margin: 10px 0 10px 5px;
 }
 
 #logout {
-    width: 105px;
+    width: 135px;
     float: right;
-    margin: .2rem .2rem 0 0;
+    margin-top: .5rem;
 }
 
-.fa-3x {
-    float: right;
+.fa-2x {
+    font-size: 2rem;
 }
 
 #pagelogo {
     float: left;
     background: url(../icons/Pimail.svg) no-repeat;
     background-size: 100% 100%;
-    margin-right: 15px;
-    width: 40px;
-    height: 40px;
+    margin-right: 25px;
+    width: 75px;
+    height: 32px;
 }
 
 #headerwrapper {
@@ -49,16 +48,6 @@ width:100%;
     margin-left: 5px;
     min-width: 320px;
 }
-
-/*@media (min-width: 480px) {*/
-    /*#logout {*/
-        /*float: right;*/
-    /*}*/
-
-    /*#headerwrapper {*/
-    /*width: 80%;*/
-    /*}*/
-/*}*/
 
 #actions {
 margin-right: 5px;
@@ -79,13 +68,19 @@ padding:3px;
 #summary ul {
     padding: 0;
     list-style: none;
-    font-size: 18px;
+    font-size: .8rem;
 }
 
 #summary ul li {
 display: inline;
 padding-right:15px;
 }
+
+/*@media (min-width: 460px) {*/
+    /*#summary ul {*/
+        /*font-size: 1rem;*/
+    /*}*/
+/*}*/
 
 /*#sidebar{*/
     /*float: left;*/
@@ -105,17 +100,19 @@ padding-right:15px;
 /*}*/
 
 #mail-list {
-float: left;
-border-top: solid 1px;
-margin: 10px 5px 0 5px;
-padding-top: 3px;
-width:100%;
+    float: left;
+    border-top: solid 1px;
+    margin: 5px;
+    padding-top: 3px;
+    width: 100%;
 }
 
 .mail{
 border-bottom: 1px solid #aaaaaa;
 padding: 4px 4px 0 4px;
 min-width: 320px;
+font-size: 1rem;
+
 }
 
 /**
@@ -151,7 +148,7 @@ padding:2px;
 margin:09px 0 9px;
 background-color:green;
 color:white;
-font-size:11px;
+font-size:.6rem;
 font-weight:normal;
 text-align:center;
 }
@@ -300,7 +297,7 @@ https://github.com/AdamWhitcroft/CSS3.Gmail.Buttons
 .bttn {
 text-decoration:none;
 cursor:pointer;
-font-size:0.70em;
+font-size:.7rem;
 padding:0 8px;
 margin-bottom:3px;
 font-weight:bold;

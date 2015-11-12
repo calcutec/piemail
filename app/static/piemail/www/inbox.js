@@ -188,6 +188,7 @@ var InboxView = Backbone.View.extend({
         "click #promotionsbox": "promotionsbox",
         "click #movetopromotions": "movetopromotions",
         "click #starred": "starred",
+        "click #signout": "signout",
         "keyup #search" : "search"
     },
 
@@ -298,6 +299,17 @@ var InboxView = Backbone.View.extend({
 
     removeAll: function(){
         this.$el.empty()
+    },
+
+    signout: function(){
+        this.collection.reset();
+        $.ajax({
+            type: "POST",
+            url: "logout",
+            success: function(data) {
+                window.location.href = data.redirect;
+            }
+        });
     }
 });
 
