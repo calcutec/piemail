@@ -20,10 +20,14 @@ parsedmessageset = []
 
 @app.route('/')
 def index():
-    source = open('/Users/bburton/piemail/app/static/piemail/www/libs/templates/test-server.handlebars', "r")\
+    emailsource = open('/Users/bburton/piemail/app/static/piemail/www/libs/templates/email-list.handlebars', "r")\
         .read().decode('utf-8')
+    emailtemplate = compiler.compile(emailsource)
 
-    template = compiler.compile(source)
+    summarysource = open('/Users/bburton/piemail/app/static/piemail/www/libs/templates/summary-tmpl.handlebars', "r")\
+        .read().decode('utf-8')
+    summarytemplate = compiler.compile(summarysource)
+
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
@@ -48,19 +52,11 @@ def index():
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
-    context = newcollection
-    output = template(context)
-    return render_template("piemail.html", output=output)
-
-
-@app.route('/signmeout', methods=['GET', 'POST'])
-def signmeout():
-    if request.is_xhr:
-        return json.dumps({'status': 'OK', 'redirect_url': '/signmeout'})
-    credentials = client.OAuth2Credentials.from_json(session['credentials'])
-    credentials.revoke(httplib2.Http())
-    session.clear()
-    return render_template("login.html")
+    emailcontext = newcollection
+    emailoutput = emailtemplate(emailcontext)
+    summarycontext = newcollection.count()
+    summaryoutput = summarytemplate(summarycontext)
+    return render_template("piemail.html", emailoutput=emailoutput, summaryoutput=summaryoutput)
 
 
 @app.route('/inbox', methods=['GET', 'POST'])
@@ -92,11 +88,14 @@ def inbox():
     return json.dumps({'newcollection': newcollection})
 
 
-def processthreads(request_id, response, exception):
-    if exception is not None:
-        pass
-    else:
-        fullmessageset.append((request_id, response['messages'][0]))
+@app.route('/signmeout', methods=['GET', 'POST'])
+def signmeout():
+    if request.is_xhr:
+        return json.dumps({'status': 'OK', 'redirect_url': '/signmeout'})
+    credentials = client.OAuth2Credentials.from_json(session['credentials'])
+    credentials.revoke(httplib2.Http())
+    session.clear()
+    return render_template("login.html")
 
 
 @app.route('/threadslist', methods=['POST', 'GET'])
@@ -133,6 +132,13 @@ def threadslist():
     return jsonify(response)
 
 
+def processthreads(request_id, response, exception):
+    if exception is not None:
+        pass
+    else:
+        fullmessageset.append((request_id, response['messages'][0]))
+
+
 def processmessages(request_id, response, exception):
     if exception is not None:
         pass
@@ -143,23 +149,6 @@ def processmessages(request_id, response, exception):
 @app.route('/emaildata/<emailid>')
 def emaildata(emailid):
     return render_template('emaildata.html', emailid=emailid)
-
-
-@app.route('/oauth2callback')
-def oauth2callback(final_url='index'):
-    flow = client.flow_from_clientsecrets(
-        'client_secrets.json',
-        scope='https://mail.google.com/',
-        redirect_uri=url_for('oauth2callback', _external=True)
-    )
-    if 'code' not in request.args:
-        auth_uri = flow.step1_get_authorize_url()
-        return redirect(auth_uri)
-    else:
-        auth_code = request.args.get('code')
-        credentials = flow.step2_exchange(auth_code)
-        session['credentials'] = credentials.to_json()
-        return redirect(url_for(final_url))
 
 
 @app.context_processor
@@ -177,16 +166,6 @@ def inject_static_url():
         local_static_url=local_static_url,
         host_url=request.url_root
     )
-
-
-# @app.errorhandler(404)
-# def not_found_error(error):
-#     return render_template('404.html', error=error), 404
-#
-#
-# @app.errorhandler(500)
-# def internal_error(error):
-#     return render_template('500.html', error=error), 500
 
 
 def parse_thread(emailthread):
@@ -249,3 +228,30 @@ def gethtmlpart(parts):
         else:
             return gethtmlpart(part['parts'])
     return ''
+
+
+@app.route('/oauth2callback')
+def oauth2callback(final_url='index'):
+    flow = client.flow_from_clientsecrets(
+        'client_secrets.json',
+        scope='https://mail.google.com/',
+        redirect_uri=url_for('oauth2callback', _external=True)
+    )
+    if 'code' not in request.args:
+        auth_uri = flow.step1_get_authorize_url()
+        return redirect(auth_uri)
+    else:
+        auth_code = request.args.get('code')
+        credentials = flow.step2_exchange(auth_code)
+        session['credentials'] = credentials.to_json()
+        return redirect(url_for(final_url))
+
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html', error=error), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return render_template('500.html', error=error), 500

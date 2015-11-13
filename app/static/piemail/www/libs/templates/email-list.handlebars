@@ -1,8 +1,23 @@
-{{#each messages}}
+{{#each this}}
     <div class="mail">
-    <a href="#">
-            <span class="sender">{{{message.sender}}}</span>
-    </a>
-    <div style="clear:both;"></div>
+        <a href="#">
+            {{#if unread }}<strong>{{/if}}
+                {{#if selected}}
+                    <span style="float:left;width:20px;"><input title="check" class="check" type="checkbox" checked="checked" /></span>
+                {{ else }}
+                    <span style="float:left;width:20px;"><input title="check" class="check" type="checkbox" /></span>
+                {{/if}}
+                {{#if star}}
+                    <span style="float:left;width:20px;" class="star staricon bookmark"> &nbsp; </span>
+                {{ else }}
+                    <span style="float:left;width:20px;" class="star staricon nobookmark"> &nbsp; </span>
+                {{/if}}
+                <span class="sender">{{{sender}}}</span>
+                <span class="timestamp">{{timestamp}}</span>
+                <span class="mail-subject">{{{subject}}}</span>
+                <span class="mail-snippet">{{{snippet}}}</span>
+            {{#if unread}}</strong>{{/if}}
+        </a>
+        <div style="clear:both;"></div>
     </div>
 {{/each}}

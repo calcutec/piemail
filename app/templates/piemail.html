@@ -49,7 +49,7 @@
                     <li><a href="#" class="bttn icon folder">New Folder</a></li>
                 </ul>
                 <div id="summary">
-                    <ul class="grouped" id="sidemenu">&nbsp;</ul>
+                    <ul class="grouped" id="sidemenu">{{ summaryoutput|safe }}</ul>
                 </div>
                 <span class="gridfunctions hidden">
                     <span><button id="fit">Fit All</button></span>
@@ -59,7 +59,7 @@
         </header>
         <div id="content">
             <section id="mail-list">
-                {{ output|safe }}
+                {{ emailoutput|safe }}
             </section>
         </div>
         <script type=text/javascript>$SCRIPT_ROOT = {{ host_url|tojson|safe }}</script>
@@ -72,7 +72,7 @@
         <script src="{{ local_static_url }}piemail/www/libs/vis.min.js"></script>
         <script src="{{ local_static_url }}piemail/www/libs/handlebars-v4.0.4.js"></script>
         <script src="{{ local_static_url }}piemail/www/libs/templates.js"></script>
-{#        <script src="{{ local_static_url }}piemail/www/inbox.js"></script>#}
+        <script src="{{ local_static_url }}piemail/www/inbox.js"></script>
     </body>
 </html>
 
