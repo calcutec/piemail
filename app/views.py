@@ -9,7 +9,10 @@ import threading
 import datetime
 import base64
 import re
+from pybars import Compiler
 
+compiler = Compiler()
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 fullmessageset = []
 parsedmessageset = []
@@ -17,25 +20,47 @@ parsedmessageset = []
 
 @app.route('/')
 def index():
+    source = open('/Users/bburton/piemail/app/static/piemail/www/libs/templates/test-server.handlebars', "r")\
+        .read().decode('utf-8')
+
+    template = compiler.compile(source)
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
     if credentials.access_token_expired:
         return redirect(url_for('oauth2callback'))
     else:
-        return render_template("piemail.html")
+        http_auth = credentials.authorize(httplib2.Http())
+
+    service = discovery.build('gmail', 'v1', http=http_auth)
+    results = service.users().threads().list(userId='me',
+                                             maxResults=20, fields="threads/id",
+                                             q="in:inbox -category:(promotions OR social)").execute()
+    batch = service.new_batch_http_request(callback=processthreads)
+    for thread in results['threads']:
+        batch.add(service.users().threads().get(userId='me', id=thread['id'],
+                                                fields="messages/snippet, messages/internalDate, messages/labelIds, "
+                                                       "messages/threadId, messages/payload/headers"))
+    batch.execute()
+    for emailthread in fullmessageset:
+        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
+        t.start()
+    newcollection = deepcopy(parsedmessageset)
+    fullmessageset[:] = []
+    parsedmessageset[:] = []
+    context = newcollection
+    output = template(context)
+    return render_template("piemail.html", output=output)
 
 
-@app.route('/logout', methods=['POST', 'GET'])
-def logout():
-    response = dict()
-    response['redirect'] = '/login'
-    return jsonify(response)
-
-
-@app.route('/login')
-def login():
-    return render_template("piemail.html")
+@app.route('/signmeout', methods=['GET', 'POST'])
+def signmeout():
+    if request.is_xhr:
+        return json.dumps({'status': 'OK', 'redirect_url': '/signmeout'})
+    credentials = client.OAuth2Credentials.from_json(session['credentials'])
+    credentials.revoke(httplib2.Http())
+    session.clear()
+    return render_template("login.html")
 
 
 @app.route('/inbox', methods=['GET', 'POST'])
@@ -121,7 +146,7 @@ def emaildata(emailid):
 
 
 @app.route('/oauth2callback')
-def oauth2callback():
+def oauth2callback(final_url='index'):
     flow = client.flow_from_clientsecrets(
         'client_secrets.json',
         scope='https://mail.google.com/',
@@ -134,7 +159,7 @@ def oauth2callback():
         auth_code = request.args.get('code')
         credentials = flow.step2_exchange(auth_code)
         session['credentials'] = credentials.to_json()
-        return redirect(url_for('index'))
+        return redirect(url_for(final_url))
 
 
 @app.context_processor

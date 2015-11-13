@@ -302,14 +302,10 @@ var InboxView = Backbone.View.extend({
     },
 
     signout: function(){
-        this.collection.reset();
-        $.ajax({
-            type: "POST",
-            url: "logout",
-            success: function(data) {
-                window.location.href = data.redirect;
-            }
+        $.getJSON($SCRIPT_ROOT + 'signmeout', function(data) {
+            window.location.replace(data.redirect_url);
         });
+        return false;
     }
 });
 

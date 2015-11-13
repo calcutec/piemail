@@ -1,8 +1,5 @@
 # -*- coding: utf8 -*-
 import os
-CSRF_ENABLED = False
-WTF_CSRF_ENABLED = False
-basedir = os.path.abspath(os.path.dirname(__file__))
 SECRET_KEY = "For my eyes only"
 
 
