@@ -32,8 +32,11 @@ var Mail = Backbone.Model.extend( {
         this.save( { archived: true, selected:false} );
     },
 
-    moveToPromotions: function(){
-        this.save( { promotions: true, selected:false} );
+    move: function(value){
+        var obj = {};
+        obj[value] = true;
+        obj['selected'] = false;
+        this.save( obj );
     },
 
     selectMail: function() {
@@ -43,10 +46,6 @@ var Mail = Backbone.Model.extend( {
     setLabel: function(label){
         this.save( { label: label } );
     }
-
-    //setOrdinal: function(ordinal){
-    //    this.save( { ordinal: ordinal } );
-    //}
 });
 
 var MailView = Backbone.View.extend({
@@ -102,20 +101,12 @@ var MailList = Backbone.Collection.extend({
         return Backbone.ajaxSync('read', this, options);
     },
 
-    unread: function() {
-        return _(this.filter( function(mail) { return mail.get('unread');} ) );
-    },
-
-    inbox: function(){
-        return _(this.filter( function(mail) { return !mail.get('archived');}));
-    },
-
-    promotionsbox: function(){
-        return _(this.filter( function(mail) { return mail.get('promotions');}));
-    },
-
-    starred: function(){
-        return _(this.filter( function(mail) { return mail.get('star');}));
+    show: function(value){
+        if(value=="inbox"){
+            return _(this.filter( function(mail) { return !mail.get('archived');}));
+        } else {
+            return _(this.filter( function(mail) { return mail.get(value);}));
+        }
     },
 
     unread_count: function() {
@@ -178,16 +169,12 @@ var InboxView = Backbone.View.extend({
     },
 
     events: {
-        "change #labeler": "applyLabel",
         "change #actions": "applyAction",
-        "click #markallread": "markallread",
-        "click #archive": "archive",
         "click #gridview": "gridview",
-        "click #allmail": "allmail",
-        "click #inbox": "inbox",
-        "click #promotionsbox": "promotionsbox",
-        "click #movetopromotions": "movetopromotions",
-        "click #starred": "starred",
+        "click #allmail": "dispatchevent",
+        "click #inbox": "dispatchevent",
+        "click #promotionsbox": "dispatchevent",
+        "click #star": "dispatchevent",
         "click #signout": "signout",
         "keyup #search" : "search"
     },
@@ -196,53 +183,15 @@ var InboxView = Backbone.View.extend({
         this.render(this.collection.search($("#search").val()));
     },
 
-    starred: function(){
-        this.render(this.collection.starred());
+    dispatchevent: function(event){
+        var eventid = event.currentTarget.id;
+        this.show(eventid);
     },
 
-    inbox: function(){
-        this.render(this.collection.inbox());
-    },
-
-    promotionsbox: function(){
-        this.render(this.collection.promotionsbox());
-    },
-
-    allmail: function(){
-        this.render(this.collection);
-    },
-
-    markallread : function(){
+    markallasread : function(){
         this.collection.each(function(item){
           item.markRead();
         }, this);
-    },
-
-    //applyLabel: function(){
-    //    var label = $("#labeler").val();
-    //    this.collection.each(function(item){
-    //        if(item.get('selected') == true){
-    //          item.setLabel(label);
-    //        }
-    //    }, this);
-    //},
-
-    archive: function(){
-        this.collection.each(function(item){
-            if(item.get('selected') == true){
-              item.archive();
-            }
-        }, this);
-        this.render(this.collection.inbox());
-    },
-
-    movetopromotions: function(){
-        this.collection.each(function(item){
-            if(item.get('selected') == true){
-              item.moveToPromotions();
-            }
-        }, this);
-        this.render(this.collection.promotionsbox());
     },
 
     applyLabel: function(value){
@@ -256,24 +205,46 @@ var InboxView = Backbone.View.extend({
     applyAction: function(){
         var action = $(':selected', $('#actions')).parent().attr('label');
         var value =  $("#actions").val();
-        if(action == "Move"){
-            if(value == "Promotions"){
-                this.movetopromotions();
-            } else if(value == "Archive"){
-                this.archive();
+        if(action == "Show"){
+            if(value == "Only Unread"){
+                this.show('unread');
+            } else {
+                this.show('read');
+            }
+        } else if(action == "Move"){
+            if(value == "Archive"){
+                this.move('archived');
+            } else {
+                this.move(value);
             }
         } else if (action == "Label"){
             this.applyLabel(value);
+        } else if (action == "Mark"){
+            if(value == "Mark all as Read"){
+                this.markallasread();
+            } else {
+                this.move(value);
+            }
+        }
+    },
+
+
+    show: function(value){
+        if(value == "allmail"){
+            this.render(this.collection);
+        } else {
+            this.render(this.collection.show(value));
         }
     },
 
     move: function(value){
         this.collection.each(function(item){
             if(item.get('selected') == true){
-              item.move();
+              item.move(value);
             }
         }, this);
-        this.render(this.collection.promotionsbox());
+        this.render(this.collection.show(value));
+        this.renderSideMenu();
     },
 
     render: function(records){

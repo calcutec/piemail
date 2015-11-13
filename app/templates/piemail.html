@@ -25,15 +25,21 @@
                     <li>
                         <select title="actions" id="actions" class="bttn">
                             <option value=""> Actions </option>
+                            <optgroup label="Show">
+                                <option>Only Unread</option>
+                                <option>Only Read</option>
+                            </optgroup>
                             <optgroup label="Mark">
                                 <option>Mark as Read</option>
                                 <option>Mark as Unread</option>
+                                <option>Mark all as Read</option>
+                                <option>Mark all as Unread</option>
                             </optgroup>
                             <optgroup label="Move">
-                                <option>Archive</option>
-                                <option>Promotions</option>
-                                <option>Social</option>
-                                <option>Junk</option>
+                                <option>archive</option>
+                                <option>promotions</option>
+                                <option>social</option>
+                                <option>junk</option>
                             </optgroup>
                             <optgroup label="Label">
                                 <option value="Personal"> Personal </option>
@@ -46,7 +52,7 @@
                     <li><a href="#" class="bttn icon refresh">Refresh</a></li>
                     <li><a href="#" id="gridview"class="bttn">Grid View</a></li>
                     <li><a href="#" class="bttn icon delete">Delete</a></li>
-                    <li><a href="#" class="bttn icon folder">New Folder</a></li>
+{#                    <li><a href="#" class="bttn icon folder">New Folder</a></li>#}
                 </ul>
                 <div id="summary">
                     <ul class="grouped" id="sidemenu">&nbsp;</ul>
