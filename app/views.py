@@ -10,6 +10,7 @@ import datetime
 import base64
 import re
 from pybars import Compiler
+from app import cache
 
 compiler = Compiler()
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -20,14 +21,10 @@ parsedmessageset = []
 
 @app.route('/')
 def index():
-    emailsource = open('/Users/bburton/piemail/app/static/piemail/www/libs/templates/email-list.handlebars', "r")\
+    source = open('/Users/bburton/piemail/app/static/piemail/www/libs/templates/email-list.handlebars', "r")\
         .read().decode('utf-8')
-    emailtemplate = compiler.compile(emailsource)
 
-    summarysource = open('/Users/bburton/piemail/app/static/piemail/www/libs/templates/summary-tmpl.handlebars', "r")\
-        .read().decode('utf-8')
-    summarytemplate = compiler.compile(summarysource)
-
+    template = compiler.compile(source)
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
@@ -52,11 +49,10 @@ def index():
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
-    emailcontext = newcollection
-    emailoutput = emailtemplate(emailcontext)
-    summarycontext = newcollection.count()
-    summaryoutput = summarytemplate(summarycontext)
-    return render_template("piemail.html", emailoutput=emailoutput, summaryoutput=summaryoutput)
+    context = newcollection
+    output = template(context)
+    cache.set(credentials.access_token, newcollection, 5)
+    return render_template("piemail.html", output=output)
 
 
 @app.route('/inbox', methods=['GET', 'POST'])
@@ -66,8 +62,12 @@ def inbox():
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
     if credentials.access_token_expired:
         return redirect(url_for('oauth2callback'))
-    else:
-        http_auth = credentials.authorize(httplib2.Http())
+
+    cachedcollection = cache.get(credentials.access_token)
+    if cachedcollection:
+        return json.dumps({'newcollection': cachedcollection})
+
+    http_auth = credentials.authorize(httplib2.Http())
 
     service = discovery.build('gmail', 'v1', http=http_auth)
     results = service.users().threads().list(userId='me',

@@ -1,8 +1,10 @@
 import os
 from flask import Flask
+from flask.ext.cacheify import init_cacheify
 
 app = Flask(__name__)
 app.config.from_object('config')
+cache = init_cacheify(app)
 
 if not app.debug and os.environ.get('HEROKU') is None:
     import logging
