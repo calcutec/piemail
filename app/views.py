@@ -64,11 +64,7 @@ def inbox():
     if credentials.access_token_expired:
         return redirect(url_for('oauth2callback'))
     cachedcollection = cache.get(credentials.access_token)
-    if cachedcollection:
-        cache.clear()
-        return json.dumps({'newcollection': cachedcollection})
-    else:
-        return redirect(url_for(index))
+    return json.dumps({'newcollection': cachedcollection})
 
 
 @app.route('/signmeout', methods=['GET', 'POST'])
