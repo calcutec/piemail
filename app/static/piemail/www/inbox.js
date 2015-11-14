@@ -10,26 +10,25 @@ var Mail = Backbone.Model.extend( {
         snippet: '',
         mailbody: '',
         timestamp: '',
+        rawtimestamp: '',
         start: '',
         unread: false,
         star: false,
         selected:false,
         archived:false,
+        inbox:false,
         promotions:false,
+        social:false,
         label: '',
         createdOn: "Note created on " + new Date().toISOString()
     },
 
     markRead: function() {
-        this.save( {unread: false } );
+        this.save( {unread: false, selected:false} );
     },
 
     starMail: function() {
         this.save( { star: !this.get("star")} );
-    },
-
-    archive: function(){
-        this.save( { archived: true, selected:false} );
     },
 
     move: function(value){
@@ -70,10 +69,6 @@ var MailView = Backbone.View.extend({
         return this;
     },
 
-    //unrender: function(){
-    //    $(this.el).remove();
-    //},
-
     markRead: function() {
         this.model.markRead();
     },
@@ -102,8 +97,11 @@ var MailList = Backbone.Collection.extend({
     },
 
     show: function(value){
-        if(value=="inbox"){
-            return _(this.filter( function(mail) { return !mail.get('archived');}));
+        if(value=="primary"){
+            return _(this.filter( function(mail) { return mail.get('inbox')
+                && !mail.get('social') && !mail.get('promotions');}));
+        } else if(value=="onlyread") {
+            return _(this.filter(function (mail) {return !mail.get('unread');}));
         } else {
             return _(this.filter( function(mail) { return mail.get(value);}));
         }
@@ -113,9 +111,10 @@ var MailList = Backbone.Collection.extend({
         return (this.filter ( function(mail) { return mail.get('unread');})).length;
     },
 
-    //labelled:function(label){
-    //    return _(this.filter( function(mail) { return label in mail.get('label') } ));
-    //},
+    primarycount: function() {
+        return (this.filter( function(mail) { return !mail.get('archived')
+                && !mail.get('social') && !mail.get('promotions');})).length;
+    },
 
     starcount: function(){
         return (this.filter( function(mail) { return mail.get('star')})).length;
@@ -125,15 +124,13 @@ var MailList = Backbone.Collection.extend({
         return (this.filter( function(mail) { return mail.get('promotions')})).length;
     },
 
-    //getThreads: function(){
-    //    var threadArray = [];
-    //    this.each(function(item){
-    //        if(item.get('selected') == true){
-    //          threadArray.push(item.get('id'));
-    //        }
-    //    }, this);
-    //
-    //},
+    socialcount: function(){
+        return (this.filter( function(mail) { return mail.get('social')})).length;
+    },
+
+    inboxcount: function(){
+        return (this.filter( function(mail) { return mail.get('inbox')})).length;
+    },
 
     getThread: function(threadid){
         this.each(function(model){
@@ -150,10 +147,13 @@ var MailList = Backbone.Collection.extend({
 
     search: function(word){
         if (word=="") return this;
-
         var pat = new RegExp(word, 'gi');
         return _(this.filter(function(mail) { 
             return pat.test(mail.get('subject')) || pat.test(mail.get('sender')); }));
+    },
+
+    comparator: function(mail){
+        return -mail.get('rawtimestamp');
     }
 });
 
@@ -169,23 +169,21 @@ var InboxView = Backbone.View.extend({
     },
 
     events: {
-        "change #actions": "applyAction",
-        "click #gridview": "gridview",
-        "click #allmail": "dispatchevent",
-        "click #inbox": "dispatchevent",
-        "click #promotionsbox": "dispatchevent",
+        "keyup #search" : "search",
+        "click #totalinbox": "dispatchevent",
+        "click #primary": "dispatchevent",
+        "click #social": "dispatchevent",
+        "click #promotions": "dispatchevent",
         "click #star": "dispatchevent",
-        "click #signout": "signout",
-        "keyup #search" : "search"
+        "click #allmail": "dispatchevent",
+        "change #actions": "applyAction",
+        "click .refresh": "refresh",
+        "click #gridview": "gridview",
+        "click #signout": "signout"
     },
 
     search: function(){
         this.render(this.collection.search($("#search").val()));
-    },
-
-    dispatchevent: function(event){
-        var eventid = event.currentTarget.id;
-        this.show(eventid);
     },
 
     markallasread : function(){
@@ -194,10 +192,10 @@ var InboxView = Backbone.View.extend({
         }, this);
     },
 
-    applyLabel: function(value){
+    markasread: function(value){
         this.collection.each(function(item){
             if(item.get('selected') == true){
-              item.setLabel(value);
+              item.markRead();
             }
         }, this);
     },
@@ -209,7 +207,7 @@ var InboxView = Backbone.View.extend({
             if(value == "Only Unread"){
                 this.show('unread');
             } else {
-                this.show('read');
+                this.show('onlyread');
             }
         } else if(action == "Move"){
             if(value == "Archive"){
@@ -222,16 +220,22 @@ var InboxView = Backbone.View.extend({
         } else if (action == "Mark"){
             if(value == "Mark all as Read"){
                 this.markallasread();
-            } else {
-                this.move(value);
+            } else if(value == "Mark as Read") {
+                this.markasread();
             }
         }
     },
 
+    dispatchevent: function(event){
+        var eventid = event.currentTarget.id;
+        this.show(eventid);
+    },
 
     show: function(value){
         if(value == "allmail"){
             this.render(this.collection);
+        } else if(value == "archived"){
+            this.render(this.collection.show('primary'));
         } else {
             this.render(this.collection.show(value));
         }
@@ -247,6 +251,14 @@ var InboxView = Backbone.View.extend({
         this.renderSideMenu();
     },
 
+    applyLabel: function(value){
+        this.collection.each(function(item){
+            if(item.get('selected') == true){
+              item.setLabel(value);
+            }
+        }, this);
+    },
+
     render: function(records){
         $('#mail-list', this.el).html('');
         var self = this;
@@ -257,9 +269,13 @@ var InboxView = Backbone.View.extend({
 
     renderSideMenu: function(){
         $("#sidemenu").html( this.summarytemplate({
-            'inbox': this.collection.unread_count(),
+            'allmail':this.collection.length,
+            'inbox': this.collection.inboxcount(),
+            'primary': this.collection.primarycount(),
+            'social':this.collection.socialcount(),
+            'promotions':this.collection.promotionscount(),
             'starred':this.collection.starcount(),
-            'promotions':this.collection.promotionscount()
+            'unread': this.collection.unread_count(),
         }));
     },
 
@@ -277,6 +293,10 @@ var InboxView = Backbone.View.extend({
             window.location.replace(data.redirect_url);
         });
         return false;
+    },
+
+    refresh: function(){
+        window.location.replace("/");
     }
 });
 

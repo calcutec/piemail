@@ -34,9 +34,9 @@ def index():
         http_auth = credentials.authorize(httplib2.Http())
 
     service = discovery.build('gmail', 'v1', http=http_auth)
-    results = service.users().threads().list(userId='me',
-                                             maxResults=20, fields="threads/id",
-                                             q="in:inbox -category:(promotions OR social)").execute()
+    #  q="in:inbox -category:(promotions OR social)
+    results = service.users().threads().list(userId='me', maxResults=50, fields="threads/id", q="in:inbox").execute()
+
     batch = service.new_batch_http_request(callback=processthreads)
     for thread in results['threads']:
         batch.add(service.users().threads().get(userId='me', id=thread['id'],
@@ -44,9 +44,9 @@ def index():
                                                        "messages/threadId, messages/payload/headers"))
     batch.execute()
     for emailthread in fullmessageset:
-        # t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
-        # t.start()
-        parse_thread(emailthread)
+        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
+        t.start()
+        # parse_thread(emailthread)
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
@@ -63,30 +63,12 @@ def inbox():
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
     if credentials.access_token_expired:
         return redirect(url_for('oauth2callback'))
-
     cachedcollection = cache.get(credentials.access_token)
     if cachedcollection:
+        cache.clear()
         return json.dumps({'newcollection': cachedcollection})
-
-    http_auth = credentials.authorize(httplib2.Http())
-
-    service = discovery.build('gmail', 'v1', http=http_auth)
-    results = service.users().threads().list(userId='me',
-                                             maxResults=50, fields="threads/id",
-                                             q="in:inbox -category:(promotions OR social)").execute()
-    batch = service.new_batch_http_request(callback=processthreads)
-    for thread in results['threads']:
-        batch.add(service.users().threads().get(userId='me', id=thread['id'],
-                                                fields="messages/snippet, messages/internalDate, messages/labelIds, "
-                                                       "messages/threadId, messages/payload/headers"))
-    batch.execute()
-    for emailthread in fullmessageset:
-        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
-        t.start()
-    newcollection = deepcopy(parsedmessageset)
-    fullmessageset[:] = []
-    parsedmessageset[:] = []
-    return json.dumps({'newcollection': newcollection})
+    else:
+        return redirect(url_for(index))
 
 
 @app.route('/signmeout', methods=['GET', 'POST'])
@@ -171,15 +153,29 @@ def inject_static_url():
 
 def parse_thread(emailthread):
     threaditems = dict()
+    # INBOX, CATEGORY_SOCIAL, CATEGORY_PERSONAL, CATEGORY_PROMOTIONS, CATEGORY_FORUMS, CATEGORY_UPDATES, SENT,
+    # PURCHASES, TRAVEL, FINANCE, STARRED, UNREAD, INBOX, IMPORTANT
     threaditems['labels'] = emailthread[1]['labelIds']
     if 'UNREAD' in emailthread[1]['labelIds']:
         threaditems['unread'] = True
     else:
         threaditems['unread'] = False
-    if 'PROMOTIONS' in emailthread[1]['labelIds']:
+    if 'STARRED' in emailthread[1]['labelIds']:
+        threaditems['star'] = True
+    else:
+        threaditems['star'] = False
+    if 'CATEGORY_PROMOTIONS' in emailthread[1]['labelIds']:
         threaditems['promotions'] = True
     else:
         threaditems['promotions'] = False
+    if 'CATEGORY_SOCIAL' in emailthread[1]['labelIds']:
+        threaditems['social'] = True
+    else:
+        threaditems['social'] = False
+    if 'INBOX' in emailthread[1]['labelIds']:
+        threaditems['inbox'] = True
+    else:
+        threaditems['inbox'] = False
     threaditems['threadId'] = emailthread[1]['threadId']
     threaditems['id'] = emailthread[1]['threadId']
     threaditems['snippet'] = emailthread[1]['snippet'] + "..."
@@ -187,6 +183,8 @@ def parse_thread(emailthread):
         .strftime("%I:%M %p %b %d")
     threaditems['sender'] = getheaders(emailthread[1], "From")
     threaditems['subject'] = getheaders(emailthread[1], "Subject")
+    threaditems['ordinal'] = emailthread[0]
+    threaditems['rawtimestamp'] = emailthread[1]['internalDate']
     parsedmessageset.append(threaditems)
 
 
