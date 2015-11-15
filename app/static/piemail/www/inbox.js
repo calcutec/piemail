@@ -37,11 +37,11 @@ var Mail = Backbone.Model.extend( {
 
     move: function(value){
         var obj = {};
-        obj[value] = true;
+        obj['category'] = value;
         obj['selected'] = false;
-        if(value=='archived'){
-            obj['inbox'] = false;
-        }
+        //if(value=='archived'){
+        //    obj['inbox'] = false;
+        //}
         //['promotions, social, primary, archived'].forEach(function(category){
         //    if(category != value){
         //        obj[category] = false;
@@ -109,13 +109,12 @@ var MailList = Backbone.Collection.extend({
     },
 
     show: function(value){
-        if(value=="primary"){
-            return _(this.filter( function(mail) { return mail.get('inbox')
-                && !mail.get('social') && !mail.get('promotions');}));
+        if(value=="inbox") {
+            return _(this.filter(function (mail) { return mail.get('inbox') }));
         } else if(value=="onlyread") {
-            return _(this.filter(function (mail) {return !mail.get('unread');}));
+            return _(this.filter(function (mail) { return !mail.get('unread') }));
         } else {
-            return _(this.filter( function(mail) { return mail.get(value);}));
+            return _(this.filter( function(mail) { return mail.get('category') === value}));
         }
     },
 
@@ -124,20 +123,19 @@ var MailList = Backbone.Collection.extend({
     },
 
     primarycount: function() {
-        return (this.filter( function(mail) { return mail.get('inbox')
-                && !mail.get('social') && !mail.get('promotions');})).length;
+        return (this.filter( function(mail) { return mail.get('category') === 'primary'})).length;
     },
 
     socialcount: function(){
-        return (this.filter( function(mail) { return mail.get('social')})).length;
+        return (this.filter( function(mail) { return mail.get('category') === 'social'})).length;
     },
 
     promotionscount: function(){
-        return (this.filter( function(mail) { return mail.get('promotions')})).length;
+        return (this.filter( function(mail) { return mail.get('category') === 'promotions'})).length;
     },
 
     archivedcount: function(){
-        return (this.filter( function(mail) { return mail.get('archived')})).length;
+        return (this.filter( function(mail) { return mail.get('category') === 'archived'})).length;
     },
 
     starcount: function(){
@@ -210,7 +208,7 @@ var InboxView = Backbone.View.extend({
         }, this);
     },
 
-    markasread: function(value){
+    markasread: function(){
         this.collection.each(function(item){
             if(item.get('selected') == true){
               item.markRead();
