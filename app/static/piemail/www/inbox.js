@@ -35,6 +35,9 @@ var Mail = Backbone.Model.extend( {
         var obj = {};
         obj[value] = true;
         obj['selected'] = false;
+        if(value=='archived'){
+            obj['inbox'] = false;
+        }
         this.save( obj );
     },
 
@@ -107,29 +110,33 @@ var MailList = Backbone.Collection.extend({
         }
     },
 
-    unread_count: function() {
-        return (this.filter ( function(mail) { return mail.get('unread');})).length;
+    inboxcount: function(){
+        return (this.filter( function(mail) { return mail.get('inbox')})).length;
     },
 
     primarycount: function() {
-        return (this.filter( function(mail) { return !mail.get('archived')
+        return (this.filter( function(mail) { return mail.get('inbox')
                 && !mail.get('social') && !mail.get('promotions');})).length;
-    },
-
-    starcount: function(){
-        return (this.filter( function(mail) { return mail.get('star')})).length;
-    },
-
-    promotionscount: function(){
-        return (this.filter( function(mail) { return mail.get('promotions')})).length;
     },
 
     socialcount: function(){
         return (this.filter( function(mail) { return mail.get('social')})).length;
     },
 
-    inboxcount: function(){
-        return (this.filter( function(mail) { return mail.get('inbox')})).length;
+    promotionscount: function(){
+        return (this.filter( function(mail) { return mail.get('promotions')})).length;
+    },
+
+    archivedcount: function(){
+        return (this.filter( function(mail) { return mail.get('archived')})).length;
+    },
+
+    starcount: function(){
+        return (this.filter( function(mail) { return mail.get('star')})).length;
+    },
+
+    unread_count: function() {
+        return (this.filter ( function(mail) { return mail.get('unread');})).length;
     },
 
     getThread: function(threadid){
@@ -170,11 +177,13 @@ var InboxView = Backbone.View.extend({
 
     events: {
         "keyup #search" : "search",
-        "click #totalinbox": "dispatchevent",
+        "click #inbox": "dispatchevent",
         "click #primary": "dispatchevent",
         "click #social": "dispatchevent",
         "click #promotions": "dispatchevent",
+        "click #archived": "dispatchevent",
         "click #star": "dispatchevent",
+        "click #unread": "dispatchevent",
         "click #allmail": "dispatchevent",
         "change #actions": "applyAction",
         "click .refresh": "refresh",
@@ -203,6 +212,7 @@ var InboxView = Backbone.View.extend({
     applyAction: function(){
         var action = $(':selected', $('#actions')).parent().attr('label');
         var value =  $("#actions").val();
+        $('#actions').val('0');
         if(action == "Show"){
             if(value == "Only Unread"){
                 this.show('unread');
@@ -213,7 +223,7 @@ var InboxView = Backbone.View.extend({
             if(value == "Archive"){
                 this.move('archived');
             } else {
-                this.move(value);
+                this.move(value.toLowerCase());
             }
         } else if (action == "Label"){
             this.applyLabel(value);
@@ -228,14 +238,15 @@ var InboxView = Backbone.View.extend({
 
     dispatchevent: function(event){
         var eventid = event.currentTarget.id;
+        var active = $(event.currentTarget).parent();
+        active.addClass('active');
+        $('li').not(active).removeClass('active');
         this.show(eventid);
     },
 
     show: function(value){
         if(value == "allmail"){
             this.render(this.collection);
-        } else if(value == "archived"){
-            this.render(this.collection.show('primary'));
         } else {
             this.render(this.collection.show(value));
         }
@@ -247,8 +258,9 @@ var InboxView = Backbone.View.extend({
               item.move(value);
             }
         }, this);
-        this.render(this.collection.show(value));
-        this.renderSideMenu();
+        //this.render(this.collection.show(value));
+        var currentlyactive = $(".active")
+        this.renderSideMenu(currentlyactive);
     },
 
     applyLabel: function(value){
@@ -267,16 +279,22 @@ var InboxView = Backbone.View.extend({
         }, this);
     },
 
-    renderSideMenu: function(){
+    renderSideMenu: function(currentlyactive){
         $("#sidemenu").html( this.summarytemplate({
             'allmail':this.collection.length,
             'inbox': this.collection.inboxcount(),
             'primary': this.collection.primarycount(),
             'social':this.collection.socialcount(),
             'promotions':this.collection.promotionscount(),
+            'archived':this.collection.archivedcount(),
             'starred':this.collection.starcount(),
             'unread': this.collection.unread_count(),
         }));
+        if (typeof(currentlyactive) === 'undefined' || typeof(currentlyactive) === 'object'){
+            $('#inbox').parent().addClass('active');
+        } else {
+            var element2;
+        }
     },
 
     addOne: function (mail) {

@@ -34,7 +34,6 @@ def index():
         http_auth = credentials.authorize(httplib2.Http())
 
     service = discovery.build('gmail', 'v1', http=http_auth)
-    #  q="in:inbox -category:(promotions OR social)
     results = service.users().threads().list(userId='me', maxResults=50, fields="threads/id", q="in:inbox").execute()
 
     batch = service.new_batch_http_request(callback=processthreads)

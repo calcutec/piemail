@@ -1,35 +1,35 @@
 <li>
-    <a href="#" id="totalinbox">
-        {{#if inbox}}<strong> Inbox ({{inbox}}) </strong>{{else}}Inbox{{/if}}
+    <a href="#" id="inbox">
+        {{#if inbox}}<strong>Inbox ({{inbox}})</strong>{{/if}}
     </a>
 </li>
 <li>
    <a href="#" id="primary">
-       {{#if primary}}<strong> Primary ({{primary}}) </strong>{{else}}Primary{{/if}}
+       {{#if primary}}<strong> Primary ({{primary}}) </strong>{{/if}}
    </a>
 </li>
 <li>
    <a href="#" id="social">
-       {{#if social}}<strong> Social ({{social}}) </strong>{{else}}Social{{/if}}
+       {{#if social}}<strong> Social ({{social}}) </strong>{{/if}}
    </a>
 </li>
 <li>
    <a href="#" id="promotions">
-       {{#if promotions}}<strong> Promotions ({{promotions}}) </strong>{{else}}Promotions{{/if}}
-   </a>
-</li>
-<li>
-    <a href="#" id="allmail">
-        {{#if allmail}}<strong> Archived ({{allmail}}) </strong>{{else}}Archived{{/if}}
-    </a>
-</li>
-<li>
-   <a href="#" id="star">
-       {{#if starred}}<strong> Starred ({{starred}}) </strong>{{else}}Starred{{/if}}
+       {{#if promotions}}<strong> Promotions ({{promotions}}) </strong>{{/if}}
    </a>
 </li>
 <li>
    <a href="#" id="star">
+       {{#if starred}}<strong> Starred ({{starred}}) </strong>{{/if}}
+   </a>
+</li>
+<li>
+   <a href="#" id="unread">
        {{#if unread}}<strong> Unread ({{unread}}) </strong>{{/if}}
    </a>
+</li>
+<li>
+    <a href="#" id="archived">
+        {{#if archived}}<strong> Archived ({{archived}}) </strong>{{/if}}
+    </a>
 </li>
