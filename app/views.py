@@ -51,7 +51,7 @@ def index():
     parsedmessageset[:] = []
     context = newcollection
     output = template(context)
-    cache.set(credentials.access_token, newcollection, 5)
+    cache.set(credentials.access_token, newcollection, 15)
     return render_template("piemail.html", output=output)
 
 
@@ -160,17 +160,9 @@ def parse_thread(emailthread):
     else:
         threaditems['star'] = False
     if 'CATEGORY_PROMOTIONS' in emailthread[1]['labelIds']:
-        threaditems['promotions'] = True
-    else:
-        threaditems['promotions'] = False
+        threaditems['category'] = 'promotions'
     if 'CATEGORY_SOCIAL' in emailthread[1]['labelIds']:
-        threaditems['social'] = True
-    else:
-        threaditems['social'] = False
-    if 'INBOX' in emailthread[1]['labelIds']:
-        threaditems['inbox'] = True
-    else:
-        threaditems['inbox'] = False
+        threaditems['category'] = 'social'
     threaditems['threadId'] = emailthread[1]['threadId']
     threaditems['id'] = emailthread[1]['threadId']
     threaditems['snippet'] = emailthread[1]['snippet'] + "..."

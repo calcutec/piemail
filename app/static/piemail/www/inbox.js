@@ -31,6 +31,10 @@ var Mail = Backbone.Model.extend( {
         this.save( { star: !this.get("star")} );
     },
 
+    deselectArrayElements: function(element, obj) {
+        obj[element] = false;
+    },
+
     move: function(value){
         var obj = {};
         obj[value] = true;
@@ -38,6 +42,11 @@ var Mail = Backbone.Model.extend( {
         if(value=='archived'){
             obj['inbox'] = false;
         }
+        //['promotions, social, primary, archived'].forEach(function(category){
+        //    if(category != value){
+        //        obj[category] = false;
+        //    }
+        //});
         this.save( obj );
     },
 
@@ -238,9 +247,9 @@ var InboxView = Backbone.View.extend({
 
     dispatchevent: function(event){
         var eventid = event.currentTarget.id;
-        var active = $(event.currentTarget).parent();
-        active.addClass('active');
-        $('li').not(active).removeClass('active');
+        window.active = $(event.currentTarget).parent();
+        window.active.addClass('active');
+        $('li').not(window.active).removeClass('active');
         this.show(eventid);
     },
 
@@ -258,9 +267,9 @@ var InboxView = Backbone.View.extend({
               item.move(value);
             }
         }, this);
-        //this.render(this.collection.show(value));
-        var currentlyactive = $(".active")
-        this.renderSideMenu(currentlyactive);
+        this.render(this.collection.show(value));
+        window.currentlyactive = $(".active");
+        this.renderSideMenu(window.currentlyactive);
     },
 
     applyLabel: function(value){
@@ -288,12 +297,12 @@ var InboxView = Backbone.View.extend({
             'promotions':this.collection.promotionscount(),
             'archived':this.collection.archivedcount(),
             'starred':this.collection.starcount(),
-            'unread': this.collection.unread_count(),
+            'unread': this.collection.unread_count()
         }));
-        if (typeof(currentlyactive) === 'undefined' || typeof(currentlyactive) === 'object'){
+        if (typeof(currentlyactive) === 'undefined'){
             $('#inbox').parent().addClass('active');
-        } else {
-            var element2;
+        } else  if(typeof(currentlyactive) === 'object'){
+            window.active.addClass('active');
         }
     },
 
