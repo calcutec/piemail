@@ -15,12 +15,27 @@ var Mail = Backbone.Model.extend( {
         unread: false,
         star: false,
         selected:false,
-        archived:false,
         inbox:false,
-        promotions:false,
+        primary:false,
         social:false,
+        promotions:false,
+        updates:false,
+        forums:false,
+        archived:false,
+        sent:false,
         label: '',
         createdOn: "Note created on " + new Date().toISOString()
+    },
+
+
+    move: function(value){
+        var obj = {};
+        obj['category'] = value;
+        obj['selected'] = false;
+        if(value == "archived"){
+            obj['inbox'] = false;
+        }
+        this.save( obj );
     },
 
     markRead: function() {
@@ -29,25 +44,6 @@ var Mail = Backbone.Model.extend( {
 
     starMail: function() {
         this.save( { star: !this.get("star")} );
-    },
-
-    deselectArrayElements: function(element, obj) {
-        obj[element] = false;
-    },
-
-    move: function(value){
-        var obj = {};
-        obj['category'] = value;
-        obj['selected'] = false;
-        //if(value=='archived'){
-        //    obj['inbox'] = false;
-        //}
-        //['promotions, social, primary, archived'].forEach(function(category){
-        //    if(category != value){
-        //        obj[category] = false;
-        //    }
-        //});
-        this.save( obj );
     },
 
     selectMail: function() {
@@ -63,6 +59,7 @@ var MailView = Backbone.View.extend({
     tagName: "div",
     className: "mail",
     template: Handlebars.getTemplate("mail-item"),
+    timelineTemplate: Handlebars.getTemplate("timeline"),
 
     events: {
         "click .mail-subject,.sender" : "markRead",
@@ -81,6 +78,10 @@ var MailView = Backbone.View.extend({
         return this;
     },
 
+    unrender: function(){
+        $(this.el).remove();
+    },
+
     markRead: function() {
         this.model.markRead();
     },
@@ -94,7 +95,10 @@ var MailView = Backbone.View.extend({
     },
 
     getMail: function() {
-        this.model.collection.getThread(this.model.get('id'));
+        var currentitem = $(this.el);
+        currentitem.html('');
+        currentitem.html(this.timelineTemplate())
+        this.model.collection.getThread(this.model.get('id'), currentitem);
     }
 });
 
@@ -108,54 +112,42 @@ var MailList = Backbone.Collection.extend({
         return Backbone.ajaxSync('read', this, options);
     },
 
-    show: function(value){
-        if(value=="inbox") {
-            return _(this.filter(function (mail) { return mail.get('inbox') }));
-        } else if(value=="onlyread") {
-            return _(this.filter(function (mail) { return !mail.get('unread') }));
+    show: function(value, currentlyviewed){
+        if(typeof(currentlyviewed) === "undefined" || currentlyviewed == "inbox"){
+            if(value=="inbox"||value=="star"||value=="unread") {
+                return _(this.filter(function (mail) { return mail.get(value) }));
+            } else if(value=="onlyread") {
+                return _(this.filter(function (mail) { return !mail.get('unread') }));
+            } else {
+                return _(this.filter( function(mail) { return mail.get('category') === value}));
+            }
         } else {
-            return _(this.filter( function(mail) { return mail.get('category') === value}));
+            if(value=="unread"||value=="star") {
+                return _(this.filter(function (mail) {
+                    return mail.get(value) && mail.get('category') === currentlyviewed
+                }));
+            } else if(value=="onlyread") {
+                return _(this.filter(function (mail) {
+                    return !mail.get('unread') && mail.get('category') === currentlyviewed
+                }));
+            }
         }
+
     },
 
-    inboxcount: function(){
-        return (this.filter( function(mail) { return mail.get('inbox')})).length;
+    categorycounts: function(category) {
+        return (this.filter( function(mail) { return mail.get('category') === category})).length;
     },
 
-    primarycount: function() {
-        return (this.filter( function(mail) { return mail.get('category') === 'primary'})).length;
+    othercounts: function(item){
+        return (this.filter( function(mail) { return mail.get(item)})).length;
     },
 
-    socialcount: function(){
-        return (this.filter( function(mail) { return mail.get('category') === 'social'})).length;
-    },
-
-    promotionscount: function(){
-        return (this.filter( function(mail) { return mail.get('category') === 'promotions'})).length;
-    },
-
-    archivedcount: function(){
-        return (this.filter( function(mail) { return mail.get('category') === 'archived'})).length;
-    },
-
-    starcount: function(){
-        return (this.filter( function(mail) { return mail.get('star')})).length;
-    },
-
-    unread_count: function() {
-        return (this.filter ( function(mail) { return mail.get('unread');})).length;
-    },
-
-    getThread: function(threadid){
-        this.each(function(model){
-            model.trigger('removeme');
-        });
-        $('#visualization').html('');
+    getThread: function(threadid, mailitem){
         var gridlist = new GridList();
         gridlist.getThread(threadid, function(){
-            $('.inboxfunctions').addClass("hidden");
             $('.gridfunctions').removeClass("hidden");
-            window.newgridview = new GridView({collection: self})
+            window.newgridview = new GridView({collection: self, el:mailitem})
         });
     },
 
@@ -176,7 +168,7 @@ var InboxView = Backbone.View.extend({
     el: window.mailapp,
 
     initialize: function(){
-        this.collection.bind('change', this.renderSideMenu, this);
+        this.listenTo(this.collection, 'change', this.renderSideMenu);
         this.listenTo(this.collection, 'reset', this.removeAll);
         this.render(this.collection);
         this.renderSideMenu();
@@ -185,9 +177,11 @@ var InboxView = Backbone.View.extend({
     events: {
         "keyup #search" : "search",
         "click #inbox": "dispatchevent",
+        "click #sent": "dispatchevent",
         "click #primary": "dispatchevent",
         "click #social": "dispatchevent",
         "click #promotions": "dispatchevent",
+        "click #updates": "dispatchevent",
         "click #archived": "dispatchevent",
         "click #star": "dispatchevent",
         "click #unread": "dispatchevent",
@@ -195,7 +189,17 @@ var InboxView = Backbone.View.extend({
         "change #actions": "applyAction",
         "click .refresh": "refresh",
         "click #gridview": "gridview",
-        "click #signout": "signout"
+        "click #signout": "signout",
+        "click #compose": "compose",
+        "click #trash": "trash"
+    },
+
+    compose: function(){
+        alert('not yet implemented');
+    },
+
+    trash: function(){
+        alert('not yet implemented');
     },
 
     search: function(){
@@ -221,23 +225,27 @@ var InboxView = Backbone.View.extend({
         var value =  $("#actions").val();
         $('#actions').val('0');
         if(action == "Show"){
+            var currentlyviewed = $('.active').find('a').attr('id')
             if(value == "Only Unread"){
-                this.show('unread');
+                this.show('unread', currentlyviewed);
+            } else if(value == "Only Read"){
+                this.show('onlyread', currentlyviewed);
             } else {
-                this.show('onlyread');
+                this.show('star', currentlyviewed);
             }
         } else if(action == "Move"){
+            var currentlyviewed = $('.active').find('a').attr('id')
             if(value == "Archive"){
-                this.move('archived');
+                this.move('archived', currentlyviewed);
             } else {
-                this.move(value.toLowerCase());
+                this.move(value.toLowerCase(), currentlyviewed);
             }
         } else if (action == "Label"){
             this.applyLabel(value);
         } else if (action == "Mark"){
             if(value == "Mark all as Read"){
                 this.markallasread();
-            } else if(value == "Mark as Read") {
+            } else if(value == "Mark selected as Read") {
                 this.markasread();
             }
         }
@@ -251,23 +259,22 @@ var InboxView = Backbone.View.extend({
         this.show(eventid);
     },
 
-    show: function(value){
+    show: function(value, currentlyviewed){
         if(value == "allmail"){
             this.render(this.collection);
         } else {
-            this.render(this.collection.show(value));
+            this.render(this.collection.show(value, currentlyviewed));
         }
     },
 
-    move: function(value){
+    move: function(value, currentlyviewed){
         this.collection.each(function(item){
             if(item.get('selected') == true){
               item.move(value);
             }
         }, this);
-        this.render(this.collection.show(value));
-        window.currentlyactive = $(".active");
-        this.renderSideMenu(window.currentlyactive);
+        this.render(this.collection.show(currentlyviewed));
+        this.renderSideMenu();
     },
 
     applyLabel: function(value){
@@ -285,22 +292,24 @@ var InboxView = Backbone.View.extend({
             self.addOne(item);
         }, this);
     },
-
-    renderSideMenu: function(currentlyactive){
+    renderSideMenu: function(){
+        var currentlyactive = $('.active');
         $("#sidemenu").html( this.summarytemplate({
-            'allmail':this.collection.length,
-            'inbox': this.collection.inboxcount(),
-            'primary': this.collection.primarycount(),
-            'social':this.collection.socialcount(),
-            'promotions':this.collection.promotionscount(),
-            'archived':this.collection.archivedcount(),
-            'starred':this.collection.starcount(),
-            'unread': this.collection.unread_count()
+            'inbox': this.collection.othercounts('inbox'),
+            'primary': this.collection.categorycounts('primary'),
+            'social':this.collection.categorycounts('social'),
+            'promotions':this.collection.categorycounts('promotions'),
+            'updates':this.collection.categorycounts('updates'),
+            'forums':this.collection.categorycounts('forums'),
+            'archived':this.collection.categorycounts('archived'),
+            'sent':this.collection.categorycounts('sent'),
+            'starred':this.collection.othercounts('star'),
+            'unread': this.collection.othercounts('unread')
         }));
-        if (typeof(currentlyactive) === 'undefined'){
+        if (typeof(currentlyactive)[0] === 'undefined'){
             $('#inbox').parent().addClass('active');
-        } else  if(typeof(currentlyactive) === 'object'){
-            window.active.addClass('active');
+        } else {
+            $('#'+currentlyactive.find('a').attr('id')).parent().addClass('active');
         }
     },
 
@@ -374,7 +383,7 @@ var GridList = Backbone.Collection.extend({
 });
 
 var GridView = Backbone.View.extend({
-    el: window.mailapp,
+    //el: window.mailapp,
     //emailreplytemplate: _.template($("#emailreply-template").html()),
     emailreplytemplate: Handlebars.getTemplate("email-reply"),
 
@@ -405,7 +414,7 @@ var GridView = Backbone.View.extend({
         });
         this.timeline.setGroups(groupDataSet);
         this.timeline.setItems(itemDataSet);
-        $('body').append('<div id="overlay"></div>');
+        //$('body').append('<div id="overlay"></div>');
     },
 
     truncateTitle: function (title) {

@@ -163,8 +163,15 @@ def parse_thread(emailthread):
         threaditems['category'] = 'promotions'
     if 'CATEGORY_SOCIAL' in emailthread[1]['labelIds']:
         threaditems['category'] = 'social'
-    if 'CATEGORY_SOCIAL' not in emailthread[1]['labelIds'] and 'CATEGORY_PROMOTIONS' not in emailthread[1]['labelIds']:
+    if 'CATEGORY_UPDATES' in emailthread[1]['labelIds']:
+        threaditems['category'] = 'updates'
+    if 'CATEGORY_FORUMS' in emailthread[1]['labelIds']:
+        threaditems['category'] = 'forums'
+    if 'INBOX' in emailthread[1]['labelIds'] and 'CATEGORY_SOCIAL' not in emailthread[1]['labelIds'] \
+            and 'CATEGORY_PROMOTIONS' not in emailthread[1]['labelIds'] and 'CATEGORY_UPDATES' not in emailthread[1]['labelIds']:
         threaditems['category'] = 'primary'
+    if 'SENT' in emailthread[1]['labelIds']:
+        threaditems['category'] = 'sent'
     if 'INBOX' in emailthread[1]['labelIds']:
         threaditems['inbox'] = True
     else:

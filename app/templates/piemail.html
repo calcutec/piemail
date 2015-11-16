@@ -21,25 +21,26 @@
             </span>
             <div id="headerwrapper">
                 <ul class="grouped">
-                    <li style="margin-right:5px;"><a href="#" class="bttn red">COMPOSE</a></li>
+                    <li style="margin-right:5px;"><a id="compose" href="#" class="bttn red">COMPOSE</a></li>
                     <li>
                         <select title="actions" id="actions" class="bttn">
                             <option value="0"> Actions </option>
                             <optgroup label="Show">
                                 <option>Only Unread</option>
                                 <option>Only Read</option>
+                                <option>Only Starred</option>
                             </optgroup>
                             <optgroup label="Mark">
-                                <option>Mark as Read</option>
-                                <option>Mark as Unread</option>
+                                <option>Mark selected as Read</option>
+{#                                <option>Mark as Unread</option>#}
                                 <option>Mark all as Read</option>
 {#                                <option>Mark all as Unread</option>#}
                             </optgroup>
                             <optgroup label="Move">
-                                <option>Inbox</option>
                                 <option>Primary</option>
                                 <option>Social</option>
                                 <option>Promotions</option>
+                                <option>Updates</option>
                                 <option>Archive</option>
                             </optgroup>
                             <optgroup label="Label">
@@ -52,16 +53,12 @@
                     </li>
                     <li><a href="#" class="bttn icon refresh">Refresh</a></li>
                     <li><a href="#" id="gridview" class="bttn">Grid View</a></li>
-                    <li><a href="#" class="bttn icon delete">Delete</a></li>
+                    <li><a id="trash" href="#" class="bttn icon delete">Delete</a></li>
 {#                    <li><a href="#" class="bttn icon folder">New Folder</a></li>#}
                 </ul>
                 <div id="summary">
                     <ul class="grouped" id="sidemenu">&nbsp;</ul>
                 </div>
-                <span class="gridfunctions hidden">
-                    <span><button id="fit">Fit All</button></span>
-                    <span><button id="window1">This Week</button></span>
-                </span>
             </div>
         </header>
         <div id="content">
