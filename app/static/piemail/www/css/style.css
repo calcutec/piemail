@@ -10,6 +10,14 @@ font-family: source-sans-pro, sans-serif;
 width:100%;
 }
 
+#headerwrapper {
+    float: left;
+    width: 100%;
+    margin-left: 5px;
+    min-width: 320px;
+}
+
+
 .button {
     float: left;
     text-align: center;
@@ -225,35 +233,48 @@ background: #B0E0E6;
 color: white;
 }
 
-#headerwrapper {
+.emailwrapper {
     float: left;
     width: 100%;
     margin-left: 5px;
     min-width: 320px;
+    background:oldlace;
 }
 
-.headerwrapper, .snippet {
-background:oldlace;
-padding: 5px;
-display:block;
-}
-
-.bodywrapper #fullbody-wrap{
-position: relative;
-display:none;
+#fullbody-wrap{
+float:left;
+margin-left:8px;
 background:snow;
-border:2px solid oldlace;
-padding-right:5px;
-z-index:9000;
 }
 
-.bodywrapper:hover #fullbody-wrap {
-display:block;
-}
 
-.bodywrapper:hover .snippet {
-    display:none;
-}
+
+/*
+** Original email layout
+*/
+
+/*.emailwrapper, .snippet {*/
+/*background:oldlace;*/
+/*padding: 5px;*/
+/*display:block;*/
+/*}*/
+
+/*.bodywrapper #fullbody-wrap{*/
+/*position: relative;*/
+/*display:none;*/
+/*background:snow;*/
+/*border:2px solid oldlace;*/
+/*padding-right:5px;*/
+/*z-index:9000;*/
+/*}*/
+
+/*.bodywrapper:hover #fullbody-wrap {*/
+/*display:block;*/
+/*}*/
+
+/*.bodywrapper:hover .snippet {*/
+    /*display:none;*/
+/*}*/
 
 .hidden {
     display:none;

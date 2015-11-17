@@ -1,12 +1,21 @@
-<div class="headerwrapper">
-    <div class="sender"><strong>{{ordinal}} :: {{sender}}</strong></div>
-    <!--<div class="timestamp">{{formattedDate}}</div>-->
-    <div class="timestamp">{{timestamp}}</div>
-</div>
-<div class="bodywrapper">
-    <div class="snippet">
-        <div class="mail-snippet">{{snippet}}</div>
-    </div>
+<!--<div class="headerwrapper">-->
+    <!--<div class="sender"><strong>{{ordinal}} :: {{sender}}</strong></div>-->
+    <!--&lt;!&ndash;<div class="timestamp">{{formattedDate}}</div>&ndash;&gt;-->
+    <!--<div class="timestamp">{{timestamp}}</div>-->
+<!--</div>-->
+<!--<div class="bodywrapper">-->
+    <!--<div class="snippet">-->
+        <!--<div class="mail-snippet">{{snippet}}</div>-->
+    <!--</div>-->
+    <!--<div id="fullbody-wrap">-->
+        <!--<object id="preview_{{id}}" type="text/html" data="/emaildata/{{id}}"></object>-->
+    <!--</div>-->
+<!--</div>-->
+
+
+<div class="emailwrapper">
+    <div class="sender" style="width:100%"><strong>{{ordinal}} :: {{{sender}}}</strong></div>
+    <div class="timestamp" style="width:45%">{{timestamp}}</div>
     <div id="fullbody-wrap">
         <object id="preview_{{id}}" type="text/html" data="/emaildata/{{id}}"></object>
     </div>

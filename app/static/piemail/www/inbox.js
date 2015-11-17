@@ -412,7 +412,7 @@ var GridView = Backbone.View.extend({
     events: {
         "click #fit": "fitall",
         "click #moveTo": "moveto",
-        "click #visualization": "handleTimelineEvents",
+        //"click #visualization": "handleTimelineEvents",
         "click #window1": "setwindow",
         "click #previousweek": "previousweek"
     },
