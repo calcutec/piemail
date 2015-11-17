@@ -99,7 +99,7 @@ def index():
     # context = newcollection
     # output = template(context)
     # cache.set(credentials.access_token, newcollection, 15)
-    return render_template("piemail.html", output="woe is me")
+    return render_template("piemail.html", output="woe is me2")
 
 
 @app.route('/inbox', methods=['GET', 'POST', 'OPTIONS'])
