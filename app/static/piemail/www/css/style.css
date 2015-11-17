@@ -41,13 +41,6 @@ width:100%;
     height: 32px;
 }
 
-#headerwrapper {
-    float: left;
-    width: 100%;
-    margin-left: 5px;
-    min-width: 320px;
-}
-
 #actions {
 margin-right: 5px;
 height: 32px;
@@ -230,6 +223,13 @@ background: #B0E0E6;
 .vis-time-axis .vis-text.vis-saturday,
 .vis-time-axis .vis-text.vis-sunday {
 color: white;
+}
+
+#headerwrapper {
+    float: left;
+    width: 100%;
+    margin-left: 5px;
+    min-width: 320px;
 }
 
 .headerwrapper, .snippet {

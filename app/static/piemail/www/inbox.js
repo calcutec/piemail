@@ -66,7 +66,9 @@ var MailView = Backbone.View.extend({
         "click .mail-subject,.sender" : "markRead",
         "click .mail-snippet" : "getMail",
         "click .star" : "star",
-        "click .check" : "select"
+        "click .check" : "select",
+        "click .closepreview" : "closepreview",
+        "click .showmailtimeline" : "showMailTimeLine"
     },
 
     initialize: function() {
@@ -91,23 +93,39 @@ var MailView = Backbone.View.extend({
         this.model.starMail();
     },
 
+    closepreview: function(e) {
+        e.preventDefault();
+		this.render();
+    },
+
     select: function(){
         this.model.selectMail();
     },
 
-    getMail: function() {
+    getMail: function(e) {
+        e.preventDefault();
         var currentitem = $(this.el);
         currentitem.html('');
         currentitem.html(this.fullmailTemplate(this.model.toJSON()))
+    },
+
+    showMailTimeLine: function(e) {
+        e.preventDefault();
+        var currentitem = $(this.el);
+        //var iframe = currentitem.find('iframe');
+        //this.remove(iframe);
+        //currentitem.html(this.timelineTemplate())
+        currentitem.html('');
+        currentitem.html(this.timelineTemplate())
+        this.getThread(this.model.get('id'), currentitem);
+    },
+
+    getThread: function(threadid, mailitem){
+        var gridlist = new GridList();
+        gridlist.showThread(threadid, function(){
+            window.newgridview = new GridView({collection: self, el:mailitem})
+        });
     }
-
-
-    //getMail: function() {
-    //    var currentitem = $(this.el);
-    //    currentitem.html('');
-    //    currentitem.html(this.timelineTemplate())
-    //    this.model.collection.getThread(this.model.get('id'), currentitem);
-    //}
 });
 
 var MailList = Backbone.Collection.extend({
@@ -149,14 +167,6 @@ var MailList = Backbone.Collection.extend({
 
     othercounts: function(item){
         return (this.filter( function(mail) { return mail.get(item)})).length;
-    },
-
-    getThread: function(threadid, mailitem){
-        var gridlist = new GridList();
-        gridlist.getThread(threadid, function(){
-            $('.gridfunctions').removeClass("hidden");
-            window.newgridview = new GridView({collection: self, el:mailitem})
-        });
     },
 
     search: function(word){
@@ -355,7 +365,7 @@ var GridList = Backbone.Collection.extend({
         return Backbone.ajaxSync('read', this, options);
     },
 
-    getThread: function (threadid, callback) {
+    showThread: function (threadid, callback) {
         window.self = this;
         var request = $.ajax({
             url: "/threadslist",
@@ -516,6 +526,7 @@ var GridView = Backbone.View.extend({
         }
     }
 });
+
 
 startapp = function () {
     $('#mailapp').removeClass("hidden");
