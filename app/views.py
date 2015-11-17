@@ -66,7 +66,6 @@ def crossdomain(origin=None, methods=None, headers=None,
 
 
 @app.route('/')
-@crossdomain(origin='*')
 def index():
     source = open('/Users/bburton/piemail/app/static/piemail/www/libs/templates/email-list.handlebars', "r")\
         .read().decode('utf-8')
@@ -104,7 +103,6 @@ def index():
 
 
 @app.route('/inbox', methods=['GET', 'POST'])
-@crossdomain(origin='*')
 def inbox():
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
@@ -116,7 +114,6 @@ def inbox():
 
 
 @app.route('/signmeout', methods=['GET', 'POST'])
-@crossdomain(origin='*')
 def signmeout():
     if request.is_xhr:
         return json.dumps({'status': 'OK', 'redirect_url': '/signmeout'})
@@ -127,7 +124,6 @@ def signmeout():
 
 
 @app.route('/threadslist', methods=['POST', 'GET'])
-@crossdomain(origin='*')
 def threadslist():
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
@@ -176,7 +172,6 @@ def processmessages(request_id, response, exception):
 
 
 @app.route('/emaildata/<emailid>')
-@crossdomain(origin='*')
 def emaildata(emailid):
     return render_template('emaildata.html', emailid=emailid)
 
@@ -285,7 +280,7 @@ def gethtmlpart(parts):
     return ''
 
 
-@app.route('/oauth2callback')
+@app.route('/oauth2callback', methods=['POST', 'GET', 'OPTIONS'])
 @crossdomain(origin='*')
 def oauth2callback(final_url='index'):
     flow = client.flow_from_clientsecrets(
