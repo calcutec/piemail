@@ -69,38 +69,37 @@ def index():
     basedir = os.path.abspath(os.path.dirname(__file__))
     templatedir = os.path.join(basedir, 'static/piemail/www/libs/templates/email-list.handlebars')
     source = open(templatedir, "r").read().decode('utf-8')
-    return render_template("testtemplate.html")
 
-    # template = compiler.compile(source)
-    # if 'credentials' not in session:
-    #     return redirect(url_for('oauth2callback'))
-    # credentials = client.OAuth2Credentials.from_json(session['credentials'])
-    # if credentials.access_token_expired:
-    #     return redirect(url_for('oauth2callback'))
-    # else:
-    #     http_auth = credentials.authorize(httplib2.Http())
-    #
-    # service = discovery.build('gmail', 'v1', http=http_auth)
-    # results = service.users().threads().list(userId='me', maxResults=50, fields="threads/id", q="in:inbox").execute()
-    #
-    # batch = service.new_batch_http_request(callback=processthreads)
-    # for thread in results['threads']:
-    #     batch.add(service.users().threads().get(userId='me', id=thread['id']))
-    #     # batch.add(service.users().threads().get(userId='me', id=thread['id'],
-    #     #                                 fields="messages/snippet, messages/internalDate, messages/labelIds, "
-    #     #                                        "messages/threadId, messages/payload/headers"))
-    # batch.execute()
-    # for emailthread in fullmessageset:
-    #     # t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
-    #     # t.start()
-    #     parse_thread(emailthread)
-    # newcollection = deepcopy(parsedmessageset)
-    # fullmessageset[:] = []
-    # parsedmessageset[:] = []
-    # context = newcollection
-    # output = template(context)
-    # cache.set(credentials.access_token, newcollection, 15)
-    # return render_template("piemail.html", output=output)
+    template = compiler.compile(source)
+    if 'credentials' not in session:
+        return redirect(url_for('oauth2callback'))
+    credentials = client.OAuth2Credentials.from_json(session['credentials'])
+    if credentials.access_token_expired:
+        return redirect(url_for('oauth2callback'))
+    else:
+        http_auth = credentials.authorize(httplib2.Http())
+
+    service = discovery.build('gmail', 'v1', http=http_auth)
+    results = service.users().threads().list(userId='me', maxResults=50, fields="threads/id", q="in:inbox").execute()
+
+    batch = service.new_batch_http_request(callback=processthreads)
+    for thread in results['threads']:
+        batch.add(service.users().threads().get(userId='me', id=thread['id']))
+        # batch.add(service.users().threads().get(userId='me', id=thread['id'],
+        #                                 fields="messages/snippet, messages/internalDate, messages/labelIds, "
+        #                                        "messages/threadId, messages/payload/headers"))
+    batch.execute()
+    for emailthread in fullmessageset:
+        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
+        t.start()
+        # parse_thread(emailthread)
+    newcollection = deepcopy(parsedmessageset)
+    fullmessageset[:] = []
+    parsedmessageset[:] = []
+    context = newcollection
+    output = template(context)
+    cache.set(credentials.access_token, newcollection, 15)
+    return render_template("piemail.html", output=output)
 
 
 @app.route('/inbox', methods=['GET', 'POST', 'OPTIONS'])
