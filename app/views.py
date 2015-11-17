@@ -90,9 +90,9 @@ def index():
         #                                        "messages/threadId, messages/payload/headers"))
     batch.execute()
     for emailthread in fullmessageset:
-        # t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
-        # t.start()
-        parse_thread(emailthread)
+        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
+        t.start()
+        # parse_thread(emailthread)
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
