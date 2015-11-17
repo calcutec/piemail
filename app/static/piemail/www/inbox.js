@@ -464,7 +464,8 @@ var GridView = Backbone.View.extend({
                 }
 
             } else {
-                this.renderemailbody(props);
+                //this.renderemailbody(props);
+                console.log('feature under construction')
             }
         }
     },
@@ -503,7 +504,7 @@ var GridView = Backbone.View.extend({
         var emailbody = this.emailreplytemplate({'id': currentid});
         var overlay = document.getElementById('overlay');
         overlay.style.opacity = .7;
-        $('#visualization').append(emailbody);
+        $('body').append(emailbody);
         $('#overlay, #emailreply').fadeIn(300);
     },
 
