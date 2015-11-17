@@ -17,7 +17,6 @@ from flask import make_response, current_app
 from functools import update_wrapper
 
 compiler = Compiler()
-basedir = os.path.abspath(os.path.dirname(__file__))
 
 fullmessageset = []
 parsedmessageset = []
@@ -67,8 +66,9 @@ def crossdomain(origin=None, methods=None, headers=None,
 
 @app.route('/')
 def index():
-    source = open('/Users/bburton/piemail/app/static/piemail/www/libs/templates/email-list.handlebars', "r")\
-        .read().decode('utf-8')
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    templatedir = os.path.join(basedir, 'static/piemail/www/libs/templates/email-list.handlebars')
+    source = open(templatedir, "r").read().decode('utf-8')
 
     template = compiler.compile(source)
     if 'credentials' not in session:
@@ -90,9 +90,9 @@ def index():
         #                                        "messages/threadId, messages/payload/headers"))
     batch.execute()
     for emailthread in fullmessageset:
-        # t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
-        # t.start()
-        parse_thread(emailthread)
+        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
+        t.start()
+        # parse_thread(emailthread)
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
@@ -102,7 +102,8 @@ def index():
     return render_template("piemail.html", output=output)
 
 
-@app.route('/inbox', methods=['GET', 'POST'])
+@app.route('/inbox', methods=['GET', 'POST', 'OPTIONS'])
+@crossdomain(origin='*')
 def inbox():
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
@@ -113,7 +114,8 @@ def inbox():
     return json.dumps({'newcollection': cachedcollection})
 
 
-@app.route('/signmeout', methods=['GET', 'POST'])
+@app.route('/signmeout', methods=['GET', 'POST', 'OPTIONS'])
+@crossdomain(origin='*')
 def signmeout():
     if request.is_xhr:
         return json.dumps({'status': 'OK', 'redirect_url': '/signmeout'})
@@ -123,7 +125,8 @@ def signmeout():
     return render_template("login.html")
 
 
-@app.route('/threadslist', methods=['POST', 'GET'])
+@app.route('/threadslist', methods=['POST', 'GET', 'OPTIONS'])
+@crossdomain(origin='*')
 def threadslist():
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
@@ -171,7 +174,8 @@ def processmessages(request_id, response, exception):
         fullmessageset.append((request_id, response))
 
 
-@app.route('/emaildata/<emailid>')
+@app.route('/emaildata/<emailid>', methods=['POST', 'GET', 'OPTIONS'])
+@crossdomain(origin='*')
 def emaildata(emailid):
     return render_template('emaildata.html', emailid=emailid)
 
