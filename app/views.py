@@ -12,6 +12,10 @@ import re
 from pybars import Compiler
 from app import cache
 
+from datetime import timedelta
+from flask import make_response, current_app
+from functools import update_wrapper
+
 compiler = Compiler()
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -19,7 +23,50 @@ fullmessageset = []
 parsedmessageset = []
 
 
+def crossdomain(origin=None, methods=None, headers=None,
+                max_age=21600, attach_to_all=True,
+                automatic_options=True):
+    if methods is not None:
+        methods = ', '.join(sorted(x.upper() for x in methods))
+    if headers is not None and not isinstance(headers, basestring):
+        headers = ', '.join(x.upper() for x in headers)
+    if not isinstance(origin, basestring):
+        origin = ', '.join(origin)
+    if isinstance(max_age, timedelta):
+        max_age = max_age.total_seconds()
+
+    def get_methods():
+        if methods is not None:
+            return methods
+
+        options_resp = current_app.make_default_options_response()
+        return options_resp.headers['allow']
+
+    def decorator(f):
+        def wrapped_function(*args, **kwargs):
+            if automatic_options and request.method == 'OPTIONS':
+                resp = current_app.make_default_options_response()
+            else:
+                resp = make_response(f(*args, **kwargs))
+            if not attach_to_all and request.method != 'OPTIONS':
+                return resp
+
+            h = resp.headers
+
+            h['Access-Control-Allow-Origin'] = origin
+            h['Access-Control-Allow-Methods'] = get_methods()
+            h['Access-Control-Max-Age'] = str(max_age)
+            if headers is not None:
+                h['Access-Control-Allow-Headers'] = headers
+            return resp
+
+        f.provide_automatic_options = False
+        return update_wrapper(wrapped_function, f)
+    return decorator
+
+
 @app.route('/')
+@crossdomain(origin='*')
 def index():
     source = open('/Users/bburton/piemail/app/static/piemail/www/libs/templates/email-list.handlebars', "r")\
         .read().decode('utf-8')
@@ -57,6 +104,7 @@ def index():
 
 
 @app.route('/inbox', methods=['GET', 'POST'])
+@crossdomain(origin='*')
 def inbox():
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
@@ -68,6 +116,7 @@ def inbox():
 
 
 @app.route('/signmeout', methods=['GET', 'POST'])
+@crossdomain(origin='*')
 def signmeout():
     if request.is_xhr:
         return json.dumps({'status': 'OK', 'redirect_url': '/signmeout'})
@@ -78,6 +127,7 @@ def signmeout():
 
 
 @app.route('/threadslist', methods=['POST', 'GET'])
+@crossdomain(origin='*')
 def threadslist():
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
@@ -126,6 +176,7 @@ def processmessages(request_id, response, exception):
 
 
 @app.route('/emaildata/<emailid>')
+@crossdomain(origin='*')
 def emaildata(emailid):
     return render_template('emaildata.html', emailid=emailid)
 
@@ -235,6 +286,7 @@ def gethtmlpart(parts):
 
 
 @app.route('/oauth2callback')
+@crossdomain(origin='*')
 def oauth2callback(final_url='index'):
     flow = client.flow_from_clientsecrets(
         'client_secrets.json',
@@ -259,3 +311,4 @@ def not_found_error(error):
 @app.errorhandler(500)
 def internal_error(error):
     return render_template('500.html', error=error), 500
+
