@@ -60,6 +60,7 @@ var MailView = Backbone.View.extend({
     className: "mail",
     template: Handlebars.getTemplate("mail-item"),
     timelineTemplate: Handlebars.getTemplate("timeline"),
+    fullmailTemplate: Handlebars.getTemplate("fullmailTemplate"),
 
     events: {
         "click .mail-subject,.sender" : "markRead",
@@ -97,9 +98,16 @@ var MailView = Backbone.View.extend({
     getMail: function() {
         var currentitem = $(this.el);
         currentitem.html('');
-        currentitem.html(this.timelineTemplate())
-        this.model.collection.getThread(this.model.get('id'), currentitem);
+        currentitem.html(this.fullmailTemplate(this.model.toJSON()))
     }
+
+
+    //getMail: function() {
+    //    var currentitem = $(this.el);
+    //    currentitem.html('');
+    //    currentitem.html(this.timelineTemplate())
+    //    this.model.collection.getThread(this.model.get('id'), currentitem);
+    //}
 });
 
 var MailList = Backbone.Collection.extend({
@@ -182,6 +190,7 @@ var InboxView = Backbone.View.extend({
         "click #social": "dispatchevent",
         "click #promotions": "dispatchevent",
         "click #updates": "dispatchevent",
+        "click #forums": "dispatchevent",
         "click #archived": "dispatchevent",
         "click #star": "dispatchevent",
         "click #unread": "dispatchevent",
@@ -384,7 +393,6 @@ var GridList = Backbone.Collection.extend({
 
 var GridView = Backbone.View.extend({
     //el: window.mailapp,
-    //emailreplytemplate: _.template($("#emailreply-template").html()),
     emailreplytemplate: Handlebars.getTemplate("email-reply"),
 
     initialize: function () {
@@ -414,7 +422,7 @@ var GridView = Backbone.View.extend({
         });
         this.timeline.setGroups(groupDataSet);
         this.timeline.setItems(itemDataSet);
-        //$('body').append('<div id="overlay"></div>');
+        $('body').append('<div id="overlay"></div>');
     },
 
     truncateTitle: function (title) {

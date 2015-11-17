@@ -38,14 +38,15 @@ def index():
 
     batch = service.new_batch_http_request(callback=processthreads)
     for thread in results['threads']:
-        batch.add(service.users().threads().get(userId='me', id=thread['id'],
-                                                fields="messages/snippet, messages/internalDate, messages/labelIds, "
-                                                       "messages/threadId, messages/payload/headers"))
+        batch.add(service.users().threads().get(userId='me', id=thread['id']))
+        # batch.add(service.users().threads().get(userId='me', id=thread['id'],
+        #                                 fields="messages/snippet, messages/internalDate, messages/labelIds, "
+        #                                        "messages/threadId, messages/payload/headers"))
     batch.execute()
     for emailthread in fullmessageset:
-        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
-        t.start()
-        # parse_thread(emailthread)
+        # t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
+        # t.start()
+        parse_thread(emailthread)
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
@@ -167,8 +168,11 @@ def parse_thread(emailthread):
         threaditems['category'] = 'updates'
     if 'CATEGORY_FORUMS' in emailthread[1]['labelIds']:
         threaditems['category'] = 'forums'
-    if 'INBOX' in emailthread[1]['labelIds'] and 'CATEGORY_SOCIAL' not in emailthread[1]['labelIds'] \
-            and 'CATEGORY_PROMOTIONS' not in emailthread[1]['labelIds'] and 'CATEGORY_UPDATES' not in emailthread[1]['labelIds']:
+    if 'INBOX' in emailthread[1]['labelIds'] \
+            and 'CATEGORY_SOCIAL' not in emailthread[1]['labelIds'] \
+            and 'CATEGORY_PROMOTIONS' not in emailthread[1]['labelIds'] \
+            and 'CATEGORY_UPDATES' not in emailthread[1]['labelIds'] \
+            and 'CATEGORY_FORUMS' not in emailthread[1]['labelIds']:
         threaditems['category'] = 'primary'
     if 'SENT' in emailthread[1]['labelIds']:
         threaditems['category'] = 'sent'
@@ -184,6 +188,7 @@ def parse_thread(emailthread):
     threaditems['sender'] = getheaders(emailthread[1], "From")
     threaditems['subject'] = getheaders(emailthread[1], "Subject")
     threaditems['ordinal'] = emailthread[0]
+    threaditems['body'] = getbody(emailthread[1])
     threaditems['rawtimestamp'] = emailthread[1]['internalDate']
     parsedmessageset.append(threaditems)
 
