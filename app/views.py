@@ -66,11 +66,11 @@ def crossdomain(origin=None, methods=None, headers=None,
 
 @app.route('/')
 def index():
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    templatedir = os.path.join(basedir, 'static/piemail/www/libs/templates/email-list.handlebars')
-    source = open(templatedir, "r").read().decode('utf-8')
-
-    template = compiler.compile(source)
+    # basedir = os.path.abspath(os.path.dirname(__file__))
+    # templatedir = os.path.join(basedir, 'static/piemail/www/libs/templates/email-list.handlebars')
+    # source = open(templatedir, "r").read().decode('utf-8')
+    #
+    # template = compiler.compile(source)
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
@@ -90,16 +90,16 @@ def index():
         #                                        "messages/threadId, messages/payload/headers"))
     batch.execute()
     for emailthread in fullmessageset:
-        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
-        t.start()
-        # parse_thread(emailthread)
+        # t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
+        # t.start()
+        parse_thread(emailthread)
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
-    context = newcollection
-    output = template(context)
-    cache.set(credentials.access_token, newcollection, 15)
-    return render_template("piemail.html", output=output)
+    # context = newcollection
+    # output = template(context)
+    # cache.set(credentials.access_token, newcollection, 15)
+    return render_template("piemail.html", output="woe is me")
 
 
 @app.route('/inbox', methods=['GET', 'POST', 'OPTIONS'])
