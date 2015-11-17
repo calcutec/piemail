@@ -66,9 +66,9 @@ def crossdomain(origin=None, methods=None, headers=None,
 
 @app.route('/')
 def index():
-    # basedir = os.path.abspath(os.path.dirname(__file__))
-    # templatedir = os.path.join(basedir, 'static/piemail/www/libs/templates/email-list.handlebars')
-    # source = open(templatedir, "r").read().decode('utf-8')
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    templatedir = os.path.join(basedir, 'static/piemail/www/libs/templates/email-list.handlebars')
+    source = open(templatedir, "r").read().decode('utf-8')
     return render_template("testtemplate.html")
 
     # template = compiler.compile(source)
