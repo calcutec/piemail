@@ -220,7 +220,7 @@ text-overflow: ellipsis;
 }
 
 .vis-item.vis-point.vis-selected, .vis-item.vis-selected {
-background-color: transparent;
+background-color: transparent !important;
 }
 
 /* gray background in weekends, white text color */

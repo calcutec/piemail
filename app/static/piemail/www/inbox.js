@@ -63,8 +63,8 @@ var MailView = Backbone.View.extend({
     fullmailTemplate: Handlebars.getTemplate("fullmailTemplate"),
 
     events: {
-        "click .mail-subject,.sender" : "markRead",
-        "click .mail-snippet" : "getMail",
+        //"click .mail-subject,.sender" : "markRead",
+        "click .mail-snippet, .mail-subject, .sender" : "getMail",
         "click .star" : "star",
         "click .check" : "select",
         "click .closepreview" : "closepreview",
@@ -85,11 +85,17 @@ var MailView = Backbone.View.extend({
         $(this.el).remove();
     },
 
-    markRead: function() {
-        this.model.markRead();
+    markRead: function(e) {
+        if(typeof(e) === "undefined"){
+            this.model.markRead();
+        } else {
+            e.preventDefault();
+            this.model.markRead();
+        }
     },
 
-    star: function() {
+    star: function(e) {
+        e.preventDefault();
         this.model.starMail();
     },
 
@@ -104,6 +110,7 @@ var MailView = Backbone.View.extend({
 
     getMail: function(e) {
         e.preventDefault();
+        this.markRead();
         var currentitem = $(this.el);
         currentitem.html('');
         currentitem.html(this.fullmailTemplate(this.model.toJSON()))
@@ -111,6 +118,7 @@ var MailView = Backbone.View.extend({
 
     showMailTimeLine: function(e) {
         e.preventDefault();
+        this.markRead();
         var currentitem = $(this.el);
         //var iframe = currentitem.find('iframe');
         //this.remove(iframe);
@@ -412,7 +420,7 @@ var GridView = Backbone.View.extend({
     events: {
         "click #fit": "fitall",
         "click #moveTo": "moveto",
-        //"click #visualization": "handleTimelineEvents",
+        "click #visualization": "handleTimelineEvents",
         "click #window1": "setwindow",
         "click #previousweek": "previousweek"
     },
