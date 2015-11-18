@@ -96,7 +96,7 @@ def inbox():
     return json.dumps({'newcollection': collection})
 
 
-@app.cache.cached(timeout=1, key_prefix="storedmail")
+@cache.cached(timeout=1, key_prefix="storedmail")
 def getcontext(http_auth=None):
     service = discovery.build('gmail', 'v1', http=http_auth)
     results = service.users().threads().list(userId='me', maxResults=50, fields="threads/id", q="in:inbox").execute()

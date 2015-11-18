@@ -113,26 +113,18 @@ var MailView = Backbone.View.extend({
         this.markRead();
         var currentitem = $(this.el);
         currentitem.html('');
-        currentitem.html(this.fullmailTemplate(this.model.toJSON()))
+        currentitem.html(this.fullmailTemplate(this.model.toJSON()));
+        window.gridlist = new GridList();
+        window.gridlist.showThread(this.model.id);
     },
 
     showMailTimeLine: function(e) {
         e.preventDefault();
         this.markRead();
         var currentitem = $(this.el);
-        //var iframe = currentitem.find('iframe');
-        //this.remove(iframe);
-        //currentitem.html(this.timelineTemplate())
         currentitem.html('');
         currentitem.html(this.timelineTemplate());
-        this.getThread(this.model.get('id'), currentitem);
-    },
-
-    getThread: function(threadid, mailitem){
-        var gridlist = new GridList();
-        gridlist.showThread(threadid, function(){
-            window.newgridview = new GridView({collection: self, el:mailitem})
-        });
+        window.newgridview = new GridView({collection: window.gridlist, el:currentitem});
     }
 });
 
@@ -399,12 +391,13 @@ var GridList = Backbone.Collection.extend({
                 window.self.add(mailitem);
                 mailitem.save();
                 if (i == itemcount - 1){
-                    callback();
+                    console.log("all done")
                 }
             });
         });
         request.fail(function( jqXHR, textStatus ) {
-            callback( "Request failed: " + textStatus );
+            //callback( "Request failed: " + textStatus );
+            console.log(textStatus)
         });
     }
 });
