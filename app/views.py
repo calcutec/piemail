@@ -69,8 +69,7 @@ def index():
     basedir = os.path.abspath(os.path.dirname(__file__))
     templatedir = os.path.join(basedir, 'static/piemail/www/libs/templates/email-list.handlebars')
     source = open(templatedir, "r").read().decode('utf-8')
-    #
-    # template = compiler.compile(source)
+    template = compiler.compile(source)
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
