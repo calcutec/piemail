@@ -108,18 +108,18 @@ def index():
 @app.route('/inbox', methods=['GET', 'POST', 'OPTIONS'])
 @crossdomain(origin='*')
 def inbox():
-    newcollection = getcachedthreads()
-    if newcollection:
-        return json.dumps({'newcollection': newcollection})
-    else:
-        if 'credentials' not in session:
-            return redirect(url_for('oauth2callback', final_url='inbox'))
-        credentials = client.OAuth2Credentials.from_json(session['credentials'])
-        if credentials.access_token_expired:
-            return redirect(url_for('oauth2callback', final_url='inbox'))
-        http_auth = credentials.authorize(httplib2.Http())
-        newcollection = getcontext(http_auth)
-        return json.dumps({'newcollection': newcollection})
+    # newcollection = getcachedthreads()
+    # if newcollection:
+    #     return json.dumps({'newcollection': newcollection})
+    # else:
+    if 'credentials' not in session:
+        return redirect(url_for('oauth2callback', final_url='inbox'))
+    credentials = client.OAuth2Credentials.from_json(session['credentials'])
+    if credentials.access_token_expired:
+        return redirect(url_for('oauth2callback', final_url='inbox'))
+    http_auth = credentials.authorize(httplib2.Http())
+    newcollection = getcontext(http_auth)
+    return json.dumps({'newcollection': newcollection})
 
 
 def getcontext(http_auth=None):
@@ -138,9 +138,9 @@ def getcontext(http_auth=None):
                                                                                      "messages/payload/headers"))
     batch.execute()
     for emailthread in fullmessageset:
-        # t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
-        # t.start()
-        parse_thread(emailthread)
+        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
+        t.start()
+        # parse_thread(emailthread)
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
