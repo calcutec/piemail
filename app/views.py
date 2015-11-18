@@ -64,54 +64,83 @@ def crossdomain(origin=None, methods=None, headers=None,
     return decorator
 
 
-@app.route('/')
+def getcachedthreads():
+    newcollection = None
+    cachedmessagesetids = cache.get('cachedmessagesetids')
+    if cachedmessagesetids:
+        for emailthreadid in cachedmessagesetids:
+            cachedthread = cache.get(emailthreadid['id'])
+            if cachedthread:
+                parsedmessageset.append(cachedthread)
+        newcollection = deepcopy(parsedmessageset)
+        parsedmessageset[:] = []
+    return newcollection
+
+
+@app.route('/', methods=['GET', 'POST', 'OPTIONS'])
+@crossdomain(origin='*')
 def index():
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    templatedir = os.path.join(basedir, 'static/piemail/www/libs/templates/email-list.handlebars')
-    source = open(templatedir, "r").read().decode('utf-8')
-    template = compiler.compile(source)
+    # newcollection = getcachedthreads()
+    # if newcollection:
+    #     return json.dumps({'newcollection': newcollection})
+    # else:
+    #     basedir = os.path.abspath(os.path.dirname(__file__))
+    #     templatedir = os.path.join(basedir, 'static/piemail/www/libs/templates/email-list.handlebars')
+    #     source = open(templatedir, "r").read().decode('utf-8')
+    #     template = compiler.compile(source)
+    #     if 'credentials' not in session:
+    #         return redirect(url_for('oauth2callback'))
+    #     credentials = client.OAuth2Credentials.from_json(session['credentials'])
+    #     if credentials.access_token_expired:
+    #         return redirect(url_for('oauth2callback'))
+    #
+    #     http_auth = credentials.authorize(httplib2.Http())
+    #     context = getcontext(http_auth)
+    #     output = template(context)
     if 'credentials' not in session:
-        return redirect(url_for('oauth2callback'))
+        return redirect(url_for('oauth2callback', final_url='index'))
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
     if credentials.access_token_expired:
-        return redirect(url_for('oauth2callback'))
-
-    http_auth = credentials.authorize(httplib2.Http())
-    context = getcontext(http_auth)
-    output = template(context)
-    return render_template("piemail.html", output=output)
+        return redirect(url_for('oauth2callback', final_url='index'))
+    return render_template("piemail.html", output="content loading...")
 
 
 @app.route('/inbox', methods=['GET', 'POST', 'OPTIONS'])
 @crossdomain(origin='*')
 def inbox():
-    # if 'credentials' not in session:
-    #     return redirect(url_for('oauth2callback'))
-    # credentials = client.OAuth2Credentials.from_json(session['credentials'])
-    # if credentials.access_token_expired:
-    #     return redirect(url_for('oauth2callback'))
-    #
-    # http_auth = credentials.authorize(httplib2.Http())
-    collection = getcontext(http_auth=None)
-    return json.dumps({'newcollection': collection})
+    newcollection = getcachedthreads()
+    if newcollection:
+        return json.dumps({'newcollection': newcollection})
+    else:
+        if 'credentials' not in session:
+            return redirect(url_for('oauth2callback', final_url='inbox'))
+        credentials = client.OAuth2Credentials.from_json(session['credentials'])
+        if credentials.access_token_expired:
+            return redirect(url_for('oauth2callback', final_url='inbox'))
+        http_auth = credentials.authorize(httplib2.Http())
+        newcollection = getcontext(http_auth)
+        return json.dumps({'newcollection': newcollection})
 
 
-@cache.cached(timeout=1, key_prefix="storedmail")
 def getcontext(http_auth=None):
     service = discovery.build('gmail', 'v1', http=http_auth)
     results = service.users().threads().list(userId='me', maxResults=50, fields="threads/id", q="in:inbox").execute()
-
     batch = service.new_batch_http_request(callback=processthreads)
+    cache.set('cachedmessagesetids', results['threads'], timeout=300)  # Cache for 5 minutes
     for thread in results['threads']:
         batch.add(service.users().threads().get(userId='me', id=thread['id']))
-        # batch.add(service.users().threads().get(userId='me', id=thread['id'],
-        #                                 fields="messages/snippet, messages/internalDate, messages/labelIds, "
-        #                                        "messages/threadId, messages/payload/headers"))
+        batch.add(service.users().threads().get(userId='me', id=thread['id'], fields="messages/snippet, "
+                                                                                     "messages/internalDate, "
+                                                                                     "messages/labelIds, "
+                                                                                     "messages/threadId, "
+                                                                                     "messages/payload/parts, "
+                                                                                     "messages/payload/body, "
+                                                                                     "messages/payload/headers"))
     batch.execute()
     for emailthread in fullmessageset:
-        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
-        t.start()
-        # parse_thread(emailthread)
+        # t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
+        # t.start()
+        parse_thread(emailthread)
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
@@ -245,6 +274,7 @@ def parse_thread(emailthread):
     threaditems['ordinal'] = emailthread[0]
     threaditems['body'] = getbody(emailthread[1])
     threaditems['rawtimestamp'] = emailthread[1]['internalDate']
+    cache.set(threaditems['id'], threaditems, timeout=300)  # Cache for 5 minutes
     parsedmessageset.append(threaditems)
 
 
