@@ -23,4 +23,4 @@ if os.environ.get('HEROKU') is not None:
     app.logger.addHandler(stream_handler)
     app.logger.setLevel(logging.INFO)
 
-from app import views
+from app import views, utils

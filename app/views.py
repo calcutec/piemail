@@ -1,9 +1,9 @@
 import httplib2
-import os
 from flask import url_for, session, redirect, request, render_template, jsonify, json
 from apiclient import discovery, errors
 from oauth2client import client
 from app import app
+from utils import crossdomain
 from copy import deepcopy
 import threading
 import datetime
@@ -12,69 +12,9 @@ import re
 from pybars import Compiler
 from app import cache
 
-from datetime import timedelta
-from flask import make_response, current_app
-from functools import update_wrapper
-
 compiler = Compiler()
-
 fullmessageset = []
 parsedmessageset = []
-
-
-def crossdomain(origin=None, methods=None, headers=None,
-                max_age=21600, attach_to_all=True,
-                automatic_options=True):
-    if methods is not None:
-        methods = ', '.join(sorted(x.upper() for x in methods))
-    if headers is not None and not isinstance(headers, basestring):
-        headers = ', '.join(x.upper() for x in headers)
-    if not isinstance(origin, basestring):
-        origin = ', '.join(origin)
-    if isinstance(max_age, timedelta):
-        max_age = max_age.total_seconds()
-
-    def get_methods():
-        if methods is not None:
-            return methods
-
-        options_resp = current_app.make_default_options_response()
-        return options_resp.headers['allow']
-
-    def decorator(f):
-        def wrapped_function(*args, **kwargs):
-            if automatic_options and request.method == 'OPTIONS':
-                resp = current_app.make_default_options_response()
-            else:
-                resp = make_response(f(*args, **kwargs))
-            if not attach_to_all and request.method != 'OPTIONS':
-                return resp
-
-            h = resp.headers
-
-            h['Access-Control-Allow-Origin'] = origin
-            h['Access-Control-Allow-Methods'] = get_methods()
-            h['Access-Control-Max-Age'] = str(max_age)
-            if headers is not None:
-                h['Access-Control-Allow-Headers'] = headers
-            return resp
-
-        f.provide_automatic_options = False
-        return update_wrapper(wrapped_function, f)
-    return decorator
-
-
-def getcachedthreads():
-    newcollection = None
-    cachedmessagesetids = cache.get('cachedmessagesetids')
-    if cachedmessagesetids:
-        for emailthreadid in cachedmessagesetids:
-            cachedthread = cache.get(emailthreadid['id'])
-            if cachedthread:
-                parsedmessageset.append(cachedthread)
-        newcollection = deepcopy(parsedmessageset)
-        parsedmessageset[:] = []
-    return newcollection
 
 
 @app.route('/', methods=['GET', 'POST', 'OPTIONS'])
@@ -126,21 +66,21 @@ def getcontext(http_auth=None):
     service = discovery.build('gmail', 'v1', http=http_auth)
     results = service.users().threads().list(userId='me', maxResults=50, fields="threads/id", q="in:inbox").execute()
     batch = service.new_batch_http_request(callback=processthreads)
-    cache.set('cachedmessagesetids', results['threads'], timeout=300)  # Cache for 5 minutes
+    # cache.set('cachedmessagesetids', results['threads'], timeout=300)  # Cache for 5 minutes
     for thread in results['threads']:
         batch.add(service.users().threads().get(userId='me', id=thread['id']))
-        batch.add(service.users().threads().get(userId='me', id=thread['id'], fields="messages/snippet, "
-                                                                                     "messages/internalDate, "
-                                                                                     "messages/labelIds, "
-                                                                                     "messages/threadId, "
-                                                                                     "messages/payload/parts, "
-                                                                                     "messages/payload/body, "
-                                                                                     "messages/payload/headers"))
+        # batch.add(service.users().threads().get(userId='me', id=thread['id'], fields="messages/snippet, "
+        #                                                                              "messages/internalDate, "
+        #                                                                              "messages/labelIds, "
+        #                                                                              "messages/threadId, "
+        #                                                                              "messages/payload/parts, "
+        #                                                                              "messages/payload/body, "
+        #                                                                              "messages/payload/headers"))
     batch.execute()
     for emailthread in fullmessageset:
-        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
-        t.start()
-        # parse_thread(emailthread)
+        # t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
+        # t.start()
+        parse_thread(emailthread)
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
@@ -214,23 +154,6 @@ def emaildata(emailid):
     return render_template('emaildata.html', emailid=emailid)
 
 
-@app.context_processor
-def inject_static_url():
-    local_static_url = app.static_url_path
-    static_url = 'https://s3.amazonaws.com/netbardus/'
-    if os.environ.get('HEROKU') is not None:
-        local_static_url = static_url
-    if not static_url.endswith('/'):
-        static_url += '/'
-    if not local_static_url.endswith('/'):
-        local_static_url += '/'
-    return dict(
-        static_url=static_url,
-        local_static_url=local_static_url,
-        host_url=request.url_root
-    )
-
-
 def parse_thread(emailthread):
     threaditems = dict()
     # INBOX, CATEGORY_SOCIAL, CATEGORY_PERSONAL, CATEGORY_PROMOTIONS, CATEGORY_FORUMS, CATEGORY_UPDATES, SENT,
@@ -274,7 +197,7 @@ def parse_thread(emailthread):
     threaditems['ordinal'] = emailthread[0]
     threaditems['body'] = getbody(emailthread[1])
     threaditems['rawtimestamp'] = emailthread[1]['internalDate']
-    cache.set(threaditems['id'], threaditems, timeout=300)  # Cache for 5 minutes
+    # cache.set(threaditems['id'], threaditems, timeout=300)  # Cache for 5 minutes
     parsedmessageset.append(threaditems)
 
 
@@ -335,14 +258,3 @@ def oauth2callback(final_url='index'):
         credentials = flow.step2_exchange(auth_code)
         session['credentials'] = credentials.to_json()
         return redirect(url_for(final_url))
-
-
-@app.errorhandler(404)
-def not_found_error(error):
-    return render_template('404.html', error=error), 404
-
-
-@app.errorhandler(500)
-def internal_error(error):
-    return render_template('500.html', error=error), 500
-
