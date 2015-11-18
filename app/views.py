@@ -97,7 +97,7 @@ def index():
     parsedmessageset[:] = []
     context = newcollection
     output = template(context)
-    # cache.set(credentials.access_token, newcollection, 15)
+    cache.set(credentials.access_token, newcollection, 15)
     return render_template("piemail.html", output=output)
 
 
