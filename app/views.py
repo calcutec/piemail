@@ -138,7 +138,7 @@ def processthreads(request_id, response, exception):
     if exception is not None:
         pass
     else:
-        fullmessageset.append((request_id, response['messages'][0]))
+        fullmessageset.append((request_id, response['messages'][-1]))
 
 
 def processmessages(request_id, response, exception):
