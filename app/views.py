@@ -95,10 +95,10 @@ def index():
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
-    # context = newcollection
-    # output = template(context)
+    context = newcollection
+    output = template(context)
     # cache.set(credentials.access_token, newcollection, 15)
-    return render_template("piemail.html", output=source)
+    return render_template("piemail.html", output=output)
 
 
 @app.route('/inbox', methods=['GET', 'POST', 'OPTIONS'])
