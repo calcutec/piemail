@@ -96,10 +96,9 @@ def index():
     fullmessageset[:] = []
     parsedmessageset[:] = []
     context = newcollection
-    # output = template(context)
+    output = template(context)
     # cache.set(credentials.access_token, newcollection, 15)
-    cache.set("foo", "bar")
-    output = cache.get("foo")
+    cache.set("foo", newcollection)
     return render_template("piemail.html", output=output)
 
 
@@ -111,7 +110,7 @@ def inbox():
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
     if credentials.access_token_expired:
         return redirect(url_for('oauth2callback'))
-    cachedcollection = cache.get(credentials.access_token)
+    cachedcollection = cache.get("foo")
     return json.dumps({'newcollection': cachedcollection})
 
 
