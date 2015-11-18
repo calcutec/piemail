@@ -124,7 +124,7 @@ def inbox():
 
 def getcontext(http_auth=None):
     service = discovery.build('gmail', 'v1', http=http_auth)
-    results = service.users().threads().list(userId='me', maxResults=20, fields="threads/id", q="in:inbox").execute()
+    results = service.users().threads().list(userId='me', maxResults=50, fields="threads/id", q="in:inbox").execute()
     batch = service.new_batch_http_request(callback=processthreads)
     cache.set('cachedmessagesetids', results['threads'], timeout=300)  # Cache for 5 minutes
     for thread in results['threads']:
