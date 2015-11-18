@@ -79,27 +79,25 @@ def index():
     http_auth = credentials.authorize(httplib2.Http())
     context = getcontext(http_auth)
     output = template(context)
-
-    # cache.set(credentials.access_token, newcollection, 15)
-    # cache.set("foo", newcollection)
     return render_template("piemail.html", output=output)
 
 
 @app.route('/inbox', methods=['GET', 'POST', 'OPTIONS'])
 @crossdomain(origin='*')
 def inbox():
-    if 'credentials' not in session:
-        return redirect(url_for('oauth2callback'))
-    credentials = client.OAuth2Credentials.from_json(session['credentials'])
-    if credentials.access_token_expired:
-        return redirect(url_for('oauth2callback'))
-
-    http_auth = credentials.authorize(httplib2.Http())
-    collection = getcontext(http_auth)
+    # if 'credentials' not in session:
+    #     return redirect(url_for('oauth2callback'))
+    # credentials = client.OAuth2Credentials.from_json(session['credentials'])
+    # if credentials.access_token_expired:
+    #     return redirect(url_for('oauth2callback'))
+    #
+    # http_auth = credentials.authorize(httplib2.Http())
+    collection = getcontext(http_auth=None)
     return json.dumps({'newcollection': collection})
 
 
-def getcontext(http_auth):
+@app.cache.cached(timeout=1, key_prefix="storedmail")
+def getcontext(http_auth=None):
     service = discovery.build('gmail', 'v1', http=http_auth)
     results = service.users().threads().list(userId='me', maxResults=50, fields="threads/id", q="in:inbox").execute()
 

@@ -124,7 +124,7 @@ var MailView = Backbone.View.extend({
         //this.remove(iframe);
         //currentitem.html(this.timelineTemplate())
         currentitem.html('');
-        currentitem.html(this.timelineTemplate())
+        currentitem.html(this.timelineTemplate());
         this.getThread(this.model.get('id'), currentitem);
     },
 
@@ -250,9 +250,10 @@ var InboxView = Backbone.View.extend({
     applyAction: function(){
         var action = $(':selected', $('#actions')).parent().attr('label');
         var value =  $("#actions").val();
+        var currentlyviewed = $('.active').find('a').attr('id');
         $('#actions').val('0');
         if(action == "Show"){
-            var currentlyviewed = $('.active').find('a').attr('id')
+
             if(value == "Only Unread"){
                 this.show('unread', currentlyviewed);
             } else if(value == "Only Read"){
@@ -261,7 +262,6 @@ var InboxView = Backbone.View.extend({
                 this.show('star', currentlyviewed);
             }
         } else if(action == "Move"){
-            var currentlyviewed = $('.active').find('a').attr('id')
             if(value == "Archive"){
                 this.move('archived', currentlyviewed);
             } else {
