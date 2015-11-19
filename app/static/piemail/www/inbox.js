@@ -407,7 +407,7 @@ var GridList = Backbone.Collection.extend({
                     social: message.social
                 });
                 window.self.add(mailitem);
-                mailitem.save();
+                //mailitem.save();
                 if (window.self.length == itemcount){
                     callback(self);
                 }
@@ -540,7 +540,7 @@ startapp = function () {
     window.threadslist.refreshFromServer({
         success: function(freshData) {
             window.threadslist.set(freshData['newcollection']);
-            window.threadslist.forEach(function(model){model.save()});
+            //window.threadslist.forEach(function(model){model.save()});
             window.currentInbox = new InboxView({collection: window.threadslist});
         }
     });
