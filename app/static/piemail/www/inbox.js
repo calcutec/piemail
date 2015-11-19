@@ -114,8 +114,6 @@ var MailView = Backbone.View.extend({
         var currentitem = $(this.el);
         currentitem.html('');
         currentitem.html(this.fullmailTemplate(this.model.toJSON()));
-        window.gridlist = new GridList();
-        window.gridlist.showThread(this.model.id);
     },
 
     showMailTimeLine: function(e) {
@@ -124,7 +122,10 @@ var MailView = Backbone.View.extend({
         var currentitem = $(this.el);
         currentitem.html('');
         currentitem.html(this.timelineTemplate());
-        window.newgridview = new GridView({collection: window.gridlist, el:currentitem});
+        window.gridlist = new GridList().showThread(this.model.id, function(collection){
+                window.newgridview = new GridView({collection: collection, el:self.el});
+            }
+        );
     }
 });
 
@@ -373,7 +374,7 @@ var GridList = Backbone.Collection.extend({
         });
         request.done(function( response ) {
             var itemcount = response['currentMessageList'].length;
-            response['currentMessageList'].forEach(function (message, i){
+            response['currentMessageList'].forEach(function (message){
                 var mailitem = new Mail({
                     id: message.id,
                     group: window.self.groupCounter,
@@ -390,8 +391,8 @@ var GridList = Backbone.Collection.extend({
                 });
                 window.self.add(mailitem);
                 mailitem.save();
-                if (i == itemcount - 1){
-                    console.log("all done")
+                if (window.self.length == itemcount){
+                    callback(self);
                 }
             });
         });

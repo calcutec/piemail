@@ -138,7 +138,7 @@ def processthreads(request_id, response, exception):
     if exception is not None:
         pass
     else:
-        fullmessageset.append((request_id, response['messages'][-1]))
+        fullmessageset.append((request_id, response['messages'][-1], len(response['messages'])))
 
 
 def processmessages(request_id, response, exception):
@@ -194,9 +194,11 @@ def parse_thread(emailthread):
         .strftime("%I:%M %p %b %d")
     threaditems['sender'] = getheaders(emailthread[1], "From")
     threaditems['subject'] = getheaders(emailthread[1], "Subject")
-    threaditems['ordinal'] = emailthread[0]
     threaditems['body'] = getbody(emailthread[1])
     threaditems['rawtimestamp'] = emailthread[1]['internalDate']
+    threaditems['ordinal'] = emailthread[0]
+    if emailthread[2] > 1:
+        threaditems['length'] = emailthread[2]
     # cache.set(threaditems['id'], threaditems, timeout=300)  # Cache for 5 minutes
     parsedmessageset.append(threaditems)
 
