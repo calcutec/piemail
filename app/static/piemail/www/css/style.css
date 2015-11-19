@@ -10,6 +10,13 @@ font-family: source-sans-pro, sans-serif;
 width:100%;
 }
 
+iframe[seamless]{
+    background-color: transparent;
+    border: 0px none transparent;
+    padding: 0px;
+    overflow: hidden;
+}
+
 #headerwrapper {
     float: left;
     width: 100%;

@@ -16,6 +16,7 @@ var Mail = Backbone.Model.extend( {
         star: false,
         selected:false,
         inbox:false,
+        noninbox:false,
         primary:false,
         social:false,
         promotions:false,
@@ -67,8 +68,10 @@ var MailView = Backbone.View.extend({
         "click .mail-snippet, .mail-subject, .sender" : "getMail",
         "click .star" : "star",
         "click .check" : "select",
+        "click .showmailtimeline" : "showMailTimeLine",
         "click .closepreview" : "closepreview",
-        "click .showmailtimeline" : "showMailTimeLine"
+        "click .fit": "fitall",
+        "click .thisweek": "thisweek"
     },
 
     initialize: function() {
@@ -114,6 +117,18 @@ var MailView = Backbone.View.extend({
         var currentitem = $(this.el);
         currentitem.html('');
         currentitem.html(this.fullmailTemplate(this.model.toJSON()));
+    },
+
+    fitall: function () {
+        window.newgridview.timeline.fit();
+    },
+
+    thisweek: function () {
+        var today = new Date();
+        var numberOfDaysToAdd = 2;
+        var limitdate = today.setDate(today.getDate() + numberOfDaysToAdd);
+        var lastWeek = new Date(today.getTime() - 1000 * 60 * 60 * 24 * 7);
+        window.newgridview.setWindow(lastWeek, limitdate);
     },
 
     showMailTimeLine: function(e) {
@@ -196,6 +211,7 @@ var InboxView = Backbone.View.extend({
     events: {
         "keyup #search" : "search",
         "click #inbox": "dispatchevent",
+        "click #noninbox": "dispatchevent",
         "click #sent": "dispatchevent",
         "click #primary": "dispatchevent",
         "click #social": "dispatchevent",
@@ -316,6 +332,7 @@ var InboxView = Backbone.View.extend({
         var currentlyactive = $('.active');
         $("#sidemenu").html( this.summarytemplate({
             'inbox': this.collection.othercounts('inbox'),
+            'noninbox': this.collection.categorycounts('noninbox'),
             'primary': this.collection.categorycounts('primary'),
             'social':this.collection.categorycounts('social'),
             'promotions':this.collection.categorycounts('promotions'),
@@ -397,14 +414,12 @@ var GridList = Backbone.Collection.extend({
             });
         });
         request.fail(function( jqXHR, textStatus ) {
-            //callback( "Request failed: " + textStatus );
             console.log(textStatus)
         });
     }
 });
 
 var GridView = Backbone.View.extend({
-    //el: window.mailapp,
     emailreplytemplate: Handlebars.getTemplate("email-reply"),
 
     initialize: function () {
@@ -412,10 +427,8 @@ var GridView = Backbone.View.extend({
     },
 
     events: {
-        "click #fit": "fitall",
         "click #moveTo": "moveto",
         "click #visualization": "handleTimelineEvents",
-        "click #window1": "setwindow",
         "click #previousweek": "previousweek"
     },
 
@@ -464,20 +477,8 @@ var GridView = Backbone.View.extend({
         }
     },
 
-    fitall: function () {
-        this.timeline.fit();
-    },
-
     moveto: function () {
         this.timeline.moveTo('2015-10-14');
-    },
-
-    setwindow: function () {
-        var today = new Date();
-        var numberOfDaysToAdd = 2;
-        var limitdate = today.setDate(today.getDate() + numberOfDaysToAdd);
-        var lastWeek = new Date(today.getTime() - 1000 * 60 * 60 * 24 * 7);
-        this.timeline.setWindow(lastWeek, limitdate);
     },
 
     previousweek: function () {

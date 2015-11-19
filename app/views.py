@@ -171,33 +171,35 @@ def parse_thread(emailthread):
         threaditems['category'] = 'promotions'
     if 'CATEGORY_SOCIAL' in emailthread[1]['labelIds']:
         threaditems['category'] = 'social'
-    if 'CATEGORY_UPDATES' in emailthread[1]['labelIds']:
-        threaditems['category'] = 'updates'
-    if 'CATEGORY_FORUMS' in emailthread[1]['labelIds']:
-        threaditems['category'] = 'forums'
-    if 'INBOX' in emailthread[1]['labelIds'] \
-            and 'CATEGORY_SOCIAL' not in emailthread[1]['labelIds'] \
-            and 'CATEGORY_PROMOTIONS' not in emailthread[1]['labelIds'] \
-            and 'CATEGORY_UPDATES' not in emailthread[1]['labelIds'] \
-            and 'CATEGORY_FORUMS' not in emailthread[1]['labelIds']:
+    # if 'CATEGORY_UPDATES' in emailthread[1]['labelIds']:
+    #     threaditems['category'] = 'updates'
+    # if 'CATEGORY_FORUMS' in emailthread[1]['labelIds']:
+    #     threaditems['category'] = 'forums'
+    if 'CATEGORY_SOCIAL' not in emailthread[1]['labelIds'] and 'CATEGORY_PROMOTIONS' not in emailthread[1]['labelIds']:
+            # and 'CATEGORY_UPDATES' not in emailthread[1]['labelIds'] \
+            # and 'CATEGORY_FORUMS' not in emailthread[1]['labelIds']:
         threaditems['category'] = 'primary'
-    if 'SENT' in emailthread[1]['labelIds']:
-        threaditems['category'] = 'sent'
     if 'INBOX' in emailthread[1]['labelIds']:
         threaditems['inbox'] = True
     else:
         threaditems['inbox'] = False
+    if 'INBOX' not in emailthread[1]['labelIds'] and 'SENT' in emailthread[1]['labelIds']:
+        threaditems['category'] = 'sent'
     threaditems['threadId'] = emailthread[1]['threadId']
     threaditems['id'] = emailthread[1]['threadId']
     threaditems['snippet'] = emailthread[1]['snippet'] + "..."
     threaditems['timestamp'] = datetime.datetime.fromtimestamp(float(emailthread[1]['internalDate'])/1000.)\
         .strftime("%I:%M %p %b %d")
-    threaditems['sender'] = getheaders(emailthread[1], "From")
+    if getheaders(emailthread[1], "From") == getheaders(emailthread[1], "To"):
+        threaditems['sender'] = "Me"
+    else:
+        threaditems['sender'] = getheaders(emailthread[1], "From")
+    threaditems['receiveddate'] = getheaders(emailthread[1], "Date")
     threaditems['subject'] = getheaders(emailthread[1], "Subject")
     threaditems['body'] = getbody(emailthread[1])
     threaditems['rawtimestamp'] = emailthread[1]['internalDate']
     threaditems['ordinal'] = emailthread[0]
-    if emailthread[2] > 1:
+    if emailthread[2] > 1:  # Threads with multiple messages
         threaditems['length'] = emailthread[2]
     # cache.set(threaditems['id'], threaditems, timeout=300)  # Cache for 5 minutes
     parsedmessageset.append(threaditems)
