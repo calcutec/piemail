@@ -68,14 +68,14 @@ def getcontext(http_auth=None):
     batch = service.new_batch_http_request(callback=processthreads)
     # cache.set('cachedmessagesetids', results['threads'], timeout=300)  # Cache for 5 minutes
     for thread in results['threads']:
-        batch.add(service.users().threads().get(userId='me', id=thread['id']))
-        # batch.add(service.users().threads().get(userId='me', id=thread['id'], fields="messages/snippet, "
-        #                                                                              "messages/internalDate, "
-        #                                                                              "messages/labelIds, "
-        #                                                                              "messages/threadId, "
-        #                                                                              "messages/payload/parts, "
-        #                                                                              "messages/payload/body, "
-        #                                                                              "messages/payload/headers"))
+        # batch.add(service.users().threads().get(userId='me', id=thread['id']))
+        batch.add(service.users().threads().get(userId='me', id=thread['id'], fields="messages/snippet, "
+                                                                                     "messages/internalDate, "
+                                                                                     "messages/labelIds, "
+                                                                                     "messages/threadId, "
+                                                                                     "messages/payload/parts, "
+                                                                                     "messages/payload/body, "
+                                                                                     "messages/payload/headers"))
     batch.execute()
     for emailthread in fullmessageset:
         # t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
