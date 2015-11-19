@@ -78,9 +78,9 @@ def getcontext(http_auth=None):
                                                                                      "messages/payload/headers"))
     batch.execute()
     for emailthread in fullmessageset:
-        # t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
-        # t.start()
-        parse_thread(emailthread)
+        t = threading.Thread(target=parse_thread, kwargs={"emailthread": emailthread})
+        t.start()
+        # parse_thread(emailthread)
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
@@ -190,10 +190,9 @@ def parse_thread(emailthread):
     threaditems['snippet'] = emailthread[1]['snippet'] + "..."
     threaditems['timestamp'] = datetime.datetime.fromtimestamp(float(emailthread[1]['internalDate'])/1000.)\
         .strftime("%I:%M %p %b %d")
-    if getheaders(emailthread[1], "From") == getheaders(emailthread[1], "To"):
+    threaditems['sender'] = getheaders(emailthread[1], "From")
+    if threaditems['sender'] == getheaders(emailthread[1], "To"):
         threaditems['sender'] = "Me"
-    else:
-        threaditems['sender'] = getheaders(emailthread[1], "From")
     threaditems['receiveddate'] = getheaders(emailthread[1], "Date")
     threaditems['subject'] = getheaders(emailthread[1], "Subject")
     threaditems['body'] = getbody(emailthread[1])
