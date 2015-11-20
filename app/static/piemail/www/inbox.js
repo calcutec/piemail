@@ -537,6 +537,7 @@ var GridView = Backbone.View.extend({
     }
 });
 
+<<<<<<< Updated upstream
 startapp = function () {
     window.threadslist = new MailList();
 
@@ -552,3 +553,20 @@ $( document ).ready(function() {
     startapp();
 });
 
+=======
+
+//startapp = function () {
+//    window.threadslist = new MailList();
+//    window.threadslist.refreshFromServer({
+//        success: function(freshData) {
+//            window.threadslist.set(freshData['newcollection']);
+//            window.threadslist.forEach(function(model){model.save()});
+//            window.currentInbox = new InboxView({collection: window.threadslist});
+//        }
+//    });
+//};
+//
+//$( document ).ready(function() {
+//    startapp();
+//});
+>>>>>>> Stashed changes
