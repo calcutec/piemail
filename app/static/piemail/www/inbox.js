@@ -1,6 +1,30 @@
 window.globalDate = new Date();
 
+// List of API URLs.
+var URLs = {
+  messages: function(isthread) {
+    return "/api/messages/"+ isthread;
+  },
+  message: function(isthread, id) {
+    return "/api/messages/"+ isthread +"/" + id ;
+  },
+  query: function(isthread, query) {
+    return "/api/messages/"+ category +"/query/" + query;
+  }
+};
+
+// Helper for accessing the URL list.
+var apiUrl = function(type) {
+  return URLs[type] ?
+    URLs[type].apply(this, [].slice.call(arguments, 1)) :
+    undefined;
+};
+
 var Mail = Backbone.Model.extend( {
+    url: function() {
+        return apiUrl('message', this.id);
+    },
+
     defaults: {
         id: '',
         ordinal: '',
@@ -129,7 +153,9 @@ var MailView = Backbone.View.extend({
 
 var MailList = Backbone.Collection.extend({
     model: Mail,
-    url: '/mailbody',
+    url: function() {
+        return apiUrl('messages');
+    },
 
     localStorage: new Backbone.LocalStorage("threadList"),
 
