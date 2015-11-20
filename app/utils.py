@@ -4,6 +4,7 @@ from flask import make_response, current_app, request, render_template
 from functools import update_wrapper
 from app import app
 from copy import deepcopy
+from app import cache
 
 
 def getcachedthreads(parsedmessageset):

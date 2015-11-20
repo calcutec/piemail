@@ -1,16 +1,16 @@
 import httplib2
+import os
 from flask import url_for, session, redirect, request, render_template, jsonify, json
 from apiclient import discovery, errors
 from oauth2client import client
 from app import app
-from utils import crossdomain
+from utils import crossdomain, getcachedthreads
 from copy import deepcopy
 import threading
 import datetime
 import base64
 import re
 from pybars import Compiler
-from app import cache
 
 compiler = Compiler()
 fullmessageset = []
@@ -20,29 +20,29 @@ parsedmessageset = []
 @app.route('/', methods=['GET', 'POST', 'OPTIONS'])
 @crossdomain(origin='*')
 def index():
-    # newcollection = getcachedthreads()
-    # if newcollection:
-    #     return json.dumps({'newcollection': newcollection})
-    # else:
-    #     basedir = os.path.abspath(os.path.dirname(__file__))
-    #     templatedir = os.path.join(basedir, 'static/piemail/www/libs/templates/email-list.handlebars')
-    #     source = open(templatedir, "r").read().decode('utf-8')
-    #     template = compiler.compile(source)
-    #     if 'credentials' not in session:
-    #         return redirect(url_for('oauth2callback'))
-    #     credentials = client.OAuth2Credentials.from_json(session['credentials'])
-    #     if credentials.access_token_expired:
-    #         return redirect(url_for('oauth2callback'))
-    #
-    #     http_auth = credentials.authorize(httplib2.Http())
-    #     context = getcontext(http_auth)
-    #     output = template(context)
     if 'credentials' not in session:
-        return redirect(url_for('oauth2callback', final_url='index'))
+        return redirect(url_for('oauth2callback'))
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
     if credentials.access_token_expired:
-        return redirect(url_for('oauth2callback', final_url='index'))
-    return render_template("piemail.html", output="content loading...")
+        return redirect(url_for('oauth2callback'))
+    http_auth = credentials.authorize(httplib2.Http())
+
+    newcollection = getcachedthreads(parsedmessageset)
+    if newcollection:
+        return json.dumps({'newcollection': newcollection})
+    else:
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        templatedir = os.path.join(basedir, 'static/piemail/www/libs/templates/email-list.handlebars')
+        source = open(templatedir, "r").read().decode('utf-8')
+        template = compiler.compile(source)
+        context = getcontext(http_auth)
+        output = template(context)
+    # if 'credentials' not in session:
+    #     return redirect(url_for('oauth2callback', final_url='index'))
+    # credentials = client.OAuth2Credentials.from_json(session['credentials'])
+    # if credentials.access_token_expired:
+    #     return redirect(url_for('oauth2callback', final_url='index'))
+    # return render_template("piemail.html", output="content loading...")
 
 
 @app.route('/inbox', methods=['GET', 'POST', 'OPTIONS'])
