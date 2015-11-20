@@ -1,4 +1,3 @@
-window.mailapp = $("#mailapp");
 window.globalDate = new Date();
 
 var Mail = Backbone.Model.extend( {
@@ -81,9 +80,9 @@ var MailView = Backbone.View.extend({
         return this;
     },
 
-    unrender: function(){
-        $(this.el).remove();
-    },
+    //unrender: function(){
+    //    $(this.el).remove();
+    //},
 
     markRead: function(e) {
         if(typeof(e) === "undefined"){
@@ -134,9 +133,9 @@ var MailList = Backbone.Collection.extend({
 
     localStorage: new Backbone.LocalStorage("threadList"),
 
-    refreshFromServer : function(options) {
-        return Backbone.ajaxSync('read', this, options);
-    },
+    //refreshFromServer : function(options) {
+    //    return Backbone.ajaxSync('read', this, options);
+    //},
 
     show: function(value, currentlyviewed){
         if(typeof(currentlyviewed) === "undefined" || currentlyviewed == "inbox"){
@@ -182,7 +181,7 @@ var MailList = Backbone.Collection.extend({
 
 var InboxView = Backbone.View.extend({
     summarytemplate: Handlebars.getTemplate("summary-tmpl"),
-    el: window.mailapp,
+    el: $("#mailapp"),
 
     initialize: function(){
         this.listenTo(this.collection, 'change', this.renderSideMenu);
@@ -239,10 +238,11 @@ var InboxView = Backbone.View.extend({
     },
 
     applyAction: function(){
-        var action = $(':selected', $('#actions')).parent().attr('label');
-        var value =  $("#actions").val();
+        var actions = $('#actions');
+        var action = $(':selected', actions).parent().attr('label');
+        var value =  actions.val();
         var currentlyviewed = $('.active').find('a').attr('id');
-        $('#actions').val('0');
+        actions.val('0');
         if(action == "Show"){
 
             if(value == "Only Unread"){
@@ -310,6 +310,7 @@ var InboxView = Backbone.View.extend({
             self.addOne(item);
         }, this);
     },
+
     renderSideMenu: function(){
         var currentlyactive = $('.active');
         $("#sidemenu").html( this.summarytemplate({
@@ -357,11 +358,11 @@ var GridList = Backbone.Collection.extend({
     url: '/threadslist',
     localStorage: new Backbone.LocalStorage("messageList"),
 
-    refreshFromServer : function(options) {
-        return Backbone.ajaxSync('read', this, options);
-    },
+    //refreshFromServer : function(options) {
+    //    return Backbone.ajaxSync('read', this, options);
+    //},
 
-    showThread: function (threadid, callback) {
+    showThread: function (threadid) {
         window.self = this;
         var request = $.ajax({
             url: "/threadslist",
@@ -372,7 +373,6 @@ var GridList = Backbone.Collection.extend({
             response['currentMessageList'].forEach(function (message, i){
                 var mailitem = new Mail({
                     id: message.id,
-                    group: window.self.groupCounter,
                     sender: message.sender,
                     subject:message.subject,
                     ordinal:message.ordinal,
@@ -385,7 +385,7 @@ var GridList = Backbone.Collection.extend({
                     social: message.social
                 });
                 window.self.add(mailitem);
-                mailitem.save();
+                //mailitem.save();
                 if (i == itemcount - 1){
                     console.log("all done")
                 }
@@ -421,13 +421,13 @@ var GridView = Backbone.View.extend({
         $('body').append('<div id="overlay"></div>');
     },
 
-    truncateTitle: function (title) {
-        var length = 25;
-        if (title.length > length) {
-            title = title.substring(0, length) + '...';
-        }
-        return title;
-    },
+    //truncateTitle: function (title) {
+    //    var length = 25;
+    //    if (title.length > length) {
+    //        title = title.substring(0, length) + '...';
+    //    }
+    //    return title;
+    //},
 
     handleTimelineEvents: function (event) {
         if (typeof this.timeline === 'undefined') {
@@ -477,14 +477,14 @@ var GridView = Backbone.View.extend({
         this.timeline.setWindow(previous2, previous)
     },
 
-    renderemailbody: function (props) {
-        var currentid = props.item;
-        var emailbody = this.emailreplytemplate({'id': currentid});
-        var overlay = document.getElementById('overlay');
-        overlay.style.opacity = .7;
-        $('body').append(emailbody);
-        $('#overlay, #emailreply').fadeIn(300);
-    },
+    //renderemailbody: function (props) {
+    //    var currentid = props.item;
+    //    var emailbody = this.emailreplytemplate({'id': currentid});
+    //    var overlay = document.getElementById('overlay');
+    //    overlay.style.opacity = .7;
+    //    $('body').append(emailbody);
+    //    $('#overlay, #emailreply').fadeIn(300);
+    //},
 
     timelineoptions: {
         showCurrentTime: true,
@@ -518,14 +518,15 @@ var GridView = Backbone.View.extend({
 startapp = function () {
     window.threadslist = new MailList(appInitialData);
     window.currentInbox = new InboxView({collection: window.threadslist});
-    window.threadslist.refreshFromServer({
-        success: function(freshData) {
-            window.threadslist.set(freshData['newcollection']);
-        },
-        fail: function(error) {
-            console.log(error);
-        }
-    });
+    //window.threadslist.refreshFromServer({
+    //    success: function(freshData) {
+    //        window.threadslist.set(freshData['newcollection']);
+    //        window.currentInbox = new InboxView({collection: window.threadslist});
+    //    },
+    //    fail: function(error) {
+    //        console.log(error);
+    //    }
+    //});
 };
 
 

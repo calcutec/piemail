@@ -3,6 +3,7 @@ from flask import url_for, session, redirect, request, render_template, jsonify,
 from oauth2client import client
 from app import app
 from utils import crossdomain, getcachedthreads, rendercollection, getcontext, getresponse
+from app import cache
 
 
 @app.route('/', methods=['GET'])
@@ -25,7 +26,7 @@ def inbox():
         output = rendercollection(newcollection)
         return render_template("piemail.html", output=output, data=json.dumps(newcollection))
     else:
-        newcollection = getcontext(http_auth)
+        newcollection = getcontext(http_auth, retrievebody=False)
         output = rendercollection(newcollection)
         return render_template("piemail.html", output=output, data=json.dumps(newcollection))
 
