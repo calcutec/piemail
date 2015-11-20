@@ -538,7 +538,6 @@ var GridView = Backbone.View.extend({
 });
 
 
-
 //startapp = function () {
 //    window.threadslist = new MailList();
 //
@@ -553,3 +552,4 @@ var GridView = Backbone.View.extend({
 //$( document ).ready(function() {
 //    startapp();
 //});
+
