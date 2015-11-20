@@ -193,7 +193,7 @@ var MailList = Backbone.Collection.extend({
     search: function(word){
         if (word=="") return this;
         var pat = new RegExp(word, 'gi');
-        return _(this.filter(function(mail) { 
+        return _(this.filter(function(mail) {
             return pat.test(mail.get('subject')) || pat.test(mail.get('sender')); }));
     },
 
@@ -538,22 +538,17 @@ var GridView = Backbone.View.extend({
 });
 
 
+startapp = function () {
+    window.threadslist = new MailList();
 
+    window.threadslist.refreshFromServer({
+        success: function(freshData) {
+            window.threadslist.set(freshData['newcollection']);
+            window.currentInbox = new InboxView({collection: window.threadslist});
+        }
+    });
+};
 
-//startapp = function () {
-//    window.threadslist = new MailList();
-//    window.threadslist.refreshFromServer({
-//        success: function(freshData) {
-//            window.threadslist.set(freshData['newcollection']);
-//            window.threadslist.forEach(function(model){model.save()});
-//            window.currentInbox = new InboxView({collection: window.threadslist});
-//        }
-//    });
-//};
-//
-//$( document ).ready(function() {
-//    startapp();
-
-//});
-
-
+$( document ).ready(function() {
+    startapp();
+});
