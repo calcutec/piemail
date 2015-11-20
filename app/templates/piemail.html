@@ -66,6 +66,9 @@
                 {{ output|safe }}
             </section>
         </div>
+        <script>
+            var appInitialData = {{ data|safe }};
+        </script>
         <script type=text/javascript>$SCRIPT_ROOT = {{ host_url|tojson|safe }}</script>
         <script type="text/javascript" src="{{ local_static_url }}piemail/www/libs/jquery-2.1.4.min.js"></script>
         <link href="{{ local_static_url }}piemail/www/css/vis.min.css" rel="stylesheet" >

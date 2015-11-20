@@ -130,7 +130,7 @@ var MailView = Backbone.View.extend({
 
 var MailList = Backbone.Collection.extend({
     model: Mail,
-    url: '/inbox',
+    url: '/mailbody',
 
     localStorage: new Backbone.LocalStorage("threadList"),
 
@@ -158,7 +158,6 @@ var MailList = Backbone.Collection.extend({
                 }));
             }
         }
-
     },
 
     categorycounts: function(category) {
@@ -356,9 +355,6 @@ var InboxView = Backbone.View.extend({
 var GridList = Backbone.Collection.extend({
     model: Mail,
     url: '/threadslist',
-    //groupCount: threadArray.length,
-    groupCounter: 0,
-
     localStorage: new Backbone.LocalStorage("messageList"),
 
     refreshFromServer : function(options) {
@@ -396,14 +392,12 @@ var GridList = Backbone.Collection.extend({
             });
         });
         request.fail(function( jqXHR, textStatus ) {
-            //callback( "Request failed: " + textStatus );
-            console.log(textStatus)
+            console.log("Request failed: " + textStatus)
         });
     }
 });
 
 var GridView = Backbone.View.extend({
-    //el: window.mailapp,
     emailreplytemplate: Handlebars.getTemplate("email-reply"),
 
     initialize: function () {
@@ -421,17 +415,8 @@ var GridView = Backbone.View.extend({
     render: function () {
         this.timeline = new vis.Timeline(document.getElementById('visualization'));
         this.timeline.setOptions(this.timelineoptions);
-        var groupDataSet = new vis.DataSet();
         var itemDataSet = new vis.DataSet();
         itemDataSet.add(this.collection.toJSON());
-        groupDataSet.add({
-            id: 0,
-            value: this.collection.models[0].get('timestamp'),
-            content: "<span class='myGroup' style='color:#97B0F8; " +
-            "max-width:200px; white-space:wrap'>" +
-            this.truncateTitle(this.collection.models[0].get('subject')) + "</span>"
-        });
-        this.timeline.setGroups(groupDataSet);
         this.timeline.setItems(itemDataSet);
         $('body').append('<div id="overlay"></div>');
     },
@@ -530,17 +515,20 @@ var GridView = Backbone.View.extend({
 });
 
 
-//startapp = function () {
-//    window.threadslist = new MailList();
-//    window.threadslist.refreshFromServer({
-//        success: function(freshData) {
-//            window.threadslist.set(freshData['newcollection']);
-//            window.threadslist.forEach(function(model){model.save()});
-//            window.currentInbox = new InboxView({collection: window.threadslist});
-//        }
-//    });
-//};
-//
-//$( document ).ready(function() {
-//    startapp();
-//});
+startapp = function () {
+    window.threadslist = new MailList(appInitialData);
+    window.currentInbox = new InboxView({collection: window.threadslist});
+    window.threadslist.refreshFromServer({
+        success: function(freshData) {
+            window.threadslist.set(freshData['newcollection']);
+        },
+        fail: function(error) {
+            console.log(error);
+        }
+    });
+};
+
+
+$( document ).ready(function() {
+    startapp();
+});
