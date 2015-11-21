@@ -54,18 +54,18 @@ def getcontext(http_auth=None, retrievebody=None):
                                                                                      "messages/payload/headers"))
     batch.execute()
     for item in fullmessageset:
-        t = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody":retrievebody})
-        t.start()
-        # parse_item(item, retrievebody)
+        # t = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody":retrievebody})
+        # t.start()
+        parse_item(item, retrievebody)
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
     return newcollection
 
 
-def getresponse(http_auth):
+def getmessages(http_auth, threadid):
     service = discovery.build('gmail', 'v1', http=http_auth)
-    threadid = request.values['threadid']
+    threadid = threadid
     try:
         thread = service.users().threads().get(userId='me', id=threadid).execute()
     except errors.HttpError, error:
@@ -77,8 +77,8 @@ def getresponse(http_auth):
         batch.add(service.users().messages().get(userId='me', id=message['id']))
     batch.execute()
     for item in fullmessageset:
-        m = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": True})
-        m.start()
+        # m = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": True})
+        # m.start()
         parse_item(item, retrievebody=True)
     response = dict()
     response['iserror'] = False
@@ -149,7 +149,8 @@ def parse_item(item, retrievebody=False):
     threaditems['rawtimestamp'] = item[1]['internalDate']
     threaditems['ordinal'] = item[0]
     if len(item) > 2:  # Threads with multiple messages
-        threaditems['length'] = item[2]
+        if item[2] > 1:
+            threaditems['length'] = item[2]
     cache.set(threaditems['id'], threaditems, timeout=300)  # Cache for 5 minutes
     parsedmessageset.append(threaditems)
 

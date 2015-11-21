@@ -1,16 +1,25 @@
 window.globalDate = new Date();
+Backbone.sync = function Sync() {
+    Backbone.ajaxSync.apply(this, arguments);
+    //return Backbone.localSync.apply(this, arguments);
+};
+
+
 
 // List of API URLs.
 var URLs = {
-  messages: function(isthread) {
-    return "/api/messages/"+ isthread;
-  },
-  message: function(isthread, id) {
-    return "/api/messages/"+ isthread +"/" + id ;
-  },
-  query: function(isthread, query) {
-    return "/api/messages/"+ category +"/query/" + query;
-  }
+    threads: function() {
+        return "/api/threads";
+    },
+    thread: function(id) {
+        return "/api/thread/"+ id ;
+    },
+    messages: function(id) {
+        return "/api/threads/"+ id + "/messages";
+    },
+    query: function(category, query) {
+        return "/api/thread/"+ category +"/query/" + query;
+    }
 };
 
 // Helper for accessing the URL list.
@@ -20,9 +29,9 @@ var apiUrl = function(type) {
     undefined;
 };
 
-var Mail = Backbone.Model.extend( {
+var Thread = Backbone.Model.extend( {
     url: function() {
-        return apiUrl('message', this.id);
+        return apiUrl('thread', this.id);
     },
 
     defaults: {
@@ -32,6 +41,7 @@ var Mail = Backbone.Model.extend( {
         content: '',
         snippet: '',
         mailbody: '',
+        messages: '',
         timestamp: '',
         rawtimestamp: '',
         start: '',
@@ -50,6 +60,12 @@ var Mail = Backbone.Model.extend( {
         createdOn: "Note created on " + new Date().toISOString()
     },
 
+
+    initialize: function() {
+        this.messages = new Messages(this.get('messages'));
+        this.messages.url =  apiUrl('messages', this.id);
+        this.messages.threadid =  this.id
+    },
 
     move: function(value){
         var obj = {};
@@ -78,7 +94,7 @@ var Mail = Backbone.Model.extend( {
     }
 });
 
-var MailView = Backbone.View.extend({
+var ThreadView = Backbone.View.extend({
     tagName: "div",
     className: "mail",
     template: Handlebars.getTemplate("mail-item"),
@@ -87,7 +103,8 @@ var MailView = Backbone.View.extend({
 
     events: {
         //"click .mail-subject,.sender" : "markRead",
-        "click .mail-snippet, .mail-subject, .sender" : "getMail",
+        //"click .mail-snippet, .mail-subject, .sender" : "getMail",
+        "click .mail-snippet, .mail-subject, .sender" : "showMessages",
         "click .star" : "star",
         "click .check" : "select",
         "click .closepreview" : "closepreview",
@@ -131,14 +148,32 @@ var MailView = Backbone.View.extend({
         this.model.selectMail();
     },
 
+    showMessages: function(e) {
+        e.preventDefault();
+        if (this.model.messages.length < this.model.get('length')) {
+            var self = this;
+            this.model.messages.refreshFromServer({
+                success: function (response) {
+                    var messagesGrid = new MessagesGrid();
+                    messagesGrid.collection = response['currentmessagelist'];
+                    messagesGrid.el = this.el;
+                    self.el.innerHTML = '';
+                    messagesGrid.render()
+                }
+            });
+        }
+        //else {
+        //    var messagesGrid = new MessagesGrid({collection: this.model.messages});
+        //    this.el.innerHTML = '';
+        //    messagesGrid.render();
+        //}
+    },
+
     getMail: function(e) {
         e.preventDefault();
         this.markRead();
-        var currentitem = $(this.el);
-        currentitem.html('');
+        this.el.innerHTML = '';
         currentitem.html(this.fullmailTemplate(this.model.toJSON()));
-        window.gridlist = new GridList();
-        window.gridlist.showThread(this.model.id);
     },
 
     showMailTimeLine: function(e) {
@@ -147,14 +182,16 @@ var MailView = Backbone.View.extend({
         var currentitem = $(this.el);
         currentitem.html('');
         currentitem.html(this.timelineTemplate());
+        window.gridlist = new GridList();
+        window.gridlist.showThread(this.model.id);
         window.newgridview = new GridView({collection: window.gridlist, el:currentitem});
     }
 });
 
-var MailList = Backbone.Collection.extend({
-    model: Mail,
+var ThreadList = Backbone.Collection.extend({
+    model: Thread,
     url: function() {
-        return apiUrl('messages');
+        return apiUrl('threads');
     },
 
     localStorage: new Backbone.LocalStorage("threadList"),
@@ -204,6 +241,27 @@ var MailList = Backbone.Collection.extend({
         return -mail.get('rawtimestamp');
     }
 });
+
+
+
+var Message = Backbone.Model.extend({
+});
+
+var Messages = Backbone.Collection.extend({
+    model: Message,
+    refreshFromServer : function(options) {
+        return Backbone.ajaxSync('read', this, options);
+    }
+});
+
+var MessagesGrid = Backbone.View.extend({
+    template: Handlebars.getTemplate("mail-item"),
+    render: function(format){
+        this.el.innerHTML = this.template(this.model.toJSON());
+        return this;
+    }
+});
+
 
 var InboxView = Backbone.View.extend({
     summarytemplate: Handlebars.getTemplate("summary-tmpl"),
@@ -359,7 +417,7 @@ var InboxView = Backbone.View.extend({
     },
 
     addOne: function (mail) {
-        var itemView = new MailView({ model: mail});
+        var itemView = new ThreadView({ model: mail});
         $('#mail-list', this.el).append(itemView.render().el);
     },
 
@@ -380,7 +438,7 @@ var InboxView = Backbone.View.extend({
 });
 
 var GridList = Backbone.Collection.extend({
-    model: Mail,
+    model: Message,
     url: '/threadslist',
     localStorage: new Backbone.LocalStorage("messageList"),
 
@@ -397,7 +455,7 @@ var GridList = Backbone.Collection.extend({
         request.done(function( response ) {
             var itemcount = response['currentMessageList'].length;
             response['currentMessageList'].forEach(function (message, i){
-                var mailitem = new Mail({
+                var mailitem = new Thread({
                     id: message.id,
                     sender: message.sender,
                     subject:message.subject,
@@ -542,7 +600,7 @@ var GridView = Backbone.View.extend({
 
 
 startapp = function () {
-    window.threadslist = new MailList(appInitialData);
+    window.threadslist = new ThreadList(appInitialData);
     window.currentInbox = new InboxView({collection: window.threadslist});
     //window.threadslist.refreshFromServer({
     //    success: function(freshData) {
