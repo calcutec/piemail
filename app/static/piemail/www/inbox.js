@@ -1,10 +1,5 @@
+var appInitialData = window.appInitialData;
 window.globalDate = new Date();
-Backbone.sync = function Sync() {
-    Backbone.ajaxSync.apply(this, arguments);
-    //return Backbone.localSync.apply(this, arguments);
-};
-
-
 
 // List of API URLs.
 var URLs = {
@@ -155,8 +150,12 @@ var ThreadView = Backbone.View.extend({
             this.model.messages.refreshFromServer({
                 success: function (response) {
                     var messagesGrid = new MessagesGrid();
-                    messagesGrid.collection = response['currentmessagelist'];
-                    messagesGrid.el = this.el;
+                    response.currentmessagelist.forEach(function(message){
+                        var newmessage = new Message(message);
+                        self.model.messages.add(newmessage);
+                    });
+                    messagesGrid.el = self.el;
+                    messagesGrid.collection = self.model.messages
                     self.el.innerHTML = '';
                     messagesGrid.render()
                 }
@@ -169,12 +168,12 @@ var ThreadView = Backbone.View.extend({
         //}
     },
 
-    getMail: function(e) {
-        e.preventDefault();
-        this.markRead();
-        this.el.innerHTML = '';
-        currentitem.html(this.fullmailTemplate(this.model.toJSON()));
-    },
+    //getMail: function(e) {
+    //    e.preventDefault();
+    //    this.markRead();
+    //    this.el.innerHTML = '';
+    //    currentitem.html(this.fullmailTemplate(this.model.toJSON()));
+    //},
 
     showMailTimeLine: function(e) {
         e.preventDefault();
@@ -195,10 +194,6 @@ var ThreadList = Backbone.Collection.extend({
     },
 
     localStorage: new Backbone.LocalStorage("threadList"),
-
-    //refreshFromServer : function(options) {
-    //    return Backbone.ajaxSync('read', this, options);
-    //},
 
     show: function(value, currentlyviewed){
         if(typeof(currentlyviewed) === "undefined" || currentlyviewed == "inbox"){
@@ -247,6 +242,14 @@ var ThreadList = Backbone.Collection.extend({
 var Message = Backbone.Model.extend({
 });
 
+var MessageView = Backbone.View.extend({
+    template: Handlebars.getTemplate("mail-plot"),
+    render: function() {
+        $(this.el).html( this.template(this.model.toJSON()) );
+        return this;
+    },
+});
+
 var Messages = Backbone.Collection.extend({
     model: Message,
     refreshFromServer : function(options) {
@@ -255,10 +258,12 @@ var Messages = Backbone.Collection.extend({
 });
 
 var MessagesGrid = Backbone.View.extend({
-    template: Handlebars.getTemplate("mail-item"),
-    render: function(format){
-        this.el.innerHTML = this.template(this.model.toJSON());
-        return this;
+    render: function(){
+        var self = this;
+        this.collection.each(function(message){
+            var itemView = new MessageView({ model: message});
+            self.el.append(itemView.render().el);
+        }, this);
     }
 });
 
