@@ -69,7 +69,8 @@ def inbox():
 #     return render_template('emaildata.html', emailid=emailid)
 
 
-@app.route('/api/threads/<threadid>/messages', methods=['POST', 'GET'])
+@app.route('/api/threads/<threadid>/messages', methods=['POST', 'GET', 'OPTIONS'])
+@crossdomain(origin='*')
 def messages(threadid):
     if 'credentials' not in session:
         return redirect(url_for('oauth2callback'))
@@ -79,7 +80,7 @@ def messages(threadid):
     else:
         http_auth = credentials.authorize(httplib2.Http())
     response = getmessages(http_auth, threadid)
-    response = response['currentMessageList']
+    response = response['currentmessagelist']
     return json.dumps(response)
 
 
