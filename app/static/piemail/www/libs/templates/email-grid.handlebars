@@ -1,0 +1,39 @@
+    <!--<div class="mail topcoat-grid__row">-->
+      <!--<a href="#">-->
+        <!--<% if (read == false) { %> <strong>  <% } %>-->
+        <!--<div class="mail topcoat-grid__column--12">-->
+            <!--<div class="mail topcoat-grid__row">-->
+                <!--<div><input class="check topcoat-grid__column--1" type="checkbox" <%= selected? "checked='checked'":"" %> / > </div>-->
+                <!--<div <% if( star == true ) { %> class="star icon bookmark topcoat-grid__column--2" <% } else { %> class="star icon nobookmark topcoat-grid__column--1" <% } %> > &nbsp; </div>-->
+                <!--<div class="sender topcoat-grid__column--10"><strong><%= sender %></strong></div>-->
+            <!--</div>-->
+            <!--<div class="mail-subject"><%= subject %></div>-->
+            <!--<div class="mail-snippet"><%= snippet %></div>-->
+            <!--<div class="timestamp"> <%= formattedDate %></div>-->
+            <!--<% if (label != '') { %>-->
+                <!--<div class="labels"> <%= label %></div>-->
+            <!--<% } %>-->
+        <!--</div>-->
+        <!--<% if (read == false) { %> </strong>  <% } %>-->
+      <!--</a>-->
+    <!--</div>-->
+<a href="#">
+    {{#if unread }}<strong>{{/if}}
+        {{#if selected}}
+            <span style="float:left;width:20px;"><input title="check" class="check" type="checkbox" checked="checked" /></span>
+        {{ else }}
+            <span style="float:left;width:20px;"><input title="check" class="check" type="checkbox" /></span>
+        {{/if}}
+        {{#if star}}
+            <span style="float:left;width:20px;" class="star staricon bookmark"> &nbsp; </span>
+        {{ else }}
+            <span style="float:left;width:20px;" class="star staricon nobookmark"> &nbsp; </span>
+        {{/if}}
+        <span class="sender">{{{sender}}}{{#if length}}({{length}}){{/if}}</span>
+        <span class="timestamp">{{timestamp}}</span>
+        <span class="mail-subject">{{{subject}}}</span>
+        <span class="mail-snippet">{{{snippet}}}</span>
+    {{#if label}}<span style="float:left;width:80px;" class="labels">{{label}}</span>{{/if}}
+    {{#if unread}}</strong>{{/if}}
+</a>
+<div style="clear:both;"></div>

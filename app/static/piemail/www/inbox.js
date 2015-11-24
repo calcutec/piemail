@@ -1,10 +1,4 @@
 window.globalDate = new Date();
-Backbone.sync = function Sync() {
-    Backbone.ajaxSync.apply(this, arguments);
-    //return Backbone.localSync.apply(this, arguments);
-};
-
-
 
 // List of API URLs.
 var URLs = {
@@ -62,9 +56,13 @@ var Thread = Backbone.Model.extend( {
 
 
     initialize: function() {
-        this.messages = new Messages(this.get('messages'));
-        this.messages.url =  apiUrl('messages', this.id);
-        this.messages.threadid =  this.id
+        this.messages = new Messages;
+        this.messages.url = apiUrl('messages', this.id);
+        this.messages.on("reset", this.updateCounts);
+    },
+
+    updateCounts: function() {
+      alert("messages have been reset");
     },
 
     move: function(value){
@@ -150,23 +148,14 @@ var ThreadView = Backbone.View.extend({
 
     showMessages: function(e) {
         e.preventDefault();
-        if (this.model.messages.length < this.model.get('length')) {
-            var self = this;
-            this.model.messages.refreshFromServer({
-                success: function (response) {
-                    var messagesGrid = new MessagesGrid();
-                    messagesGrid.collection = response['currentmessagelist'];
-                    messagesGrid.el = this.el;
-                    self.el.innerHTML = '';
-                    messagesGrid.render()
-                }
-            });
-        }
-        //else {
-        //    var messagesGrid = new MessagesGrid({collection: this.model.messages});
-        //    this.el.innerHTML = '';
-        //    messagesGrid.render();
-        //}
+        var self = this;
+        this.model.messages.refreshFromServer({
+            success: function (response) {
+                var messagesGrid = new MessagesGrid({el: self.el});
+                messagesGrid.collection = self.model.messages.set(response);
+                messagesGrid.render()
+            }
+        });
     },
 
     getMail: function(e) {
@@ -247,6 +236,14 @@ var ThreadList = Backbone.Collection.extend({
 var Message = Backbone.Model.extend({
 });
 
+var MessageView = Backbone.View.extend({
+    template: Handlebars.getTemplate("email-grid"),
+    render: function() {
+        $(this.el).html( this.template(this.model.toJSON()) );
+        return this;
+    }
+});
+
 var Messages = Backbone.Collection.extend({
     model: Message,
     refreshFromServer : function(options) {
@@ -255,11 +252,17 @@ var Messages = Backbone.Collection.extend({
 });
 
 var MessagesGrid = Backbone.View.extend({
-    template: Handlebars.getTemplate("mail-item"),
-    render: function(format){
-        this.el.innerHTML = this.template(this.model.toJSON());
-        return this;
-    }
+    render: function(){
+        $(this.el).html('');
+        var self = this;
+        this.collection.forEach(function(message){
+            self.addOne(message);
+        }, this);
+    },
+    addOne: function (message) {
+        var messageView = new MessageView({ model: message});
+        $(this.el).append(messageView.render().el);
+    },
 });
 
 

@@ -89,6 +89,27 @@ margin-right:15px;
    border-bottom:2px #4d90fe solid;
 }
 
+.topcoat-grid {
+    padding: 0 30px;
+}
+
+.topcoat-grid__row {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+
+.topcoat-grid__column--auto {
+  border: 1px solid #a9a9a9;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  overflow: hidden;
+  min-width: 100%;
+}
+
+
 /*@media (min-width: 460px) {*/
     /*#summary ul {*/
         /*font-size: 1rem;*/

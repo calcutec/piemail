@@ -21,14 +21,14 @@ def inbox():
         return redirect(url_for('oauth2callback'))
     http_auth = credentials.authorize(httplib2.Http())
 
-    newcollection = getcachedthreads()
-    if newcollection:
-        output = rendercollection(newcollection)
-        return render_template("piemail.html", output=output, data=json.dumps(newcollection))
-    else:
-        newcollection = getcontext(http_auth, retrievebody=False)
-        output = rendercollection(newcollection)
-        return render_template("piemail.html", output=output, data=json.dumps(newcollection))
+    # newcollection = getcachedthreads()
+    # if newcollection:
+    #     output = rendercollection(newcollection)
+    #     return render_template("piemail.html", output=output, data=json.dumps(newcollection))
+    # else:
+    newcollection = getcontext(http_auth, retrievebody=False)
+    output = rendercollection(newcollection)
+    return render_template("piemail.html", output=output, data=json.dumps(newcollection))
 
 
 # @app.route('/mailbody', methods=['POST', 'GET', 'OPTIONS'])
@@ -79,6 +79,7 @@ def messages(threadid):
     else:
         http_auth = credentials.authorize(httplib2.Http())
     response = getmessages(http_auth, threadid)
+    response = response['currentMessageList']
     return json.dumps(response)
 
 
