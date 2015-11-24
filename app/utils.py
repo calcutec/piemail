@@ -83,7 +83,7 @@ def getmessages(http_auth, threadid):
     response = dict()
     response['iserror'] = False
     response['savedsuccess'] = True
-    response['currentMessageList'] = deepcopy(parsedmessageset)
+    response['currentmessagelist'] = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
     return response

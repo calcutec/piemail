@@ -1,3 +1,4 @@
+var appInitialData = window.appInitialData;
 window.globalDate = new Date();
 
 // List of API URLs.
@@ -158,12 +159,12 @@ var ThreadView = Backbone.View.extend({
         });
     },
 
-    getMail: function(e) {
-        e.preventDefault();
-        this.markRead();
-        this.el.innerHTML = '';
-        currentitem.html(this.fullmailTemplate(this.model.toJSON()));
-    },
+    //getMail: function(e) {
+    //    e.preventDefault();
+    //    this.markRead();
+    //    this.el.innerHTML = '';
+    //    currentitem.html(this.fullmailTemplate(this.model.toJSON()));
+    //},
 
     showMailTimeLine: function(e) {
         e.preventDefault();
@@ -184,10 +185,6 @@ var ThreadList = Backbone.Collection.extend({
     },
 
     localStorage: new Backbone.LocalStorage("threadList"),
-
-    //refreshFromServer : function(options) {
-    //    return Backbone.ajaxSync('read', this, options);
-    //},
 
     show: function(value, currentlyviewed){
         if(typeof(currentlyviewed) === "undefined" || currentlyviewed == "inbox"){
@@ -262,7 +259,7 @@ var MessagesGrid = Backbone.View.extend({
     addOne: function (message) {
         var messageView = new MessageView({ model: message});
         $(this.el).append(messageView.render().el);
-    },
+    }
 });
 
 
