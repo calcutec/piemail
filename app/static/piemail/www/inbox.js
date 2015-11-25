@@ -522,7 +522,7 @@ var MessagesTimelineView = Backbone.View.extend({
             axis: 5
         },
         stack: true,
-        messageTemplate: Handlebars.getTemplate("message"),
+        template: Handlebars.getTemplate("message"),
         orientation: {
             axis: "top",
             item: "top"
