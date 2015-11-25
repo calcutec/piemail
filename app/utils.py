@@ -54,9 +54,9 @@ def getcontext(http_auth=None, retrievebody=None):
                                                                                      "messages/payload/headers"))
     batch.execute()
     for item in fullmessageset:
-        # t = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody":retrievebody})
-        # t.start()
-        parse_item(item, retrievebody)
+        t = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody":retrievebody})
+        t.start()
+        # parse_item(item, retrievebody)
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
@@ -77,9 +77,9 @@ def getmessages(http_auth, threadid):
         batch.add(service.users().messages().get(userId='me', id=message['id']))
     batch.execute()
     for item in fullmessageset:
-        # m = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": True})
-        # m.start()
-        parse_item(item, retrievebody=True)
+        m = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": True})
+        m.start()
+        # parse_item(item, retrievebody=True)
     response = dict()
     response['iserror'] = False
     response['savedsuccess'] = True
@@ -151,7 +151,7 @@ def parse_item(item, retrievebody=False):
         threaditems['mailbody'] = getbody(item[1])
     threaditems['rawtimestamp'] = item[1]['internalDate']
     threaditems['ordinal'] = item[0]
-    if len(item) > 2:  # Threads with multiple messages
+    if len(item) > 2:  # Threads with messages
         threaditems['length'] = item[2]
     cache.set(threaditems['id'], threaditems, timeout=300)  # Cache for 5 minutes
     parsedmessageset.append(threaditems)
