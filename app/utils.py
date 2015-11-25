@@ -77,9 +77,9 @@ def getmessages(http_auth, threadid):
         batch.add(service.users().messages().get(userId='me', id=message['id']))
     batch.execute()
     for item in fullmessageset:
-        m = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": True})
-        m.start()
-        # parse_item(item, retrievebody=True)
+        # m = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": True})
+        # m.start()
+        parse_item(item, retrievebody=True)
     response = dict()
     response['iserror'] = False
     response['savedsuccess'] = True
@@ -142,6 +142,7 @@ def parse_item(item, retrievebody=False):
     threaditems['snippet'] = item[1]['snippet'] + "..."
     threaditems['timestamp'] = datetime.datetime.fromtimestamp(float(item[1]['internalDate'])/1000.)\
         .strftime("%I:%M %p %b %d")
+    threaditems['start'] = datetime.datetime.fromtimestamp(float(item[1]['internalDate'])/1000.)
     threaditems['sender'] = getheaders(item[1], "From")
     if threaditems['sender'] == getheaders(item[1], "To"):
         threaditems['sender'] = "Me"

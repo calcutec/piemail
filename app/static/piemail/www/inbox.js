@@ -35,9 +35,9 @@ var Thread = Backbone.Model.extend( {
 
 
     initialize: function() {
-        this.messagecollection = new MessageCollection;
-        this.messagecollection.url = apiUrl('messages', this.id);
-        this.messagecollection.on("reset", this.doStuff);
+        this.messages = new MessageCollection;
+        this.messages.url = apiUrl('messages', this.id);
+        this.messages.on("reset", this.doStuff);
     },
 
     doStuff: function() {
@@ -126,16 +126,16 @@ var ThreadView = Backbone.View.extend({
 
     showMessages: function(e) {
         e.preventDefault();
-        if (this.model.messagecollection.length < this.model.get('length')) {
+        if (this.model.messages.length < this.model.get('length')) {
             var self = this;
-            self.model.messagecollection.refreshFromServer({
+            self.model.messages.refreshFromServer({
                 success: function (response) {
                     self.$el.html('');
                     self.$el.html(self.messagesHeaderTemplate());
                     if (self.model.get('length') > 1) {$('.showmessagestimeline').removeClass("hidden");}
                     var messagesGridView = new MessagesGridView({el: self.el.getElementsByClassName("visualization")[0]});
-                    self.model.messagecollection.reset(response);
-                    messagesGridView.collection = self.model.messagecollection;
+                    self.model.messages.reset(response);
+                    messagesGridView.collection = self.model.messages;
                     messagesGridView.render()
                 }
             });
@@ -144,7 +144,7 @@ var ThreadView = Backbone.View.extend({
             this.$el.html(this.messagesHeaderTemplate());
             if (this.model.get('length') > 1) {$('.showmessagestimeline').removeClass("hidden");};
             var messagesGridView = new MessagesGridView({
-                collection: this.model.messagecollection,
+                collection: this.model.messages,
                 el: this.el.getElementsByClassName("visualization")[0]
             });
             messagesGridView.render();
@@ -153,12 +153,12 @@ var ThreadView = Backbone.View.extend({
 
     showMailTimeLine: function(e) {
         e.preventDefault();
-        var currentitem = $(this.el);
-        currentitem.html('');
-        currentitem.html(this.messagesHeaderTemplate());
-        window.gridlist = new messagesTimelineView();
-        window.gridlist.showThread(this.model.id);
-        window.newgridview = new GridView({collection: window.gridlist, el:currentitem});
+        this.$el.find('.visualization').html('')
+        this.$el.find('.showmessagestimeline').addClass("hidden");
+        var messagesTimelineView = new MessagesTimelineView({
+            collection: this.model.messages,
+            el:this.el
+        });
     }
 });
 
@@ -375,7 +375,7 @@ var ThreadsView = Backbone.View.extend({
     },
 
     signout: function(){
-        $.getJSON($SCRIPT_ROOT + 'signmeout', function(data) {
+        $.getJSON('/signmeout', function(data) {
             window.location.replace(data.redirect_url);
         });
         return false;
@@ -427,13 +427,13 @@ var MessagesTimelineView = Backbone.View.extend({
     events: {
         "click #fit": "fitall",
         "click #moveTo": "moveto",
-        "click #visualization": "handleTimelineEvents",
+        "click .visualization": "handleTimelineEvents",
         "click #window1": "setwindow",
         "click #previousweek": "previousweek"
     },
 
     render: function () {
-        this.timeline = new vis.Timeline(document.getElementById('visualization'));
+        this.timeline = new vis.Timeline(this.$el.find('.visualization')[0]);
         this.timeline.setOptions(this.timelineoptions);
         var itemDataSet = new vis.DataSet();
         itemDataSet.add(this.collection.toJSON());
