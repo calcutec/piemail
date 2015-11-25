@@ -30,40 +30,18 @@ var Thread = Backbone.Model.extend( {
     },
 
     defaults: {
-        id: '',
-        ordinal: '',
-        subject: '',
-        content: '',
-        snippet: '',
-        mailbody: '',
-        messages: '',
-        timestamp: '',
-        rawtimestamp: '',
-        start: '',
-        unread: false,
-        star: false,
-        selected:false,
-        inbox:false,
-        primary:false,
-        social:false,
-        promotions:false,
-        updates:false,
-        forums:false,
-        archived:false,
-        sent:false,
-        label: '',
         createdOn: "Note created on " + new Date().toISOString()
     },
 
 
     initialize: function() {
-        this.messages = new Messages;
-        this.messages.url = apiUrl('messages', this.id);
-        this.messages.on("reset", this.updateCounts);
+        this.messagecollection = new MessageCollection;
+        this.messagecollection.url = apiUrl('messages', this.id);
+        this.messagecollection.on("reset", this.doStuff);
     },
 
-    updateCounts: function() {
-      alert("messages have been reset");
+    doStuff: function() {
+      console.log('messagecollection has been reset');
     },
 
     move: function(value){
@@ -96,27 +74,26 @@ var Thread = Backbone.Model.extend( {
 var ThreadView = Backbone.View.extend({
     tagName: "div",
     className: "mail",
-    template: Handlebars.getTemplate("mail-item"),
-    timelineTemplate: Handlebars.getTemplate("timeline"),
-    fullmailTemplate: Handlebars.getTemplate("fullmailTemplate"),
+    threadTemplate: Handlebars.getTemplate("thread"),
+    messagesHeaderTemplate: Handlebars.getTemplate("messagesheader"),
+    messageTemplate: Handlebars.getTemplate("message"),
 
     events: {
         //"click .mail-subject,.sender" : "markRead",
-        //"click .mail-snippet, .mail-subject, .sender" : "getMail",
         "click .mail-snippet, .mail-subject, .sender" : "showMessages",
         "click .star" : "star",
         "click .check" : "select",
         "click .closepreview" : "closepreview",
-        "click .showmailtimeline" : "showMailTimeLine"
+        "click .showmessagestimeline" : "showMailTimeLine"
     },
 
     initialize: function() {
-        this.model.bind('change', this.render, this);
+        this.listenTo(this.model, 'change', this.render, this);
         this.listenTo(this.model, 'removeme', this.remove);
     },
 
     render: function() {
-        $(this.el).html( this.template(this.model.toJSON()) );
+        this.$el.html( this.threadTemplate(this.model.toJSON()) );
         return this;
     },
 
@@ -149,36 +126,43 @@ var ThreadView = Backbone.View.extend({
 
     showMessages: function(e) {
         e.preventDefault();
-        var self = this;
-        this.model.messages.refreshFromServer({
-            success: function (response) {
-                var messagesGrid = new MessagesGrid({el: self.el});
-                messagesGrid.collection = self.model.messages.set(response);
-                messagesGrid.render()
-            }
-        });
+        if (this.model.messagecollection.length < this.model.get('length')) {
+            var self = this;
+            self.model.messagecollection.refreshFromServer({
+                success: function (response) {
+                    self.$el.html('');
+                    self.$el.html(self.messagesHeaderTemplate());
+                    if (self.model.get('length') > 1) {$('.showmessagestimeline').removeClass("hidden");}
+                    var messagesGridView = new MessagesGridView({el: self.el.getElementsByClassName("visualization")[0]});
+                    self.model.messagecollection.reset(response);
+                    messagesGridView.collection = self.model.messagecollection;
+                    messagesGridView.render()
+                }
+            });
+        } else {
+            this.$el.html('');
+            this.$el.html(this.messagesHeaderTemplate());
+            if (this.model.get('length') > 1) {$('.showmessagestimeline').removeClass("hidden");};
+            var messagesGridView = new MessagesGridView({
+                collection: this.model.messagecollection,
+                el: this.el.getElementsByClassName("visualization")[0]
+            });
+            messagesGridView.render();
+        }
     },
-
-    //getMail: function(e) {
-    //    e.preventDefault();
-    //    this.markRead();
-    //    this.el.innerHTML = '';
-    //    currentitem.html(this.fullmailTemplate(this.model.toJSON()));
-    //},
 
     showMailTimeLine: function(e) {
         e.preventDefault();
-        this.markRead();
         var currentitem = $(this.el);
         currentitem.html('');
-        currentitem.html(this.timelineTemplate());
-        window.gridlist = new GridList();
+        currentitem.html(this.messagesHeaderTemplate());
+        window.gridlist = new messagesTimelineView();
         window.gridlist.showThread(this.model.id);
         window.newgridview = new GridView({collection: window.gridlist, el:currentitem});
     }
 });
 
-var ThreadList = Backbone.Collection.extend({
+var ThreadCollection = Backbone.Collection.extend({
     model: Thread,
     url: function() {
         return apiUrl('threads');
@@ -228,43 +212,8 @@ var ThreadList = Backbone.Collection.extend({
     }
 });
 
-
-
-var Message = Backbone.Model.extend({
-});
-
-var MessageView = Backbone.View.extend({
-    template: Handlebars.getTemplate("email-grid"),
-    render: function() {
-        $(this.el).html( this.template(this.model.toJSON()) );
-        return this;
-    }
-});
-
-var Messages = Backbone.Collection.extend({
-    model: Message,
-    refreshFromServer : function(options) {
-        return Backbone.ajaxSync('read', this, options);
-    }
-});
-
-var MessagesGrid = Backbone.View.extend({
-    render: function(){
-        $(this.el).html('');
-        var self = this;
-        this.collection.forEach(function(message){
-            self.addOne(message);
-        }, this);
-    },
-    addOne: function (message) {
-        var messageView = new MessageView({ model: message});
-        $(this.el).append(messageView.render().el);
-    }
-});
-
-
-var InboxView = Backbone.View.extend({
-    summarytemplate: Handlebars.getTemplate("summary-tmpl"),
+var ThreadsView = Backbone.View.extend({
+    summaryTemplate: Handlebars.getTemplate("summary"),
     el: $("#mailapp"),
 
     initialize: function(){
@@ -397,7 +346,7 @@ var InboxView = Backbone.View.extend({
 
     renderSideMenu: function(){
         var currentlyactive = $('.active');
-        $("#sidemenu").html( this.summarytemplate({
+        $("#sidemenu").html( this.summaryTemplate({
             'inbox': this.collection.othercounts('inbox'),
             'primary': this.collection.categorycounts('primary'),
             'social':this.collection.categorycounts('social'),
@@ -437,52 +386,39 @@ var InboxView = Backbone.View.extend({
     }
 });
 
-var GridList = Backbone.Collection.extend({
-    model: Message,
-    url: '/threadslist',
-    localStorage: new Backbone.LocalStorage("messageList"),
+var Message = Backbone.Model.extend({
+});
 
-    //refreshFromServer : function(options) {
-    //    return Backbone.ajaxSync('read', this, options);
-    //},
-
-    showThread: function (threadid) {
-        window.self = this;
-        var request = $.ajax({
-            url: "/threadslist",
-            data: { "threadid" : threadid }
-        });
-        request.done(function( response ) {
-            var itemcount = response['currentMessageList'].length;
-            response['currentMessageList'].forEach(function (message, i){
-                var mailitem = new Thread({
-                    id: message.id,
-                    sender: message.sender,
-                    subject:message.subject,
-                    ordinal:message.ordinal,
-                    snippet: message.snippet + "...",
-                    mailbody: message.body,
-                    timestamp:message.timestamp,
-                    start:message.timestamp,
-                    read: message.read,
-                    promotions: message.promotions,
-                    social: message.social
-                });
-                window.self.add(mailitem);
-                //mailitem.save();
-                if (i == itemcount - 1){
-                    console.log("all done")
-                }
-            });
-        });
-        request.fail(function( jqXHR, textStatus ) {
-            console.log("Request failed: " + textStatus)
-        });
+var MessageView = Backbone.View.extend({
+    messageTemplate: Handlebars.getTemplate("message"),
+    render: function() {
+        $(this.el).html( this.messageTemplate(this.model.toJSON()) );
+        return this;
     }
 });
 
-var GridView = Backbone.View.extend({
-    emailreplytemplate: Handlebars.getTemplate("email-reply"),
+var MessageCollection = Backbone.Collection.extend({
+    model: Message,
+    refreshFromServer : function(options) {
+        return Backbone.ajaxSync('read', this, options);
+    }
+});
+
+var MessagesGridView = Backbone.View.extend({
+    render: function(){
+        var self = this;
+        this.collection.forEach(function(message){
+            self.addOne(message);
+        }, this);
+    },
+    addOne: function (message) {
+        var messageView = new MessageView({ model: message});
+        this.$el.append(messageView.render().el);
+    }
+});
+
+var MessagesTimelineView = Backbone.View.extend({
+    emailreplyTemplate: Handlebars.getTemplate("email-reply"),
 
     initialize: function () {
         this.render();
@@ -563,7 +499,7 @@ var GridView = Backbone.View.extend({
 
     //renderemailbody: function (props) {
     //    var currentid = props.item;
-    //    var emailbody = this.emailreplytemplate({'id': currentid});
+    //    var emailbody = this.emailreplyTemplate({'id': currentid});
     //    var overlay = document.getElementById('overlay');
     //    overlay.style.opacity = .7;
     //    $('body').append(emailbody);
@@ -586,7 +522,7 @@ var GridView = Backbone.View.extend({
             axis: 5
         },
         stack: true,
-        template: Handlebars.getTemplate("mail-plot"),
+        messageTemplate: Handlebars.getTemplate("message"),
         orientation: {
             axis: "top",
             item: "top"
@@ -598,21 +534,10 @@ var GridView = Backbone.View.extend({
     }
 });
 
-
 startapp = function () {
-    window.threadslist = new ThreadList(appInitialData);
-    window.currentInbox = new InboxView({collection: window.threadslist});
-    //window.threadslist.refreshFromServer({
-    //    success: function(freshData) {
-    //        window.threadslist.set(freshData['newcollection']);
-    //        window.currentInbox = new InboxView({collection: window.threadslist});
-    //    },
-    //    fail: function(error) {
-    //        console.log(error);
-    //    }
-    //});
+    window.threadcollection = new ThreadCollection(appInitialData);
+    window.threadsView = new ThreadsView({collection: window.threadcollection});
 };
-
 
 $( document ).ready(function() {
     startapp();

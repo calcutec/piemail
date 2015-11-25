@@ -4,7 +4,7 @@ Handlebars.getTemplate = function(name) {
 	if (Handlebars.templates === undefined || Handlebars.templates[name] === undefined) {
 		//console.log("template undefined");
 		$.ajax({
-			url : '/static/piemail/www/libs/templates/' + name + '.handlebars',
+			url : '/static/piemail/www/libs/handlebars/templates/' + name + '.handlebars',
 			success : function(data) {
 				//console.log("success compiling template");
 				if (Handlebars.templates === undefined) {

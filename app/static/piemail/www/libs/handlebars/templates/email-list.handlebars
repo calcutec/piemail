@@ -12,7 +12,7 @@
                 {{ else }}
                     <span style="float:left;width:20px;" class="star staricon nobookmark"> &nbsp; </span>
                 {{/if}}
-                <span class="sender">{{{sender}}}{{#if length}}({{length}}){{/if}}</span>
+                <span class="sender">{{{sender}}}{{#gt length 1}}({{length}}){{/gt}}</span>
                 <span class="timestamp">{{timestamp}}</span>
                 <span class="mail-subject">{{{subject}}}</span>
                 <span class="mail-snippet">{{{snippet}}}</span>

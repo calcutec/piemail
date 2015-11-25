@@ -32,7 +32,7 @@ def getcachedthreads():
 
 def rendercollection(newcollection):
     basedir = os.path.abspath(os.path.dirname(__file__))
-    templatedir = os.path.join(basedir, 'static/piemail/www/libs/templates/email-list.handlebars')
+    templatedir = os.path.join(basedir, 'static/piemail/www/libs/handlebars/templates/email-list.handlebars')
     source = open(templatedir, "r").read().decode('utf-8')
     template = compiler.compile(source)
     output = template(newcollection)
@@ -148,12 +148,11 @@ def parse_item(item, retrievebody=False):
     threaditems['receiveddate'] = getheaders(item[1], "Date")
     threaditems['subject'] = getheaders(item[1], "Subject")
     if retrievebody:
-        threaditems['body'] = getbody(item[1])
+        threaditems['mailbody'] = getbody(item[1])
     threaditems['rawtimestamp'] = item[1]['internalDate']
     threaditems['ordinal'] = item[0]
     if len(item) > 2:  # Threads with multiple messages
-        if item[2] > 1:
-            threaditems['length'] = item[2]
+        threaditems['length'] = item[2]
     cache.set(threaditems['id'], threaditems, timeout=300)  # Cache for 5 minutes
     parsedmessageset.append(threaditems)
 
