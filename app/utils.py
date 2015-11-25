@@ -43,7 +43,7 @@ def getcontext(http_auth=None, retrievebody=None):
     service = discovery.build('gmail', 'v1', http=http_auth)
     results = service.users().threads().list(userId='me', maxResults=100, fields="threads/id", q="in:inbox").execute()
     batch = service.new_batch_http_request(callback=processthreads)
-    cache.set('cachedmessagesetids', results['threads'], timeout=300)  # Cache for 5 minutes
+    # cache.set('cachedmessagesetids', results['threads'], timeout=300)  # Cache for 5 minutes
     for thread in results['threads']:
         batch.add(service.users().threads().get(userId='me', id=thread['id'], fields="messages/snippet, "
                                                                                      "messages/internalDate, "
@@ -153,7 +153,7 @@ def parse_item(item, retrievebody=False):
     threaditems['ordinal'] = item[0]
     if len(item) > 2:  # Threads with messages
         threaditems['length'] = item[2]
-    cache.set(threaditems['id'], threaditems, timeout=300)  # Cache for 5 minutes
+    # cache.set(threaditems['id'], threaditems, timeout=300)  # Cache for 5 minutes
     parsedmessageset.append(threaditems)
 
 
@@ -245,7 +245,7 @@ def inject_static_url():
 
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('404.html', error=error), 404
+    return render_template('404.html', error=error.description), 404
 
 
 @app.errorhandler(500)

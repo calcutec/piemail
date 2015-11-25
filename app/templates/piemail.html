@@ -57,6 +57,7 @@
 {#                    <li><a href="#" class="bttn icon folder">New Folder</a></li>#}
                 </ul>
                 <div id="summary">
+                    {% block content %}{% endblock %}
                     <ul class="grouped" id="sidemenu">&nbsp;</ul>
                 </div>
             </div>
@@ -66,7 +67,9 @@
                 {{ output|safe }}
             </section>
         </div>
-        <script>window.appInitialData={{ data|safe }};</script>
+        {% if data %}
+            <script>window.appInitialData={{ data|safe }};</script>
+        {% endif %}
         <script type=text/javascript>$SCRIPT_ROOT={{ host_url|tojson|safe }};</script>
         <script type="text/javascript" src="{{ local_static_url }}piemail/www/libs/jquery-2.1.4.min.js"></script>
         <script src="{{ local_static_url }}piemail/www/libs/json2.min.js"></script>
