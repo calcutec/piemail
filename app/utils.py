@@ -41,7 +41,7 @@ def rendercollection(newcollection):
 
 def getcontext(http_auth=None, retrievebody=None):
     service = discovery.build('gmail', 'v1', http=http_auth)
-    results = service.users().threads().list(userId='me', maxResults=50, fields="threads/id", q="in:inbox").execute()
+    results = service.users().threads().list(userId='me', maxResults=100, fields="threads/id", q="in:inbox").execute()
     batch = service.new_batch_http_request(callback=processthreads)
     # cache.set('cachedmessagesetids', results['threads'], timeout=300)  # Cache for 5 minutes
     for thread in results['threads']:
@@ -77,9 +77,9 @@ def getmessages(http_auth, threadid):
         batch.add(service.users().messages().get(userId='me', id=message['id']))
     batch.execute()
     for item in fullmessageset:
-        # m = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": True})
-        # m.start()
-        parse_item(item, retrievebody=True)
+        m = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": True})
+        m.start()
+
     response = dict()
     response['iserror'] = False
     response['savedsuccess'] = True
