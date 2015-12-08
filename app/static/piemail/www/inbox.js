@@ -142,7 +142,7 @@ var ThreadView = Backbone.View.extend({
         } else {
             this.$el.html('');
             this.$el.html(this.messagesHeaderTemplate());
-            if (this.model.get('length') > 1) {$('.showmessagestimeline').removeClass("hidden");};
+            if (this.model.get('length') > 1) {$('.showmessagestimeline').removeClass("hidden")}
             var messagesGridView = new MessagesGridView({
                 collection: this.model.messages,
                 el: this.el.getElementsByClassName("visualization")[0]
@@ -153,9 +153,9 @@ var ThreadView = Backbone.View.extend({
 
     showMailTimeLine: function(e) {
         e.preventDefault();
-        this.$el.find('.visualization').html('')
+        this.$el.find('.visualization').html('');
         this.$el.find('.showmessagestimeline').addClass("hidden");
-        var messagesTimelineView = new MessagesTimelineView({
+        new MessagesTimelineView({
             collection: this.model.messages,
             el:this.el
         });
