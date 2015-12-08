@@ -54,9 +54,9 @@ def getcontext(http_auth=None, retrievebody=None):
                                                                                      "messages/payload/headers"))
     batch.execute()
     for item in fullmessageset:
-        t = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": retrievebody})
-        t.start()
-        # parse_item(item, retrievebody)
+        # t = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": retrievebody})
+        # t.start()
+        parse_item(item, retrievebody)
     newcollection = deepcopy(parsedmessageset)
     fullmessageset[:] = []
     parsedmessageset[:] = []
@@ -77,9 +77,9 @@ def getmessages(http_auth, threadid):
         batch.add(service.users().messages().get(userId='me', id=message['id']))
     batch.execute()
     for item in fullmessageset:
-        m = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": True})
-        m.start()
-
+        # m = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": True})
+        # m.start()
+        parse_item(item, retrievebody=True)
     response = dict()
     response['iserror'] = False
     response['savedsuccess'] = True
