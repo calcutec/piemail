@@ -54,7 +54,7 @@ def getcontext(http_auth=None, retrievebody=None):
                                                                                      "messages/payload/headers"))
     batch.execute()
     for item in fullmessageset:
-        t = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody":retrievebody})
+        t = threading.Thread(target=parse_item, kwargs={"item": item, "retrievebody": retrievebody})
         t.start()
         # parse_item(item, retrievebody)
     newcollection = deepcopy(parsedmessageset)
