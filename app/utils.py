@@ -41,7 +41,7 @@ def rendercollection(newcollection):
 
 def getcontext(http_auth=None, retrievebody=None):
     service = discovery.build('gmail', 'v1', http=http_auth)
-    results = service.users().threads().list(userId='me', maxResults=100, fields="threads/id", q="in:inbox").execute()
+    results = service.users().threads().list(userId='me', maxResults=50, fields="threads/id", q="in:inbox").execute()
     batch = service.new_batch_http_request(callback=processthreads)
     # cache.set('cachedmessagesetids', results['threads'], timeout=300)  # Cache for 5 minutes
     for thread in results['threads']:
@@ -134,6 +134,7 @@ def parse_item(item, retrievebody=False):
         threaditems['inbox'] = False
     if 'INBOX' not in item[1]['labelIds'] and 'SENT' in item[1]['labelIds']:
         threaditems['category'] = 'sent'
+        threaditems['inbox'] = True
     threaditems['threadId'] = item[1]['threadId']
     if 'id' in item[1] and 'id' != '':
         threaditems['id'] = item[1]['id']

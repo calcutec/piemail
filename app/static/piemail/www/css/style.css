@@ -266,15 +266,16 @@ color: white;
 .emailwrapper {
     float: left;
     width: 100%;
-    margin-left: 5px;
     min-width: 320px;
     background:oldlace;
+    margin-bottom: 3px;
 }
 
-#fullbody-wrap{
-float:left;
-margin-left:8px;
-background:snow;
+#fullbody-wrap {
+    float: left;
+    margin: 1rem;
+    background: snow;
+    width: 95%;
 }
 
 

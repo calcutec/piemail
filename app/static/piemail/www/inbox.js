@@ -37,11 +37,7 @@ var Thread = Backbone.Model.extend( {
     initialize: function() {
         this.messages = new MessageCollection;
         this.messages.url = apiUrl('messages', this.id);
-        this.messages.on("reset", this.doStuff);
-    },
-
-    doStuff: function() {
-      console.log('messagecollection has been reset');
+        //this.messages.on("reset", this.doStuff);
     },
 
     move: function(value){
@@ -441,14 +437,6 @@ var MessagesTimelineView = Backbone.View.extend({
         $('body').append('<div id="overlay"></div>');
     },
 
-    //truncateTitle: function (title) {
-    //    var length = 25;
-    //    if (title.length > length) {
-    //        title = title.substring(0, length) + '...';
-    //    }
-    //    return title;
-    //},
-
     handleTimelineEvents: function (event) {
         if (typeof this.timeline === 'undefined') {
             console.log("Timeline not yet defined..");
@@ -497,14 +485,14 @@ var MessagesTimelineView = Backbone.View.extend({
         this.timeline.setWindow(previous2, previous)
     },
 
-    //renderemailbody: function (props) {
-    //    var currentid = props.item;
-    //    var emailbody = this.emailreplyTemplate({'id': currentid});
-    //    var overlay = document.getElementById('overlay');
-    //    overlay.style.opacity = .7;
-    //    $('body').append(emailbody);
-    //    $('#overlay, #emailreply').fadeIn(300);
-    //},
+    renderemailbody: function (props) {
+        var currentid = props.item;
+        var emailbody = this.emailreplyTemplate({'id': currentid});
+        var overlay = document.getElementById('overlay');
+        overlay.style.opacity = .7;
+        $('body').append(emailbody);
+        $('#overlay, #emailreply').fadeIn(300);
+    },
 
     timelineoptions: {
         showCurrentTime: true,
